@@ -132,15 +132,6 @@
             font-size: 21px;
         }
 
-        .add-button {
-            width: 30px;
-            height: 32px;
-            flex-shrink: 0;
-            border-radius: 8px;
-            background: #f1e5d6;
-            font-size: 22px;
-        }
-
         .center {
             display: flex;
             flex-direction: column;
@@ -155,6 +146,8 @@
             color: #8a6a58;
             font-size: 14px;
         }
+
+        /* Область бургера */
 
         .burger {
             position: relative;
@@ -183,6 +176,62 @@
             justify-content: center;
             font-size: 55px;
         }
+
+        /* Каталог ингредиентов */
+
+        .available-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            align-content: start;
+        }
+
+        .available-list {
+            height: 420px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .ingredient-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            width: 100%;
+            min-width: 0;
+            min-height: 82px;
+            padding: 7px;
+            border: 1px solid #eadbca;
+            border-radius: 12px;
+            background: #fffdf9;
+            transition: background 0.15s, transform 0.15s;
+        }
+
+        .ingredient-card:hover {
+            background: #f1e5d6;
+            transform: translateY(-2px);
+        }
+
+        .ingredient-card:active {
+            transform: scale(0.96);
+        }
+
+        .ingredient-card img {
+            display: block;
+            width: 100%;
+            height: 58px;
+            object-fit: contain;
+        }
+
+        .ingredient-card .fallback {
+            height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Соусы */
 
         .sauces {
             width: 100%;
@@ -256,7 +305,8 @@
                 grid-column: 2;
             }
 
-            .ingredient-list {
+            .ingredient-list,
+            .available-list {
                 height: 350px;
             }
         }
@@ -289,7 +339,8 @@
                 height: min(300px, 85vw);
             }
 
-            .ingredient-list {
+            .ingredient-list,
+            .available-list {
                 height: 280px;
             }
         }
@@ -303,12 +354,14 @@
     <div class="layout">
 
         <!-- Добавленные ингредиенты -->
+
         <section class="panel left-panel">
             <h2>Твой бургер</h2>
             <div class="ingredient-list" id="added-list"></div>
         </section>
 
         <!-- Бургер по центру -->
+
         <main class="center">
             <p class="subtitle">
                 Добавляй ингредиенты и создавай свой вкус
@@ -321,16 +374,21 @@
             </button>
 
             <!-- Соусы -->
+
             <section class="panel sauces">
                 <h2>Выбери соус</h2>
                 <div class="sauce-list" id="sauce-list"></div>
             </section>
         </main>
 
-        <!-- Доступные ингредиенты -->
+        <!-- Каталог ингредиентов -->
+
         <section class="panel right-panel">
             <h2>Ингредиенты</h2>
-            <div class="ingredient-list" id="available-list"></div>
+
+            <div class="available-list">
+                <div class="available-grid" id="available-list"></div>
+            </div>
         </section>
 
     </div>
@@ -429,7 +487,8 @@
             }
         ];
 
-        // Массив хранится снизу вверх
+        // Порядок слоёв: снизу вверх
+
         let burgerLayers = [
             { ...ingredients[1], uid: 1 },
             { ...ingredients[2], uid: 2 },
@@ -438,7 +497,8 @@
 
         let nextId = 4;
 
-        // Картинка ингредиента в списке
+        // Создание картинки для списка добавленных ингредиентов
+
         function makeImage(file, emoji) {
             const thumb = document.createElement("div");
             thumb.className = "thumb";
@@ -461,37 +521,74 @@
             return thumb;
         }
 
-        // Отрисовка бургера
+        // Создание карточки ингредиента в каталоге
+
+        function makeIngredientCard(item) {
+            const button = document.createElement("button");
+            button.className = "ingredient-card";
+            button.title = "Добавить: " + item.name;
+            button.setAttribute("aria-label", "Добавить " + item.name);
+
+            const img = document.createElement("img");
+            img.src = item.file;
+            img.alt = item.name;
+
+            const fallback = document.createElement("span");
+            fallback.className = "fallback";
+            fallback.textContent = item.emoji;
+            fallback.style.display = "none";
+
+            img.onerror = function () {
+                img.style.display = "none";
+                fallback.style.display = "flex";
+            };
+
+            button.appendChild(img);
+            button.appendChild(fallback);
+
+            button.onclick = () => addIngredient(item);
+
+            return button;
+        }
+
+        // Отрисовка бургера с отдельной высотой каждого слоя
+
         function renderBurger() {
             const burger = document.getElementById("burger");
             burger.innerHTML = "";
 
             burgerLayers.forEach((item, index) => {
+                const layer = document.createElement(
+                    item.type === "sauce" ? "div" : "img"
+                );
+
                 if (item.type === "sauce") {
-                    const sauce = document.createElement("div");
-                    sauce.className = "sauce-layer";
-                    sauce.style.zIndex = index + 1;
-                    sauce.style.color = item.color;
-                    sauce.textContent = "〰";
-
-                    burger.appendChild(sauce);
+                    layer.className = "sauce-layer";
+                    layer.style.color = item.color;
+                    layer.textContent = "〰";
                 } else {
-                    const img = document.createElement("img");
-                    img.className = "burger-layer";
-                    img.src = item.file;
-                    img.alt = item.name;
-                    img.style.zIndex = index + 1;
+                    layer.className = "burger-layer";
+                    layer.src = item.file;
+                    layer.alt = item.name;
 
-                    img.onerror = function () {
-                        img.style.display = "none";
+                    layer.onerror = function () {
+                        layer.style.display = "none";
                     };
-
-                    burger.appendChild(img);
                 }
+
+                // Каждый следующий слой располагается выше предыдущего.
+                // Слои массива идут от нижнего к верхнему.
+
+                layer.style.zIndex = index + 1;
+                layer.style.transform =
+                    "translateY(-" + (index * 12) + "px)";
+
+                burger.appendChild(layer);
             });
         }
 
-        // Список добавленных ингредиентов
+        // Отрисовка добавленных ингредиентов
+
         function renderAdded() {
             const list = document.getElementById("added-list");
             list.innerHTML = "";
@@ -502,7 +599,8 @@
                 return;
             }
 
-            // Верхние слои отображаются первыми
+            // Верхний слой показывается первым в списке
+
             [...burgerLayers].reverse().forEach(item => {
                 const index = burgerLayers.findIndex(
                     layer => layer.uid === item.uid
@@ -518,6 +616,7 @@
                 const name = document.createElement("span");
                 name.className = "ingredient-name";
                 name.textContent = item.name;
+
                 row.appendChild(name);
 
                 const controls = document.createElement("div");
@@ -539,6 +638,7 @@
 
                 controls.appendChild(up);
                 controls.appendChild(down);
+
                 row.appendChild(controls);
 
                 const remove = document.createElement("button");
@@ -546,40 +646,25 @@
                 remove.textContent = "×";
                 remove.title = "Убрать ингредиент";
                 remove.onclick = () => removeLayer(item.uid);
-                row.appendChild(remove);
 
+                row.appendChild(remove);
                 list.appendChild(row);
             });
         }
 
-        // Список доступных ингредиентов
+        // Отрисовка каталога ингредиентов
+
         function renderAvailable() {
             const list = document.getElementById("available-list");
             list.innerHTML = "";
 
             ingredients.forEach(item => {
-                const row = document.createElement("div");
-                row.className = "ingredient";
-
-                row.appendChild(makeImage(item.file, item.emoji));
-
-                const name = document.createElement("span");
-                name.className = "ingredient-name";
-                name.textContent = item.name;
-                row.appendChild(name);
-
-                const add = document.createElement("button");
-                add.className = "add-button";
-                add.textContent = "+";
-                add.title = "Добавить ингредиент";
-                add.onclick = () => addIngredient(item);
-
-                row.appendChild(add);
-                list.appendChild(row);
+                list.appendChild(makeIngredientCard(item));
             });
         }
 
-        // Список соусов
+        // Отрисовка соусов
+
         function renderSauces() {
             const list = document.getElementById("sauce-list");
             list.innerHTML = "";
@@ -598,11 +683,13 @@
                 );
 
                 button.onclick = () => addSauce(sauce);
+
                 list.appendChild(button);
             });
         }
 
         // Добавление ингредиента
+
         function addIngredient(item) {
             burgerLayers.push({
                 ...item,
@@ -613,6 +700,7 @@
         }
 
         // Добавление соуса
+
         function addSauce(sauce) {
             burgerLayers.push({
                 id: sauce.id,
@@ -626,7 +714,8 @@
             update();
         }
 
-        // Удаление слоя
+        // Удаление ингредиента
+
         function removeLayer(uid) {
             burgerLayers = burgerLayers.filter(
                 item => item.uid !== uid
@@ -636,6 +725,7 @@
         }
 
         // Перемещение слоя вверх или вниз
+
         function moveLayer(uid, direction) {
             const index = burgerLayers.findIndex(
                 item => item.uid === uid
@@ -652,13 +742,15 @@
             }
 
             const temp = burgerLayers[index];
+
             burgerLayers[index] = burgerLayers[newIndex];
             burgerLayers[newIndex] = temp;
 
             update();
         }
 
-        // Возврат к начальному бургеру
+        // Сброс бургера
+
         function resetBurger() {
             burgerLayers = [
                 { ...ingredients[1], uid: nextId++ },
@@ -670,12 +762,14 @@
         }
 
         // Обновление интерфейса
+
         function update() {
             renderBurger();
             renderAdded();
         }
 
         // Запуск сайта
+
         renderAvailable();
         renderSauces();
         update();
