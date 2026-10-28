@@ -118,6 +118,11 @@
             background: #e4c7a9;
         }
 
+        .small-button:disabled {
+            opacity: 0.35;
+            cursor: default;
+        }
+
         .remove-button {
             align-self: center;
             width: 25px;
@@ -297,15 +302,17 @@
 
     <div class="layout">
 
-        <!-- Левый список -->
+        <!-- Добавленные ингредиенты -->
         <section class="panel left-panel">
             <h2>Твой бургер</h2>
             <div class="ingredient-list" id="added-list"></div>
         </section>
 
-        <!-- Центральный бургер -->
+        <!-- Бургер по центру -->
         <main class="center">
-            <p class="subtitle">Добавляй ингредиенты и создавай свой вкус</p>
+            <p class="subtitle">
+                Добавляй ингредиенты и создавай свой вкус
+            </p>
 
             <div class="burger" id="burger"></div>
 
@@ -320,7 +327,7 @@
             </section>
         </main>
 
-        <!-- Правый список -->
+        <!-- Доступные ингредиенты -->
         <section class="panel right-panel">
             <h2>Ингредиенты</h2>
             <div class="ingredient-list" id="available-list"></div>
@@ -333,71 +340,96 @@
             {
                 id: "top-bun",
                 name: "Верхняя булочка",
-                file: "top-bun.png",
+                file: "images/top-bun.png",
                 emoji: "🍞",
                 base: true
             },
             {
                 id: "bottom-bun",
                 name: "Нижняя булочка",
-                file: "bottom-bun.png",
+                file: "images/bottom-bun.png",
                 emoji: "🍞",
                 base: true
             },
             {
                 id: "patty",
                 name: "Котлета",
-                file: "patty.png",
+                file: "images/patty.png",
                 emoji: "🍖",
                 base: true
             },
             {
                 id: "cheese",
                 name: "Сыр",
-                file: "cheese.png",
+                file: "images/cheese.png",
                 emoji: "🧀"
             },
             {
                 id: "lettuce",
                 name: "Салат",
-                file: "lettuce.png",
+                file: "images/lettuce.png",
                 emoji: "🥬"
             },
             {
                 id: "tomato",
                 name: "Помидор",
-                file: "tomato.png",
+                file: "images/tomato.png",
                 emoji: "🍅"
             },
             {
                 id: "onion",
                 name: "Лук",
-                file: "onion.png",
+                file: "images/onion.png",
                 emoji: "🧅"
             },
             {
                 id: "pickle",
                 name: "Огурец",
-                file: "pickle.png",
+                file: "images/pickle.png",
                 emoji: "🥒"
             },
             {
                 id: "bacon",
                 name: "Бекон",
-                file: "bacon.png",
+                file: "images/bacon.png",
                 emoji: "🥓"
             }
         ];
 
         const sauces = [
-            { id: "ketchup", name: "Кетчуп", emoji: "🍅", color: "#c94c35" },
-            { id: "mayo", name: "Майонез", emoji: "🥣", color: "#f4e4bd" },
-            { id: "mustard", name: "Горчица", emoji: "🟡", color: "#e5b62c" },
-            { id: "bbq", name: "Барбекю", emoji: "🥣", color: "#743b27" },
-            { id: "chili", name: "Чили", emoji: "🌶️", color: "#b92e27" }
+            {
+                id: "ketchup",
+                name: "Кетчуп",
+                emoji: "🍅",
+                color: "#c94c35"
+            },
+            {
+                id: "mayo",
+                name: "Майонез",
+                emoji: "🥣",
+                color: "#f4e4bd"
+            },
+            {
+                id: "mustard",
+                name: "Горчица",
+                emoji: "🟡",
+                color: "#e5b62c"
+            },
+            {
+                id: "bbq",
+                name: "Барбекю",
+                emoji: "🥣",
+                color: "#743b27"
+            },
+            {
+                id: "chili",
+                name: "Чили",
+                emoji: "🌶️",
+                color: "#b92e27"
+            }
         ];
 
-        // Порядок массива: снизу вверх
+        // Массив хранится снизу вверх
         let burgerLayers = [
             { ...ingredients[1], uid: 1 },
             { ...ingredients[2], uid: 2 },
@@ -406,6 +438,7 @@
 
         let nextId = 4;
 
+        // Картинка ингредиента в списке
         function makeImage(file, emoji) {
             const thumb = document.createElement("div");
             thumb.className = "thumb";
@@ -424,9 +457,11 @@
             };
 
             thumb.appendChild(img);
+
             return thumb;
         }
 
+        // Отрисовка бургера
         function renderBurger() {
             const burger = document.getElementById("burger");
             burger.innerHTML = "";
@@ -438,8 +473,7 @@
                     sauce.style.zIndex = index + 1;
                     sauce.style.color = item.color;
                     sauce.textContent = "〰";
-                    sauce.style.textShadow =
-                        "0 0 2px " + item.color;
+
                     burger.appendChild(sauce);
                 } else {
                     const img = document.createElement("img");
@@ -447,14 +481,17 @@
                     img.src = item.file;
                     img.alt = item.name;
                     img.style.zIndex = index + 1;
+
                     img.onerror = function () {
                         img.style.display = "none";
                     };
+
                     burger.appendChild(img);
                 }
             });
         }
 
+        // Список добавленных ингредиентов
         function renderAdded() {
             const list = document.getElementById("added-list");
             list.innerHTML = "";
@@ -465,8 +502,8 @@
                 return;
             }
 
-            // Сверху показываем самый верхний слой
-            [...burgerLayers].reverse().forEach((item) => {
+            // Верхние слои отображаются первыми
+            [...burgerLayers].reverse().forEach(item => {
                 const index = burgerLayers.findIndex(
                     layer => layer.uid === item.uid
                 );
@@ -474,10 +511,9 @@
                 const row = document.createElement("div");
                 row.className = "ingredient";
 
-                row.appendChild(makeImage(
-                    item.file || "",
-                    item.emoji || "🥣"
-                ));
+                row.appendChild(
+                    makeImage(item.file || "", item.emoji || "🥣")
+                );
 
                 const name = document.createElement("span");
                 name.className = "ingredient-name";
@@ -516,58 +552,34 @@
             });
         }
 
+        // Список доступных ингредиентов
         function renderAvailable() {
             const list = document.getElementById("available-list");
             list.innerHTML = "";
 
-            ingredients
-                .filter(item => !item.base)
-                .forEach(item => {
-                    const row = document.createElement("div");
-                    row.className = "ingredient";
+            ingredients.forEach(item => {
+                const row = document.createElement("div");
+                row.className = "ingredient";
 
-                    row.appendChild(makeImage(item.file, item.emoji));
+                row.appendChild(makeImage(item.file, item.emoji));
 
-                    const name = document.createElement("span");
-                    name.className = "ingredient-name";
-                    name.textContent = item.name;
-                    row.appendChild(name);
+                const name = document.createElement("span");
+                name.className = "ingredient-name";
+                name.textContent = item.name;
+                row.appendChild(name);
 
-                    const add = document.createElement("button");
-                    add.className = "add-button";
-                    add.textContent = "+";
-                    add.title = "Добавить ингредиент";
-                    add.onclick = () => addIngredient(item);
+                const add = document.createElement("button");
+                add.className = "add-button";
+                add.textContent = "+";
+                add.title = "Добавить ингредиент";
+                add.onclick = () => addIngredient(item);
 
-                    row.appendChild(add);
-                    list.appendChild(row);
-                });
-
-            // Базовые слои можно добавлять повторно
-            ingredients
-                .filter(item => item.base)
-                .forEach(item => {
-                    const row = document.createElement("div");
-                    row.className = "ingredient";
-
-                    row.appendChild(makeImage(item.file, item.emoji));
-
-                    const name = document.createElement("span");
-                    name.className = "ingredient-name";
-                    name.textContent = item.name;
-                    row.appendChild(name);
-
-                    const add = document.createElement("button");
-                    add.className = "add-button";
-                    add.textContent = "+";
-                    add.title = "Добавить ещё один слой";
-                    add.onclick = () => addIngredient(item);
-
-                    row.appendChild(add);
-                    list.appendChild(row);
-                });
+                row.appendChild(add);
+                list.appendChild(row);
+            });
         }
 
+        // Список соусов
         function renderSauces() {
             const list = document.getElementById("sauce-list");
             list.innerHTML = "";
@@ -575,17 +587,22 @@
             sauces.forEach(sauce => {
                 const button = document.createElement("button");
                 button.className = "sauce-button";
-                button.innerHTML =
-                    '<span class="sauce-icon">' +
-                    sauce.emoji +
-                    '</span>' +
-                    sauce.name;
+
+                const icon = document.createElement("span");
+                icon.className = "sauce-icon";
+                icon.textContent = sauce.emoji;
+
+                button.appendChild(icon);
+                button.appendChild(
+                    document.createTextNode(sauce.name)
+                );
 
                 button.onclick = () => addSauce(sauce);
                 list.appendChild(button);
             });
         }
 
+        // Добавление ингредиента
         function addIngredient(item) {
             burgerLayers.push({
                 ...item,
@@ -595,6 +612,7 @@
             update();
         }
 
+        // Добавление соуса
         function addSauce(sauce) {
             burgerLayers.push({
                 id: sauce.id,
@@ -608,13 +626,16 @@
             update();
         }
 
+        // Удаление слоя
         function removeLayer(uid) {
             burgerLayers = burgerLayers.filter(
                 item => item.uid !== uid
             );
+
             update();
         }
 
+        // Перемещение слоя вверх или вниз
         function moveLayer(uid, direction) {
             const index = burgerLayers.findIndex(
                 item => item.uid === uid
@@ -622,9 +643,11 @@
 
             const newIndex = index + direction;
 
-            if (index < 0 ||
+            if (
+                index < 0 ||
                 newIndex < 0 ||
-                newIndex >= burgerLayers.length) {
+                newIndex >= burgerLayers.length
+            ) {
                 return;
             }
 
@@ -635,6 +658,7 @@
             update();
         }
 
+        // Возврат к начальному бургеру
         function resetBurger() {
             burgerLayers = [
                 { ...ingredients[1], uid: nextId++ },
@@ -645,11 +669,13 @@
             update();
         }
 
+        // Обновление интерфейса
         function update() {
             renderBurger();
             renderAdded();
         }
 
+        // Запуск сайта
         renderAvailable();
         renderSauces();
         update();
