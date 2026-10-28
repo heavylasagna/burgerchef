@@ -4,53 +4,656 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Бургер</title>
+    <title>Собери бургер</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
-            height: 100vh;
+            min-height: 100vh;
+            padding: 25px;
+            font-family: Arial, sans-serif;
+            color: #49352d;
+            background: #f8f1e7;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 30px;
+            margin: 5px 0 25px;
+        }
+
+        h2 {
+            font-size: 19px;
+            margin: 0 0 15px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 280px minmax(300px, 1fr) 320px;
+            gap: 20px;
+            max-width: 1400px;
+            margin: auto;
+            align-items: start;
+        }
+
+        .panel {
+            background: #fffaf3;
+            border: 2px solid #e3d1bd;
+            border-radius: 18px;
+            padding: 15px;
+        }
+
+        .ingredient-list {
+            height: 420px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .ingredient {
             display: flex;
-            justify-content: center;
             align-items: center;
-            background: #f5f5f5;
+            gap: 8px;
+            min-height: 65px;
+            padding: 7px;
+            margin-bottom: 9px;
+            background: #fffdf9;
+            border: 1px solid #eadbca;
+            border-radius: 12px;
+        }
+
+        .thumb {
+            width: 55px;
+            height: 48px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .fallback {
+            font-size: 27px;
+        }
+
+        .ingredient-name {
+            flex: 1;
+            min-width: 0;
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        button {
+            font-family: inherit;
+            color: #49352d;
+            cursor: pointer;
+            border: none;
+        }
+
+        .small-button {
+            width: 27px;
+            height: 24px;
+            border-radius: 6px;
+            background: #f1e5d6;
+            font-size: 16px;
+        }
+
+        .small-button:hover,
+        .add-button:hover {
+            background: #e4c7a9;
+        }
+
+        .remove-button {
+            align-self: center;
+            width: 25px;
+            height: 30px;
+            background: transparent;
+            color: #a65c50;
+            font-size: 21px;
+        }
+
+        .add-button {
+            width: 30px;
+            height: 32px;
+            flex-shrink: 0;
+            border-radius: 8px;
+            background: #f1e5d6;
+            font-size: 22px;
+        }
+
+        .center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 15px;
+            min-width: 0;
+        }
+
+        .subtitle {
+            margin: 0 0 20px;
+            text-align: center;
+            color: #8a6a58;
+            font-size: 14px;
         }
 
         .burger {
             position: relative;
             width: 300px;
             height: 300px;
+            flex-shrink: 0;
         }
 
-        .burger img {
+        .burger-layer {
             position: absolute;
+            inset: 0;
             width: 100%;
             height: 100%;
             object-fit: contain;
+            pointer-events: none;
         }
 
-        .bottom-bun {
-            z-index: 1;
+        .sauce-layer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 55px;
         }
 
-        .patty {
-            z-index: 2;
+        .sauces {
+            width: 100%;
+            margin-top: 25px;
         }
 
-        .top-bun {
-            z-index: 3;
+        .sauce-list {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .sauce-button {
+            min-width: 0;
+            min-height: 80px;
+            padding: 8px 3px;
+            border: 1px solid #eadbca;
+            border-radius: 12px;
+            background: #fffdf9;
+            font-size: 12px;
+        }
+
+        .sauce-button:hover {
+            background: #f1e5d6;
+        }
+
+        .sauce-icon {
+            display: block;
+            font-size: 27px;
+            margin-bottom: 6px;
+        }
+
+        .reset-button {
+            margin-top: 15px;
+            padding: 11px 20px;
+            border-radius: 10px;
+            background: #8d6960;
+            color: white;
+        }
+
+        .reset-button:hover {
+            background: #715149;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 25px 5px;
+            color: #a18a7a;
+            font-size: 13px;
+        }
+
+        @media (max-width: 950px) {
+            body {
+                padding: 15px;
+            }
+
+            .layout {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            }
+
+            .center {
+                grid-column: 1 / -1;
+                grid-row: 1;
+            }
+
+            .left-panel {
+                grid-column: 1;
+            }
+
+            .right-panel {
+                grid-column: 2;
+            }
+
+            .ingredient-list {
+                height: 350px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .layout {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .center,
+            .left-panel,
+            .right-panel {
+                grid-column: 1;
+            }
+
+            .center {
+                grid-row: 1;
+            }
+
+            .left-panel {
+                grid-row: 2;
+            }
+
+            .right-panel {
+                grid-row: 3;
+            }
+
+            .burger {
+                width: min(300px, 85vw);
+                height: min(300px, 85vw);
+            }
+
+            .ingredient-list {
+                height: 280px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="burger">
-        <img src="images/bottom-bun.png" class="bottom-bun">
-        <img src="images/patty.png" class="patty">
-        <img src="images/top-bun.png" class="top-bun">
+    <h1>Собери свой бургер!</h1>
+
+    <div class="layout">
+
+        <!-- Левый список -->
+        <section class="panel left-panel">
+            <h2>Твой бургер</h2>
+            <div class="ingredient-list" id="added-list"></div>
+        </section>
+
+        <!-- Центральный бургер -->
+        <main class="center">
+            <p class="subtitle">Добавляй ингредиенты и создавай свой вкус</p>
+
+            <div class="burger" id="burger"></div>
+
+            <button class="reset-button" onclick="resetBurger()">
+                Начать заново
+            </button>
+
+            <!-- Соусы -->
+            <section class="panel sauces">
+                <h2>Выбери соус</h2>
+                <div class="sauce-list" id="sauce-list"></div>
+            </section>
+        </main>
+
+        <!-- Правый список -->
+        <section class="panel right-panel">
+            <h2>Ингредиенты</h2>
+            <div class="ingredient-list" id="available-list"></div>
+        </section>
+
     </div>
+
+    <script>
+        const ingredients = [
+            {
+                id: "top-bun",
+                name: "Верхняя булочка",
+                file: "top-bun.png",
+                emoji: "🍞",
+                base: true
+            },
+            {
+                id: "bottom-bun",
+                name: "Нижняя булочка",
+                file: "bottom-bun.png",
+                emoji: "🍞",
+                base: true
+            },
+            {
+                id: "patty",
+                name: "Котлета",
+                file: "patty.png",
+                emoji: "🍖",
+                base: true
+            },
+            {
+                id: "cheese",
+                name: "Сыр",
+                file: "cheese.png",
+                emoji: "🧀"
+            },
+            {
+                id: "lettuce",
+                name: "Салат",
+                file: "lettuce.png",
+                emoji: "🥬"
+            },
+            {
+                id: "tomato",
+                name: "Помидор",
+                file: "tomato.png",
+                emoji: "🍅"
+            },
+            {
+                id: "onion",
+                name: "Лук",
+                file: "onion.png",
+                emoji: "🧅"
+            },
+            {
+                id: "pickle",
+                name: "Огурец",
+                file: "pickle.png",
+                emoji: "🥒"
+            },
+            {
+                id: "bacon",
+                name: "Бекон",
+                file: "bacon.png",
+                emoji: "🥓"
+            }
+        ];
+
+        const sauces = [
+            { id: "ketchup", name: "Кетчуп", emoji: "🍅", color: "#c94c35" },
+            { id: "mayo", name: "Майонез", emoji: "🥣", color: "#f4e4bd" },
+            { id: "mustard", name: "Горчица", emoji: "🟡", color: "#e5b62c" },
+            { id: "bbq", name: "Барбекю", emoji: "🥣", color: "#743b27" },
+            { id: "chili", name: "Чили", emoji: "🌶️", color: "#b92e27" }
+        ];
+
+        // Порядок массива: снизу вверх
+        let burgerLayers = [
+            { ...ingredients[1], uid: 1 },
+            { ...ingredients[2], uid: 2 },
+            { ...ingredients[0], uid: 3 }
+        ];
+
+        let nextId = 4;
+
+        function makeImage(file, emoji) {
+            const thumb = document.createElement("div");
+            thumb.className = "thumb";
+
+            const fallback = document.createElement("span");
+            fallback.className = "fallback";
+            fallback.textContent = emoji;
+
+            const img = document.createElement("img");
+            img.src = file;
+            img.alt = "";
+
+            img.onerror = function () {
+                img.remove();
+                thumb.appendChild(fallback);
+            };
+
+            thumb.appendChild(img);
+            return thumb;
+        }
+
+        function renderBurger() {
+            const burger = document.getElementById("burger");
+            burger.innerHTML = "";
+
+            burgerLayers.forEach((item, index) => {
+                if (item.type === "sauce") {
+                    const sauce = document.createElement("div");
+                    sauce.className = "sauce-layer";
+                    sauce.style.zIndex = index + 1;
+                    sauce.style.color = item.color;
+                    sauce.textContent = "〰";
+                    sauce.style.textShadow =
+                        "0 0 2px " + item.color;
+                    burger.appendChild(sauce);
+                } else {
+                    const img = document.createElement("img");
+                    img.className = "burger-layer";
+                    img.src = item.file;
+                    img.alt = item.name;
+                    img.style.zIndex = index + 1;
+                    img.onerror = function () {
+                        img.style.display = "none";
+                    };
+                    burger.appendChild(img);
+                }
+            });
+        }
+
+        function renderAdded() {
+            const list = document.getElementById("added-list");
+            list.innerHTML = "";
+
+            if (burgerLayers.length === 0) {
+                list.innerHTML =
+                    '<div class="empty">Бургер пока пустой</div>';
+                return;
+            }
+
+            // Сверху показываем самый верхний слой
+            [...burgerLayers].reverse().forEach((item) => {
+                const index = burgerLayers.findIndex(
+                    layer => layer.uid === item.uid
+                );
+
+                const row = document.createElement("div");
+                row.className = "ingredient";
+
+                row.appendChild(makeImage(
+                    item.file || "",
+                    item.emoji || "🥣"
+                ));
+
+                const name = document.createElement("span");
+                name.className = "ingredient-name";
+                name.textContent = item.name;
+                row.appendChild(name);
+
+                const controls = document.createElement("div");
+                controls.className = "controls";
+
+                const up = document.createElement("button");
+                up.className = "small-button";
+                up.textContent = "↑";
+                up.title = "Передвинуть выше";
+                up.disabled = index === burgerLayers.length - 1;
+                up.onclick = () => moveLayer(item.uid, 1);
+
+                const down = document.createElement("button");
+                down.className = "small-button";
+                down.textContent = "↓";
+                down.title = "Передвинуть ниже";
+                down.disabled = index === 0;
+                down.onclick = () => moveLayer(item.uid, -1);
+
+                controls.appendChild(up);
+                controls.appendChild(down);
+                row.appendChild(controls);
+
+                const remove = document.createElement("button");
+                remove.className = "remove-button";
+                remove.textContent = "×";
+                remove.title = "Убрать ингредиент";
+                remove.onclick = () => removeLayer(item.uid);
+                row.appendChild(remove);
+
+                list.appendChild(row);
+            });
+        }
+
+        function renderAvailable() {
+            const list = document.getElementById("available-list");
+            list.innerHTML = "";
+
+            ingredients
+                .filter(item => !item.base)
+                .forEach(item => {
+                    const row = document.createElement("div");
+                    row.className = "ingredient";
+
+                    row.appendChild(makeImage(item.file, item.emoji));
+
+                    const name = document.createElement("span");
+                    name.className = "ingredient-name";
+                    name.textContent = item.name;
+                    row.appendChild(name);
+
+                    const add = document.createElement("button");
+                    add.className = "add-button";
+                    add.textContent = "+";
+                    add.title = "Добавить ингредиент";
+                    add.onclick = () => addIngredient(item);
+
+                    row.appendChild(add);
+                    list.appendChild(row);
+                });
+
+            // Базовые слои можно добавлять повторно
+            ingredients
+                .filter(item => item.base)
+                .forEach(item => {
+                    const row = document.createElement("div");
+                    row.className = "ingredient";
+
+                    row.appendChild(makeImage(item.file, item.emoji));
+
+                    const name = document.createElement("span");
+                    name.className = "ingredient-name";
+                    name.textContent = item.name;
+                    row.appendChild(name);
+
+                    const add = document.createElement("button");
+                    add.className = "add-button";
+                    add.textContent = "+";
+                    add.title = "Добавить ещё один слой";
+                    add.onclick = () => addIngredient(item);
+
+                    row.appendChild(add);
+                    list.appendChild(row);
+                });
+        }
+
+        function renderSauces() {
+            const list = document.getElementById("sauce-list");
+            list.innerHTML = "";
+
+            sauces.forEach(sauce => {
+                const button = document.createElement("button");
+                button.className = "sauce-button";
+                button.innerHTML =
+                    '<span class="sauce-icon">' +
+                    sauce.emoji +
+                    '</span>' +
+                    sauce.name;
+
+                button.onclick = () => addSauce(sauce);
+                list.appendChild(button);
+            });
+        }
+
+        function addIngredient(item) {
+            burgerLayers.push({
+                ...item,
+                uid: nextId++
+            });
+
+            update();
+        }
+
+        function addSauce(sauce) {
+            burgerLayers.push({
+                id: sauce.id,
+                name: sauce.name,
+                emoji: sauce.emoji,
+                color: sauce.color,
+                type: "sauce",
+                uid: nextId++
+            });
+
+            update();
+        }
+
+        function removeLayer(uid) {
+            burgerLayers = burgerLayers.filter(
+                item => item.uid !== uid
+            );
+            update();
+        }
+
+        function moveLayer(uid, direction) {
+            const index = burgerLayers.findIndex(
+                item => item.uid === uid
+            );
+
+            const newIndex = index + direction;
+
+            if (index < 0 ||
+                newIndex < 0 ||
+                newIndex >= burgerLayers.length) {
+                return;
+            }
+
+            const temp = burgerLayers[index];
+            burgerLayers[index] = burgerLayers[newIndex];
+            burgerLayers[newIndex] = temp;
+
+            update();
+        }
+
+        function resetBurger() {
+            burgerLayers = [
+                { ...ingredients[1], uid: nextId++ },
+                { ...ingredients[2], uid: nextId++ },
+                { ...ingredients[0], uid: nextId++ }
+            ];
+
+            update();
+        }
+
+        function update() {
+            renderBurger();
+            renderAdded();
+        }
+
+        renderAvailable();
+        renderSauces();
+        update();
+    </script>
 
 </body>
 </html>
-
