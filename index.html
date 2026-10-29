@@ -487,37 +487,41 @@
       color: #ffffff;
     }
 
-    /* Всплывающее уведомление о новой ачивке */
+    /* Всплывающее уведомление о новой ачивке (ПК: по центру и длиннее, Мобильные: слева) */
     .toast-container {
       position: fixed;
       top: 20px;
-      right: 20px;
+      left: 50%;
+      transform: translateX(-50%);
       z-index: 3000;
       display: flex;
       flex-direction: column;
       gap: 10px;
       pointer-events: none;
+      width: 450px;
+      max-width: 90vw;
     }
 
     .achievement-toast {
       background: #3e2723;
       color: #fdfbf7;
-      padding: 12px 18px;
+      padding: 14px 22px;
       border-radius: 14px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
       border: 1px solid #81c784;
       display: flex;
       align-items: center;
-      gap: 12px;
-      animation: toastAnim 3.5s forwards ease-in-out;
+      gap: 15px;
+      animation: toastAnimPC 3.5s forwards ease-in-out;
       pointer-events: auto;
+      width: 100%;
     }
 
-    @keyframes toastAnim {
-      0% { opacity: 0; transform: translateY(-20px) scale(0.9); }
+    @keyframes toastAnimPC {
+      0% { opacity: 0; transform: translateY(-20px) scale(0.95); }
       15% { opacity: 1; transform: translateY(0) scale(1); }
       85% { opacity: 1; transform: translateY(0) scale(1); }
-      100% { opacity: 0; transform: translateY(-20px) scale(0.9); }
+      100% { opacity: 0; transform: translateY(-20px) scale(0.95); }
     }
 
     .toggle-ui-btn {
@@ -525,6 +529,25 @@
     }
 
     @media (max-width: 900px) {
+      /* Для телефонов перемещаем тост влево */
+      .toast-container {
+        left: 20px;
+        transform: none;
+        width: auto;
+        max-width: calc(100vw - 40px);
+      }
+
+      .achievement-toast {
+        animation: toastAnimMobile 3.5s forwards ease-in-out;
+      }
+
+      @keyframes toastAnimMobile {
+        0% { opacity: 0; transform: translateX(-30px); }
+        15% { opacity: 1; transform: translateX(0); }
+        85% { opacity: 1; transform: translateX(0); }
+        100% { opacity: 0; transform: translateX(-30px); }
+      }
+
       .toggle-ui-btn {
         position: fixed;
         top: 15px;
@@ -694,8 +717,8 @@
       { id: 'mcPicklePounder', title: 'McPickle Pounder', desc: "You're probably the kind of person who would eat a pickle tiramisu", icon: '🥒', sound: SOUNDS.mcPicklePounder },
       { id: 'tomatonator', title: 'Tomatonator', desc: "If you don't like tomatoes why you even eating burgers", icon: '🍅', sound: SOUNDS.tomatonator },
       { id: 'saturnBurger', title: 'Saturn Burger', desc: 'Saturn has the most moons of all the planets in the solar system', icon: '🪐', sound: SOUNDS.saturnBurger },
-      { id: 'lilypad', title: 'Lilypad', desc: 'Almost vegan', icon: '🍃', sound: SOUNDS.lilypad },
-      { id: 'bustanator', title: 'Bustanator', desc: 'I know you love this burger', icon: '⚪', sound: SOUNDS.bustanator }
+      { id: 'lilypad', title: 'Lilypad', desc: 'Almost vegan', icon: '🥬', sound: SOUNDS.lilypad },
+      { id: 'bustanator', title: 'Bustanator', desc: 'I know you love this burger', icon: '💦', sound: SOUNDS.bustanator }
     ];
 
     // Загрузка ачивок из localStorage
@@ -727,10 +750,10 @@
       const toast = document.createElement('div');
       toast.className = 'achievement-toast';
       toast.innerHTML = `
-        <span style="font-size: 2rem;">${ach.icon}</span>
+        <span style="font-size: 2.2rem;">${ach.icon}</span>
         <div>
-          <h4 style="font-size: 0.85rem; font-weight: bold;">Achievement Unlocked!</h4>
-          <p style="font-size: 0.75rem;">${ach.title}</p>
+          <h4 style="font-size: 0.95rem; font-weight: bold;">Achievement Unlocked!</h4>
+          <p style="font-size: 0.8rem; opacity: 0.9;">${ach.title}</p>
         </div>
       `;
       container.appendChild(toast);
