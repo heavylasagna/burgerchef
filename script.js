@@ -251,7 +251,11 @@ function positionLayers() {
         element.style.bottom = currentBottom + "px";
 
         // Соседние слои немного перекрываются
-        const overlap = index === 0 ? 0 : height * 0.42;
+        let overlap = index === 0 ? 0 : height * 0.42;
+
+if (burgerLayers[index]?.type === "patty") {
+    overlap = height * 0.65;
+}
         currentBottom += height - overlap;
     });
 }
