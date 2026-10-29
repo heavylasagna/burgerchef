@@ -298,7 +298,7 @@
       object-fit: contain;
     }
 
-    /* ПК версия: нижняя панель с красивым градиентом БЕЗ backdrop-filter */
+    /* ПК версия: нижняя панель с градиентом БЕЗ backdrop-filter */
     .bottom-panel {
       grid-column: 1 / -1;
       grid-row: 2;
@@ -567,7 +567,12 @@
       ingridients: new Audio('audio/ingridients.mp3'),
       buttons: new Audio('audio/buttons.mp3'),
       squeeze: new Audio('audio/squeeze.mp3'),
-      cheeseburger: new Audio('audio/cheeseburger.mp3')
+      cheeseburger: new Audio('audio/cheeseburger.mp3'),
+      mcPicklePounder: new Audio('audio/mc-pickle-pounder.mp3'),
+      tomatonator: new Audio('audio/tomatonator.mp3'),
+      saturnBurger: new Audio('audio/saturn-burger.mp3'), // Новый звук
+      lilypad: new Audio('audio/lilypad.mp3'),             // Новый звук
+      bustanator: new Audio('audio/bustanator.mp3')        // Новый звук
     };
 
     function playSound(sound) {
@@ -659,13 +664,71 @@
       });
     }
 
-    function checkCheeseburgerCombo() {
-      if (currentBurger.length === 4 &&
-          currentBurger[0].id === 'bottom-bun' &&
-          currentBurger[1].id === 'beef-patty' &&
-          currentBurger[2].id === 'cheese' &&
-          currentBurger[3].id === 'top-bun') {
+    function checkSpecialCombos() {
+      if (currentBurger.length === 0) return;
+      const ids = currentBurger.map(i => i.id);
+
+      // 1. Чизбургер: bottom-bun -> beef-patty -> cheese -> top-bun
+      if (ids.length === 4 &&
+          ids[0] === 'bottom-bun' &&
+          ids[1] === 'beef-patty' &&
+          ids[2] === 'cheese' &&
+          ids[3] === 'top-bun') {
         playSound(SOUNDS.cheeseburger);
+      }
+
+      // 2. Mc Pickle Pounder: bottom-bun -> beef-patty -> cheese -> pickles -> pickles -> pickles -> top-bun
+      if (ids.length === 7 &&
+          ids[0] === 'bottom-bun' &&
+          ids[1] === 'beef-patty' &&
+          ids[2] === 'cheese' &&
+          ids[3] === 'pickles' &&
+          ids[4] === 'pickles' &&
+          ids[5] === 'pickles' &&
+          ids[6] === 'top-bun') {
+        playSound(SOUNDS.mcPicklePounder);
+      }
+
+      // 3. Tomatonator: bottom-bun -> beef-patty -> cheese -> tomato -> tomato -> tomato -> top-bun
+      if (ids.length === 7 &&
+          ids[0] === 'bottom-bun' &&
+          ids[1] === 'beef-patty' &&
+          ids[2] === 'cheese' &&
+          ids[3] === 'tomato' &&
+          ids[4] === 'tomato' &&
+          ids[5] === 'tomato' &&
+          ids[6] === 'top-bun') {
+        playSound(SOUNDS.tomatonator);
+      }
+
+      // 4. Saturn Burger: bottom-bun -> beef-patty -> white-onion -> top-bun
+      if (ids.length === 4 &&
+          ids[0] === 'bottom-bun' &&
+          ids[1] === 'beef-patty' &&
+          ids[2] === 'white-onion' &&
+          ids[3] === 'top-bun') {
+        playSound(SOUNDS.saturnBurger);
+      }
+
+      // 5. Lilypad: bottom-bun -> beef-patty -> cheese -> lettuce -> top-bun
+      if (ids.length === 5 &&
+          ids[0] === 'bottom-bun' &&
+          ids[1] === 'beef-patty' &&
+          ids[2] === 'cheese' &&
+          ids[3] === 'lettuce' &&
+          ids[4] === 'top-bun') {
+        playSound(SOUNDS.lilypad);
+      }
+
+      // 6. Bustanator: bottom-bun -> beef-patty -> mayo -> mayo -> mayo -> top-bun
+      if (ids.length === 6 &&
+          ids[0] === 'bottom-bun' &&
+          ids[1] === 'beef-patty' &&
+          ids[2] === 'mayo' &&
+          ids[3] === 'mayo' &&
+          ids[4] === 'mayo' &&
+          ids[5] === 'top-bun') {
+        playSound(SOUNDS.bustanator);
       }
     }
 
@@ -756,7 +819,7 @@
       }
       playSound(SOUNDS.ingridients);
       currentBurger.push({ ...item });
-      checkCheeseburgerCombo();
+      checkSpecialCombos();
       updateBurgerDisplay(true);
     }
 
@@ -767,6 +830,7 @@
       }
       playSound(SOUNDS.sauce);
       currentBurger.push({ ...sauce });
+      checkSpecialCombos(); // Добавлено на случай секретного бургера из соусов (Bustanator)
       updateBurgerDisplay(true);
     }
 
@@ -774,6 +838,7 @@
       if (isEating) return;
       playSound(SOUNDS.buttons);
       currentBurger.splice(index, 1);
+      checkSpecialCombos();
       updateBurgerDisplay(false);
     }
 
@@ -785,7 +850,7 @@
         const temp = currentBurger[index];
         currentBurger[index] = currentBurger[targetIndex];
         currentBurger[targetIndex] = temp;
-        checkCheeseburgerCombo();
+        checkSpecialCombos();
         updateBurgerDisplay(false);
       }
     }
