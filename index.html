@@ -56,7 +56,6 @@
       letter-spacing: 0.8px;
     }
 
-    /* Левая панель (Layers) */
     .left-panel {
       grid-column: 1;
       grid-row: 1;
@@ -133,7 +132,6 @@
       cursor: not-allowed;
     }
 
-    /* Центральная область */
     .center-stage {
       grid-column: 2;
       grid-row: 1;
@@ -184,6 +182,12 @@
       height: auto;
       max-width: 180px;
       position: relative;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Анимация прижатия бургера (Squeeze) */
+    .burger-layer-img.squeezed {
+      transform: translateY(var(--sq-offset, 12px)) scaleY(0.85) scaleX(1.05);
     }
 
     .burger-layer-img.new-layer {
@@ -241,7 +245,6 @@
       transform: translateY(0);
     }
 
-    /* Правая панель (Ingredients) */
     .right-panel {
       grid-column: 3;
       grid-row: 1;
@@ -292,7 +295,6 @@
       object-fit: contain;
     }
 
-    /* Нижняя панель */
     .bottom-panel {
       grid-column: 1 / -1;
       grid-row: 2;
@@ -349,6 +351,17 @@
       font-size: 0.9rem;
       cursor: pointer;
       transition: all 0.2s;
+    }
+
+    .btn-squeeze {
+      background: linear-gradient(135deg, #d97706, #b45309);
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3);
+    }
+
+    .btn-squeeze:hover {
+      background: linear-gradient(135deg, #b45309, #92400e);
+      transform: translateY(-1px);
     }
 
     .btn-eat {
@@ -410,6 +423,7 @@
     <div class="bottom-panel">
       <div class="sauces-group" id="saucesGroup"></div>
       <div class="action-group">
+        <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze ✊</button>
         <button class="btn-action btn-eat" id="eatBtn">Eat 😋</button>
         <button class="btn-action btn-reset" id="resetBtn">Reset 🗑️</button>
       </div>
@@ -443,6 +457,7 @@
     ];
 
     let isEating = false;
+    let isSqueezed = false;
 
     const burgerStack = document.getElementById('burgerStack');
     const layersList = document.getElementById('layersList');
@@ -515,7 +530,6 @@
             setTimeout(() => img.classList.remove('new-layer'), 400);
           }
 
-          // Определяем ингредиент прямо под текущим слоем
           const itemBelow = index > 0 ? currentBurger[index - 1] : null;
 
           if (index === 0) {
@@ -523,13 +537,20 @@
           } else if (item.id === 'lettuce') {
             img.style.marginBottom = '-60px';
           } else if (itemBelow && itemBelow.id === 'lettuce') {
-            // Любой ингредиент поверх салата опускается ниже (-55px)
             img.style.marginBottom = '-55px';
           } else {
             img.style.marginBottom = '-40px';
           }
 
           img.style.zIndex = index + 1;
+
+          // Рассчитываем и применяем динамическое смещение при нажатии Squeeze
+          if (isSqueezed && index > 0) {
+            const sqOffset = index * 8; // Слой выше прижимается сильнее
+            img.style.setProperty('--sq-offset', `${sqOffset}px`);
+            img.classList.add('squeezed');
+          }
+
           burgerStack.appendChild(img);
         }
       });
@@ -581,8 +602,17 @@
       }
     }
 
+    // Кнопка Squeeze (придавливание бургера)
+    document.getElementById('squeezeBtn').onclick = () => {
+      if (currentBurger.length <= 1 || isEating) return;
+      
+      isSqueezed = !isSqueezed;
+      updateBurgerDisplay(false);
+    };
+
     document.getElementById('resetBtn').onclick = () => {
       isEating = false;
+      isSqueezed = false;
       burgerStack.classList.remove('eating');
       currentBurger = [];
       updateBurgerDisplay(false);
@@ -622,6 +652,7 @@
       if (currentBurger.length === 0 || isEating) return;
 
       isEating = true;
+      isSqueezed = false;
       burgerStack.classList.add('eating');
       spawnCrumbs();
       renderIngredientsMenu();
