@@ -714,12 +714,20 @@
             img.style.marginBottom = '-10px';
           } else if (isSauce) {
             img.style.marginBottom = '-65px';
+          } else if (item.id === 'top-bun') {
+            img.style.marginBottom = '-42px'; // Опустили верхнюю булку ниже
+          } else if (item.id === 'cheese') {
+            img.style.marginBottom = '-65px'; // Опустили сыр ниже
+          } else if (item.id === 'tomato') {
+            img.style.marginBottom = '-60px'; // Опустили помидор ниже
+          } else if (item.id === 'red-onion' || item.id === 'white-onion') {
+            img.style.marginBottom = '-58px'; // Опустили оба вида лука ниже
           } else if (item.id === 'fried-egg') {
             img.style.marginBottom = '-58px';
+          } else if (item.id === 'fried-bacon') {
+            img.style.marginBottom = '-52px';
           } else if (item.id === 'lettuce') {
             img.style.marginBottom = '-72px';
-          } else if (item.id === 'cheese') {
-            img.style.marginBottom = '-65px';
           } else if (itemBelow && itemBelow.id === 'lettuce') {
             img.style.marginBottom = '-55px';
           } else {
