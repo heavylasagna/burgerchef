@@ -298,6 +298,7 @@
       object-fit: contain;
     }
 
+    /* ПК версия: нижняя панель в сетке grid */
     .bottom-panel {
       grid-column: 1 / -1;
       grid-row: 2;
@@ -469,6 +470,7 @@
         height: 180px;
       }
 
+      /* Мобильная версия: нижняя панель фиксируется в самом низу экрана */
       .bottom-panel {
         position: fixed;
         bottom: 0;
@@ -552,15 +554,15 @@
       <div class="panel-title" id="layersTitle">Layers (0/30)</div>
       <div class="layers-list" id="layersList"></div>
     </div>
-  </div>
 
-  <!-- 4. Нижняя панель -->
-  <div class="bottom-panel">
-    <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
-    <div class="action-group">
-      <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
-      <button class="btn-action btn-eat" id="eatBtn">Eat</button>
-      <button class="btn-action btn-reset" id="resetBtn">Reset</button>
+    <!-- 4. Нижняя панель (соусы на ПК + кнопки управления) -->
+    <div class="bottom-panel">
+      <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
+      <div class="action-group">
+        <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
+        <button class="btn-action btn-eat" id="eatBtn">Eat</button>
+        <button class="btn-action btn-reset" id="resetBtn">Reset</button>
+      </div>
     </div>
   </div>
 
@@ -571,7 +573,7 @@
       ingridients: new Audio('audio/ingridients.mp3'),
       buttons: new Audio('audio/buttons.mp3'),
       squeeze: new Audio('audio/squeeze.mp3'),
-      cheeseburger: new Audio('audio/cheeseburger.mp3') // Добавили звук чизбургера
+      cheeseburger: new Audio('audio/cheeseburger.mp3')
     };
 
     function playSound(sound) {
@@ -659,7 +661,6 @@
     }
 
     function checkCheeseburgerCombo() {
-      // Проверяем, ровно ли 4 слоя в точном порядке: bottom-bun -> beef-patty -> cheese -> top-bun
       if (currentBurger.length === 4 &&
           currentBurger[0].id === 'bottom-bun' &&
           currentBurger[1].id === 'beef-patty' &&
@@ -750,10 +751,7 @@
       }
       playSound(SOUNDS.ingridients);
       currentBurger.push({ ...item });
-      
-      // Проверяем комбинацию чизбургера сразу после добавления
       checkCheeseburgerCombo();
-
       updateBurgerDisplay(true);
     }
 
@@ -782,10 +780,7 @@
         const temp = currentBurger[index];
         currentBurger[index] = currentBurger[targetIndex];
         currentBurger[targetIndex] = temp;
-        
-        // Проверяем комбинацию также при изменении порядка слоев
         checkCheeseburgerCombo();
-
         updateBurgerDisplay(false);
       }
     }
