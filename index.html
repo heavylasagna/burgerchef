@@ -422,7 +422,7 @@
 
       .left-panel {
         order: 3;
-        max-height: 160px;
+        max-height: 150px;
         flex-shrink: 0;
       }
 
@@ -462,6 +462,7 @@
         display: none !important;
       }
 
+      /* Соусы теперь располагаются между ингредиентами и слоями (под меню ингредиентов) */
       .sauces-group.mobile-sauces {
         display: flex !important;
         order: 2.5;
@@ -469,11 +470,11 @@
         background: linear-gradient(145deg, rgba(253, 251, 247, 0.9), rgba(245, 239, 230, 0.8));
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
-        border-radius: 14px;
-        padding: 8px 12px;
-        gap: 8px;
+        border-radius: 12px;
+        padding: 6px 10px;
+        gap: 6px;
         overflow-x: auto;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         border: 1px solid rgba(255, 255, 255, 0.3);
         transition: all 0.3s ease;
       }
@@ -502,7 +503,7 @@
         text-align: center;
       }
 
-      /* При скрытии элементов только на мобильном бургер заметно опускается вниз */
+      /* При скрытии интерфейса на мобилке скрываются боковые панели и соусы */
       body.ui-hidden .left-panel,
       body.ui-hidden .right-panel,
       body.ui-hidden .sauces-group.mobile-sauces {
@@ -547,7 +548,7 @@
       <div class="layers-list" id="layersList"></div>
     </div>
 
-    <!-- Панель соусов для мобильных -->
+    <!-- Панель соусов для мобильных (находится между ингредиентами и слоями) -->
     <div class="sauces-group mobile-sauces" id="mobileSaucesGroup"></div>
 
     <div class="center-stage" id="centerStage">
