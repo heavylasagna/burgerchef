@@ -170,7 +170,6 @@
       position: relative;
     }
 
-    /* Слегка уменьшенное перекрытие слоев (на 15-20% свободнее) */
     .burger-layer-img {
       display: block;
       width: auto;
@@ -183,7 +182,8 @@
       animation: smoothDropIn 0.4s ease-out forwards;
     }
 
-    .layer-bottom-bun { margin-bottom: -40px; }
+    /* Нижняя булочка опущена еще чуть ниже */
+    .layer-bottom-bun { margin-bottom: -30px; }
     .layer-beef-patty { margin-bottom: -48px; }
     .layer-top-bun { margin-bottom: -52px; }
     .layer-default { margin-bottom: -44px; }
@@ -417,12 +417,12 @@
 
   <div class="app-container">
     <div class="panel left-panel">
-      <div class="panel-title" id="layersTitle">Слои (0/20)</div>
+      <div class="panel-title" id="layersTitle">Слои (0/10)</div>
       <div class="layers-list" id="layersList"></div>
     </div>
 
     <div class="center-stage" id="centerStage">
-      <div class="limit-warning" id="limitWarning">Максимум 20 ингредиентов!</div>
+      <div class="limit-warning" id="limitWarning">Максимум 10 ингредиентов!</div>
       <div class="burger-wrapper" id="burgerWrapper">
         <div class="burger-stack" id="burgerStack"></div>
       </div>
@@ -445,7 +445,7 @@
   </div>
 
   <script>
-    const MAX_INGREDIENTS = 20;
+    const MAX_INGREDIENTS = 10;
 
     const INGREDIENTS = [
       { id: 'top-bun', name: 'Верхняя булочка', image: 'images/top-bun.png' },
@@ -616,9 +616,9 @@
 
     function exitEatingMode() {
       isEatingMode = false;
+      burgerWrapper.innerHTML = '<div class="burger-stack" id="burgerStack"></div>';
       eatBtn.innerText = 'Съесть 😋';
       eatBtn.classList.remove('active-eating');
-      updateBurgerDisplay(false);
     }
 
     document.getElementById('resetBtn').onclick = () => {
@@ -627,7 +627,6 @@
       updateBurgerDisplay(false);
     };
 
-    // ПОЕДАНИЕ С ВЫРЕЗАНИЕМ КУСОЧКОВ БЕЗ ИСКАЖЕНИЯ ПРОПОРЦИЙ
     eatBtn.onclick = async () => {
       if (currentBurger.length === 0 || isEatingMode) return;
 
@@ -668,8 +667,7 @@
         </div>
       `;
 
-      // Расчет количества укусов до 70% площади (примерно 15-25 кликов в зависимости от высоты)
-      totalBitesNeeded = Math.max(8, currentBurger.length * 3);
+      totalBitesNeeded = Math.max(6, currentBurger.length * 2);
       currentBites = 0;
 
       const eatenWrapper = document.getElementById('eatenWrapper');
@@ -681,7 +679,6 @@
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        // Создаем вырез (укус) цветом фона
         const bite = document.createElement('div');
         bite.className = 'bite-mark';
         const size = Math.floor(Math.random() * 30) + 40;
@@ -695,11 +692,11 @@
 
         currentBites++;
 
-        // Если съели примерно 70% (достигли лимита укусов) — полностью убираем бургер
         if (currentBites >= totalBitesNeeded) {
           setTimeout(() => {
             currentBurger = [];
             exitEatingMode();
+            updateBurgerDisplay(false);
           }, 150);
         }
       };
