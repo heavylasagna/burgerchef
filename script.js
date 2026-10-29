@@ -30,7 +30,7 @@ const resetButton = document.getElementById("reset-button");
 
 // Настройки расположения слоёв
 const OVERLAP = 0.18;
-const BUN_TO_PATTY_OVERLAP = 0.42;
+const BUN_TO_PATTY_OVERLAP = 0.50;
 const ALPHA_THRESHOLD = 20;
 
 const imageBounds = new Map();
