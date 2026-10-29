@@ -24,7 +24,7 @@
 
     .app-container {
       display: grid;
-      grid-template-columns: 320px 1fr 320px;
+      grid-template-columns: 240px 1fr 240px;
       grid-template-rows: 1fr 110px;
       height: 100vh;
       width: 100vw;
@@ -43,7 +43,7 @@
     }
 
     .panel-title {
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 700;
       margin-bottom: 15px;
       text-align: center;
@@ -52,7 +52,7 @@
       letter-spacing: 0.8px;
     }
 
-    /* Левая панель */
+    /* Левая панель (слои) */
     .left-panel {
       grid-column: 1;
       grid-row: 1;
@@ -73,7 +73,7 @@
       align-items: center;
       justify-content: space-between;
       background: #f8fafc;
-      padding: 10px 12px;
+      padding: 8px 10px;
       border-radius: 12px;
       border: 1px solid #e2e8f0;
       transition: background 0.2s;
@@ -83,22 +83,10 @@
       background: #f1f5f9;
     }
 
-    .layer-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
     .layer-preview {
       width: 40px;
       height: 40px;
       object-fit: contain;
-    }
-
-    .layer-name {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #475569;
     }
 
     .layer-controls {
@@ -110,14 +98,14 @@
       background: #ffffff;
       border: 1px solid #cbd5e1;
       color: #64748b;
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       border-radius: 6px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: bold;
       transition: all 0.2s;
     }
@@ -182,7 +170,6 @@
       animation: smoothDropIn 0.4s ease-out forwards;
     }
 
-    /* Нижняя булочка опущена еще чуть ниже */
     .layer-bottom-bun { margin-bottom: -30px; }
     .layer-beef-patty { margin-bottom: -48px; }
     .layer-top-bun { margin-bottom: -52px; }
@@ -211,7 +198,7 @@
       display: block;
     }
 
-    /* Укус (вырезает кусочек цветом фона) */
+    /* Укус (вырезает кусочек цветом фона без искажений) */
     .bite-mark {
       position: absolute;
       background: #f4f6f8;
@@ -266,7 +253,7 @@
       transform: translateY(0);
     }
 
-    /* Правая панель */
+    /* Правая панель (меню выбора) */
     .right-panel {
       grid-column: 3;
       grid-row: 1;
@@ -280,16 +267,18 @@
       overflow-y: auto;
       flex: 1;
       padding-right: 5px;
+      align-items: center;
     }
 
     .ingredient-card {
       display: flex;
       align-items: center;
-      gap: 15px;
+      justify-content: center;
       background: #f8fafc;
       border: 1px solid #e2e8f0;
       border-radius: 14px;
-      padding: 12px;
+      padding: 10px;
+      width: 100%;
       cursor: pointer;
       transition: all 0.2s;
     }
@@ -302,22 +291,16 @@
     }
 
     .ingredient-card.disabled {
-      opacity: 0.5;
+      opacity: 0.4;
       cursor: not-allowed;
       transform: none !important;
       box-shadow: none !important;
     }
 
     .ingredient-card img {
-      width: 45px;
-      height: 45px;
+      width: 60px;
+      height: 60px;
       object-fit: contain;
-    }
-
-    .ingredient-card span {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: #334155;
     }
 
     /* Нижняя панель */
@@ -488,12 +471,9 @@
         if (currentBurger.length >= MAX_INGREDIENTS) {
           card.classList.add('disabled');
         }
-        card.innerHTML = `
-          <img src="${item.image}" alt="${item.name}">
-          <span>${item.name}</span>
-        `;
+        card.innerHTML = `<img src="${item.image}" alt="${item.name}">`;
         card.onclick = () => {
-          if (isEatingMode) exitEatingMode();
+          if (isEatingMode) return;
           addIngredient(item);
         };
         ingredientsMenu.appendChild(card);
@@ -506,7 +486,7 @@
         chip.className = 'sauce-chip';
         chip.innerText = sauce.name;
         chip.onclick = () => {
-          if (isEatingMode) exitEatingMode();
+          if (isEatingMode) return;
           addSauce(sauce);
         };
         saucesGroup.appendChild(chip);
@@ -525,7 +505,6 @@
         listItem.innerHTML = `
           <div class="layer-info">
             ${item.image ? `<img src="${item.image}" class="layer-preview">` : ''}
-            <span class="layer-name">${item.name}</span>
           </div>
           <div class="layer-controls">
             <button class="btn-control" onclick="moveLayer(${index}, 1)" ${index === currentBurger.length - 1 ? 'disabled' : ''}>▲</button>
