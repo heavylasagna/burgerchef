@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Burger Builder & Orders</title>
   
-  <!-- Иконка вкладки -->
   <link rel="icon" type="image/png" href="icon.png">
 
   <style>
@@ -582,7 +581,6 @@
   <button class="toggle-ui-btn" id="toggleUiBtn" title="Скрыть/показать окна">👁️</button>
   <div class="toast-container" id="toastContainer"></div>
 
-  <!-- Верхний виджет таймера и заказа (кликабельный) -->
   <div class="top-order-widget" id="topOrderWidget" title="Click to toggle opacity">
     <span id="orderStatusText">Next order in: 05:00</span>
   </div>
@@ -594,8 +592,8 @@
         <button class="close-modal" id="closeRecipesModal">✕</button>
       </div>
       <div class="recipe-tabs">
-        <div class="recipe-tab active" id="tabNormal" onclick="switchRecipeTab('normal')">🍔 Normal</div>
-        <div class="recipe-tab" id="tabSecret" onclick="switchRecipeTab('secret')">🔒 Secret</div>
+        <div class="recipe-tab active" id="tabNormal" onclick="switchRecipeTab('normal')">Normal</div>
+        <div class="recipe-tab" id="tabSecret" onclick="switchRecipeTab('secret')">Secret</div>
       </div>
       <div class="modal-body" id="recipesModalBody"></div>
     </div>
@@ -683,7 +681,6 @@
         if (!isMuted) playSound(SOUNDS.buttons);
       };
 
-      // Переключение полупрозрачности таймера заказов
       const topOrderWidget = document.getElementById('topOrderWidget');
       topOrderWidget.onclick = () => {
         topOrderWidget.classList.toggle('dimmed');
@@ -802,7 +799,6 @@
                 if (ITEM_IMAGES[id]) iconsHtml += `<img src="${ITEM_IMAGES[id]}" title="${id}">`;
               });
               card.innerHTML = `
-                <div style="font-size: 1.3rem; margin-right: 6px;">${ach.icon}</div>
                 <div class="recipe-info" style="flex:1;">
                   <h4>${ach.title}</h4>
                   <div class="recipe-visual">${iconsHtml}</div>
@@ -816,7 +812,6 @@
               card.appendChild(pinBtn);
             } else {
               card.innerHTML = `
-                <div style="font-size: 1.3rem; margin-right: 6px;">🔒</div>
                 <div class="recipe-info" style="flex:1;">
                   <h4>${ach.title}</h4>
                   <p style="font-size:0.75rem; color:#6d4c41;">Secret recipe locked...</p>
@@ -873,8 +868,7 @@
           item.className = 'achievement-item';
           item.style.opacity = isUnlocked ? '1' : '0.5';
           item.innerHTML = `
-            <div style="font-size: 1.5rem;">${isUnlocked ? ach.icon : '🔒'}</div>
-            <div class="recipe-info" style="flex:1; margin-left:10px;">
+            <div class="recipe-info" style="flex:1;">
               <h4>${ach.title}</h4>
               <p>${isUnlocked ? ach.desc : 'Secret locked'}</p>
             </div>
