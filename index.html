@@ -419,7 +419,6 @@
   <script>
     const MAX_INGREDIENTS = 15;
 
-    // В меню салат остался сразу под верхней булочкой
     const INGREDIENTS = [
       { id: 'top-bun', name: 'Top Bun', image: 'images/top-bun.png' },
       { id: 'lettuce', name: 'Lettuce', image: 'images/lettuce.png' },
@@ -437,10 +436,8 @@
       { id: 'bbq', name: '🟤 BBQ' }
     ];
 
-    // Стартовый бургер: салат опущен ближе к котлете
     let currentBurger = [
       { ...INGREDIENTS.find(item => item.id === 'bottom-bun') },
-      { ...INGREDIENTS.find(item => item.id === 'lettuce') },
       { ...INGREDIENTS.find(item => item.id === 'beef-patty') },
       { ...INGREDIENTS.find(item => item.id === 'top-bun') }
     ];
@@ -518,11 +515,12 @@
             setTimeout(() => img.classList.remove('new-layer'), 400);
           }
 
-          // Настройка глубокого прилегания салата на самом бургере
           if (index === 0) {
             img.style.marginBottom = '-10px';
           } else if (item.id === 'lettuce') {
-            img.style.marginBottom = '-68px';
+            img.style.marginBottom = '-60px'; // Изменено на -60px
+          } else if (item.id === 'top-bun') {
+            img.style.marginBottom = '-55px';
           } else {
             img.style.marginBottom = '-40px';
           }
