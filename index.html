@@ -298,7 +298,7 @@
       object-fit: contain;
     }
 
-    /* ПК версия: нижняя панель в сетке grid (убран проблемный backdrop-filter) */
+    /* ПК версия: нижняя панель с красивым градиентом БЕЗ backdrop-filter */
     .bottom-panel {
       grid-column: 1 / -1;
       grid-row: 2;
@@ -307,10 +307,10 @@
       justify-content: space-between;
       padding: 0 20px;
       z-index: 100;
-      background: #f5efe6;
+      background: linear-gradient(145deg, rgba(253, 251, 247, 0.92), rgba(245, 239, 230, 0.82));
       border-radius: 16px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-      border: 1px solid #e4d8c5;
+      border: 1px solid rgba(255, 255, 255, 0.4);
       transition: all 0.3s ease;
     }
 
@@ -322,7 +322,7 @@
     }
 
     .sauce-chip {
-      background: #fdfbf7;
+      background: #f5efe6;
       border: 1px solid #d7ccc8;
       padding: 6px 14px;
       border-radius: 20px;
@@ -384,8 +384,8 @@
         position: fixed;
         top: 15px;
         right: 15px;
-        background: #f5efe6;
-        border: 1px solid #e4d8c5;
+        background: linear-gradient(145deg, rgba(253, 251, 247, 0.92), rgba(245, 239, 230, 0.82));
+        border: 1px solid rgba(255, 255, 255, 0.4);
         color: #5d4037;
         width: 42px;
         height: 42px;
@@ -451,13 +451,13 @@
       .sauces-group.mobile-sauces {
         display: flex !important;
         order: 3;
-        background: #f5efe6;
+        background: linear-gradient(145deg, rgba(253, 251, 247, 0.92), rgba(245, 239, 230, 0.82));
         border-radius: 12px;
         padding: 8px 12px;
         gap: 8px;
         overflow-x: auto;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        border: 1px solid #e4d8c5;
+        border: 1px solid rgba(255, 255, 255, 0.4);
       }
 
       .left-panel {
@@ -465,7 +465,7 @@
         height: 180px;
       }
 
-      /* Мобильная версия: нижняя панель фиксируется в самом низу экрана */
+      /* Мобильная версия: нижняя панель с градиентом */
       .bottom-panel {
         position: fixed;
         bottom: 0;
@@ -476,9 +476,9 @@
         padding: 10px 15px;
         justify-content: center;
         border-radius: 16px 16px 0 0;
-        background: #f5efe6;
+        background: linear-gradient(145deg, rgba(253, 251, 247, 0.95), rgba(245, 239, 230, 0.88));
         box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
-        border-top: 1px solid #e4d8c5;
+        border-top: 1px solid rgba(255, 255, 255, 0.4);
         z-index: 1000;
       }
 
