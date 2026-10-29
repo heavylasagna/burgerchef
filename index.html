@@ -217,7 +217,6 @@
     }
     .limit-warning.show { opacity: 1; transform: translateY(0); }
 
-    /* Закрепленный рецепт на экране */
     .pinned-recipe-widget {
       position: absolute;
       top: 10px;
@@ -332,7 +331,6 @@
     .btn-recipes { background: linear-gradient(135deg, #0288d1, #01579b); color: #fff; }
     .btn-utility { background: linear-gradient(135deg, #455a64, #263238); color: #fff; }
 
-    /* Окно заказов */
     .order-popup {
       position: fixed;
       top: 20px;
@@ -361,7 +359,6 @@
     .order-popup h4 { color: #ffb300; font-size: 0.9rem; }
     .order-popup p { font-size: 0.95rem; font-weight: bold; text-align: center; }
 
-    /* Модальные окна */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -478,7 +475,6 @@
 
     .toggle-ui-btn { display: none; }
 
-    /* МОБИЛЬНАЯ АДАПТАЦИЯ */
     @media (max-width: 900px) {
       body { overflow: auto; }
       .app-container {
@@ -555,13 +551,11 @@
   <button class="toggle-ui-btn" id="toggleUiBtn" title="Скрыть/показать окна">👁️</button>
   <div class="toast-container" id="toastContainer"></div>
 
-  <!-- Всплывающий заказ -->
   <div class="order-popup" id="orderPopup">
     <h4>🔔 New Order!</h4>
     <p id="orderText">Burger Name</p>
   </div>
 
-  <!-- Окно рецептов -->
   <div class="modal-overlay" id="recipesModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -572,7 +566,6 @@
     </div>
   </div>
 
-  <!-- Окно ачивок -->
   <div class="modal-overlay" id="achievementsModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -598,22 +591,18 @@
       </div>
     </div>
 
-    <!-- 1. Панель ингредиентов -->
     <div class="panel right-panel">
       <div class="panel-title">Ingredients</div>
       <div class="ingredients-menu" id="ingredientsMenu"></div>
     </div>
 
-    <!-- 2. Панель соусов для мобилок -->
     <div class="sauces-group mobile-sauces" id="mobileSaucesGroup"></div>
 
-    <!-- 3. Панель слоев -->
     <div class="panel left-panel">
       <div class="panel-title" id="layersTitle">Layers (0/30)</div>
       <div class="layers-list" id="layersList"></div>
     </div>
 
-    <!-- 4. Нижняя панель -->
     <div class="bottom-panel">
       <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
       <div class="action-group">
@@ -635,13 +624,7 @@
       ingridients: new Audio('audio/ingridients.mp3'),
       buttons: new Audio('audio/buttons.mp3'),
       squeeze: new Audio('audio/squeeze.mp3'),
-      achievement: new Audio('audio/achievement.mp3'),
-      cheeseburger: new Audio('audio/cheeseburger.mp3'),
-      mcPicklePounder: new Audio('audio/mc-pickle-pounder.mp3'),
-      tomatonator: new Audio('audio/tomatonator.mp3'),
-      saturnBurger: new Audio('audio/saturn-burger.mp3'),
-      lilypad: new Audio('audio/lilypad.mp3'),
-      bustanator: new Audio('audio/bustanator.mp3')
+      achievement: new Audio('audio/achievement.mp3')
     };
 
     let isMuted = JSON.parse(localStorage.getItem('burger_is_muted')) || false;
@@ -662,22 +645,20 @@
       if (!isMuted) playSound(SOUNDS.buttons);
     };
 
-    // Обычные рецепты (известны всегда)
     const NORMAL_RECIPES = [
       { name: 'Simple Burger', recipe: 'Bottom Bun + Beef Patty + Top Bun' },
       { name: 'Egg & Bacon Deluxe', recipe: 'Bottom Bun + Beef Patty + Fried Egg + Fried Bacon + Top Bun' },
       { name: 'Mushroom Melt', recipe: 'Bottom Bun + Beef Patty + Champignons + Cheese + Top Bun' }
     ];
 
-    // Секретные рецепты (привязаны к ачивкам)
     const SECRET_ACHIEVEMENTS = [
-      { id: 'cheeseburger', title: 'Cheezburger', desc: 'Ideal Roblox burger', icon: '🧀', recipe: 'Bottom Bun + Beef Patty + Cheese + Top Bun', sound: SOUNDS.cheeseburger },
-      { id: 'mcPicklePounder', title: 'McPickle Pounder', desc: 'Pickle lover dream', icon: '🥒', recipe: 'Bottom Bun + Beef Patty + Cheese + 3x Pickles + Top Bun', sound: SOUNDS.mcPicklePounder },
-      { id: 'tomatonator', title: 'Tomatonator', desc: 'Tomato fanatic', icon: '🍅', recipe: 'Bottom Bun + Beef Patty + Cheese + 3x Tomato + Top Bun', sound: SOUNDS.tomatonator },
-      { id: 'saturnBurger', title: 'Saturn Burger', desc: 'Space flavor', icon: '🪐', recipe: 'Bottom Bun + Beef Patty + White Onion + Top Bun', sound: SOUNDS.saturnBurger },
-      { id: 'lilypad', title: 'Lilypad', desc: 'Almost vegan', icon: '🥬', recipe: 'Bottom Bun + Beef Patty + Cheese + Lettuce + Top Bun', sound: SOUNDS.lilypad },
-      { id: 'bustanator', title: 'Bustanator', desc: 'Mayo overload', icon: '💦', recipe: 'Bottom Bun + Beef Patty + 3x Mayo + Top Bun', sound: SOUNDS.bustanator },
-      { id: 'toothless', title: 'Toothless', desc: 'All sauces combined', icon: '🍼', recipe: 'Bottom Bun + All 5 Sauces + Top Bun', sound: null }
+      { id: 'cheeseburger', title: 'Cheezburger', desc: 'Ideal Roblox burger', icon: '🧀', recipe: 'Bottom Bun + Beef Patty + Cheese + Top Bun' },
+      { id: 'mcPicklePounder', title: 'McPickle Pounder', desc: 'Pickle lover dream', icon: '🥒', recipe: 'Bottom Bun + Beef Patty + Cheese + 3x Pickles + Top Bun' },
+      { id: 'tomatonator', title: 'Tomatonator', desc: 'Tomato fanatic', icon: '🍅', recipe: 'Bottom Bun + Beef Patty + Cheese + 3x Tomato + Top Bun' },
+      { id: 'saturnBurger', title: 'Saturn Burger', desc: 'Space flavor', icon: '🪐', recipe: 'Bottom Bun + Beef Patty + White Onion + Top Bun' },
+      { id: 'lilypad', title: 'Lilypad', desc: 'Almost vegan', icon: '🥬', recipe: 'Bottom Bun + Beef Patty + Cheese + Lettuce + Top Bun' },
+      { id: 'bustanator', title: 'Bustanator', desc: 'Mayo overload', icon: '💦', recipe: 'Bottom Bun + Beef Patty + 3x Mayo + Top Bun' },
+      { id: 'toothless', title: 'Toothless', desc: 'All sauces combined', icon: '🍼', recipe: 'Bottom Bun + All 5 Sauces + Top Bun' }
     ];
 
     let unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements')) || {};
@@ -689,7 +670,7 @@
         localStorage.setItem('unlocked_achievements', JSON.stringify(unlockedAchievements));
         const ach = SECRET_ACHIEVEMENTS.find(a => a.id === id);
         if (ach) {
-          playSound(ach.sound || SOUNDS.achievement);
+          playSound(SOUNDS.achievement);
           showToast(ach);
         }
       }
@@ -704,12 +685,10 @@
       setTimeout(() => toast.remove(), 3500);
     }
 
-    // Рендер модального окна рецептов
     function renderRecipesModal() {
       const body = document.getElementById('recipesModalBody');
       body.innerHTML = '';
 
-      // Секция обычных рецептов
       const normalTitle = document.createElement('div');
       normalTitle.className = 'recipe-section-title';
       normalTitle.innerText = '🍔 Normal Burgers (Known)';
@@ -722,12 +701,11 @@
         const pinBtn = document.createElement('button');
         pinBtn.className = `btn-pin ${pinnedRecipe === r.recipe ? 'pinned' : ''}`;
         pinBtn.innerText = pinnedRecipe === r.recipe ? 'Pinned' : '📌 Pin';
-        pinBtn.onclick = () => togglePin(r.name, r.recipe, pinBtn);
+        pinBtn.onclick = () => togglePin(r.name, r.recipe);
         card.appendChild(pinBtn);
         body.appendChild(card);
       });
 
-      // Секция секретных рецептов
       const secretTitle = document.createElement('div');
       secretTitle.className = 'recipe-section-title';
       secretTitle.innerText = '🔒 Secret Burgers (Unlock via achievements)';
@@ -748,14 +726,14 @@
           const pinBtn = document.createElement('button');
           pinBtn.className = `btn-pin ${pinnedRecipe === ach.recipe ? 'pinned' : ''}`;
           pinBtn.innerText = pinnedRecipe === ach.recipe ? 'Pinned' : '📌 Pin';
-          pinBtn.onclick = () => togglePin(ach.title, ach.recipe, pinBtn);
+          pinBtn.onclick = () => togglePin(ach.title, ach.recipe);
           card.appendChild(pinBtn);
         }
         body.appendChild(card);
       });
     }
 
-    function togglePin(title, recipe, btnElement) {
+    function togglePin(title, recipe) {
       if (pinnedRecipe === recipe) {
         pinnedRecipe = null;
         localStorage.removeItem('pinned_recipe');
@@ -802,7 +780,6 @@
       });
     }
 
-    // Управление модалками
     const recipesModal = document.getElementById('recipesModal');
     document.getElementById('openRecipesBtn').onclick = () => { playSound(SOUNDS.buttons); renderRecipesModal(); recipesModal.classList.add('open'); };
     document.getElementById('closeRecipesModal').onclick = () => { playSound(SOUNDS.buttons); recipesModal.classList.remove('open'); };
@@ -821,14 +798,18 @@
       }
     };
 
-    // Система заказов (вызов каждые 1-5 минут)
+    const toggleUiBtn = document.getElementById('toggleUiBtn');
+    toggleUiBtn.onclick = () => {
+      document.body.classList.toggle('ui-hidden');
+      toggleUiBtn.innerText = document.body.classList.contains('ui-hidden') ? '👁️‍🗨️' : '👁️';
+    };
+
     function scheduleNextOrder() {
-      const randomMinutes = Math.random() * (5 - 1) + 1; // от 1 до 5 минут
-      const delayMs = randomMinutes * 60 * 1000;
+      const randomMinutes = Math.random() * (5 - 1) + 1;
       setTimeout(() => {
         triggerRandomOrder();
         scheduleNextOrder();
-      }, delayMs);
+      }, randomMinutes * 60 * 1000);
     }
 
     function triggerRandomOrder() {
@@ -841,11 +822,8 @@
       popup.classList.add('show');
       playSound(SOUNDS.achievement);
 
-      setTimeout(() => {
-        popup.classList.remove('show');
-      }, 5000);
+      setTimeout(() => { popup.classList.remove('show'); }, 5000);
     }
-    // Запуск таймера заказов
     scheduleNextOrder();
 
     const MAX_INGREDIENTS = 30;
@@ -890,12 +868,6 @@
     const mobileSaucesGroup = document.getElementById('mobileSaucesGroup');
     const centerStage = document.getElementById('centerStage');
     const limitWarning = document.getElementById('limitWarning');
-    const toggleUiBtn = document.getElementById('toggleUiBtn');
-
-    toggleUiBtn.onclick = () => {
-      document.body.classList.toggle('ui-hidden');
-      toggleUiBtn.innerText = document.body.classList.contains('ui-hidden') ? '👁️‍🗨️' : '👁️';
-    };
 
     function renderIngredientsMenu() {
       ingredientsMenu.innerHTML = '';
@@ -948,180 +920,3 @@
       if (isSauce) return -60;
       if (item.id === 'top-bun') return -38;
       if (item.id === 'cheese') return -60;
-      if (item.id === 'fried-egg') return -52;
-      if (item.id === 'fried-bacon') return -48;
-      if (item.id === 'lettuce') return -65;
-      if (itemBelow && itemBelow.id === 'lettuce') return -50;
-      return -38;
-    }
-
-    function updateBurgerDisplay(isNewAdded = false) {
-      saveBurgerState();
-      layersTitle.innerText = `Layers (${currentBurger.length}/${MAX_INGREDIENTS})`;
-
-      layersList.innerHTML = '';
-      currentBurger.forEach((item, index) => {
-        const listItem = document.createElement('div');
-        listItem.className = 'layer-item';
-        listItem.innerHTML = `
-          <div class="layer-info">${item.image ? `<img src="${item.image}" class="layer-preview">` : ''}</div>
-          <div class="layer-controls">
-            <button class="btn-control" onclick="moveLayer(${index}, 1)" ${index === currentBurger.length - 1 || isEating ? 'disabled' : ''}>▲</button>
-            <button class="btn-control" onclick="moveLayer(${index}, -1)" ${index === 0 || isEating ? 'disabled' : ''}>▼</button>
-            <button class="btn-control delete" onclick="removeLayer(${index})" ${isEating ? 'disabled' : ''}>✕</button>
-          </div>
-        `;
-        layersList.appendChild(listItem);
-      });
-
-      burgerStack.innerHTML = '';
-      currentBurger.forEach((item, index) => {
-        if (item.image) {
-          const img = document.createElement('img');
-          img.src = item.image;
-          img.className = 'burger-layer-img';
-          if (isNewAdded && index === currentBurger.length - 1) {
-            img.classList.add('new-layer');
-            setTimeout(() => img.classList.remove('new-layer'), 350);
-          }
-          const itemBelow = index > 0 ? currentBurger[index - 1] : null;
-          img.style.marginBottom = `${getMarginBottomForLayer(item, itemBelow, index)}px`;
-          img.style.zIndex = index + 1;
-
-          if (isSqueezed && index > 0) {
-            img.style.setProperty('--sq-offset', `${index * 5}px`);
-            img.classList.add('squeezed');
-          }
-          burgerStack.appendChild(img);
-        }
-      });
-      renderIngredientsMenu();
-      setTimeout(() => { centerStage.scrollTop = centerStage.scrollHeight; }, 50);
-    }
-
-    function showLimitWarning() {
-      limitWarning.classList.add('show');
-      setTimeout(() => limitWarning.classList.remove('show'), 2000);
-    }
-
-    function addIngredient(item) {
-      if (currentBurger.length >= MAX_INGREDIENTS) { showLimitWarning(); return; }
-      playSound(SOUNDS.ingridients);
-      currentBurger.push({ ...item });
-      checkSpecialCombos();
-      updateBurgerDisplay(true);
-    }
-
-    function addSauce(sauce) {
-      if (currentBurger.length >= MAX_INGREDIENTS) { showLimitWarning(); return; }
-      playSound(SOUNDS.sauce);
-      currentBurger.push({ ...sauce });
-      checkSpecialCombos();
-      updateBurgerDisplay(true);
-    }
-
-    function removeLayer(index) {
-      if (isEating) return;
-      playSound(SOUNDS.buttons);
-      currentBurger.splice(index, 1);
-      checkSpecialCombos();
-      updateBurgerDisplay(false);
-    }
-
-    function moveLayer(index, direction) {
-      if (isEating) return;
-      const targetIndex = index + direction;
-      if (targetIndex >= 0 && targetIndex < currentBurger.length) {
-        playSound(SOUNDS.buttons);
-        const temp = currentBurger[index];
-        currentBurger[index] = currentBurger[targetIndex];
-        currentBurger[targetIndex] = temp;
-        checkSpecialCombos();
-        updateBurgerDisplay(false);
-      }
-    }
-
-    document.getElementById('squeezeBtn').onclick = () => {
-      if (currentBurger.length <= 1 || isEating) return;
-      playSound(SOUNDS.squeeze);
-      isSqueezed = !isSqueezed;
-      updateBurgerDisplay(false);
-    };
-
-    document.getElementById('resetBtn').onclick = () => {
-      playSound(SOUNDS.buttons);
-      isEating = false; isSqueezed = false;
-      burgerStack.classList.remove('eating');
-      currentBurger = [];
-      updateBurgerDisplay(false);
-    };
-
-    function spawnCrumbs() {
-      const colors = ['#e0a96d', '#8d6e63', '#d7ccc8', '#ffd54f', '#81c784'];
-      const rect = burgerStack.getBoundingClientRect();
-      const originX = rect.left + rect.width / 2;
-      const originY = rect.top + rect.height / 2;
-      for (let i = 0; i < 10; i++) {
-        const crumb = document.createElement('div');
-        crumb.className = 'crumb';
-        const size = Math.floor(Math.random() * 5) + 3;
-        crumb.style.width = `${size}px`; crumb.style.height = `${size}px`;
-        crumb.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        crumb.style.left = `${originX}px`; crumb.style.top = `${originY}px`;
-        crumb.style.setProperty('--dx', (Math.random() - 0.5) * 140 + 'px');
-        crumb.style.setProperty('--dy', (Math.random() - 0.5) * 140 + 'px');
-        crumb.style.setProperty('--rot', (Math.random() - 0.5) * 360 + 'deg');
-        document.body.appendChild(crumb);
-        setTimeout(() => crumb.remove(), 600);
-      }
-    }
-
-    document.getElementById('eatBtn').onclick = () => {
-      if (currentBurger.length === 0 || isEating) return;
-      playSound(SOUNDS.eating);
-      isEating = true; isSqueezed = false;
-      burgerStack.classList.add('eating');
-      spawnCrumbs();
-      renderIngredientsMenu();
-      setTimeout(() => {
-        currentBurger = [];
-        burgerStack.classList.remove('eating');
-        isEating = false;
-        updateBurgerDisplay(false);
-      }, 2000);
-    };
-
-    document.getElementById('downloadPngBtn').onclick = async () => {
-      if (currentBurger.length === 0) { alert('Build a burger first!'); return; }
-      playSound(SOUNDS.buttons);
-      const imagesInStack = burgerStack.querySelectorAll('.burger-layer-img');
-      if (imagesInStack.length === 0) return;
-
-      const loadedImages = await Promise.all(currentBurger.map(item => new Promise((resolve) => {
-        const img = new Image(); img.src = item.image;
-        img.onload = () => resolve(img); img.onerror = () => resolve(null);
-      })));
-
-      const layerRects = Array.from(imagesInStack).map(imgEl => imgEl.getBoundingClientRect());
-      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-      layerRects.forEach(rect => {
-        if (rect.left < minX) minX = rect.left;
-        if (rect.top < minY) minY = rect.top;
-        if (rect.right > maxX) maxX = rect.right;
-        if (rect.bottom > maxY) maxY = rect.bottom;
-      });
-
-      const scale = 2, padding = 40;
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      canvas.width = ((maxX - minX) + padding * 2) * scale;
-      canvas.height = ((maxY - minY) + padding * 2) * scale;
-      ctx.scale(scale, scale);
-
-      loadedImages.forEach((img, index) => {
-        if (!img) return;
-        const rect = layerRects[index];
-        ctx.drawImage(img, (rect.left - minX) + padding, (rect.top - minY) + padding, rect.width, rect.height);
-      });
-
-      const link
