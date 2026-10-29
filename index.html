@@ -10,6 +10,7 @@
       margin: 0;
       padding: 0;
       user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
@@ -17,6 +18,7 @@
       background: radial-gradient(circle at 50% 30%, #3e2a1d, #1a100a);
       color: #3e2723;
       height: 100vh;
+      height: 100dvh;
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -27,6 +29,7 @@
       grid-template-columns: 240px 1fr 240px;
       grid-template-rows: 1fr 85px;
       height: 100vh;
+      height: 100dvh;
       width: 100vw;
       gap: 15px;
       padding: 15px;
@@ -103,14 +106,14 @@
       background: #ffffff;
       border: 1px solid #d7ccc8;
       color: #5d4037;
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
       border-radius: 6px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       font-weight: bold;
       transition: all 0.2s;
     }
@@ -289,8 +292,8 @@
     }
 
     .ingredient-card img {
-      width: 55px;
-      height: 55px;
+      width: 50px;
+      height: 50px;
       object-fit: contain;
     }
 
@@ -315,12 +318,13 @@
       align-items: center;
       gap: 8px;
       overflow-x: auto;
+      max-width: 50%;
     }
 
     .sauce-chip {
       background: #f5efe6;
       border: 1px solid #d7ccc8;
-      padding: 6px 14px;
+      padding: 6px 12px;
       border-radius: 20px;
       font-size: 0.85rem;
       font-weight: 600;
@@ -343,11 +347,11 @@
     }
 
     .btn-action {
-      padding: 10px 20px;
+      padding: 10px 16px;
       border: none;
       border-radius: 10px;
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       cursor: pointer;
       transition: all 0.2s;
     }
@@ -358,20 +362,10 @@
       box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3);
     }
 
-    .btn-squeeze:hover {
-      background: linear-gradient(135deg, #b45309, #92400e);
-      transform: translateY(-1px);
-    }
-
     .btn-eat {
       background: linear-gradient(135deg, #689f38, #558b2f);
       color: #ffffff;
       box-shadow: 0 4px 10px rgba(104, 159, 56, 0.3);
-    }
-
-    .btn-eat:hover {
-      background: linear-gradient(135deg, #558b2f, #33691e);
-      transform: translateY(-1px);
     }
 
     .btn-reset {
@@ -380,9 +374,83 @@
       box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3);
     }
 
-    .btn-reset:hover {
-      background: linear-gradient(135deg, #c62828, #b71c1c);
-      transform: translateY(-1px);
+    /* Мобильная адаптация (для экранов телефонов и планшетов) */
+    @media (max-width: 900px) {
+      body {
+        overflow: auto;
+        height: auto;
+      }
+
+      .app-container {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        width: 100%;
+        padding: 10px;
+        gap: 10px;
+      }
+
+      .left-panel {
+        order: 3;
+        max-height: 180px;
+      }
+
+      .center-stage {
+        order: 1;
+        min-height: 350px;
+        padding-bottom: 20px;
+      }
+
+      .right-panel {
+        order: 2;
+        max-height: 120px;
+      }
+
+      .ingredients-menu {
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 4px;
+      }
+
+      .ingredient-card {
+        min-width: 65px;
+        height: 65px;
+        padding: 4px;
+      }
+
+      .ingredient-card img {
+        width: 45px;
+        height: 45px;
+      }
+
+      .bottom-panel {
+        order: 4;
+        position: sticky;
+        bottom: 10px;
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px;
+        justify-content: center;
+      }
+
+      .sauces-group {
+        max-width: 100%;
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .action-group {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .btn-action {
+        flex: 1;
+        padding: 12px 8px;
+        font-size: 0.85rem;
+        text-align: center;
+      }
     }
 
     ::-webkit-scrollbar {
@@ -441,7 +509,7 @@
       }
     }
 
-    const MAX_INGREDIENTS = 30; // Увеличенный лимит слоев
+    const MAX_INGREDIENTS = 30;
 
     const INGREDIENTS = [
       { id: 'top-bun', name: 'Top Bun', image: 'images/top-bun.png' },
