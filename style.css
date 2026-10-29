@@ -8,7 +8,6 @@
     --panel: #ffffff;
     --text: #49352b;
     --muted: #917d70;
-    --accent: #e88a42;
     --border: #f0dfce;
 }
 
@@ -37,13 +36,11 @@ button:focus-visible {
     outline-offset: 3px;
 }
 
-/* Верхняя шапка */
-
 .header {
     min-height: 90px;
     padding: 18px 24px;
     text-align: center;
-    background: #ffffff;
+    background: white;
     border-bottom: 1px solid var(--border);
 }
 
@@ -58,8 +55,6 @@ button:focus-visible {
     font-size: 14px;
 }
 
-/* Основная сетка */
-
 .builder {
     display: grid;
     grid-template-columns: 250px minmax(0, 1fr) 320px;
@@ -69,8 +64,6 @@ button:focus-visible {
     min-height: 560px;
     padding: 18px;
 }
-
-/* Боковые панели */
 
 .panel {
     display: flex;
@@ -97,8 +90,6 @@ button:focus-visible {
     font-size: 13px;
 }
 
-/* Список добавленных ингредиентов */
-
 .ingredients-list {
     display: flex;
     flex: 1;
@@ -114,19 +105,30 @@ button:focus-visible {
 .ingredient-list-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    gap: 7px;
     min-width: 0;
-    padding: 9px;
+    padding: 8px;
     background: #fffaf5;
     border: 1px solid var(--border);
     border-radius: 12px;
 }
 
+.ingredient-thumbnail {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    padding: 2px;
+    object-fit: contain;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
 .ingredient-list-item > span {
+    flex: 1;
     min-width: 0;
     overflow-wrap: anywhere;
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .ingredient-controls {
@@ -138,7 +140,7 @@ button:focus-visible {
 .ingredient-controls button {
     display: grid;
     place-items: center;
-    width: 27px;
+    width: 25px;
     height: 27px;
     padding: 0;
     color: var(--text);
@@ -150,8 +152,6 @@ button:focus-visible {
 .ingredient-controls button:hover {
     background: #ffe9d3;
 }
-
-/* Кнопки действий */
 
 .panel-actions {
     display: flex;
@@ -167,7 +167,6 @@ button:focus-visible {
     border: 0;
     border-radius: 10px;
     font-weight: bold;
-    transition: filter 0.15s ease;
 }
 
 .action-button:hover {
@@ -189,8 +188,6 @@ button:focus-visible {
     background: #f5e9de;
 }
 
-/* Центральная рабочая область */
-
 .workspace {
     position: relative;
     display: flex;
@@ -206,9 +203,9 @@ button:focus-visible {
 .workspace-title {
     position: relative;
     z-index: 10;
+    flex-shrink: 0;
     padding: 20px 16px 12px;
     text-align: center;
-    pointer-events: none;
 }
 
 .workspace-title p {
@@ -217,26 +214,18 @@ button:focus-visible {
     font-size: 13px;
 }
 
-/* Сцена бургера */
-
 .burger-stage {
     position: relative;
     flex: 1;
     min-height: 200px;
     overflow: hidden;
-    background:
-        radial-gradient(
-            ellipse at center bottom,
-            #f8ead8 0%,
-            #fffaf3 48%,
-            #fffdf9 78%
-        );
+    background: radial-gradient(
+        ellipse at center bottom,
+        #f8ead8 0%,
+        #fffaf3 48%,
+        #fffdf9 78%
+    );
 }
-
-/*
-   Контейнер стоит по центру снизу.
-   Сам бургер может выходить за его верхнюю границу.
-*/
 
 .burger-stack {
     position: absolute;
@@ -244,18 +233,17 @@ button:focus-visible {
     bottom: 12px;
     width: 150px;
     height: 150px;
-    padding: 0;
     margin: 0;
+    padding: 0;
     transform: translateX(-50%);
     overflow: visible;
     isolation: isolate;
 }
 
-/* Отдельные изображения слоёв */
-
 .burger-layer {
     position: absolute;
     left: 0;
+    display: block;
     width: 100%;
     height: auto;
     max-width: none;
@@ -266,13 +254,9 @@ button:focus-visible {
     user-select: none;
 }
 
-/* Соус */
-
 .sauce-layer {
     pointer-events: none;
 }
-
-/* Панель соусов */
 
 .sauce-panel {
     position: relative;
@@ -308,7 +292,7 @@ button:focus-visible {
 }
 
 .sauce-button:hover {
-    background: #ffefdF;
+    background: #ffefdf;
 }
 
 .sauce-dish {
@@ -339,8 +323,6 @@ button:focus-visible {
     background: #ed542e;
 }
 
-/* Сообщения */
-
 .message {
     position: relative;
     z-index: 10;
@@ -352,12 +334,6 @@ button:focus-visible {
     border-top: 1px solid #f5e9de;
     text-align: center;
     font-size: 12px;
-}
-
-/* Каталог ингредиентов */
-
-.catalog-panel {
-    min-width: 0;
 }
 
 .catalog {
@@ -384,9 +360,7 @@ button:focus-visible {
     background: #fffaf5;
     border: 1px solid var(--border);
     border-radius: 13px;
-    transition:
-        background 0.15s ease,
-        transform 0.15s ease;
+    transition: background 0.15s ease, transform 0.15s ease;
 }
 
 .ingredient-card:hover {
@@ -408,8 +382,6 @@ button:focus-visible {
     overflow-wrap: anywhere;
 }
 
-/* Полосы прокрутки */
-
 .ingredients-list,
 .catalog {
     scrollbar-width: thin;
@@ -427,8 +399,6 @@ button:focus-visible {
     border-radius: 10px;
 }
 
-/* Планшеты */
-
 @media (max-width: 1050px) {
     .builder {
         grid-template-columns: 220px minmax(0, 1fr) 260px;
@@ -439,18 +409,7 @@ button:focus-visible {
     .panel {
         padding: 13px;
     }
-
-    .burger-stack {
-        width: 150px;
-        height: 150px;
-    }
-
-    .catalog {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
 }
-
-/* Узкие экраны */
 
 @media (max-width: 760px) {
     .header {
@@ -490,10 +449,6 @@ button:focus-visible {
         max-height: 420px;
     }
 
-    .ingredients-list {
-        min-height: 100px;
-    }
-
     .panel-actions {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -504,18 +459,10 @@ button:focus-visible {
         font-size: 12px;
     }
 
-    .burger-stack {
-        width: 150px;
-        height: 150px;
-        bottom: 12px;
-    }
-
     .catalog {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
-
-/* Очень узкие телефоны */
 
 @media (max-width: 420px) {
     .workspace {
@@ -529,11 +476,6 @@ button:focus-visible {
 
     .workspace-title p {
         font-size: 12px;
-    }
-
-    .burger-stack {
-        width: 150px;
-        height: 150px;
     }
 
     .catalog {
