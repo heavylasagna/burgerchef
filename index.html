@@ -618,305 +618,497 @@
   </div>
 
   <script>
-    const SOUNDS = {
-      eating: new Audio('audio/eating.mp3'),
-      sauce: new Audio('audio/sauce.mp3'),
-      ingridients: new Audio('audio/ingridients.mp3'),
-      buttons: new Audio('audio/buttons.mp3'),
-      squeeze: new Audio('audio/squeeze.mp3'),
-      achievement: new Audio('audio/achievement.mp3')
-    };
+    document.addEventListener('DOMContentLoaded', () => {
+      const SOUNDS = {
+        eating: new Audio('audio/eating.mp3'),
+        sauce: new Audio('audio/sauce.mp3'),
+        ingridients: new Audio('audio/ingridients.mp3'),
+        buttons: new Audio('audio/buttons.mp3'),
+        squeeze: new Audio('audio/squeeze.mp3'),
+        achievement: new Audio('audio/achievement.mp3')
+      };
 
-    let isMuted = JSON.parse(localStorage.getItem('burger_is_muted')) || false;
-    function updateSoundBtnUI() {
-      const btn = document.getElementById('soundToggleBtn');
-      if (btn) btn.innerText = isMuted ? '🔇' : '🔊';
-    }
-    function playSound(sound) {
-      if (!isMuted && sound) {
-        sound.currentTime = 0;
-        sound.play().catch(() => {});
+      let isMuted = JSON.parse(localStorage.getItem('burger_is_muted')) || false;
+      function updateSoundBtnUI() {
+        const btn = document.getElementById('soundToggleBtn');
+        if (btn) btn.innerText = isMuted ? '🔇' : '🔊';
       }
-    }
-    document.getElementById('soundToggleBtn').onclick = () => {
-      isMuted = !isMuted;
-      localStorage.setItem('burger_is_muted', JSON.stringify(isMuted));
-      updateSoundBtnUI();
-      if (!isMuted) playSound(SOUNDS.buttons);
-    };
-
-    const NORMAL_RECIPES = [
-      { name: 'Simple Burger', recipe: 'Bottom Bun + Beef Patty + Top Bun' },
-      { name: 'Egg & Bacon Deluxe', recipe: 'Bottom Bun + Beef Patty + Fried Egg + Fried Bacon + Top Bun' },
-      { name: 'Mushroom Melt', recipe: 'Bottom Bun + Beef Patty + Champignons + Cheese + Top Bun' }
-    ];
-
-    const SECRET_ACHIEVEMENTS = [
-      { id: 'cheeseburger', title: 'Cheezburger', desc: 'Ideal Roblox burger', icon: '🧀', recipe: 'Bottom Bun + Beef Patty + Cheese + Top Bun' },
-      { id: 'mcPicklePounder', title: 'McPickle Pounder', desc: 'Pickle lover dream', icon: '🥒', recipe: 'Bottom Bun + Beef Patty + Cheese + 3x Pickles + Top Bun' },
-      { id: 'tomatonator', title: 'Tomatonator', desc: 'Tomato fanatic', icon: '🍅', recipe: 'Bottom Bun + Beef Patty + Cheese + 3x Tomato + Top Bun' },
-      { id: 'saturnBurger', title: 'Saturn Burger', desc: 'Space flavor', icon: '🪐', recipe: 'Bottom Bun + Beef Patty + White Onion + Top Bun' },
-      { id: 'lilypad', title: 'Lilypad', desc: 'Almost vegan', icon: '🥬', recipe: 'Bottom Bun + Beef Patty + Cheese + Lettuce + Top Bun' },
-      { id: 'bustanator', title: 'Bustanator', desc: 'Mayo overload', icon: '💦', recipe: 'Bottom Bun + Beef Patty + 3x Mayo + Top Bun' },
-      { id: 'toothless', title: 'Toothless', desc: 'All sauces combined', icon: '🍼', recipe: 'Bottom Bun + All 5 Sauces + Top Bun' }
-    ];
-
-    let unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements')) || {};
-    let pinnedRecipe = JSON.parse(localStorage.getItem('pinned_recipe')) || null;
-
-    function unlockAchievement(id) {
-      if (!unlockedAchievements[id]) {
-        unlockedAchievements[id] = true;
-        localStorage.setItem('unlocked_achievements', JSON.stringify(unlockedAchievements));
-        const ach = SECRET_ACHIEVEMENTS.find(a => a.id === id);
-        if (ach) {
-          playSound(SOUNDS.achievement);
-          showToast(ach);
+      function playSound(sound) {
+        if (!isMuted && sound) {
+          sound.currentTime = 0;
+          sound.play().catch(() => {});
         }
       }
-    }
+      document.getElementById('soundToggleBtn').onclick = () => {
+        isMuted = !isMuted;
+        localStorage.setItem('burger_is_muted', JSON.stringify(isMuted));
+        updateSoundBtnUI();
+        if (!isMuted) playSound(SOUNDS.buttons);
+      };
 
-    function showToast(ach) {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = 'achievement-toast';
-      toast.innerHTML = `<span style="font-size: 1.8rem;">${ach.icon}</span><div><h4 style="font-size:0.85rem">Achievement Unlocked!</h4><p style="font-size:0.75rem">${ach.title}</p></div>`;
-      container.appendChild(toast);
-      setTimeout(() => toast.remove(), 3500);
-    }
+      const NORMAL_RECIPES = [
+        { name: 'Simple Burger', recipe: 'Bottom Bun + Beef Patty + Top Bun' },
+        { name: 'Egg & Bacon Deluxe', recipe: 'Bottom Bun + Beef Patty + Fried Egg + Fried Bacon + Top Bun' },
+        { name: 'Mushroom Melt', recipe: 'Bottom Bun + Beef Patty + Champignons + Cheese + Top Bun' }
+      ];
 
-    function renderRecipesModal() {
-      const body = document.getElementById('recipesModalBody');
-      body.innerHTML = '';
+      const SECRET_ACHIEVEMENTS = [
+        { id: 'cheeseburger', title: 'Cheezburger', desc: 'Ideal Roblox burger', icon: '🧀', recipe: 'Bottom Bun + Beef Patty + Cheese + Top Bun' },
+        { id: 'mcPicklePounder', title: 'McPickle Pounder', desc: 'Pickle lover dream', icon: '🥒', recipe: 'Bottom Bun + Beef Patty + Cheese + 3x Pickles + Top Bun' },
+        { id: 'tomatonator', title: 'Tomatonator', desc: 'Tomato fanatic', icon: '🍅', recipe: 'Bottom Bun + Beef Patty + Cheese + 3x Tomato + Top Bun' },
+        { id: 'saturnBurger', title: 'Saturn Burger', desc: 'Space flavor', icon: '🪐', recipe: 'Bottom Bun + Beef Patty + White Onion + Top Bun' },
+        { id: 'lilypad', title: 'Lilypad', desc: 'Almost vegan', icon: '🥬', recipe: 'Bottom Bun + Beef Patty + Cheese + Lettuce + Top Bun' },
+        { id: 'bustanator', title: 'Bustanator', desc: 'Mayo overload', icon: '💦', recipe: 'Bottom Bun + Beef Patty + 3x Mayo + Top Bun' },
+        { id: 'toothless', title: 'Toothless', desc: 'All sauces combined', icon: '🍼', recipe: 'Bottom Bun + All 5 Sauces + Top Bun' }
+      ];
 
-      const normalTitle = document.createElement('div');
-      normalTitle.className = 'recipe-section-title';
-      normalTitle.innerText = '🍔 Normal Burgers (Known)';
-      body.appendChild(normalTitle);
+      let unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements')) || {};
+      let pinnedRecipe = JSON.parse(localStorage.getItem('pinned_recipe')) || null;
 
-      NORMAL_RECIPES.forEach(r => {
-        const card = document.createElement('div');
-        card.className = 'recipe-card';
-        card.innerHTML = `<div class="recipe-info"><h4>${r.name}</h4><p>${r.recipe}</p></div>`;
-        const pinBtn = document.createElement('button');
-        pinBtn.className = `btn-pin ${pinnedRecipe === r.recipe ? 'pinned' : ''}`;
-        pinBtn.innerText = pinnedRecipe === r.recipe ? 'Pinned' : '📌 Pin';
-        pinBtn.onclick = () => togglePin(r.name, r.recipe);
-        card.appendChild(pinBtn);
-        body.appendChild(card);
-      });
+      function unlockAchievement(id) {
+        if (!unlockedAchievements[id]) {
+          unlockedAchievements[id] = true;
+          localStorage.setItem('unlocked_achievements', JSON.stringify(unlockedAchievements));
+          const ach = SECRET_ACHIEVEMENTS.find(a => a.id === id);
+          if (ach) {
+            playSound(SOUNDS.achievement);
+            showToast(ach);
+          }
+        }
+      }
 
-      const secretTitle = document.createElement('div');
-      secretTitle.className = 'recipe-section-title';
-      secretTitle.innerText = '🔒 Secret Burgers (Unlock via achievements)';
-      body.appendChild(secretTitle);
+      function showToast(ach) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = 'achievement-toast';
+        toast.innerHTML = `<span style="font-size: 1.8rem;">${ach.icon}</span><div><h4 style="font-size:0.85rem">Achievement Unlocked!</h4><p style="font-size:0.75rem">${ach.title}</p></div>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3500);
+      }
 
-      SECRET_ACHIEVEMENTS.forEach(ach => {
-        const isUnlocked = unlockedAchievements[ach.id];
-        const card = document.createElement('div');
-        card.className = `recipe-card ${isUnlocked ? '' : 'locked'}`;
-        card.innerHTML = `
-          <div style="font-size: 1.4rem; margin-right: 8px;">${isUnlocked ? ach.icon : '🔒'}</div>
-          <div class="recipe-info" style="flex:1;">
-            <h4>${ach.title}</h4>
-            <p>${isUnlocked ? ach.recipe : 'Secret recipe locked...'}</p>
-          </div>
-        `;
-        if (isUnlocked) {
+      function renderRecipesModal() {
+        const body = document.getElementById('recipesModalBody');
+        body.innerHTML = '';
+
+        const normalTitle = document.createElement('div');
+        normalTitle.className = 'recipe-section-title';
+        normalTitle.innerText = '🍔 Normal Burgers (Known)';
+        body.appendChild(normalTitle);
+
+        NORMAL_RECIPES.forEach(r => {
+          const card = document.createElement('div');
+          card.className = 'recipe-card';
+          card.innerHTML = `<div class="recipe-info"><h4>${r.name}</h4><p>${r.recipe}</p></div>`;
           const pinBtn = document.createElement('button');
-          pinBtn.className = `btn-pin ${pinnedRecipe === ach.recipe ? 'pinned' : ''}`;
-          pinBtn.innerText = pinnedRecipe === ach.recipe ? 'Pinned' : '📌 Pin';
-          pinBtn.onclick = () => togglePin(ach.title, ach.recipe);
+          pinBtn.className = `btn-pin ${pinnedRecipe === r.recipe ? 'pinned' : ''}`;
+          pinBtn.innerText = pinnedRecipe === r.recipe ? 'Pinned' : '📌 Pin';
+          pinBtn.onclick = () => togglePin(r.name, r.recipe);
           card.appendChild(pinBtn);
-        }
-        body.appendChild(card);
-      });
-    }
+          body.appendChild(card);
+        });
 
-    function togglePin(title, recipe) {
-      if (pinnedRecipe === recipe) {
+        const secretTitle = document.createElement('div');
+        secretTitle.className = 'recipe-section-title';
+        secretTitle.innerText = '🔒 Secret Burgers (Unlock via achievements)';
+        body.appendChild(secretTitle);
+
+        SECRET_ACHIEVEMENTS.forEach(ach => {
+          const isUnlocked = unlockedAchievements[ach.id];
+          const card = document.createElement('div');
+          card.className = `recipe-card ${isUnlocked ? '' : 'locked'}`;
+          card.innerHTML = `
+            <div style="font-size: 1.4rem; margin-right: 8px;">${isUnlocked ? ach.icon : '🔒'}</div>
+            <div class="recipe-info" style="flex:1;">
+              <h4>${ach.title}</h4>
+              <p>${isUnlocked ? ach.recipe : 'Secret recipe locked...'}</p>
+            </div>
+          `;
+          if (isUnlocked) {
+            const pinBtn = document.createElement('button');
+            pinBtn.className = `btn-pin ${pinnedRecipe === ach.recipe ? 'pinned' : ''}`;
+            pinBtn.innerText = pinnedRecipe === ach.recipe ? 'Pinned' : '📌 Pin';
+            pinBtn.onclick = () => togglePin(ach.title, ach.recipe);
+            card.appendChild(pinBtn);
+          }
+          body.appendChild(card);
+        });
+      }
+
+      function togglePin(title, recipe) {
+        if (pinnedRecipe === recipe) {
+          pinnedRecipe = null;
+          localStorage.removeItem('pinned_recipe');
+        } else {
+          pinnedRecipe = `${title}: ${recipe}`;
+          localStorage.setItem('pinned_recipe', JSON.stringify(pinnedRecipe));
+        }
+        renderRecipesModal();
+        updatePinnedWidget();
+      }
+
+      function updatePinnedWidget() {
+        const widget = document.getElementById('pinnedRecipeWidget');
+        if (pinnedRecipe) {
+          document.getElementById('pinnedText').innerText = pinnedRecipe;
+          widget.classList.add('active');
+        } else {
+          widget.classList.remove('active');
+        }
+      }
+      document.getElementById('unpinBtn').onclick = () => {
         pinnedRecipe = null;
         localStorage.removeItem('pinned_recipe');
-      } else {
-        pinnedRecipe = `${title}: ${recipe}`;
-        localStorage.setItem('pinned_recipe', JSON.stringify(pinnedRecipe));
-      }
-      renderRecipesModal();
-      updatePinnedWidget();
-    }
-
-    function updatePinnedWidget() {
-      const widget = document.getElementById('pinnedRecipeWidget');
-      if (pinnedRecipe) {
-        document.getElementById('pinnedText').innerText = pinnedRecipe;
-        widget.classList.add('active');
-      } else {
-        widget.classList.remove('active');
-      }
-    }
-    document.getElementById('unpinBtn').onclick = () => {
-      pinnedRecipe = null;
-      localStorage.removeItem('pinned_recipe');
-      updatePinnedWidget();
-      renderRecipesModal();
-    };
-
-    function renderAchievementsModal() {
-      const list = document.getElementById('achievementsList');
-      list.innerHTML = '';
-      SECRET_ACHIEVEMENTS.forEach(ach => {
-        const isUnlocked = unlockedAchievements[ach.id];
-        const item = document.createElement('div');
-        item.className = 'achievement-item';
-        item.style.opacity = isUnlocked ? '1' : '0.5';
-        item.innerHTML = `
-          <div style="font-size: 1.5rem;">${isUnlocked ? ach.icon : '🔒'}</div>
-          <div class="recipe-info" style="flex:1; margin-left:10px;">
-            <h4>${ach.title}</h4>
-            <p>${isUnlocked ? ach.desc : 'Secret locked'}</p>
-          </div>
-        `;
-        list.appendChild(item);
-      });
-    }
-
-    const recipesModal = document.getElementById('recipesModal');
-    document.getElementById('openRecipesBtn').onclick = () => { playSound(SOUNDS.buttons); renderRecipesModal(); recipesModal.classList.add('open'); };
-    document.getElementById('closeRecipesModal').onclick = () => { playSound(SOUNDS.buttons); recipesModal.classList.remove('open'); };
-    recipesModal.onclick = (e) => { if (e.target === recipesModal) recipesModal.classList.remove('open'); };
-
-    const achievementsModal = document.getElementById('achievementsModal');
-    document.getElementById('openAchievementsBtn').onclick = () => { playSound(SOUNDS.buttons); renderAchievementsModal(); achievementsModal.classList.add('open'); };
-    document.getElementById('closeAchievementsModal').onclick = () => { playSound(SOUNDS.buttons); achievementsModal.classList.remove('open'); };
-    achievementsModal.onclick = (e) => { if (e.target === achievementsModal) achievementsModal.classList.remove('open'); };
-    document.getElementById('resetAchievementsBtn').onclick = () => {
-      if(confirm('Reset achievements?')) {
-        unlockedAchievements = {};
-        localStorage.removeItem('unlocked_achievements');
-        renderAchievementsModal();
+        updatePinnedWidget();
         renderRecipesModal();
-      }
-    };
+      };
 
-    const toggleUiBtn = document.getElementById('toggleUiBtn');
-    toggleUiBtn.onclick = () => {
-      document.body.classList.toggle('ui-hidden');
-      toggleUiBtn.innerText = document.body.classList.contains('ui-hidden') ? '👁️‍🗨️' : '👁️';
-    };
-
-    function scheduleNextOrder() {
-      const randomMinutes = Math.random() * (5 - 1) + 1;
-      setTimeout(() => {
-        triggerRandomOrder();
-        scheduleNextOrder();
-      }, randomMinutes * 60 * 1000);
-    }
-
-    function triggerRandomOrder() {
-      const unlockedSecretNames = SECRET_ACHIEVEMENTS.filter(a => unlockedAchievements[a.id]).map(a => a.title);
-      const allAvailableOrders = [...NORMAL_RECIPES.map(r => r.name), ...unlockedSecretNames];
-      const randomOrderName = allAvailableOrders[Math.floor(Math.random() * allAvailableOrders.length)];
-
-      const popup = document.getElementById('orderPopup');
-      document.getElementById('orderText').innerText = `Order: ${randomOrderName}`;
-      popup.classList.add('show');
-      playSound(SOUNDS.achievement);
-
-      setTimeout(() => { popup.classList.remove('show'); }, 5000);
-    }
-    scheduleNextOrder();
-
-    const MAX_INGREDIENTS = 30;
-    const INGREDIENTS = [
-      { id: 'top-bun', name: 'Top Bun', image: 'images/top-bun.png' },
-      { id: 'cheese', name: 'Cheese', image: 'images/cheese.png' },
-      { id: 'fried-egg', name: 'Fried Egg', image: 'images/fried-egg.png' },
-      { id: 'champignons', name: 'Champignons', image: 'images/champignons.png' },
-      { id: 'fried-bacon', name: 'Fried Bacon', image: 'images/fried-bacon.png' },
-      { id: 'lettuce', name: 'Lettuce', image: 'images/lettuce.png' },
-      { id: 'tomato', name: 'Tomato', image: 'images/tomato.png' },
-      { id: 'pickles', name: 'Pickles', image: 'images/pickles.png' },
-      { id: 'red-onion', name: 'Red Onion', image: 'images/red-onion.png' },
-      { id: 'white-onion', name: 'White Onion', image: 'images/white-onion.png' },
-      { id: 'beef-patty', name: 'Beef Patty', image: 'images/beef-patty.png' },
-      { id: 'chicken-patty', name: 'Chicken Patty', image: 'images/chicken-patty.png' },
-      { id: 'fish-patty', name: 'Fish Patty', image: 'images/fish-patty.png' },
-      { id: 'bottom-bun', name: 'Bottom Bun', image: 'images/bottom-bun.png' }
-    ];
-
-    const SAUCES = [
-      { id: 'mayo', name: '⚪️ Mayo', image: 'images/sauce-mayo.png' },
-      { id: 'ketchup', name: '🔴 Ketchup', image: 'images/sauce-ketchup.png' },
-      { id: 'mustard', name: '🟡 Mustard', image: 'images/sauce-mustard.png' },
-      { id: 'spicy', name: '🟠 Spicy', image: 'images/sauce-spicy.png' },
-      { id: 'bbq', name: '🟤 BBQ', image: 'images/sauce-bbq.png' }
-    ];
-
-    let currentBurger = JSON.parse(localStorage.getItem('saved_burger_stack')) || [];
-    let isEating = false;
-    let isSqueezed = false;
-
-    function saveBurgerState() {
-      localStorage.setItem('saved_burger_stack', JSON.stringify(currentBurger));
-    }
-
-    const burgerStack = document.getElementById('burgerStack');
-    const layersList = document.getElementById('layersList');
-    const layersTitle = document.getElementById('layersTitle');
-    const ingredientsMenu = document.getElementById('ingredientsMenu');
-    const desktopSaucesGroup = document.getElementById('desktopSaucesGroup');
-    const mobileSaucesGroup = document.getElementById('mobileSaucesGroup');
-    const centerStage = document.getElementById('centerStage');
-    const limitWarning = document.getElementById('limitWarning');
-
-    function renderIngredientsMenu() {
-      ingredientsMenu.innerHTML = '';
-      INGREDIENTS.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'ingredient-card';
-        if (currentBurger.length >= MAX_INGREDIENTS || isEating) card.classList.add('disabled');
-        card.innerHTML = `<img src="${item.image}" alt="${item.name}">`;
-        card.onclick = () => { if (!isEating) addIngredient(item); };
-        ingredientsMenu.appendChild(card);
-      });
-    }
-
-    function renderSauces() {
-      desktopSaucesGroup.innerHTML = '';
-      mobileSaucesGroup.innerHTML = '';
-      SAUCES.forEach(sauce => {
-        [desktopSaucesGroup, mobileSaucesGroup].forEach(container => {
-          const chip = document.createElement('div');
-          chip.className = 'sauce-chip';
-          chip.innerText = sauce.name;
-          chip.onclick = () => { if (!isEating) addSauce(sauce); };
-          container.appendChild(chip);
+      function renderAchievementsModal() {
+        const list = document.getElementById('achievementsList');
+        list.innerHTML = '';
+        SECRET_ACHIEVEMENTS.forEach(ach => {
+          const isUnlocked = unlockedAchievements[ach.id];
+          const item = document.createElement('div');
+          item.className = 'achievement-item';
+          item.style.opacity = isUnlocked ? '1' : '0.5';
+          item.innerHTML = `
+            <div style="font-size: 1.5rem;">${isUnlocked ? ach.icon : '🔒'}</div>
+            <div class="recipe-info" style="flex:1; margin-left:10px;">
+              <h4>${ach.title}</h4>
+              <p>${isUnlocked ? ach.desc : 'Secret locked'}</p>
+            </div>
+          `;
+          list.appendChild(item);
         });
-      });
-    }
+      }
 
-    function checkSpecialCombos() {
-      if (currentBurger.length === 0) return;
-      const ids = currentBurger.map(i => i.id);
+      const recipesModal = document.getElementById('recipesModal');
+      document.getElementById('openRecipesBtn').onclick = () => { playSound(SOUNDS.buttons); renderRecipesModal(); recipesModal.classList.add('open'); };
+      document.getElementById('closeRecipesModal').onclick = () => { playSound(SOUNDS.buttons); recipesModal.classList.remove('open'); };
+      recipesModal.onclick = (e) => { if (e.target === recipesModal) recipesModal.classList.remove('open'); };
 
-      if (ids.length === 4 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'top-bun') unlockAchievement('cheeseburger');
-      else if (ids.length === 7 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'pickles' && ids[4] === 'pickles' && ids[5] === 'pickles' && ids[6] === 'top-bun') unlockAchievement('mcPicklePounder');
-      else if (ids.length === 7 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'tomato' && ids[4] === 'tomato' && ids[5] === 'tomato' && ids[6] === 'top-bun') unlockAchievement('tomatonator');
-      else if (ids.length === 4 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'white-onion' && ids[3] === 'top-bun') unlockAchievement('saturnBurger');
-      else if (ids.length === 5 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'lettuce' && ids[4] === 'top-bun') unlockAchievement('lilypad');
-      else if (ids.length === 6 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'mayo' && ids[3] === 'mayo' && ids[4] === 'mayo' && ids[5] === 'top-bun') unlockAchievement('bustanator');
-      else if (ids.length === 7 && ids[0] === 'bottom-bun' && ids[6] === 'top-bun') {
-        const middleLayers = ids.slice(1, 6);
-        const requiredSauces = ['ketchup', 'mustard', 'mayo', 'bbq', 'spicy'];
-        if (requiredSauces.every(s => middleLayers.includes(s)) && middleLayers.length === requiredSauces.length) {
-          unlockAchievement('toothless');
+      const achievementsModal = document.getElementById('achievementsModal');
+      document.getElementById('openAchievementsBtn').onclick = () => { playSound(SOUNDS.buttons); renderAchievementsModal(); achievementsModal.classList.add('open'); };
+      document.getElementById('closeAchievementsModal').onclick = () => { playSound(SOUNDS.buttons); achievementsModal.classList.remove('open'); };
+      achievementsModal.onclick = (e) => { if (e.target === achievementsModal) achievementsModal.classList.remove('open'); };
+      document.getElementById('resetAchievementsBtn').onclick = () => {
+        if(confirm('Reset achievements?')) {
+          unlockedAchievements = {};
+          localStorage.removeItem('unlocked_achievements');
+          renderAchievementsModal();
+          renderRecipesModal();
+        }
+      };
+
+      const toggleUiBtn = document.getElementById('toggleUiBtn');
+      toggleUiBtn.onclick = () => {
+        document.body.classList.toggle('ui-hidden');
+        toggleUiBtn.innerText = document.body.classList.contains('ui-hidden') ? '👁️‍🗨️' : '👁️';
+      };
+
+      function scheduleNextOrder() {
+        const randomMinutes = Math.random() * (5 - 1) + 1;
+        setTimeout(() => {
+          triggerRandomOrder();
+          scheduleNextOrder();
+        }, randomMinutes * 60 * 1000);
+      }
+
+      function triggerRandomOrder() {
+        const unlockedSecretNames = SECRET_ACHIEVEMENTS.filter(a => unlockedAchievements[a.id]).map(a => a.title);
+        const allAvailableOrders = [...NORMAL_RECIPES.map(r => r.name), ...unlockedSecretNames];
+        const randomOrderName = allAvailableOrders[Math.floor(Math.random() * allAvailableOrders.length)];
+
+        const popup = document.getElementById('orderPopup');
+        document.getElementById('orderText').innerText = `Order: ${randomOrderName}`;
+        popup.classList.add('show');
+        playSound(SOUNDS.achievement);
+
+        setTimeout(() => { popup.classList.remove('show'); }, 5000);
+      }
+      scheduleNextOrder();
+
+      const MAX_INGREDIENTS = 30;
+      const INGREDIENTS = [
+        { id: 'top-bun', name: 'Top Bun', image: 'images/top-bun.png' },
+        { id: 'cheese', name: 'Cheese', image: 'images/cheese.png' },
+        { id: 'fried-egg', name: 'Fried Egg', image: 'images/fried-egg.png' },
+        { id: 'champignons', name: 'Champignons', image: 'images/champignons.png' },
+        { id: 'fried-bacon', name: 'Fried Bacon', image: 'images/fried-bacon.png' },
+        { id: 'lettuce', name: 'Lettuce', image: 'images/lettuce.png' },
+        { id: 'tomato', name: 'Tomato', image: 'images/tomato.png' },
+        { id: 'pickles', name: 'Pickles', image: 'images/pickles.png' },
+        { id: 'red-onion', name: 'Red Onion', image: 'images/red-onion.png' },
+        { id: 'white-onion', name: 'White Onion', image: 'images/white-onion.png' },
+        { id: 'beef-patty', name: 'Beef Patty', image: 'images/beef-patty.png' },
+        { id: 'chicken-patty', name: 'Chicken Patty', image: 'images/chicken-patty.png' },
+        { id: 'fish-patty', name: 'Fish Patty', image: 'images/fish-patty.png' },
+        { id: 'bottom-bun', name: 'Bottom Bun', image: 'images/bottom-bun.png' }
+      ];
+
+      const SAUCES = [
+        { id: 'mayo', name: '⚪️ Mayo', image: 'images/sauce-mayo.png' },
+        { id: 'ketchup', name: '🔴 Ketchup', image: 'images/sauce-ketchup.png' },
+        { id: 'mustard', name: '🟡 Mustard', image: 'images/sauce-mustard.png' },
+        { id: 'spicy', name: '🟠 Spicy', image: 'images/sauce-spicy.png' },
+        { id: 'bbq', name: '🟤 BBQ', image: 'images/sauce-bbq.png' }
+      ];
+
+      let currentBurger = JSON.parse(localStorage.getItem('saved_burger_stack')) || [];
+      let isEating = false;
+      let isSqueezed = false;
+
+      function saveBurgerState() {
+        localStorage.setItem('saved_burger_stack', JSON.stringify(currentBurger));
+      }
+
+      const burgerStack = document.getElementById('burgerStack');
+      const layersList = document.getElementById('layersList');
+      const layersTitle = document.getElementById('layersTitle');
+      const ingredientsMenu = document.getElementById('ingredientsMenu');
+      const desktopSaucesGroup = document.getElementById('desktopSaucesGroup');
+      const mobileSaucesGroup = document.getElementById('mobileSaucesGroup');
+      const centerStage = document.getElementById('centerStage');
+      const limitWarning = document.getElementById('limitWarning');
+
+      function renderIngredientsMenu() {
+        ingredientsMenu.innerHTML = '';
+        INGREDIENTS.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'ingredient-card';
+          if (currentBurger.length >= MAX_INGREDIENTS || isEating) card.classList.add('disabled');
+          card.innerHTML = `<img src="${item.image}" alt="${item.name}">`;
+          card.onclick = () => { if (!isEating) addIngredient(item); };
+          ingredientsMenu.appendChild(card);
+        });
+      }
+
+      function renderSauces() {
+        desktopSaucesGroup.innerHTML = '';
+        mobileSaucesGroup.innerHTML = '';
+        SAUCES.forEach(sauce => {
+          [desktopSaucesGroup, mobileSaucesGroup].forEach(container => {
+            const chip = document.createElement('div');
+            chip.className = 'sauce-chip';
+            chip.innerText = sauce.name;
+            chip.onclick = () => { if (!isEating) addSauce(sauce); };
+            container.appendChild(chip);
+          });
+        });
+      }
+
+      function checkSpecialCombos() {
+        if (currentBurger.length === 0) return;
+        const ids = currentBurger.map(i => i.id);
+
+        if (ids.length === 4 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'top-bun') unlockAchievement('cheeseburger');
+        else if (ids.length === 7 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'pickles' && ids[4] === 'pickles' && ids[5] === 'pickles' && ids[6] === 'top-bun') unlockAchievement('mcPicklePounder');
+        else if (ids.length === 7 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'tomato' && ids[4] === 'tomato' && ids[5] === 'tomato' && ids[6] === 'top-bun') unlockAchievement('tomatonator');
+        else if (ids.length === 4 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'white-onion' && ids[3] === 'top-bun') unlockAchievement('saturnBurger');
+        else if (ids.length === 5 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'lettuce' && ids[4] === 'top-bun') unlockAchievement('lilypad');
+        else if (ids.length === 6 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'mayo' && ids[3] === 'mayo' && ids[4] === 'mayo' && ids[5] === 'top-bun') unlockAchievement('bustanator');
+        else if (ids.length === 7 && ids[0] === 'bottom-bun' && ids[6] === 'top-bun') {
+          const middleLayers = ids.slice(1, 6);
+          const requiredSauces = ['ketchup', 'mustard', 'mayo', 'bbq', 'spicy'];
+          if (requiredSauces.every(s => middleLayers.includes(s)) && middleLayers.length === requiredSauces.length) {
+            unlockAchievement('toothless');
+          }
         }
       }
-    }
 
-    function getMarginBottomForLayer(item, itemBelow, index) {
-      const isSauce = ['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id);
-      if (index === 0) return -10;
-      if (isSauce) return -60;
-      if (item.id === 'top-bun') return -38;
-      if (item.id === 'cheese') return -60;
+      function getMarginBottomForLayer(item, itemBelow, index) {
+        const isSauce = ['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id);
+        if (index === 0) return -10;
+        if (isSauce) return -60;
+        if (item.id === 'top-bun') return -38;
+        if (item.id === 'cheese') return -60;
+        if (item.id === 'fried-egg') return -52;
+        if (item.id === 'fried-bacon') return -48;
+        if (item.id === 'lettuce') return -65;
+        if (itemBelow && itemBelow.id === 'lettuce') return -50;
+        return -38;
+      }
+
+      function updateBurgerDisplay(isNewAdded = false) {
+        saveBurgerState();
+        layersTitle.innerText = `Layers (${currentBurger.length}/${MAX_INGREDIENTS})`;
+
+        layersList.innerHTML = '';
+        currentBurger.forEach((item, index) => {
+          const listItem = document.createElement('div');
+          listItem.className = 'layer-item';
+          listItem.innerHTML = `
+            <div class="layer-info">${item.image ? `<img src="${item.image}" class="layer-preview">` : ''}</div>
+            <div class="layer-controls">
+              <button class="btn-control" onclick="moveLayer(${index}, 1)" ${index === currentBurger.length - 1 || isEating ? 'disabled' : ''}>▲</button>
+              <button class="btn-control" onclick="moveLayer(${index}, -1)" ${index === 0 || isEating ? 'disabled' : ''}>▼</button>
+              <button class="btn-control delete" onclick="removeLayer(${index})" ${isEating ? 'disabled' : ''}>✕</button>
+            </div>
+          `;
+          layersList.appendChild(listItem);
+        });
+
+        burgerStack.innerHTML = '';
+        currentBurger.forEach((item, index) => {
+          if (item.image) {
+            const img = document.createElement('img');
+            img.src = item.image;
+            img.className = 'burger-layer-img';
+            if (isNewAdded && index === currentBurger.length - 1) {
+              img.classList.add('new-layer');
+              setTimeout(() => img.classList.remove('new-layer'), 350);
+            }
+            const itemBelow = index > 0 ? currentBurger[index - 1] : null;
+            img.style.marginBottom = `${getMarginBottomForLayer(item, itemBelow, index)}px`;
+            img.style.zIndex = index + 1;
+
+            if (isSqueezed && index > 0) {
+              img.style.setProperty('--sq-offset', `${index * 5}px`);
+              img.classList.add('squeezed');
+            }
+            burgerStack.appendChild(img);
+          }
+        });
+        renderIngredientsMenu();
+        setTimeout(() => { centerStage.scrollTop = centerStage.scrollHeight; }, 50);
+      }
+
+      function showLimitWarning() {
+        limitWarning.classList.add('show');
+        setTimeout(() => limitWarning.classList.remove('show'), 2000);
+      }
+
+      function addIngredient(item) {
+        if (currentBurger.length >= MAX_INGREDIENTS) { showLimitWarning(); return; }
+        playSound(SOUNDS.ingridients);
+        currentBurger.push({ ...item });
+        checkSpecialCombos();
+        updateBurgerDisplay(true);
+      }
+
+      function addSauce(sauce) {
+        if (currentBurger.length >= MAX_INGREDIENTS) { showLimitWarning(); return; }
+        playSound(SOUNDS.sauce);
+        currentBurger.push({ ...sauce });
+        checkSpecialCombos();
+        updateBurgerDisplay(true);
+      }
+
+      window.removeLayer = function(index) {
+        if (isEating) return;
+        playSound(SOUNDS.buttons);
+        currentBurger.splice(index, 1);
+        checkSpecialCombos();
+        updateBurgerDisplay(false);
+      };
+
+      window.moveLayer = function(index, direction) {
+        if (isEating) return;
+        const targetIndex = index + direction;
+        if (targetIndex >= 0 && targetIndex < currentBurger.length) {
+          playSound(SOUNDS.buttons);
+          const temp = currentBurger[index];
+          currentBurger[index] = currentBurger[targetIndex];
+          currentBurger[targetIndex] = temp;
+          checkSpecialCombos();
+          updateBurgerDisplay(false);
+        }
+      };
+
+      document.getElementById('squeezeBtn').onclick = () => {
+        if (currentBurger.length <= 1 || isEating) return;
+        playSound(SOUNDS.squeeze);
+        isSqueezed = !isSqueezed;
+        updateBurgerDisplay(false);
+      };
+
+      document.getElementById('resetBtn').onclick = () => {
+        playSound(SOUNDS.buttons);
+        isEating = false; isSqueezed = false;
+        burgerStack.classList.remove('eating');
+        currentBurger = [];
+        updateBurgerDisplay(false);
+      };
+
+      function spawnCrumbs() {
+        const colors = ['#e0a96d', '#8d6e63', '#d7ccc8', '#ffd54f', '#81c784'];
+        const rect = burgerStack.getBoundingClientRect();
+        const originX = rect.left + rect.width / 2;
+        const originY = rect.top + rect.height / 2;
+        for (let i = 0; i < 10; i++) {
+          const crumb = document.createElement('div');
+          crumb.className = 'crumb';
+          const size = Math.floor(Math.random() * 5) + 3;
+          crumb.style.width = `${size}px`; crumb.style.height = `${size}px`;
+          crumb.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+          crumb.style.left = `${originX}px`; crumb.style.top = `${originY}px`;
+          crumb.style.setProperty('--dx', (Math.random() - 0.5) * 140 + 'px');
+          crumb.style.setProperty('--dy', (Math.random() - 0.5) * 140 + 'px');
+          crumb.style.setProperty('--rot', (Math.random() - 0.5) * 360 + 'deg');
+          document.body.appendChild(crumb);
+          setTimeout(() => crumb.remove(), 600);
+        }
+      }
+
+      document.getElementById('eatBtn').onclick = () => {
+        if (currentBurger.length === 0 || isEating) return;
+        playSound(SOUNDS.eating);
+        isEating = true; isSqueezed = false;
+        burgerStack.classList.add('eating');
+        spawnCrumbs();
+        renderIngredientsMenu();
+        setTimeout(() => {
+          currentBurger = [];
+          burgerStack.classList.remove('eating');
+          isEating = false;
+          updateBurgerDisplay(false);
+        }, 2000);
+      };
+
+      document.getElementById('downloadPngBtn').onclick = async () => {
+        if (currentBurger.length === 0) { alert('Build a burger first!'); return; }
+        playSound(SOUNDS.buttons);
+        const imagesInStack = burgerStack.querySelectorAll('.burger-layer-img');
+        if (imagesInStack.length === 0) return;
+
+        const loadedImages = await Promise.all(currentBurger.map(item => new Promise((resolve) => {
+          const img = new Image(); img.src = item.image;
+          img.onload = () => resolve(img); img.onerror = () => resolve(null);
+        })));
+
+        const layerRects = Array.from(imagesInStack).map(imgEl => imgEl.getBoundingClientRect());
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        layerRects.forEach(rect => {
+          if (rect.left < minX) minX = rect.left;
+          if (rect.top < minY) minY = rect.top;
+          if (rect.right > maxX) maxX = rect.right;
+          if (rect.bottom > maxY) maxY = rect.bottom;
+        });
+
+        const scale = 2, padding = 40;
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = ((maxX - minX) + padding * 2) * scale;
+        canvas.height = ((maxY - minY) + padding * 2) * scale;
+        ctx.scale(scale, scale);
+
+        loadedImages.forEach((img, index) => {
+          if (!img) return;
+          const rect = layerRects[index];
+          ctx.drawImage(img, (rect.left - minX) + padding, (rect.top - minY) + padding, rect.width, rect.height);
+        });
+
+        const link = document.createElement('a');
+        link.download = 'my-burger.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      };
+
+      updateSoundBtnUI();
+      renderSauces();
+      renderIngredientsMenu();
+      updateBurgerDisplay(false);
+      updatePinnedWidget();
+    });
+  </script>
+</body>
+</html>
