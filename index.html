@@ -185,12 +185,9 @@
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
+    /* Эффект сжатия для слоев выше нижней булочки */
     .burger-layer-img.squeezed {
       transform: translateY(var(--sq-offset, 8px)) scaleY(0.82) scaleX(1.04);
-    }
-
-    .burger-layer-img.squeezed-base {
-      transform: translateY(0px) scaleY(0.75) scaleX(1.06);
     }
 
     .burger-layer-img.new-layer {
@@ -447,7 +444,6 @@
 
     const MAX_INGREDIENTS = 15;
 
-    // Добавлены сыр, огурчики и белый лук
     const INGREDIENTS = [
       { id: 'top-bun', name: 'Top Bun', image: 'images/top-bun.png' },
       { id: 'lettuce', name: 'Lettuce', image: 'images/lettuce.png' },
@@ -554,6 +550,8 @@
             img.style.marginBottom = '-10px';
           } else if (item.id === 'lettuce') {
             img.style.marginBottom = '-60px';
+          } else if (item.id === 'cheese') {
+            img.style.marginBottom = '-52px'; // Сыр опускается чуть ниже
           } else if (itemBelow && itemBelow.id === 'lettuce') {
             img.style.marginBottom = '-55px';
           } else {
@@ -562,14 +560,10 @@
 
           img.style.zIndex = index + 1;
 
-          if (isSqueezed) {
-            if (index === 0) {
-              img.classList.add('squeezed-base');
-            } else {
-              const sqOffset = index * 6;
-              img.style.setProperty('--sq-offset', `${sqOffset}px`);
-              img.classList.add('squeezed');
-            }
+          if (isSqueezed && index > 0) {
+            const sqOffset = index * 6;
+            img.style.setProperty('--sq-offset', `${sqOffset}px`);
+            img.classList.add('squeezed');
           }
 
           burgerStack.appendChild(img);
