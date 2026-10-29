@@ -399,12 +399,12 @@
 
   <div class="app-container">
     <div class="panel left-panel">
-      <div class="panel-title" id="layersTitle">Layers (0/15)</div>
+      <div class="panel-title" id="layersTitle">Layers (0/30)</div>
       <div class="layers-list" id="layersList"></div>
     </div>
 
     <div class="center-stage" id="centerStage">
-      <div class="limit-warning" id="limitWarning">Max 15 ingredients!</div>
+      <div class="limit-warning" id="limitWarning">Max 30 ingredients!</div>
       <div class="burger-wrapper">
         <div class="burger-stack" id="burgerStack"></div>
       </div>
@@ -441,7 +441,7 @@
       }
     }
 
-    const MAX_INGREDIENTS = 15;
+    const MAX_INGREDIENTS = 30; // Увеличенный лимит слоев
 
     const INGREDIENTS = [
       { id: 'top-bun', name: 'Top Bun', image: 'images/top-bun.png' },
@@ -545,7 +545,6 @@
           if (index === 0) {
             img.style.marginBottom = '-10px';
           } else if (isSauce) {
-            // Соусы теперь ложатся пониже (-65px) на все ингредиенты
             img.style.marginBottom = '-65px';
           } else if (item.id === 'lettuce') {
             img.style.marginBottom = '-72px';
@@ -554,7 +553,6 @@
           } else if (itemBelow && itemBelow.id === 'lettuce') {
             img.style.marginBottom = '-55px';
           } else {
-            // Обычные ингредиенты опущены на 2px ниже (с -40px до -42px)
             img.style.marginBottom = '-42px';
           }
 
@@ -578,6 +576,7 @@
     }
 
     function showLimitWarning() {
+      limitWarning.innerText = `Max ${MAX_INGREDIENTS} ingredients!`;
       limitWarning.classList.add('show');
       setTimeout(() => limitWarning.classList.remove('show'), 2000);
     }
