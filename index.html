@@ -413,6 +413,7 @@
         width: 100%;
         padding: 10px;
         gap: 10px;
+        padding-bottom: 75px; /* Отступ снизу под фиксированную панель */
       }
 
       .center-stage {
@@ -468,13 +469,14 @@
         height: 180px;
       }
 
-      /* Кнопки зафиксированы в самом низу экрана на мобильных устройствах */
+      /* Нижняя панель фиксируется в самом низу на мобилках */
       .bottom-panel {
-        order: 5;
         position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
+        grid-column: auto;
+        grid-row: auto;
         padding: 10px 15px;
         justify-content: center;
         border-radius: 16px 16px 0 0;
@@ -483,11 +485,6 @@
         -webkit-backdrop-filter: blur(15px);
         box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
         z-index: 1000;
-      }
-
-      /* Добавляем отступ снизу для контента, чтобы зафиксированная панель его не перекрывала */
-      .app-container {
-        padding-bottom: 75px;
       }
 
       .action-group {
@@ -502,7 +499,6 @@
         text-align: center;
       }
 
-      /* При скрытии интерфейса — кнопки остаются в самом низу и растягивается сцена */
       body.ui-hidden .left-panel,
       body.ui-hidden .right-panel,
       body.ui-hidden .sauces-group.mobile-sauces {
@@ -557,16 +553,15 @@
       <div class="panel-title" id="layersTitle">Layers (0/30)</div>
       <div class="layers-list" id="layersList"></div>
     </div>
-  </div>
 
-  <!-- 4. Кнопки управления (фиксированы в самом низу экрана на мобильных) -->
-  <div class="bottom-panel">
-    <!-- Соусы для ПК версии -->
-    <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
-    <div class="action-group">
-      <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
-      <button class="btn-action btn-eat" id="eatBtn">Eat</button>
-      <button class="btn-action btn-reset" id="resetBtn">Reset</button>
+    <!-- 4. Нижняя панель (соусы на ПК + кнопки управления) -->
+    <div class="bottom-panel">
+      <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
+      <div class="action-group">
+        <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
+        <button class="btn-action btn-eat" id="eatBtn">Eat</button>
+        <button class="btn-action btn-reset" id="resetBtn">Reset</button>
+      </div>
     </div>
   </div>
 
