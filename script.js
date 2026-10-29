@@ -13,6 +13,42 @@ const ingredients = [
         type: "patty"
     },
     {
+        id: "cheese",
+        name: "Сыр",
+        image: "images/cheese.png",
+        type: "ingredient"
+    },
+    {
+        id: "lettuce",
+        name: "Салат",
+        image: "images/lettuce.png",
+        type: "ingredient"
+    },
+    {
+        id: "tomato",
+        name: "Помидор",
+        image: "images/tomato.png",
+        type: "ingredient"
+    },
+    {
+        id: "onion",
+        name: "Лук",
+        image: "images/onion.png",
+        type: "ingredient"
+    },
+    {
+        id: "pickle",
+        name: "Огурец",
+        image: "images/pickle.png",
+        type: "ingredient"
+    },
+    {
+        id: "bacon",
+        name: "Бекон",
+        image: "images/bacon.png",
+        type: "ingredient"
+    },
+    {
         id: "top-bun",
         name: "Верхняя булочка",
         image: "images/top-bun.png",
@@ -20,7 +56,30 @@ const ingredients = [
     }
 ];
 
-// Массив всегда хранится снизу вверх
+const sauces = {
+    ketchup: {
+        name: "Кетчуп",
+        color: "#c83e32"
+    },
+    mayonnaise: {
+        name: "Майонез",
+        color: "#f4e9ca"
+    },
+    mustard: {
+        name: "Горчица",
+        color: "#e7b82d"
+    },
+    bbq: {
+        name: "Барбекю",
+        color: "#713a24"
+    },
+    chili: {
+        name: "Чили",
+        color: "#ed6536"
+    }
+};
+
+// Слои хранятся снизу вверх
 let burgerLayers = [];
 
 const list = document.getElementById("ingredients-list");
@@ -28,23 +87,15 @@ const catalog = document.getElementById("catalog");
 const stack = document.getElementById("burger-stack");
 const message = document.getElementById("message");
 
-const sauces = {
-    ketchup: {
-        name: "Кетчуп",
-        color: "#c83e32"
-    },
-    mustard: {
-        name: "Горчица",
-        color: "#e7b82d"
-    },
-    mayonnaise: {
-        name: "Майонез",
-        color: "#f4e9ca"
-    }
-};
-
 function showMessage(text) {
     message.textContent = text;
+}
+
+function makeLayer(item) {
+    return {
+        ...item,
+        uid: Date.now() + "-" + Math.random().toString(16).slice(2)
+    };
 }
 
 function createCatalog() {
@@ -59,16 +110,16 @@ function createCatalog() {
         img.src = ingredient.image;
         img.alt = ingredient.name;
 
+        img.addEventListener("error", () => {
+            item.title = ingredient.name + " — изображение не найдено";
+        });
+
         item.appendChild(img);
 
         item.addEventListener("click", () => {
-            burgerLayers.push({
-                ...ingredient,
-                uid: crypto.randomUUID()
-            });
-
+            burgerLayers.push(makeLayer(ingredient));
             renderBurger();
-            showMessage("Ингредиент добавлен");
+            showMessage(ingredient.name + " добавлен");
         });
 
         catalog.appendChild(item);
@@ -78,14 +129,26 @@ function createCatalog() {
 function renderList() {
     list.innerHTML = "";
 
-    // Не используем reverse(): порядок уже снизу вверх
-    burgerLayers.forEach((layer, index) => {
+    // Показываем от верхнего слоя к нижнему
+    burgerLayers.slice().reverse().forEach(layer => {
+        const index = burgerLayers.findIndex(
+            item => item.uid === layer.uid
+        );
+
         const row = document.createElement("div");
         row.className = "ingredient-row";
 
-        const img = document.createElement("img");
-        img.src = layer.image;
-        img.alt = layer.name;
+        if (layer.image) {
+            const img = document.createElement("img");
+            img.src = layer.image;
+            img.alt = layer.name;
+            row.appendChild(img);
+        } else {
+            const preview = document.createElement("div");
+            preview.className = "ingredient-preview";
+            preview.style.background = layer.color;
+            row.appendChild(preview);
+        }
 
         const controls = document.createElement("div");
         controls.className = "ingredient-controls";
@@ -123,10 +186,11 @@ function renderList() {
         remove.addEventListener("click", () => {
             burgerLayers.splice(index, 1);
             renderBurger();
+            showMessage(layer.name + " удалён");
         });
 
         controls.append(up, down, remove);
-        row.append(img, controls);
+        row.appendChild(controls);
         list.appendChild(row);
     });
 }
@@ -134,93 +198,76 @@ function renderList() {
 function renderBurger() {
     stack.innerHTML = "";
 
-    let currentHeight = 0;
-
     burgerLayers.forEach((layer, index) => {
-        const img = document.createElement("img");
-        img.className = "burger-layer";
-        img.src = layer.image;
-        img.alt = layer.name;
+        let element;
 
-        // Более поздние слои находятся выше предыдущих
-        img.style.zIndex = index + 1;
+        if (layer.type === "sauce") {
+            element = document.createElement("div");
+            element.className = "sauce-layer";
+            element.style.background = layer.color;
+            element.style.width = "100%";
+            element.style.height = "7px";
+        } else {
+            element = document.createElement("img");
+            element.className = "burger-layer";
+            element.src = layer.image;
+            element.alt = layer.name;
 
-        stack.appendChild(img);
+            element.addEventListener("load", positionLayers);
+            element.addEventListener("error", () => {
+                showMessage("Не найден файл: " + layer.image);
+            });
+        }
 
-        img.addEventListener("load", () => {
-            positionLayers();
-        });
+        element.dataset.uid = layer.uid;
+        element.style.zIndex = index + 1;
 
-        img.addEventListener("error", () => {
-            showMessage("Не удалось загрузить: " + layer.image);
-        });
+        stack.appendChild(element);
     });
 
-    positionLayers();
     renderList();
+    positionLayers();
 }
 
 function positionLayers() {
-    const layers = Array.from(stack.querySelectorAll(".burger-layer"));
+    const elements = Array.from(stack.children);
 
-    let currentHeight = 0;
+    let currentBottom = 0;
 
-    layers.forEach((img, index) => {
-        if (!img.naturalWidth || !img.naturalHeight) {
-            return;
+    elements.forEach((element, index) => {
+        let height;
+
+        if (element.classList.contains("sauce-layer")) {
+            height = 7;
+        } else {
+            if (!element.naturalWidth || !element.naturalHeight) {
+                return;
+            }
+
+            height = stack.clientWidth *
+                element.naturalHeight / element.naturalWidth;
         }
 
-        const width = stack.clientWidth;
-        const height = width * img.naturalHeight / img.naturalWidth;
+        element.style.bottom = currentBottom + "px";
 
-        // Каждый новый слой перекрывает предыдущий примерно на 42%
-        const overlap = index === 0
-            ? 0
-            : height * 0.42;
-
-        currentHeight -= overlap;
-
-        img.style.bottom = currentHeight + "px";
-
-        currentHeight += height;
+        // Соседние слои немного перекрываются
+        const overlap = index === 0 ? 0 : height * 0.42;
+        currentBottom += height - overlap;
     });
 }
 
 document.querySelectorAll("[data-sauce]").forEach(button => {
     button.addEventListener("click", () => {
-        const sauceId = button.dataset.sauce;
-        const sauce = sauces[sauceId];
+        const sauce = sauces[button.dataset.sauce];
 
-        burgerLayers.push({
-            id: sauceId,
+        burgerLayers.push(makeLayer({
+            id: button.dataset.sauce,
             name: sauce.name,
             type: "sauce",
-            color: sauce.color,
-            uid: crypto.randomUUID()
-        });
+            color: sauce.color
+        }));
 
         renderBurger();
-
-        // Пока соус отображается цветным слоем без отдельной картинки
-        const img = stack.lastElementChild;
-
-        if (img) {
-            img.remove();
-        }
-
-        const sauceLayer = document.createElement("div");
-        sauceLayer.className = "burger-layer";
-        sauceLayer.style.height = "18px";
-        sauceLayer.style.width = "85%";
-        sauceLayer.style.borderRadius = "50%";
-        sauceLayer.style.background = sauce.color;
-        sauceLayer.style.zIndex = burgerLayers.length;
-        sauceLayer.style.bottom = "0";
-        sauceLayer.style.transform = "translateX(-50%)";
-
-        stack.appendChild(sauceLayer);
-        positionLayers();
-
         showMessage(sauce.name + " добавлен");
     });
 });
@@ -243,18 +290,23 @@ document.getElementById("eat-button").addEventListener("click", () => {
 });
 
 document.getElementById("save-button").addEventListener("click", () => {
-    const savedLayers = burgerLayers.map(layer => ({
+    const savedBurger = burgerLayers.map(layer => ({
         id: layer.id,
         name: layer.name,
-        type: layer.type
+        image: layer.image || null,
+        type: layer.type,
+        color: layer.color || null
     }));
 
-    localStorage.setItem("savedBurger", JSON.stringify(savedLayers));
-    showMessage("Состав бургера сохранён");
+    try {
+        localStorage.setItem("savedBurger", JSON.stringify(savedBurger));
+        showMessage("Состав бургера сохранён");
+    } catch (error) {
+        showMessage("Не удалось сохранить бургер");
+    }
 });
 
 window.addEventListener("resize", positionLayers);
 
 createCatalog();
 renderBurger();
-
