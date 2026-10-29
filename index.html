@@ -333,13 +333,16 @@
     }
 
     .btn-action {
-      padding: 10px 20px;
+      padding: 10px 16px;
       border: none;
       border-radius: 10px;
       font-weight: 700;
       font-size: 0.9rem;
       cursor: pointer;
       transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .btn-squeeze {
@@ -364,6 +367,12 @@
       background: linear-gradient(135deg, #8e24aa, #6a1b9a);
       color: #ffffff;
       box-shadow: 0 4px 10px rgba(142, 36, 170, 0.3);
+    }
+
+    .btn-utility {
+      background: linear-gradient(135deg, #455a64, #263238);
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(69, 90, 100, 0.3);
     }
 
     /* Модальное окно ачивок */
@@ -487,7 +496,7 @@
       color: #ffffff;
     }
 
-    /* Всплывающее уведомление о новой ачивке (ПК: по центру и длиннее, Мобильные: слева) */
+    /* Всплывающее уведомление о новой ачивке */
     .toast-container {
       position: fixed;
       top: 20px;
@@ -529,7 +538,6 @@
     }
 
     @media (max-width: 900px) {
-      /* Для телефонов перемещаем тост влево */
       .toast-container {
         left: 20px;
         transform: none;
@@ -619,7 +627,7 @@
       }
 
       .action-group { width: 100%; justify-content: space-between; }
-      .btn-action { flex: 1; padding: 10px 4px; font-size: 0.8rem; text-align: center; }
+      .btn-action { flex: 1; padding: 10px 2px; font-size: 0.8rem; text-align: center; }
 
       body.ui-hidden .left-panel,
       body.ui-hidden .right-panel,
@@ -681,7 +689,9 @@
     <div class="bottom-panel">
       <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
       <div class="action-group">
-        <button class="btn-action btn-achievements" id="openAchievementsBtn">🏆</button>
+        <button class="btn-action btn-utility" id="soundToggleBtn" title="Mute/Unmute">🔊</button>
+        <button class="btn-action btn-utility" id="downloadPngBtn" title="Download PNG">📷</button>
+        <button class="btn-action btn-achievements" id="openAchievementsBtn" title="Achievements">🏆</button>
         <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
         <button class="btn-action btn-eat" id="eatBtn">Eat</button>
         <button class="btn-action btn-reset" id="resetBtn">Reset</button>
@@ -704,14 +714,31 @@
       bustanator: new Audio('audio/bustanator.mp3')
     };
 
+    // Настройка громкости/заглушения (сохраняется в localStorage)
+    let isMuted = JSON.parse(localStorage.getItem('burger_is_muted')) || false;
+
+    function updateSoundBtnUI() {
+      const btn = document.getElementById('soundToggleBtn');
+      if (btn) {
+        btn.innerText = isMuted ? '🔇' : '🔊';
+      }
+    }
+
     function playSound(sound) {
-      if (sound) {
+      if (!isMuted && sound) {
         sound.currentTime = 0;
         sound.play().catch(() => {});
       }
     }
 
-    // Список ачивок и секретных рецептов
+    document.getElementById('soundToggleBtn').onclick = () => {
+      isMuted = !isMuted;
+      localStorage.setItem('burger_is_muted', JSON.stringify(isMuted));
+      updateSoundBtnUI();
+      if (!isMuted) playSound(SOUNDS.buttons);
+    };
+
+    // Список ачивок
     const ACHIEVEMENTS = [
       { id: 'cheeseburger', title: 'Cheezburger', desc: 'Get your ideal Roblox burger', icon: '🧀', sound: SOUNDS.cheeseburger },
       { id: 'mcPicklePounder', title: 'McPickle Pounder', desc: "You're probably the kind of person who would eat a pickle tiramisu", icon: '🥒', sound: SOUNDS.mcPicklePounder },
@@ -821,9 +848,14 @@
       { id: 'bbq', name: '🟤 BBQ', image: 'images/sauce-bbq.png' }
     ];
 
-    let currentBurger = [];
+    // Загрузка ранее сохраненного бургера из localStorage
+    let currentBurger = JSON.parse(localStorage.getItem('saved_burger_stack')) || [];
     let isEating = false;
     let isSqueezed = false;
+
+    function saveBurgerState() {
+      localStorage.setItem('saved_burger_stack', JSON.stringify(currentBurger));
+    }
 
     const burgerStack = document.getElementById('burgerStack');
     const layersList = document.getElementById('layersList');
@@ -879,39 +911,47 @@
       if (currentBurger.length === 0) return;
       const ids = currentBurger.map(i => i.id);
 
-      // 1. Чизбургер
       if (ids.length === 4 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'top-bun') {
         playSound(SOUNDS.cheeseburger);
         unlockAchievement('cheeseburger');
       }
-      // 2. Mc Pickle Pounder
       else if (ids.length === 7 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'pickles' && ids[4] === 'pickles' && ids[5] === 'pickles' && ids[6] === 'top-bun') {
         playSound(SOUNDS.mcPicklePounder);
         unlockAchievement('mcPicklePounder');
       }
-      // 3. Tomatonator
       else if (ids.length === 7 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'tomato' && ids[4] === 'tomato' && ids[5] === 'tomato' && ids[6] === 'top-bun') {
         playSound(SOUNDS.tomatonator);
         unlockAchievement('tomatonator');
       }
-      // 4. Saturn Burger
       else if (ids.length === 4 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'white-onion' && ids[3] === 'top-bun') {
         playSound(SOUNDS.saturnBurger);
         unlockAchievement('saturnBurger');
       }
-      // 5. Lilypad
       else if (ids.length === 5 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'lettuce' && ids[4] === 'top-bun') {
         playSound(SOUNDS.lilypad);
         unlockAchievement('lilypad');
       }
-      // 6. Bustanator
       else if (ids.length === 6 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'mayo' && ids[3] === 'mayo' && ids[4] === 'mayo' && ids[5] === 'top-bun') {
         playSound(SOUNDS.bustanator);
         unlockAchievement('bustanator');
       }
     }
 
+    function getMarginBottomForLayer(item, itemBelow, index) {
+      const isSauce = ['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id);
+      if (index === 0) return -10;
+      if (isSauce) return -65;
+      if (item.id === 'top-bun') return -42;
+      if (item.id === 'cheese') return -65;
+      if (item.id === 'fried-egg') return -58;
+      if (item.id === 'fried-bacon') return -52;
+      if (item.id === 'lettuce') return -72;
+      if (itemBelow && itemBelow.id === 'lettuce') return -55;
+      return -42;
+    }
+
     function updateBurgerDisplay(isNewAdded = false) {
+      saveBurgerState();
       layersTitle.innerText = `Layers (${currentBurger.length}/${MAX_INGREDIENTS})`;
 
       layersList.innerHTML = '';
@@ -944,28 +984,8 @@
           }
 
           const itemBelow = index > 0 ? currentBurger[index - 1] : null;
-          const isSauce = ['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id);
-
-          if (index === 0) {
-            img.style.marginBottom = '-10px';
-          } else if (isSauce) {
-            img.style.marginBottom = '-65px';
-          } else if (item.id === 'top-bun') {
-            img.style.marginBottom = '-42px';
-          } else if (item.id === 'cheese') {
-            img.style.marginBottom = '-65px';
-          } else if (item.id === 'fried-egg') {
-            img.style.marginBottom = '-58px';
-          } else if (item.id === 'fried-bacon') {
-            img.style.marginBottom = '-52px';
-          } else if (item.id === 'lettuce') {
-            img.style.marginBottom = '-72px';
-          } else if (itemBelow && itemBelow.id === 'lettuce') {
-            img.style.marginBottom = '-55px';
-          } else {
-            img.style.marginBottom = '-42px';
-          }
-
+          const mb = getMarginBottomForLayer(item, itemBelow, index);
+          img.style.marginBottom = `${mb}px`;
           img.style.zIndex = index + 1;
 
           if (isSqueezed && index > 0) {
@@ -1098,6 +1118,66 @@
       }, 2000);
     };
 
+    // Функция генерации и скачивания PNG картинки с бургером
+    document.getElementById('downloadPngBtn').onclick = async () => {
+      if (currentBurger.length === 0) {
+        alert('Build a burger first!');
+        return;
+      }
+
+      playSound(SOUNDS.buttons);
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      const canvasWidth = 500;
+      const baseLayerHeight = 120;
+      let totalHeight = 300;
+
+      currentBurger.forEach((item, index) => {
+        const itemBelow = index > 0 ? currentBurger[index - 1] : null;
+        const mb = getMarginBottomForLayer(item, itemBelow, index);
+        totalHeight += (baseLayerHeight + mb);
+      });
+
+      canvas.width = canvasWidth;
+      canvas.height = Math.max(500, totalHeight);
+
+      const loadedImages = await Promise.all(
+        currentBurger.map(item => {
+          return new Promise((resolve) => {
+            const img = new Image();
+            img.src = item.image;
+            img.onload = () => resolve(img);
+            img.onerror = () => resolve(null);
+          });
+        })
+      );
+
+      let currentY = canvas.height - 150;
+
+      loadedImages.forEach((img, index) => {
+        if (!img) return;
+        const item = currentBurger[index];
+        const itemBelow = index > 0 ? currentBurger[index - 1] : null;
+        const mb = getMarginBottomForLayer(item, itemBelow, index);
+
+        const imgWidth = 320;
+        const imgHeight = (img.height / img.width) * imgWidth;
+        const drawX = (canvasWidth - imgWidth) / 2;
+        const drawY = currentY - imgHeight;
+
+        ctx.drawImage(img, drawX, drawY, imgWidth, imgHeight);
+        currentY = drawY + imgHeight + (mb * 2.2); 
+      });
+
+      const link = document.createElement('a');
+      link.download = 'my-burger.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    };
+
+    updateSoundBtnUI();
     renderSauces();
     renderIngredientsMenu();
     updateBurgerDisplay(false);
