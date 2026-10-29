@@ -3,250 +3,549 @@
     box-sizing: border-box;
 }
 
+:root {
+    --background: #fff8ed;
+    --panel: #ffffff;
+    --text: #49352b;
+    --muted: #917d70;
+    --accent: #e88a42;
+    --border: #f0dfce;
+}
+
+html,
 body {
+    width: 100%;
+    min-height: 100%;
     margin: 0;
+}
+
+body {
     min-height: 100vh;
-    background: #fff4df;
-    color: #493526;
     font-family: Arial, sans-serif;
+    color: var(--text);
+    background: var(--background);
+    overflow-x: hidden;
 }
 
-header {
-    padding: 12px;
+button {
+    font: inherit;
+    cursor: pointer;
+}
+
+button:focus-visible {
+    outline: 3px solid #e8a35d;
+    outline-offset: 3px;
+}
+
+/* Верхняя шапка */
+
+.header {
+    min-height: 90px;
+    padding: 18px 24px;
     text-align: center;
+    background: #ffffff;
+    border-bottom: 1px solid var(--border);
 }
 
-header h1 {
-    margin: 0;
+.header h1 {
+    margin: 0 0 7px;
     font-size: 28px;
 }
 
-.layout {
-    display: grid;
-    grid-template-columns: 240px minmax(0, 1fr) 240px;
-    gap: 16px;
-    padding: 16px;
-    height: calc(100vh - 60px);
-    min-height: 500px;
+.header p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
 }
+
+/* Основная сетка */
+
+.builder {
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr) 320px;
+    gap: 18px;
+    width: 100%;
+    height: calc(100vh - 90px);
+    min-height: 560px;
+    padding: 18px;
+}
+
+/* Боковые панели */
 
 .panel {
+    display: flex;
+    flex-direction: column;
     min-width: 0;
-    padding: 16px;
-    background: #fffaf0;
-    border: 2px solid #e8d4b4;
-    border-radius: 16px;
+    min-height: 0;
+    padding: 18px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: 0 5px 18px rgba(100, 64, 35, 0.06);
+    overflow: hidden;
 }
 
-.panel h2 {
-    margin: 0 0 16px;
-    text-align: center;
+.panel h2,
+.workspace-title h2 {
+    margin: 0;
     font-size: 20px;
 }
 
-.ingredients-panel,
-.catalog-panel {
-    overflow-y: auto;
+.panel-description {
+    margin: 7px 0 16px;
+    color: var(--muted);
+    font-size: 13px;
 }
 
-#ingredients-list {
+/* Список добавленных ингредиентов */
+
+.ingredients-list {
     display: flex;
+    flex: 1;
     flex-direction: column;
-    gap: 10px;
+    align-items: stretch;
+    gap: 9px;
+    min-height: 100px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 2px 4px 10px 0;
 }
 
-/* Один элемент в списке добавленных ингредиентов */
-.ingredient-row {
+.ingredient-list-item {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px;
-    background: #f8ecd7;
-    border-radius: 10px;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+    padding: 9px;
+    background: #fffaf5;
+    border: 1px solid var(--border);
+    border-radius: 12px;
 }
 
-.ingredient-row img,
-.ingredient-preview {
-    width: 65px;
-    height: 50px;
-    flex-shrink: 0;
-    object-fit: contain;
-}
-
-.ingredient-preview {
-    border-radius: 6px;
+.ingredient-list-item > span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: 13px;
 }
 
 .ingredient-controls {
     display: flex;
-    flex-direction: column;
+    flex-shrink: 0;
     gap: 3px;
-    margin-left: auto;
 }
 
 .ingredient-controls button {
-    padding: 3px 8px;
+    display: grid;
+    place-items: center;
+    width: 27px;
+    height: 27px;
+    padding: 0;
+    color: var(--text);
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 7px;
 }
 
-/* Центральная область */
-.burger-panel {
+.ingredient-controls button:hover {
+    background: #ffe9d3;
+}
+
+/* Кнопки действий */
+
+.panel-actions {
     display: flex;
     flex-direction: column;
-    min-height: 0;
-    padding: 10px;
+    gap: 8px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
 }
 
-.burger-area {
+.action-button {
+    min-height: 38px;
+    padding: 9px 12px;
+    border: 0;
+    border-radius: 10px;
+    font-weight: bold;
+    transition: filter 0.15s ease;
+}
+
+.action-button:hover {
+    filter: brightness(0.96);
+}
+
+.save-button {
+    color: white;
+    background: #df8a46;
+}
+
+.eat-button {
+    color: white;
+    background: #7caa67;
+}
+
+.reset-button {
+    color: #795b4b;
+    background: #f5e9de;
+}
+
+/* Центральная рабочая область */
+
+.workspace {
     position: relative;
-    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
     min-height: 0;
     overflow: hidden;
+    background: #fffdf9;
+    border: 1px solid var(--border);
+    border-radius: 18px;
 }
 
-/* Размер бургера: 2,5 раза меньше, чем 300 × 300 */
+.workspace-title {
+    position: relative;
+    z-index: 10;
+    padding: 20px 16px 12px;
+    text-align: center;
+    pointer-events: none;
+}
+
+.workspace-title p {
+    margin: 7px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+/* Сцена бургера */
+
+.burger-stage {
+    position: relative;
+    flex: 1;
+    min-height: 200px;
+    overflow: hidden;
+    background:
+        radial-gradient(
+            ellipse at center bottom,
+            #f8ead8 0%,
+            #fffaf3 48%,
+            #fffdf9 78%
+        );
+}
+
+/*
+   Контейнер стоит по центру снизу.
+   Сам бургер может выходить за его верхнюю границу.
+*/
+
 .burger-stack {
     position: absolute;
     left: 50%;
-    bottom: 2%;
+    bottom: 12px;
+    width: 150px;
+    height: 150px;
+    padding: 0;
+    margin: 0;
     transform: translateX(-50%);
-    width: 160px;
-    height: 160px;
+    overflow: visible;
+    isolation: isolate;
 }
 
-/* Изображения отдельных слоёв */
+/* Отдельные изображения слоёв */
+
 .burger-layer {
     position: absolute;
-    left: 50%;
+    left: 0;
     width: 100%;
     height: auto;
     max-width: none;
-    display: block;
+    margin: 0;
+    padding: 0;
     object-fit: contain;
-    transform: translateX(-50%);
     pointer-events: none;
     user-select: none;
 }
 
-/* Соусы */
+/* Соус */
+
 .sauce-layer {
-    position: absolute;
-    left: 50%;
-    height: 7px;
-    border-radius: 50%;
-    transform: translateX(-50%);
     pointer-events: none;
 }
 
-/* Кнопки */
-.sauce-buttons,
-.action-buttons {
+/* Панель соусов */
+
+.sauce-panel {
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+    padding: 13px 14px;
+    background: white;
+    border-top: 1px solid var(--border);
+}
+
+.sauce-panel h3 {
+    margin: 0 0 10px;
+    font-size: 15px;
+}
+
+.sauce-list {
     display: flex;
-    justify-content: center;
     flex-wrap: wrap;
     gap: 8px;
-    padding: 8px 0;
 }
 
-button {
-    padding: 9px 12px;
-    border: none;
-    border-radius: 8px;
-    background: #e8bd83;
-    color: #493526;
-    cursor: pointer;
-    font-size: 14px;
+.sauce-button {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 36px;
+    padding: 6px 10px;
+    color: var(--text);
+    background: #fffaf5;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 12px;
 }
 
-button:hover {
-    background: #dca96a;
+.sauce-button:hover {
+    background: #ffefdF;
 }
 
-button:active {
-    transform: scale(0.97);
+.sauce-dish {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    color: white;
+    background: #c52b25;
+    border: 3px solid #f0d9c2;
+    border-radius: 50%;
+    font-size: 10px;
+}
+
+.mayonnaise .sauce-dish {
+    background: #f5e8c8;
+}
+
+.mustard .sauce-dish {
+    background: #e8bd32;
+}
+
+.bbq .sauce-dish {
+    background: #6b3021;
+}
+
+.chili .sauce-dish {
+    background: #ed542e;
+}
+
+/* Сообщения */
+
+.message {
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+    min-height: 36px;
+    padding: 10px 14px;
+    color: var(--muted);
+    background: white;
+    border-top: 1px solid #f5e9de;
+    text-align: center;
+    font-size: 12px;
 }
 
 /* Каталог ингредиентов */
-#catalog {
+
+.catalog-panel {
+    min-width: 0;
+}
+
+.catalog {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
     gap: 10px;
+    min-height: 100px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 2px 4px 10px 0;
 }
 
-.catalog-item {
+.ingredient-card {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 95px;
-    padding: 5px;
-    background: #f8ecd7;
-    border-radius: 10px;
-    cursor: pointer;
+    gap: 8px;
+    min-width: 0;
+    min-height: 115px;
+    padding: 10px 6px;
+    color: var(--text);
+    background: #fffaf5;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    transition:
+        background 0.15s ease,
+        transform 0.15s ease;
 }
 
-.catalog-item img {
-    width: 100%;
-    height: 85px;
+.ingredient-card:hover {
+    background: #fff0df;
+    transform: translateY(-2px);
+}
+
+.ingredient-card img {
+    display: block;
+    width: 75px;
+    height: 65px;
+    max-width: 100%;
     object-fit: contain;
 }
 
-.catalog-item:hover {
-    background: #efdbb9;
+.ingredient-card span {
+    font-size: 12px;
+    text-align: center;
+    overflow-wrap: anywhere;
 }
 
-#message {
-    min-height: 18px;
-    margin: 0;
-    text-align: center;
-    font-size: 14px;
+/* Полосы прокрутки */
+
+.ingredients-list,
+.catalog {
+    scrollbar-width: thin;
+    scrollbar-color: #e6cbb4 transparent;
+}
+
+.ingredients-list::-webkit-scrollbar,
+.catalog::-webkit-scrollbar {
+    width: 6px;
+}
+
+.ingredients-list::-webkit-scrollbar-thumb,
+.catalog::-webkit-scrollbar-thumb {
+    background: #e6cbb4;
+    border-radius: 10px;
 }
 
 /* Планшеты */
-@media (max-width: 800px) {
-    .layout {
-        grid-template-columns: 1fr 1fr;
-        height: auto;
-    }
 
-    .burger-panel {
-        grid-column: 1 / -1;
-        grid-row: 1;
-        height: 65vh;
-        min-height: 420px;
-    }
-
-    .ingredients-panel,
-    .catalog-panel {
-        min-height: 250px;
-    }
-}
-
-/* Телефоны */
-@media (max-width: 480px) {
-    header h1 {
-        font-size: 22px;
-    }
-
-    .layout {
-        gap: 8px;
-        padding: 8px;
+@media (max-width: 1050px) {
+    .builder {
+        grid-template-columns: 220px minmax(0, 1fr) 260px;
+        gap: 12px;
+        padding: 12px;
     }
 
     .panel {
+        padding: 13px;
+    }
+
+    .burger-stack {
+        width: 150px;
+        height: 150px;
+    }
+
+    .catalog {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Узкие экраны */
+
+@media (max-width: 760px) {
+    .header {
+        min-height: auto;
+        padding: 16px 10px;
+    }
+
+    .header h1 {
+        font-size: 23px;
+    }
+
+    .builder {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        min-height: 0;
         padding: 10px;
+        gap: 12px;
     }
 
-    .burger-panel {
-        height: 55vh;
-        min-height: 350px;
+    .workspace {
+        order: 1;
+        height: 620px;
+        min-height: 520px;
+        flex-shrink: 0;
     }
 
-    .ingredient-row img,
-    .ingredient-preview {
-        width: 45px;
+    .ingredients-panel {
+        order: 2;
+        min-height: 250px;
+        max-height: 350px;
     }
 
-    button {
-        padding: 8px;
+    .catalog-panel {
+        order: 3;
+        min-height: 280px;
+        max-height: 420px;
+    }
+
+    .ingredients-list {
+        min-height: 100px;
+    }
+
+    .panel-actions {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .action-button {
+        padding: 8px 4px;
         font-size: 12px;
+    }
+
+    .burger-stack {
+        width: 150px;
+        height: 150px;
+        bottom: 12px;
+    }
+
+    .catalog {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* Очень узкие телефоны */
+
+@media (max-width: 420px) {
+    .workspace {
+        height: 560px;
+        min-height: 480px;
+    }
+
+    .workspace-title h2 {
+        font-size: 18px;
+    }
+
+    .workspace-title p {
+        font-size: 12px;
+    }
+
+    .burger-stack {
+        width: 150px;
+        height: 150px;
+    }
+
+    .catalog {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sauce-list {
+        gap: 6px;
+    }
+
+    .sauce-button {
+        padding: 5px 8px;
+        font-size: 11px;
     }
 }
