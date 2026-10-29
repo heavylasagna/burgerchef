@@ -73,7 +73,7 @@
       padding-right: 4px;
     }
 
-    /* Карточки слоев - непрозрачные для четкости */
+    /* Карточки слоев */
     .layer-item {
       display: flex;
       align-items: center;
@@ -260,7 +260,6 @@
       align-items: center;
     }
 
-    /* Карточки ингредиентов - непрозрачные */
     .ingredient-card {
       display: flex;
       align-items: center;
@@ -422,9 +421,10 @@
   <script>
     const MAX_INGREDIENTS = 15;
 
-    // Добавлены tomato.png и red-onion.png
+    // Добавлен lettuce.png
     const INGREDIENTS = [
       { id: 'top-bun', name: 'Top Bun', image: 'images/top-bun.png' },
+      { id: 'lettuce', name: 'Lettuce', image: 'images/lettuce.png' },
       { id: 'tomato', name: 'Tomato', image: 'images/tomato.png' },
       { id: 'red-onion', name: 'Red Onion', image: 'images/red-onion.png' },
       { id: 'beef-patty', name: 'Beef Patty', image: 'images/beef-patty.png' },
@@ -584,7 +584,7 @@
     };
 
     function spawnCrumbs() {
-      const colors = ['#e0a96d', '#8d6e63', '#d7ccc8', '#ffd54f'];
+      const colors = ['#e0a96d', '#8d6e63', '#d7ccc8', '#ffd54f', '#81c784'];
       const rect = burgerStack.getBoundingClientRect();
       const originX = rect.left + rect.width / 2;
       const originY = rect.top + rect.height / 2;
