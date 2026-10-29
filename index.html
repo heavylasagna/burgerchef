@@ -22,7 +22,6 @@
       flex-direction: column;
     }
 
-    /* Сетка интерфейса */
     .app-container {
       display: grid;
       grid-template-columns: 320px 1fr 320px;
@@ -53,7 +52,7 @@
       letter-spacing: 0.8px;
     }
 
-    /* 1. ЛЕВАЯ ПАНЕЛЬ */
+    /* Левая панель */
     .left-panel {
       grid-column: 1;
       grid-row: 1;
@@ -140,7 +139,7 @@
       cursor: not-allowed;
     }
 
-    /* 2. ЦЕНТР: Визуальная область */
+    /* Центр */
     .center-stage {
       grid-column: 2;
       grid-row: 1;
@@ -171,7 +170,7 @@
       position: relative;
     }
 
-    /* Стиль только для НОВОГО слоя (плавная анимация без мерцания) */
+    /* Слегка уменьшенное перекрытие слоев (на 15-20% свободнее) */
     .burger-layer-img {
       display: block;
       width: auto;
@@ -184,11 +183,10 @@
       animation: smoothDropIn 0.4s ease-out forwards;
     }
 
-    /* Отступы для слоя */
-    .layer-bottom-bun { margin-bottom: -50px; }
-    .layer-beef-patty { margin-bottom: -60px; }
-    .layer-top-bun { margin-bottom: -65px; }
-    .layer-default { margin-bottom: -55px; }
+    .layer-bottom-bun { margin-bottom: -40px; }
+    .layer-beef-patty { margin-bottom: -48px; }
+    .layer-top-bun { margin-bottom: -52px; }
+    .layer-default { margin-bottom: -44px; }
 
     @keyframes smoothDropIn {
       0% {
@@ -201,28 +199,26 @@
       }
     }
 
-    /* Цельная картинка готового бургера в режиме "Поедания" */
-    .eaten-burger-img {
-      max-width: 260px;
-      cursor: pointer;
-      position: relative;
-      transition: transform 0.05s ease;
-    }
-
+    /* Режим поедания цельной картинки */
     .eaten-burger-wrapper {
       position: relative;
       display: inline-block;
-      cursor: pointer;
+      cursor: crosshair;
     }
 
-    /* Откус на цельной картинке */
+    .eaten-burger-img {
+      max-width: 220px;
+      display: block;
+    }
+
+    /* Укус (вырезает кусочек цветом фона) */
     .bite-mark {
       position: absolute;
       background: #f4f6f8;
       border-radius: 50%;
       pointer-events: none;
       transform: scale(0);
-      animation: bitePop 0.15s ease-out forwards;
+      animation: bitePop 0.1s ease-out forwards;
       z-index: 10;
     }
 
@@ -230,13 +226,13 @@
       to { transform: scale(1); }
     }
 
-    /* Анимация отлетающих крошек */
+    /* Крошки */
     .crumb {
       position: absolute;
       border-radius: 3px;
       pointer-events: none;
       z-index: 100;
-      animation: crumbFly 0.5s ease-out forwards;
+      animation: crumbFly 0.4s ease-out forwards;
     }
 
     @keyframes crumbFly {
@@ -250,7 +246,6 @@
       }
     }
 
-    /* Уведомление о пределе */
     .limit-warning {
       position: absolute;
       top: 15px;
@@ -271,7 +266,7 @@
       transform: translateY(0);
     }
 
-    /* 3. ПРАВАЯ ПАНЕЛЬ */
+    /* Правая панель */
     .right-panel {
       grid-column: 3;
       grid-row: 1;
@@ -325,7 +320,7 @@
       color: #334155;
     }
 
-    /* 4. НИЖНЯЯ ПАНЕЛЬ */
+    /* Нижняя панель */
     .bottom-panel {
       grid-column: 1 / -1;
       grid-row: 2;
@@ -421,27 +416,23 @@
 <body>
 
   <div class="app-container">
-    <!-- Левая панель -->
     <div class="panel left-panel">
-      <div class="panel-title" id="layersTitle">Слои (0/30)</div>
+      <div class="panel-title" id="layersTitle">Слои (0/20)</div>
       <div class="layers-list" id="layersList"></div>
     </div>
 
-    <!-- Центр -->
     <div class="center-stage" id="centerStage">
-      <div class="limit-warning" id="limitWarning">Максимум 30 ингредиентов!</div>
+      <div class="limit-warning" id="limitWarning">Максимум 20 ингредиентов!</div>
       <div class="burger-wrapper" id="burgerWrapper">
         <div class="burger-stack" id="burgerStack"></div>
       </div>
     </div>
 
-    <!-- Правая панель -->
     <div class="panel right-panel">
       <div class="panel-title">Ингредиенты</div>
       <div class="ingredients-menu" id="ingredientsMenu"></div>
     </div>
 
-    <!-- Нижняя панель -->
     <div class="panel bottom-panel">
       <div class="sauces-group" id="saucesGroup">
         <span style="font-size: 0.9rem; font-weight:600; color: #94a3b8; margin-right: 5px;">Соусы:</span>
@@ -454,7 +445,7 @@
   </div>
 
   <script>
-    const MAX_INGREDIENTS = 30;
+    const MAX_INGREDIENTS = 20;
 
     const INGREDIENTS = [
       { id: 'top-bun', name: 'Верхняя булочка', image: 'images/top-bun.png' },
@@ -522,13 +513,11 @@
       });
     }
 
-    // Рендер без мерцания: обновляет только левый список и добавляет/удаляет разницу в DOM
     function updateBurgerDisplay(isNewAdded = false) {
       if (isEatingMode) exitEatingMode();
 
       layersTitle.innerText = `Слои (${currentBurger.length}/${MAX_INGREDIENTS})`;
 
-      // 1. Обновляем левую панель слоев
       layersList.innerHTML = '';
       currentBurger.forEach((item, index) => {
         const listItem = document.createElement('div');
@@ -547,10 +536,8 @@
         layersList.appendChild(listItem);
       });
 
-      // 2. Отрисовка центрального бургера без полной перезаписи элементов
       const currentImgs = burgerStack.querySelectorAll('.burger-layer-img');
       
-      // Если структуру поменяли (удалили/переставили), перерисовываем тихо без анимации
       if (!isNewAdded || currentImgs.length !== currentBurger.filter(i => i.image).length - 1) {
         burgerStack.innerHTML = '';
         currentBurger.forEach((item, index) => {
@@ -563,7 +550,6 @@
           }
         });
       } else {
-        // Добавлен ровно ОДИН новый элемент — плавно добавляем только его
         const newItem = currentBurger[currentBurger.length - 1];
         if (newItem.image) {
           const img = document.createElement('img');
@@ -572,14 +558,12 @@
           img.style.zIndex = currentBurger.length;
           burgerStack.appendChild(img);
           
-          // Убираем анимационный класс после завершения
           setTimeout(() => img.classList.remove('new-layer'), 400);
         }
       }
 
       renderIngredientsMenu();
 
-      // Автопрокрутка вверх к новому ингредиенту
       setTimeout(() => {
         centerStage.scrollTop = centerStage.scrollHeight;
       }, 50);
@@ -632,7 +616,6 @@
 
     function exitEatingMode() {
       isEatingMode = false;
-      burgerWrapper.innerHTML = '<div class="burger-stack" id="burgerStack"></div>';
       eatBtn.innerText = 'Съесть 😋';
       eatBtn.classList.remove('active-eating');
       updateBurgerDisplay(false);
@@ -644,7 +627,7 @@
       updateBurgerDisplay(false);
     };
 
-    // ОБЪЕДИНЕНИЕ СЛОЕВ В ЕДИНУЮ КАРТИНКУ ДЛЯ ПОЕДАНИЯ
+    // ПОЕДАНИЕ С ВЫРЕЗАНИЕМ КУСОЧКОВ БЕЗ ИСКАЖЕНИЯ ПРОПОРЦИЙ
     eatBtn.onclick = async () => {
       if (currentBurger.length === 0 || isEatingMode) return;
 
@@ -652,16 +635,13 @@
       eatBtn.innerText = 'Кликай по бургеру! 🍽️';
       eatBtn.classList.add('active-eating');
 
-      // Создаем Canvas для "запекания" слоев в одну картинку
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       canvas.width = 300;
-      canvas.height = Math.max(300, currentBurger.length * 35 + 100);
+      canvas.height = Math.max(300, currentBurger.length * 30 + 100);
 
       const imagesToLoad = currentBurger.filter(i => i.image);
-      let loadedCount = 0;
 
-      // Ждем загрузки всех изображений
       const loadedImgs = await Promise.all(imagesToLoad.map(item => {
         return new Promise(resolve => {
           const img = new Image();
@@ -670,18 +650,16 @@
         });
       }));
 
-      // Отрисовываем слои снизу вверх на Canvas
-      let currentY = canvas.height - 120;
+      let currentY = canvas.height - 110;
       loadedImgs.forEach(({ img, id }) => {
-        let offset = 45;
-        if (id === 'top-bun') offset = 55;
-        if (id === 'beef-patty') offset = 40;
+        let offset = 40;
+        if (id === 'top-bun') offset = 48;
+        if (id === 'beef-patty') offset = 35;
 
         ctx.drawImage(img, (canvas.width - 200) / 2, currentY, 200, (img.height / img.width) * 200);
         currentY -= offset;
       });
 
-      // Превращаем Canvas в единый тег <img>
       const singleImgUrl = canvas.toDataURL();
       
       burgerWrapper.innerHTML = `
@@ -690,13 +668,12 @@
         </div>
       `;
 
-      totalBitesNeeded = Math.max(5, currentBurger.length * 2);
+      // Расчет количества укусов до 70% площади (примерно 15-25 кликов в зависимости от высоты)
+      totalBitesNeeded = Math.max(8, currentBurger.length * 3);
       currentBites = 0;
 
       const eatenWrapper = document.getElementById('eatenWrapper');
-      const eatenImg = document.getElementById('eatenImg');
 
-      // Мгновенный быстрый клик
       eatenWrapper.onclick = (e) => {
         if (!isEatingMode) return;
 
@@ -704,7 +681,7 @@
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        // 1. Добавляем визуальный укус
+        // Создаем вырез (укус) цветом фона
         const bite = document.createElement('div');
         bite.className = 'bite-mark';
         const size = Math.floor(Math.random() * 30) + 40;
@@ -714,16 +691,11 @@
         bite.style.top = `${y - size / 2}px`;
         eatenWrapper.appendChild(bite);
 
-        // 2. Создаем отлетающие крошки
         createCrumbs(e.clientX, e.clientY);
 
         currentBites++;
 
-        // Слегка уменьшаем цельный бургер с каждым укусом
-        const scale = 1 - (currentBites / totalBitesNeeded) * 0.8;
-        eatenImg.style.transform = `scale(${Math.max(0.1, scale)})`;
-
-        // Когда съели полностью
+        // Если съели примерно 70% (достигли лимита укусов) — полностью убираем бургер
         if (currentBites >= totalBitesNeeded) {
           setTimeout(() => {
             currentBurger = [];
@@ -733,7 +705,6 @@
       };
     };
 
-    // Создание отлетающих крошек
     function createCrumbs(originX, originY) {
       const colors = ['#e0a96d', '#5d4037', '#ffd54f', '#81c784', '#e57373'];
       const crumbsCount = Math.floor(Math.random() * 6) + 6;
@@ -758,7 +729,7 @@
         crumb.style.setProperty('--rot', rot);
 
         document.body.appendChild(crumb);
-        setTimeout(() => crumb.remove(), 500);
+        setTimeout(() => crumb.remove(), 400);
       }
     }
 
