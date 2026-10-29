@@ -12,66 +12,82 @@
 
         body {
             margin: 0;
-            padding: 20px;
+            padding: 16px;
             font-family: Arial, sans-serif;
             background: #fff4df;
             color: #4b3024;
         }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 25px;
+        button {
+            font-family: inherit;
+            cursor: pointer;
         }
 
-        .container {
+        button:disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+
+        h1 {
+            margin: 0 0 16px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        h2 {
+            margin: 0 0 14px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .layout {
             display: grid;
-            grid-template-columns: 1fr 1.2fr 1fr;
-            gap: 20px;
-            max-width: 1400px;
+            grid-template-columns: 190px minmax(0, 1fr) 190px;
+            gap: 14px;
+            max-width: 1500px;
+            height: calc(100vh - 76px);
+            min-height: 500px;
             margin: 0 auto;
         }
 
         .panel {
+            min-width: 0;
+            min-height: 0;
+            padding: 12px;
             background: #fffaf0;
             border: 2px solid #e8d1aa;
-            border-radius: 15px;
-            padding: 15px;
-            min-width: 0;
-        }
-
-        h2 {
-            text-align: center;
-            font-size: 20px;
-            margin-top: 0;
+            border-radius: 14px;
         }
 
         /* Список ингредиентов */
+
+        .ingredients-panel {
+            display: flex;
+            flex-direction: column;
+        }
 
         #ingredient-list {
             display: flex;
             flex-direction: column;
             gap: 8px;
+            overflow-y: auto;
         }
 
         .ingredient-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 6px;
+            gap: 5px;
+            padding: 5px;
             background: #f8e8cb;
-            border-radius: 10px;
+            border-radius: 9px;
         }
 
         .ingredient-item img {
-            width: 50px;
-            height: 50px;
+            width: 55px;
+            height: 55px;
             object-fit: contain;
-        }
-
-        .ingredient-name {
             flex: 1;
-            font-size: 14px;
-            overflow-wrap: anywhere;
+            min-width: 0;
         }
 
         .ingredient-controls {
@@ -80,14 +96,15 @@
             gap: 3px;
         }
 
-        .ingredient-controls button {
-            width: 27px;
-            height: 25px;
+        .ingredient-controls button,
+        .delete-button {
+            width: 28px;
+            height: 27px;
             padding: 0;
             border: none;
             border-radius: 5px;
             background: #e6c79c;
-            cursor: pointer;
+            font-size: 16px;
         }
 
         .ingredient-controls button:hover {
@@ -95,158 +112,294 @@
         }
 
         .delete-button {
-            width: 27px;
-            height: 27px;
-            border: none;
-            border-radius: 5px;
             background: #e9a18b;
-            cursor: pointer;
+            flex-shrink: 0;
         }
 
         .delete-button:hover {
             background: #df8066;
         }
 
-        /* Бургер */
+        /* Центральная область */
 
-        .burger-panel {
+        .center-panel {
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .center-panel h2 {
+            flex-shrink: 0;
+        }
+
+        .burger-area {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
         }
 
         #burger {
             position: relative;
-            width: 300px;
-            height: 300px;
-            max-width: 100%;
-            overflow: hidden;
+            width: min(100%, 560px);
+            height: 100%;
+            max-height: 760px;
             flex-shrink: 0;
         }
 
         .burger-layer {
             position: absolute;
-            left: 0;
-            top: 0;
+            left: 50%;
             width: 100%;
-            height: 100%;
+            height: auto;
+            max-height: none;
             object-fit: contain;
+            transform: translateX(-50%);
+            transform-origin: center center;
             pointer-events: none;
+            user-select: none;
         }
 
-        .sauce-layer {
-            position: absolute;
-            left: 5%;
-            top: 42%;
-            width: 90%;
-            height: 30px;
-            font-size: 55px;
-            font-weight: bold;
-            line-height: 20px;
+        /* Соусы внизу */
+
+        .sauce-section {
+            width: 100%;
+            flex-shrink: 0;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e8d1aa;
+        }
+
+        .sauce-title {
+            margin-bottom: 7px;
             text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            pointer-events: none;
+            font-size: 13px;
         }
-
-        .reset-button {
-            margin-top: 15px;
-            padding: 10px 18px;
-            border: none;
-            border-radius: 8px;
-            background: #a95d35;
-            color: white;
-            font-size: 15px;
-            cursor: pointer;
-        }
-
-        .reset-button:hover {
-            background: #874525;
-        }
-
-        /* Соусы */
 
         .sauces {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 8px;
-            margin-top: 15px;
+            gap: 6px;
         }
 
         .sauce-button {
-            padding: 8px 10px;
+            padding: 7px 9px;
             border: 1px solid #e0c49a;
             border-radius: 8px;
             background: #fff0d5;
-            cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .sauce-button:hover {
             background: #f2d8ac;
         }
 
+        /* Основные кнопки */
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin-top: 9px;
+            flex-shrink: 0;
+        }
+
+        .action-button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            background: #a95d35;
+            color: white;
+            font-size: 14px;
+        }
+
+        .action-button:hover {
+            background: #874525;
+        }
+
+        .save-button {
+            background: #588044;
+        }
+
+        .save-button:hover {
+            background: #41652f;
+        }
+
+        .eat-button {
+            background: #d57b38;
+        }
+
+        .eat-button:hover {
+            background: #b96427;
+        }
+
+        .status {
+            min-height: 18px;
+            margin: 7px 0 0;
+            text-align: center;
+            font-size: 13px;
+            color: #6b513c;
+            flex-shrink: 0;
+        }
+
         /* Каталог */
 
-        .catalog {
+        .catalog-panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #catalog {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
-            max-height: 500px;
+            grid-template-columns: 1fr;
+            gap: 10px;
             overflow-y: auto;
-            padding: 5px;
         }
 
         .catalog-item {
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 115px;
+            min-height: 100px;
             padding: 8px;
             background: #f8e8cb;
             border: 2px solid transparent;
-            border-radius: 12px;
-            cursor: pointer;
+            border-radius: 10px;
         }
 
         .catalog-item:hover {
-            border-color: #c78a51;
             background: #f3ddb9;
+            border-color: #c78a51;
         }
 
         .catalog-item img {
             width: 100%;
-            height: 100px;
+            height: 90px;
             object-fit: contain;
             pointer-events: none;
         }
 
-        /* Телефоны */
+        /* Анимация поедания */
 
-        @media (max-width: 800px) {
-            body {
-                padding: 12px;
+        @keyframes eatBurger {
+            0% {
+                transform: scale(1);
+                opacity: 1;
             }
 
-            .container {
-                grid-template-columns: 1fr;
+            60% {
+                transform: scale(0.7) rotate(-8deg);
+                opacity: 0.7;
             }
 
-            #burger {
-                width: 300px;
-                height: 300px;
-            }
-
-            .catalog {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-                max-height: 350px;
+            100% {
+                transform: scale(0);
+                opacity: 0;
             }
         }
 
-        @media (max-width: 420px) {
-            .catalog {
+        .eating {
+            animation: eatBurger 0.8s ease-in forwards;
+        }
+
+        /* Небольшие экраны */
+
+        @media (max-width: 900px) {
+            body {
+                padding: 10px;
+            }
+
+            .layout {
+                grid-template-columns: 140px minmax(0, 1fr);
+                height: auto;
+                min-height: 0;
+            }
+
+            .center-panel {
+                grid-column: 2;
+                grid-row: 1 / span 2;
+                min-height: 650px;
+            }
+
+            .ingredients-panel {
+                grid-column: 1;
+                grid-row: 1;
+            }
+
+            .catalog-panel {
+                grid-column: 1;
+                grid-row: 2;
+            }
+
+            #catalog {
+                grid-template-columns: 1fr;
+            }
+
+            .burger-area {
+                min-height: 300px;
+            }
+
+            #burger {
+                height: 100%;
+            }
+        }
+
+        @media (max-width: 560px) {
+            h1 {
+                font-size: 23px;
+            }
+
+            .layout {
+                display: flex;
+                flex-direction: column;
+                height: auto;
+            }
+
+            .center-panel {
+                order: 1;
+                min-height: 75vh;
+            }
+
+            .ingredients-panel {
+                order: 2;
+            }
+
+            .catalog-panel {
+                order: 3;
+            }
+
+            .burger-area {
+                min-height: 340px;
+            }
+
+            #burger {
+                width: 100%;
+            }
+
+            #ingredient-list {
+                display: grid;
                 grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            #catalog {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .catalog-item {
+                min-height: 80px;
+            }
+
+            .catalog-item img {
+                height: 70px;
             }
         }
     </style>
@@ -256,87 +409,92 @@
 
     <h1>Собери свой бургер!</h1>
 
-    <div class="container">
+    <main class="layout">
 
-        <!-- Список ингредиентов -->
-        <section class="panel">
-            <h2>Твой бургер</h2>
+        <!-- Список добавленных ингредиентов -->
+
+        <section class="panel ingredients-panel">
+            <h2>Состав</h2>
             <div id="ingredient-list"></div>
         </section>
 
-        <!-- Собранный бургер -->
-        <section class="panel burger-panel">
-            <h2>Результат</h2>
+        <!-- Бургер и кнопки -->
 
-            <div id="burger"></div>
+        <section class="panel center-panel">
+            <h2>Твой бургер</h2>
 
-            <div class="sauces">
-                <button class="sauce-button" data-sauce="ketchup">🍅 Кетчуп</button>
-                <button class="sauce-button" data-sauce="mayo">🥚 Майонез</button>
-                <button class="sauce-button" data-sauce="mustard">🌭 Горчица</button>
-                <button class="sauce-button" data-sauce="bbq">🍖 Барбекю</button>
-                <button class="sauce-button" data-sauce="chili">🌶️ Чили</button>
+            <div class="burger-area">
+                <div id="burger"></div>
             </div>
 
-            <button class="reset-button" id="reset-button">
-                Начать заново
-            </button>
+            <div class="sauce-section">
+                <div class="sauce-title">Добавить соус</div>
+
+                <div class="sauces">
+                    <button class="sauce-button" data-sauce="ketchup">
+                        🍅 Кетчуп
+                    </button>
+
+                    <button class="sauce-button" data-sauce="mayo">
+                        🥚 Майонез
+                    </button>
+
+                    <button class="sauce-button" data-sauce="mustard">
+                        🌭 Горчица
+                    </button>
+
+                    <button class="sauce-button" data-sauce="bbq">
+                        🍖 Барбекю
+                    </button>
+
+                    <button class="sauce-button" data-sauce="chili">
+                        🌶️ Чили
+                    </button>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="action-button save-button" id="save-button">
+                    Сохранить
+                </button>
+
+                <button class="action-button eat-button" id="eat-button" hidden>
+                    Съесть
+                </button>
+
+                <button class="action-button" id="reset-button">
+                    Заново
+                </button>
+            </div>
+
+            <p class="status" id="status"></p>
         </section>
 
         <!-- Каталог ингредиентов -->
-        <section class="panel">
+
+        <section class="panel catalog-panel">
             <h2>Ингредиенты</h2>
-            <div class="catalog" id="catalog"></div>
+            <div id="catalog"></div>
         </section>
 
-    </div>
+    </main>
 
     <script>
         const ingredients = [
             {
                 name: "Нижняя булочка",
                 file: "images/bottom-bun.png",
-                type: "bread"
+                type: "bun"
             },
             {
                 name: "Котлета",
-                file: "images/patty.png",
-                type: "meat"
-            },
-            {
-                name: "Сыр",
-                file: "images/cheese.png",
-                type: "cheese"
-            },
-            {
-                name: "Салат",
-                file: "images/lettuce.png",
-                type: "vegetable"
-            },
-            {
-                name: "Помидор",
-                file: "images/tomato.png",
-                type: "vegetable"
-            },
-            {
-                name: "Лук",
-                file: "images/onion.png",
-                type: "vegetable"
-            },
-            {
-                name: "Огурец",
-                file: "images/pickles.png",
-                type: "vegetable"
-            },
-            {
-                name: "Бекон",
-                file: "images/bacon.png",
-                type: "meat"
+                file: "images/beef-patty.png",
+                type: "patty"
             },
             {
                 name: "Верхняя булочка",
                 file: "images/top-bun.png",
-                type: "bread"
+                type: "bun"
             }
         ];
 
@@ -352,48 +510,82 @@
             ketchup: "Кетчуп",
             mayo: "Майонез",
             mustard: "Горчица",
-            bbq: "Соус барбекю",
-            chili: "Соус чили"
+            bbq: "Барбекю",
+            chili: "Чили"
         };
 
-        // Ингредиенты расположены снизу вверх.
-        let burgerLayers = [
-            {
-                name: "Нижняя булочка",
-                file: "images/bottom-bun.png",
-                type: "bread"
-            },
-            {
-                name: "Котлета",
-                file: "images/patty.png",
-                type: "meat"
-            },
-            {
-                name: "Верхняя булочка",
-                file: "images/top-bun.png",
-                type: "bread"
-            }
-        ];
+        // Слои всегда хранятся снизу вверх.
 
-        const catalog = document.getElementById("catalog");
+        function createInitialBurger() {
+            return [
+                {
+                    name: "Нижняя булочка",
+                    file: "images/bottom-bun.png",
+                    type: "bun"
+                },
+                {
+                    name: "Котлета",
+                    file: "images/beef-patty.png",
+                    type: "patty"
+                },
+                {
+                    name: "Верхняя булочка",
+                    file: "images/top-bun.png",
+                    type: "bun"
+                }
+            ];
+        }
+
+        let burgerLayers = createInitialBurger();
+        let saved = false;
+        let eaten = false;
+
         const burger = document.getElementById("burger");
+        const catalog = document.getElementById("catalog");
         const ingredientList = document.getElementById("ingredient-list");
+        const status = document.getElementById("status");
+        const saveButton = document.getElementById("save-button");
+        const eatButton = document.getElementById("eat-button");
+        const resetButton = document.getElementById("reset-button");
+
+        /*
+            Настройки расположения слоёв.
+
+            Значения задаются в процентах от высоты картинки.
+            После обрезки PNG их можно подстроить отдельно.
+        */
+
+        const layerSettings = {
+            bun: {
+                overlap: 0.35
+            },
+            patty: {
+                overlap: 0.45
+            },
+            sauce: {
+                overlap: 0.2
+            }
+        };
 
         // Создание каталога.
+
         function renderCatalog() {
             catalog.innerHTML = "";
 
             ingredients.forEach(function (item) {
-                const card = document.createElement("div");
+                const card = document.createElement("button");
                 card.className = "catalog-item";
+                card.type = "button";
                 card.title = item.name;
+                card.disabled = saved || eaten;
 
                 const image = document.createElement("img");
                 image.src = item.file;
                 image.alt = item.name;
 
                 image.onerror = function () {
-                    image.style.display = "none";
+                    image.style.visibility = "hidden";
+                    console.warn("Не удалось загрузить изображение:", item.file);
                 };
 
                 card.appendChild(image);
@@ -407,7 +599,12 @@
         }
 
         // Добавление ингредиента.
+
         function addIngredient(item) {
+            if (saved || eaten) {
+                return;
+            }
+
             burgerLayers.push({
                 name: item.name,
                 file: item.file,
@@ -419,7 +616,12 @@
         }
 
         // Добавление соуса.
+
         function addSauce(sauce) {
+            if (saved || eaten) {
+                return;
+            }
+
             burgerLayers.push({
                 name: sauceNames[sauce],
                 type: "sauce",
@@ -430,43 +632,117 @@
             renderIngredientList();
         }
 
-        // Отрисовка бургера.
+        // Отрисовка слоёв бургера.
+
         function renderBurger() {
             burger.innerHTML = "";
+
+            if (eaten) {
+                return;
+            }
+
+            let currentOffset = 0;
 
             burgerLayers.forEach(function (item, index) {
                 const layer = document.createElement(
                     item.type === "sauce" ? "div" : "img"
                 );
 
+                layer.style.zIndex = index + 1;
+
                 if (item.type === "sauce") {
-                    layer.className = "sauce-layer";
+                    layer.style.position = "absolute";
+                    layer.style.left = "50%";
+                    layer.style.width = "85%";
+                    layer.style.height = "30px";
+                    layer.style.fontSize = "42px";
+                    layer.style.lineHeight = "30px";
+                    layer.style.textAlign = "center";
+                    layer.style.whiteSpace = "nowrap";
                     layer.style.color = item.color;
                     layer.textContent = "〰";
+                    layer.style.transform =
+                        "translate(-50%, " + currentOffset + "px)";
+                    layer.style.top = "50%";
+
+                    currentOffset -= 12;
                 } else {
                     layer.className = "burger-layer";
                     layer.src = item.file;
                     layer.alt = item.name;
+                    layer.draggable = false;
+
+                    /*
+                        Каждая картинка накладывается на предыдущую.
+                        Высота изображения определяется автоматически.
+                    */
+
+                    layer.style.top = "50%";
+                    layer.style.transform =
+                        "translate(-50%, calc(-50% + " +
+                        currentOffset + "px))";
+
+                    layer.onload = function () {
+                        updateLayerPositions();
+                    };
 
                     layer.onerror = function () {
                         layer.style.display = "none";
+                        console.warn("Не удалось загрузить изображение:", item.file);
                     };
+
+                    burger.appendChild(layer);
+
+                    return;
                 }
-
-                layer.style.zIndex = index + 1;
-
-                // Расстояние между слоями.
-                // Чем больше число, тем сильнее смещаются верхние слои.
-                const layerOffset = 50;
-
-                layer.style.transform =
-                    "translateY(-" + (index * layerOffset) + "px)";
 
                 burger.appendChild(layer);
             });
+
+            updateLayerPositions();
         }
 
-        // Список ингредиентов с кнопками управления.
+        /*
+            Вычисляем позиции картинок по их реальным размерам.
+            Благодаря этому слои не зависят от прозрачных полей
+            после того, как изображения будут обрезаны.
+        */
+
+        function updateLayerPositions() {
+            const layers = Array.from(
+                burger.querySelectorAll(".burger-layer")
+            );
+
+            let offset = 0;
+
+            layers.forEach(function (layer, index) {
+                const item = burgerLayers[index];
+
+                if (!item || !layer.naturalWidth || !layer.naturalHeight) {
+                    return;
+                }
+
+                const renderedWidth = layer.clientWidth;
+                const scale = renderedWidth / layer.naturalWidth;
+                const renderedHeight = layer.naturalHeight * scale;
+
+                if (index > 0) {
+                    const settings = layerSettings[item.type] ||
+                        layerSettings.bun;
+
+                    const overlap = settings.overlap;
+
+                    offset -= renderedHeight * (1 - overlap);
+                }
+
+                layer.style.top = "50%";
+                layer.style.transform =
+                    "translate(-50%, calc(-50% + " + offset + "px))";
+            });
+        }
+
+        // Список картинок с кнопками перемещения и удаления.
+
         function renderIngredientList() {
             ingredientList.innerHTML = "";
 
@@ -476,8 +752,9 @@
 
                 if (item.type === "sauce") {
                     const sauceIcon = document.createElement("div");
-                    sauceIcon.style.width = "50px";
-                    sauceIcon.style.height = "50px";
+                    sauceIcon.style.width = "55px";
+                    sauceIcon.style.height = "55px";
+                    sauceIcon.style.flex = "1";
                     sauceIcon.style.display = "flex";
                     sauceIcon.style.alignItems = "center";
                     sauceIcon.style.justifyContent = "center";
@@ -491,67 +768,67 @@
                     image.src = item.file;
                     image.alt = item.name;
 
-                    image.onerror = function () {
-                        image.style.visibility = "hidden";
-                    };
-
                     row.appendChild(image);
                 }
-
-                const name = document.createElement("span");
-                name.className = "ingredient-name";
-                name.textContent = item.name;
-
-                row.appendChild(name);
 
                 const controls = document.createElement("div");
                 controls.className = "ingredient-controls";
 
                 const upButton = document.createElement("button");
+                upButton.type = "button";
                 upButton.textContent = "↑";
                 upButton.title = "Поднять слой";
-                upButton.disabled = index === burgerLayers.length - 1;
+                upButton.disabled = saved ||
+                    index === burgerLayers.length - 1;
 
                 upButton.addEventListener("click", function () {
-                    if (index < burgerLayers.length - 1) {
-                        const temp = burgerLayers[index];
-
-                        burgerLayers[index] = burgerLayers[index + 1];
-                        burgerLayers[index + 1] = temp;
-
-                        renderBurger();
-                        renderIngredientList();
+                    if (saved || index >= burgerLayers.length - 1) {
+                        return;
                     }
+
+                    const temp = burgerLayers[index];
+                    burgerLayers[index] = burgerLayers[index + 1];
+                    burgerLayers[index + 1] = temp;
+
+                    renderBurger();
+                    renderIngredientList();
                 });
 
                 const downButton = document.createElement("button");
+                downButton.type = "button";
                 downButton.textContent = "↓";
                 downButton.title = "Опустить слой";
-                downButton.disabled = index === 0;
+                downButton.disabled = saved || index === 0;
 
                 downButton.addEventListener("click", function () {
-                    if (index > 0) {
-                        const temp = burgerLayers[index];
-
-                        burgerLayers[index] = burgerLayers[index - 1];
-                        burgerLayers[index - 1] = temp;
-
-                        renderBurger();
-                        renderIngredientList();
+                    if (saved || index <= 0) {
+                        return;
                     }
+
+                    const temp = burgerLayers[index];
+                    burgerLayers[index] = burgerLayers[index - 1];
+                    burgerLayers[index - 1] = temp;
+
+                    renderBurger();
+                    renderIngredientList();
                 });
 
                 controls.appendChild(upButton);
                 controls.appendChild(downButton);
-
                 row.appendChild(controls);
 
                 const deleteButton = document.createElement("button");
                 deleteButton.className = "delete-button";
+                deleteButton.type = "button";
                 deleteButton.textContent = "×";
-                deleteButton.title = "Удалить ингредиент";
+                deleteButton.title = "Удалить";
+                deleteButton.disabled = saved;
 
                 deleteButton.addEventListener("click", function () {
+                    if (saved) {
+                        return;
+                    }
+
                     burgerLayers.splice(index, 1);
 
                     renderBurger();
@@ -563,38 +840,83 @@
             });
         }
 
-        // Обработчики кнопок соусов.
+        // Сохранение сборки.
+
+        saveButton.addEventListener("click", function () {
+            if (saved || eaten) {
+                return;
+            }
+
+            saved = true;
+
+            status.textContent = "Бургер сохранён! Теперь его можно съесть.";
+            saveButton.hidden = true;
+            eatButton.hidden = false;
+
+            renderCatalog();
+            renderIngredientList();
+
+            document.querySelectorAll(".sauce-button").forEach(function (button) {
+                button.disabled = true;
+            });
+        });
+
+        // Поедание бургера.
+
+        eatButton.addEventListener("click", function () {
+            if (!saved || eaten) {
+                return;
+            }
+
+            eaten = true;
+
+            burger.classList.add("eating");
+            eatButton.disabled = true;
+
+            setTimeout(function () {
+                burger.innerHTML = "";
+                status.textContent = "Ням! Бургер съеден! 🍔";
+
+                resetButton.textContent = "Собрать новый";
+            }, 800);
+        });
+
+        // Сброс и новая сборка.
+
+        resetButton.addEventListener("click", function () {
+            burgerLayers = createInitialBurger();
+            saved = false;
+            eaten = false;
+
+            burger.classList.remove("eating");
+            burger.style.opacity = "1";
+            burger.style.transform = "";
+
+            status.textContent = "";
+            saveButton.hidden = false;
+            eatButton.hidden = true;
+            eatButton.disabled = false;
+            resetButton.textContent = "Заново";
+
+            document.querySelectorAll(".sauce-button").forEach(function (button) {
+                button.disabled = false;
+            });
+
+            renderBurger();
+            renderIngredientList();
+            renderCatalog();
+        });
+
+        // Кнопки соусов.
+
         document.querySelectorAll(".sauce-button").forEach(function (button) {
             button.addEventListener("click", function () {
                 addSauce(button.dataset.sauce);
             });
         });
 
-        // Сброс бургера.
-        document.getElementById("reset-button").addEventListener("click", function () {
-            burgerLayers = [
-                {
-                    name: "Нижняя булочка",
-                    file: "images/bottom-bun.png",
-                    type: "bread"
-                },
-                {
-                    name: "Котлета",
-                    file: "images/patty.png",
-                    type: "meat"
-                },
-                {
-                    name: "Верхняя булочка",
-                    file: "images/top-bun.png",
-                    type: "bread"
-                }
-            ];
-
-            renderBurger();
-            renderIngredientList();
-        });
-
         // Первый запуск.
+
         renderCatalog();
         renderBurger();
         renderIngredientList();
