@@ -33,6 +33,7 @@
       width: 100vw;
       gap: 15px;
       padding: 15px;
+      transition: all 0.3s ease;
     }
 
     .panel {
@@ -46,6 +47,7 @@
       display: flex;
       flex-direction: column;
       height: 100%;
+      transition: opacity 0.3s ease, transform 0.3s ease;
     }
 
     .panel-title {
@@ -311,6 +313,7 @@
       border-radius: 16px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.2);
       border: 1px solid rgba(255, 255, 255, 0.25);
+      transition: opacity 0.3s ease, transform 0.3s ease;
     }
 
     .sauces-group {
@@ -374,7 +377,42 @@
       box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3);
     }
 
-    /* Мобильная адаптация (для экранов телефонов и планшетов) */
+    /* Кнопка переключения интерфейса (скрыть/показать всё) */
+    .toggle-ui-btn {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background: rgba(253, 251, 247, 0.85);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: #5d4037;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: all 0.2s;
+    }
+
+    .toggle-ui-btn:hover {
+      background: #ffffff;
+      transform: scale(1.05);
+    }
+
+    /* Класс для скрытия панелей */
+    body.ui-hidden .panel,
+    body.ui-hidden .bottom-panel {
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    /* Мобильная адаптация */
     @media (max-width: 900px) {
       body {
         overflow: auto;
@@ -465,6 +503,9 @@
 </head>
 <body>
 
+  <!-- Кнопка переключения интерфейса (скрыть/показать всё) -->
+  <button class="toggle-ui-btn" id="toggleUiBtn" title="Скрыть/показать интерфейс">👁️</button>
+
   <div class="app-container">
     <div class="panel left-panel">
       <div class="panel-title" id="layersTitle">Layers (0/30)</div>
@@ -543,6 +584,13 @@
     const saucesGroup = document.getElementById('saucesGroup');
     const centerStage = document.getElementById('centerStage');
     const limitWarning = document.getElementById('limitWarning');
+    const toggleUiBtn = document.getElementById('toggleUiBtn');
+
+    // Логика скрытия/показа интерфейса
+    toggleUiBtn.onclick = () => {
+      document.body.classList.toggle('ui-hidden');
+      toggleUiBtn.innerText = document.body.classList.contains('ui-hidden') ? '👁️‍🗨️' : '👁️';
+    };
 
     function renderIngredientsMenu() {
       ingredientsMenu.innerHTML = '';
