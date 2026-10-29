@@ -10,90 +10,75 @@
 </head>
 <body>
 
-    <header class="header">
-        <h1>Собери свой бургер</h1>
-        <p>Создай бургер своей мечты!</p>
-    </header>
+<header class="header">
+    <h1>Собери свой бургер</h1>
+    <p>Создай бургер своей мечты!</p>
+</header>
 
-    <main class="builder">
+<main class="builder">
 
-        <aside class="panel ingredients-panel">
-            <h2>Твой бургер</h2>
-            <p class="panel-description">Слои снизу вверх</p>
+    <aside class="panel ingredients-panel">
+        <h2>Твой бургер</h2>
+        <p class="panel-description">Верхний слой отображается первым</p>
 
-            <div id="ingredients-list" class="ingredients-list"></div>
+        <div id="ingredients-list" class="ingredients-list"></div>
 
-            <div class="panel-actions">
-                <button id="save-button" class="action-button save-button">
-                    Сохранить
+        <div class="panel-actions">
+            <button id="save-button" class="action-button save-button">Сохранить</button>
+            <button id="eat-button" class="action-button eat-button">Съесть</button>
+            <button id="reset-button" class="action-button reset-button">Сбросить</button>
+        </div>
+    </aside>
+
+    <section class="workspace">
+        <div class="workspace-title">
+            <h2>Мастерская бургера</h2>
+            <p>Добавляй ингредиенты и меняй их порядок</p>
+        </div>
+
+        <div class="burger-stage">
+            <div id="burger-stack" class="burger-stack"></div>
+        </div>
+
+        <div class="sauce-panel">
+            <h3>Выбери соус</h3>
+
+            <div class="sauce-list">
+                <button class="sauce-button ketchup" data-sauce="ketchup" type="button">
+                    <span class="sauce-dish">●</span> Кетчуп
                 </button>
 
-                <button id="eat-button" class="action-button eat-button">
-                    Съесть
+                <button class="sauce-button mayonnaise" data-sauce="mayonnaise" type="button">
+                    <span class="sauce-dish">●</span> Майонез
                 </button>
 
-                <button id="reset-button" class="action-button reset-button">
-                    Сбросить
+                <button class="sauce-button mustard" data-sauce="mustard" type="button">
+                    <span class="sauce-dish">●</span> Горчица
+                </button>
+
+                <button class="sauce-button bbq" data-sauce="bbq" type="button">
+                    <span class="sauce-dish">●</span> Барбекю
+                </button>
+
+                <button class="sauce-button chili" data-sauce="chili" type="button">
+                    <span class="sauce-dish">●</span> Чили
                 </button>
             </div>
-        </aside>
+        </div>
 
-        <section class="workspace">
+        <div id="message" class="message" aria-live="polite">
+            Добавь первый ингредиент!
+        </div>
+    </section>
 
-            <div class="workspace-title">
-                <h2>Мастерская бургера</h2>
-                <p>Добавляй ингредиенты и меняй их порядок</p>
-            </div>
+    <aside class="panel catalog-panel">
+        <h2>Ингредиенты</h2>
+        <p class="panel-description">Нажми, чтобы добавить</p>
 
-            <div class="burger-stage">
-                <div id="burger-stack" class="burger-stack"></div>
-            </div>
+        <div id="catalog" class="catalog"></div>
+    </aside>
 
-            <div class="sauce-panel">
-                <h3>Выбери соус</h3>
-
-                <div class="sauce-list">
-                    <button class="sauce-button ketchup" data-sauce="ketchup" type="button">
-                        <span class="sauce-dish">●</span>
-                        <span>Кетчуп</span>
-                    </button>
-
-                    <button class="sauce-button mayonnaise" data-sauce="mayonnaise" type="button">
-                        <span class="sauce-dish">●</span>
-                        <span>Майонез</span>
-                    </button>
-
-                    <button class="sauce-button mustard" data-sauce="mustard" type="button">
-                        <span class="sauce-dish">●</span>
-                        <span>Горчица</span>
-                    </button>
-
-                    <button class="sauce-button bbq" data-sauce="bbq" type="button">
-                        <span class="sauce-dish">●</span>
-                        <span>Барбекю</span>
-                    </button>
-
-                    <button class="sauce-button chili" data-sauce="chili" type="button">
-                        <span class="sauce-dish">●</span>
-                        <span>Чили</span>
-                    </button>
-                </div>
-            </div>
-
-            <div id="message" class="message" aria-live="polite">
-                Добавь первый ингредиент!
-            </div>
-
-        </section>
-
-        <aside class="panel catalog-panel">
-            <h2>Ингредиенты</h2>
-            <p class="panel-description">Нажми, чтобы добавить</p>
-
-            <div id="catalog" class="catalog"></div>
-        </aside>
-
-    </main>
+</main>
 
 </body>
 </html>
