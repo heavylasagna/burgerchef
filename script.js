@@ -28,7 +28,9 @@ const saveButton = document.getElementById("save-button");
 const eatButton = document.getElementById("eat-button");
 const resetButton = document.getElementById("reset-button");
 
+// Настройки расположения слоёв
 const OVERLAP = 0.18;
+const BUN_TO_PATTY_OVERLAP = 0.42;
 const ALPHA_THRESHOLD = 20;
 
 const imageBounds = new Map();
@@ -52,12 +54,12 @@ function analyzeImage(src) {
         image.onload = () => {
             try {
                 const canvas = document.createElement("canvas");
+                canvas.width = image.naturalWidth;
+                canvas.height = image.naturalHeight;
+
                 const context = canvas.getContext("2d", {
                     willReadFrequently: true
                 });
-
-                canvas.width = image.naturalWidth;
-                canvas.height = image.naturalHeight;
 
                 context.drawImage(image, 0, 0);
 
@@ -73,7 +75,8 @@ function analyzeImage(src) {
 
                 for (let y = 0; y < canvas.height; y++) {
                     for (let x = 0; x < canvas.width; x++) {
-                        const alpha = pixels[(y * canvas.width + x) * 4 + 3];
+                        const alpha =
+                            pixels[(y * canvas.width + x) * 4 + 3];
 
                         if (alpha > ALPHA_THRESHOLD) {
                             if (y < top) top = y;
@@ -86,11 +89,13 @@ function analyzeImage(src) {
                     ? {
                         top: 0,
                         bottom: canvas.height - 1,
+                        width: canvas.width,
                         height: canvas.height
                     }
                     : {
                         top,
                         bottom,
+                        width: canvas.width,
                         height: bottom - top + 1
                     };
 
@@ -100,6 +105,7 @@ function analyzeImage(src) {
                 const bounds = {
                     top: 0,
                     bottom: image.naturalHeight - 1,
+                    width: image.naturalWidth,
                     height: image.naturalHeight
                 };
 
@@ -193,7 +199,28 @@ function renderBurger() {
 }
 
 
-// Расчёт расположения по видимым границам PNG
+// Выбор степени нахлёста между слоями
+
+function getOverlap(previous, current) {
+    // Котлета глубже входит в нижнюю булочку
+    if (
+        previous.id === "bottom-bun" &&
+        current.id === "beef-patty"
+    ) {
+        return BUN_TO_PATTY_OVERLAP;
+    }
+
+    // Верхняя булочка немного накрывает начинку
+    if (current.id === "top-bun") {
+        return 0.30;
+    }
+
+    // Обычное перекрытие остальных ингредиентов
+    return OVERLAP;
+}
+
+
+// Расположение слоёв с учётом прозрачных краёв PNG
 
 async function positionLayers() {
     if (!burgerStack) return;
@@ -230,9 +257,12 @@ async function positionLayers() {
                 ingredient,
                 bounds,
                 scale,
-                top: bounds.top * scale,
-                bottom: bounds.bottom * scale,
-                height: bounds.height * scale
+                imageHeight: imageHeight * scale,
+                visibleHeight: bounds.height * scale,
+
+                // Прозрачное пространство под видимой частью PNG
+                bottomInset:
+                    (imageHeight - 1 - bounds.bottom) * scale
             };
         })
     );
@@ -240,25 +270,33 @@ async function positionLayers() {
     if (currentVersion !== layoutVersion) return;
     if (layers.some(layer => !layer)) return;
 
-    let nextBottom = 0;
+    // Высота видимого нижнего края каждого слоя над основанием
+    let visibleBottom = 0;
 
     layers.forEach((layer, index) => {
-        const { element, top, bottom, height } = layer;
+        const { element, bottomInset } = layer;
 
-        if (index === 0) {
-            element.style.bottom = `${-bottom}px`;
-            nextBottom = height;
-            return;
+        // CSS bottom отсчитывается от нижнего края самого изображения,
+        // а не от последнего непрозрачного пикселя
+        element.style.bottom =
+            `${visibleBottom - bottomInset}px`;
+
+        if (index < layers.length - 1) {
+            const current = layer;
+            const next = layers[index + 1];
+
+            const overlapRatio = getOverlap(
+                current.ingredient,
+                next.ingredient
+            );
+
+            const overlap = Math.min(
+                current.visibleHeight,
+                next.visibleHeight
+            ) * overlapRatio;
+
+            visibleBottom += current.visibleHeight - overlap;
         }
-
-        const previous = layers[index - 1];
-
-        const overlap = Math.min(previous.height, height) * OVERLAP;
-        const visibleBottom = nextBottom - overlap;
-
-        element.style.bottom = `${visibleBottom - bottom}px`;
-
-        nextBottom = visibleBottom + height;
     });
 }
 
