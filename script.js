@@ -1,316 +1,351 @@
 
 const ingredients = [
-    {
-        id: "bottom-bun",
-        name: "Нижняя булочка",
-        image: "images/bottom-bun.png",
-        type: "bun"
-    },
-    {
-        id: "beef-patty",
-        name: "Котлета",
-        image: "images/beef-patty.png",
-        type: "patty"
-    },
-    {
-        id: "cheese",
-        name: "Сыр",
-        image: "images/cheese.png",
-        type: "ingredient"
-    },
-    {
-        id: "lettuce",
-        name: "Салат",
-        image: "images/lettuce.png",
-        type: "ingredient"
-    },
-    {
-        id: "tomato",
-        name: "Помидор",
-        image: "images/tomato.png",
-        type: "ingredient"
-    },
-    {
-        id: "onion",
-        name: "Лук",
-        image: "images/onion.png",
-        type: "ingredient"
-    },
-    {
-        id: "pickle",
-        name: "Огурец",
-        image: "images/pickle.png",
-        type: "ingredient"
-    },
-    {
-        id: "bacon",
-        name: "Бекон",
-        image: "images/bacon.png",
-        type: "ingredient"
-    },
-    {
-        id: "top-bun",
-        name: "Верхняя булочка",
-        image: "images/top-bun.png",
-        type: "bun"
-    }
+    { id: "bottom-bun", name: "Нижняя булочка", image: "images/bottom-bun.png", type: "bun" },
+    { id: "beef-patty", name: "Котлета", image: "images/beef-patty.png", type: "patty" },
+    { id: "cheese", name: "Сыр", image: "images/cheese.png", type: "normal" },
+    { id: "lettuce", name: "Салат", image: "images/lettuce.png", type: "normal" },
+    { id: "tomato", name: "Помидор", image: "images/tomato.png", type: "normal" },
+    { id: "onion", name: "Лук", image: "images/onion.png", type: "normal" },
+    { id: "pickle", name: "Огурец", image: "images/pickle.png", type: "normal" },
+    { id: "bacon", name: "Бекон", image: "images/bacon.png", type: "normal" },
+    { id: "top-bun", name: "Верхняя булочка", image: "images/top-bun.png", type: "bun" }
 ];
 
 const sauces = {
-    ketchup: {
-        name: "Кетчуп",
-        color: "#c83e32"
-    },
-    mayonnaise: {
-        name: "Майонез",
-        color: "#f4e9ca"
-    },
-    mustard: {
-        name: "Горчица",
-        color: "#e7b82d"
-    },
-    bbq: {
-        name: "Барбекю",
-        color: "#713a24"
-    },
-    chili: {
-        name: "Чили",
-        color: "#ed6536"
-    }
+    ketchup: { name: "Кетчуп", color: "#c52b25" },
+    mayonnaise: { name: "Майонез", color: "#f5e8c8" },
+    mustard: { name: "Горчица", color: "#e8bd32" },
+    bbq: { name: "Барбекю", color: "#6b3021" },
+    chili: { name: "Чили", color: "#ed542e" }
 };
 
-// Слои хранятся снизу вверх
-let burgerLayers = [];
-
-const list = document.getElementById("ingredients-list");
+const ingredientsList = document.getElementById("ingredients-list");
+const burgerStack = document.getElementById("burger-stack");
 const catalog = document.getElementById("catalog");
-const stack = document.getElementById("burger-stack");
 const message = document.getElementById("message");
 
-function showMessage(text) {
-    message.textContent = text;
-}
+const saveButton = document.getElementById("save-button");
+const eatButton = document.getElementById("eat-button");
+const resetButton = document.getElementById("reset-button");
 
-function makeLayer(item) {
-    return {
-        ...item,
-        uid: Date.now() + "-" + Math.random().toString(16).slice(2)
-    };
-}
+let burgerLayers = [];
+let selectedSauce = null;
+let nextLayerId = 1;
 
-function createCatalog() {
+
+// Создание каталога ингредиентов
+
+function renderCatalog() {
+    if (!catalog) return;
+
     catalog.innerHTML = "";
 
     ingredients.forEach(ingredient => {
-        const item = document.createElement("div");
-        item.className = "catalog-item";
-        item.title = ingredient.name;
+        const button = document.createElement("button");
 
-        const img = document.createElement("img");
-        img.src = ingredient.image;
-        img.alt = ingredient.name;
+        button.className = "ingredient-card";
+        button.type = "button";
+        button.innerHTML = `
+            <img src="${ingredient.image}" alt="${ingredient.name}">
+            <span>${ingredient.name}</span>
+        `;
 
-        img.addEventListener("error", () => {
-            item.title = ingredient.name + " — изображение не найдено";
+        button.addEventListener("click", () => {
+            addIngredient(ingredient);
         });
 
-        item.appendChild(img);
-
-        item.addEventListener("click", () => {
-            burgerLayers.push(makeLayer(ingredient));
-            renderBurger();
-            showMessage(ingredient.name + " добавлен");
-        });
-
-        catalog.appendChild(item);
+        catalog.appendChild(button);
     });
 }
 
-function renderList() {
-    list.innerHTML = "";
 
-    // Показываем от верхнего слоя к нижнему
-    burgerLayers.slice().reverse().forEach(layer => {
-        const index = burgerLayers.findIndex(
-            item => item.uid === layer.uid
-        );
+// Добавление ингредиента в бургер
 
-        const row = document.createElement("div");
-        row.className = "ingredient-row";
+function addIngredient(ingredient) {
+    burgerLayers.push({
+        ...ingredient,
+        layerId: nextLayerId++
+    });
 
-        if (layer.image) {
-            const img = document.createElement("img");
-            img.src = layer.image;
-            img.alt = layer.name;
-            row.appendChild(img);
+    renderBurger();
+    renderList();
+    showMessage(`Добавлено: ${ingredient.name}`);
+}
+
+
+// Отображение бургера
+
+function renderBurger() {
+    if (!burgerStack) return;
+
+    burgerStack.innerHTML = "";
+
+    burgerLayers.forEach((ingredient, index) => {
+        const image = document.createElement("img");
+
+        image.src = ingredient.image;
+        image.alt = ingredient.name;
+        image.className = "burger-layer";
+        image.dataset.layerId = ingredient.layerId;
+        image.style.zIndex = index + 1;
+
+        image.addEventListener("load", positionLayers);
+
+        burgerStack.appendChild(image);
+    });
+
+    renderSauce();
+    positionLayers();
+}
+
+
+// Расположение слоёв без изменения размера изображений
+
+function positionLayers() {
+    if (!burgerStack) return;
+
+    const elements = Array.from(
+        burgerStack.querySelectorAll(".burger-layer")
+    );
+
+    let currentBottom = 0;
+    let previousHeight = 0;
+    let previousIngredient = null;
+
+    elements.forEach((element, index) => {
+        const ingredient = burgerLayers[index];
+
+        element.style.position = "absolute";
+        element.style.width = "100%";
+        element.style.height = "auto";
+        element.style.left = "0";
+        element.style.bottom = `${currentBottom}px`;
+
+        const height = element.getBoundingClientRect().height;
+
+        if (index === 0) {
+            currentBottom = 0;
         } else {
-            const preview = document.createElement("div");
-            preview.className = "ingredient-preview";
-            preview.style.background = layer.color;
-            row.appendChild(preview);
+            const previousIsPatty = previousIngredient.type === "patty";
+            const currentIsPatty = ingredient.type === "patty";
+
+            // Обычные ингредиенты перекрывают друг друга на 42%.
+            // У котлеты перекрытие с соседними слоями — 70%.
+            const overlapRatio =
+                previousIsPatty || currentIsPatty ? 0.70 : 0.42;
+
+            const overlap =
+                Math.min(previousHeight, height) * overlapRatio;
+
+            currentBottom += previousHeight - overlap;
         }
+
+        element.style.bottom = `${currentBottom}px`;
+
+        previousHeight = height;
+        previousIngredient = ingredient;
+    });
+}
+
+
+// Список добавленных ингредиентов
+// Верхний слой отображается первым
+
+function renderList() {
+    if (!ingredientsList) return;
+
+    ingredientsList.innerHTML = "";
+
+    burgerLayers.slice().reverse().forEach(ingredient => {
+        const item = document.createElement("div");
+        item.className = "ingredient-list-item";
+
+        const name = document.createElement("span");
+        name.textContent = ingredient.name;
 
         const controls = document.createElement("div");
         controls.className = "ingredient-controls";
 
-        const up = document.createElement("button");
-        up.textContent = "↑";
-        up.title = "Поднять слой";
+        const upButton = document.createElement("button");
+        upButton.type = "button";
+        upButton.textContent = "↑";
+        upButton.title = "Поднять слой выше";
 
-        up.addEventListener("click", () => {
-            if (index < burgerLayers.length - 1) {
-                [burgerLayers[index], burgerLayers[index + 1]] =
-                    [burgerLayers[index + 1], burgerLayers[index]];
-
-                renderBurger();
-            }
+        upButton.addEventListener("click", () => {
+            moveIngredient(ingredient.layerId, 1);
         });
 
-        const down = document.createElement("button");
-        down.textContent = "↓";
-        down.title = "Опустить слой";
+        const downButton = document.createElement("button");
+        downButton.type = "button";
+        downButton.textContent = "↓";
+        downButton.title = "Опустить слой ниже";
 
-        down.addEventListener("click", () => {
-            if (index > 0) {
-                [burgerLayers[index], burgerLayers[index - 1]] =
-                    [burgerLayers[index - 1], burgerLayers[index]];
-
-                renderBurger();
-            }
+        downButton.addEventListener("click", () => {
+            moveIngredient(ingredient.layerId, -1);
         });
 
-        const remove = document.createElement("button");
-        remove.textContent = "×";
-        remove.title = "Удалить слой";
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.textContent = "×";
+        removeButton.title = "Удалить ингредиент";
 
-        remove.addEventListener("click", () => {
-            burgerLayers.splice(index, 1);
-            renderBurger();
-            showMessage(layer.name + " удалён");
+        removeButton.addEventListener("click", () => {
+            removeIngredient(ingredient.layerId);
         });
 
-        controls.append(up, down, remove);
-        row.appendChild(controls);
-        list.appendChild(row);
+        controls.append(upButton, downButton, removeButton);
+        item.append(name, controls);
+        ingredientsList.appendChild(item);
     });
 }
 
-function renderBurger() {
-    stack.innerHTML = "";
 
-    burgerLayers.forEach((layer, index) => {
-        let element;
+// Изменение порядка слоёв
 
-        if (layer.type === "sauce") {
-            element = document.createElement("div");
-            element.className = "sauce-layer";
-            element.style.background = layer.color;
-            element.style.width = "100%";
-            element.style.height = "7px";
-        } else {
-            element = document.createElement("img");
-            element.className = "burger-layer";
-            element.src = layer.image;
-            element.alt = layer.name;
+function moveIngredient(layerId, direction) {
+    const index = burgerLayers.findIndex(
+        ingredient => ingredient.layerId === layerId
+    );
 
-            element.addEventListener("load", positionLayers);
-            element.addEventListener("error", () => {
-                showMessage("Не найден файл: " + layer.image);
-            });
-        }
+    if (index === -1) return;
 
-        element.dataset.uid = layer.uid;
-        element.style.zIndex = index + 1;
+    const newIndex = index + direction;
 
-        stack.appendChild(element);
-    });
+    if (newIndex < 0 || newIndex >= burgerLayers.length) return;
 
+    [
+        burgerLayers[index],
+        burgerLayers[newIndex]
+    ] = [
+        burgerLayers[newIndex],
+        burgerLayers[index]
+    ];
+
+    renderBurger();
     renderList();
-    positionLayers();
 }
 
-function positionLayers() {
-    const elements = Array.from(stack.children);
 
-    let currentBottom = 0;
+// Удаление ингредиента
 
-    elements.forEach((element, index) => {
-        let height;
+function removeIngredient(layerId) {
+    burgerLayers = burgerLayers.filter(
+        ingredient => ingredient.layerId !== layerId
+    );
 
-        if (element.classList.contains("sauce-layer")) {
-            height = 7;
-        } else {
-            if (!element.naturalWidth || !element.naturalHeight) {
-                return;
-            }
-
-            height = stack.clientWidth *
-                element.naturalHeight / element.naturalWidth;
-        }
-
-        element.style.bottom = currentBottom + "px";
-
-        // Соседние слои немного перекрываются
-        let overlap = index === 0 ? 0 : height * 0.42;
-
-if (burgerLayers[index]?.type === "patty") {
-    overlap = height * 0.65;
+    renderBurger();
+    renderList();
 }
-        currentBottom += height - overlap;
-    });
+
+
+// Соус
+
+function renderSauce() {
+    if (!burgerStack) return;
+
+    const oldSauce = burgerStack.querySelector(".sauce-layer");
+
+    if (oldSauce) {
+        oldSauce.remove();
+    }
+
+    if (!selectedSauce) return;
+
+    const sauce = document.createElement("div");
+    sauce.className = "sauce-layer";
+    sauce.style.backgroundColor = sauces[selectedSauce].color;
+    sauce.style.position = "absolute";
+    sauce.style.left = "10%";
+    sauce.style.width = "80%";
+    sauce.style.height = "8px";
+    sauce.style.bottom = "50%";
+    sauce.style.borderRadius = "50%";
+    sauce.style.zIndex = burgerLayers.length + 1;
+
+    burgerStack.appendChild(sauce);
 }
+
+
+// Обработка кнопок выбора соуса
 
 document.querySelectorAll("[data-sauce]").forEach(button => {
     button.addEventListener("click", () => {
-        const sauce = sauces[button.dataset.sauce];
+        const sauceId = button.dataset.sauce;
 
-        burgerLayers.push(makeLayer({
-            id: button.dataset.sauce,
-            name: sauce.name,
-            type: "sauce",
-            color: sauce.color
-        }));
+        if (!sauces[sauceId]) return;
 
-        renderBurger();
-        showMessage(sauce.name + " добавлен");
+        selectedSauce = sauceId;
+        renderSauce();
+
+        showMessage(`Выбран соус: ${sauces[sauceId].name}`);
     });
 });
 
-document.getElementById("reset-button").addEventListener("click", () => {
-    burgerLayers = [];
-    renderBurger();
-    showMessage("Бургер сброшен");
-});
 
-document.getElementById("eat-button").addEventListener("click", () => {
-    if (burgerLayers.length === 0) {
-        showMessage("Сначала собери бургер");
-        return;
+// Сохранение бургера
+
+if (saveButton) {
+    saveButton.addEventListener("click", () => {
+        const burgerData = {
+            ingredients: burgerLayers.map(ingredient => ingredient.id),
+            sauce: selectedSauce
+        };
+
+        localStorage.setItem("savedBurger", JSON.stringify(burgerData));
+
+        showMessage("Бургер сохранён!");
+    });
+}
+
+
+// Съесть бургер
+
+if (eatButton) {
+    eatButton.addEventListener("click", () => {
+        if (burgerLayers.length === 0) {
+            showMessage("Сначала собери бургер!");
+            return;
+        }
+
+        burgerLayers = [];
+        selectedSauce = null;
+
+        renderBurger();
+        renderList();
+
+        showMessage("Бургер съеден!");
+    });
+}
+
+
+// Начать сборку заново
+
+if (resetButton) {
+    resetButton.addEventListener("click", () => {
+        burgerLayers = [];
+        selectedSauce = null;
+
+        renderBurger();
+        renderList();
+
+        showMessage("Бургер очищен");
+    });
+}
+
+
+// Вывод сообщения
+
+function showMessage(text) {
+    if (message) {
+        message.textContent = text;
     }
+}
 
-    burgerLayers = [];
-    renderBurger();
-    showMessage("Приятного аппетита!");
-});
 
-document.getElementById("save-button").addEventListener("click", () => {
-    const savedBurger = burgerLayers.map(layer => ({
-        id: layer.id,
-        name: layer.name,
-        image: layer.image || null,
-        type: layer.type,
-        color: layer.color || null
-    }));
+// Начальная загрузка
 
-    try {
-        localStorage.setItem("savedBurger", JSON.stringify(savedBurger));
-        showMessage("Состав бургера сохранён");
-    } catch (error) {
-        showMessage("Не удалось сохранить бургер");
-    }
-});
+renderCatalog();
+renderBurger();
+renderList();
 
 window.addEventListener("resize", positionLayers);
-
-createCatalog();
-renderBurger();
