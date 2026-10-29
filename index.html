@@ -413,7 +413,7 @@
         width: 100%;
         padding: 10px;
         gap: 10px;
-        padding-bottom: 75px; /* Отступ снизу под фиксированную панель */
+        padding-bottom: 75px;
       }
 
       .center-stage {
@@ -469,7 +469,6 @@
         height: 180px;
       }
 
-      /* Нижняя панель фиксируется в самом низу на мобилках */
       .bottom-panel {
         position: fixed;
         bottom: 0;
@@ -553,15 +552,15 @@
       <div class="panel-title" id="layersTitle">Layers (0/30)</div>
       <div class="layers-list" id="layersList"></div>
     </div>
+  </div>
 
-    <!-- 4. Нижняя панель (соусы на ПК + кнопки управления) -->
-    <div class="bottom-panel">
-      <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
-      <div class="action-group">
-        <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
-        <button class="btn-action btn-eat" id="eatBtn">Eat</button>
-        <button class="btn-action btn-reset" id="resetBtn">Reset</button>
-      </div>
+  <!-- 4. Нижняя панель -->
+  <div class="bottom-panel">
+    <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
+    <div class="action-group">
+      <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
+      <button class="btn-action btn-eat" id="eatBtn">Eat</button>
+      <button class="btn-action btn-reset" id="resetBtn">Reset</button>
     </div>
   </div>
 
@@ -571,7 +570,8 @@
       sauce: new Audio('audio/sauce.mp3'),
       ingridients: new Audio('audio/ingridients.mp3'),
       buttons: new Audio('audio/buttons.mp3'),
-      squeeze: new Audio('audio/squeeze.mp3')
+      squeeze: new Audio('audio/squeeze.mp3'),
+      cheeseburger: new Audio('audio/cheeseburger.mp3') // Добавили звук чизбургера
     };
 
     function playSound(sound) {
@@ -658,6 +658,17 @@
       });
     }
 
+    function checkCheeseburgerCombo() {
+      // Проверяем, ровно ли 4 слоя в точном порядке: bottom-bun -> beef-patty -> cheese -> top-bun
+      if (currentBurger.length === 4 &&
+          currentBurger[0].id === 'bottom-bun' &&
+          currentBurger[1].id === 'beef-patty' &&
+          currentBurger[2].id === 'cheese' &&
+          currentBurger[3].id === 'top-bun') {
+        playSound(SOUNDS.cheeseburger);
+      }
+    }
+
     function updateBurgerDisplay(isNewAdded = false) {
       layersTitle.innerText = `Layers (${currentBurger.length}/${MAX_INGREDIENTS})`;
 
@@ -739,6 +750,10 @@
       }
       playSound(SOUNDS.ingridients);
       currentBurger.push({ ...item });
+      
+      // Проверяем комбинацию чизбургера сразу после добавления
+      checkCheeseburgerCombo();
+
       updateBurgerDisplay(true);
     }
 
@@ -767,6 +782,10 @@
         const temp = currentBurger[index];
         currentBurger[index] = currentBurger[targetIndex];
         currentBurger[targetIndex] = temp;
+        
+        // Проверяем комбинацию также при изменении порядка слоев
+        checkCheeseburgerCombo();
+
         updateBurgerDisplay(false);
       }
     }
