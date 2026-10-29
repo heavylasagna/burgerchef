@@ -375,7 +375,6 @@
       box-shadow: 0 4px 10px rgba(69, 90, 100, 0.3);
     }
 
-    /* Модальное окно ачивок */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -496,7 +495,6 @@
       color: #ffffff;
     }
 
-    /* Всплывающее уведомление о новой ачивке */
     .toast-container {
       position: fixed;
       top: 20px;
@@ -648,7 +646,6 @@
   <button class="toggle-ui-btn" id="toggleUiBtn" title="Скрыть/показать окна">👁️</button>
   <div class="toast-container" id="toastContainer"></div>
 
-  <!-- Модальное окно ачивок -->
   <div class="modal-overlay" id="achievementsModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -670,22 +667,18 @@
       </div>
     </div>
 
-    <!-- 1. Панель ингредиентов -->
     <div class="panel right-panel">
       <div class="panel-title">Ingredients</div>
       <div class="ingredients-menu" id="ingredientsMenu"></div>
     </div>
 
-    <!-- 2. Панель соусов для мобильных -->
     <div class="sauces-group mobile-sauces" id="mobileSaucesGroup"></div>
 
-    <!-- 3. Панель слоев -->
     <div class="panel left-panel">
       <div class="panel-title" id="layersTitle">Layers (0/30)</div>
       <div class="layers-list" id="layersList"></div>
     </div>
 
-    <!-- 4. Нижняя панель -->
     <div class="bottom-panel">
       <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
       <div class="action-group">
@@ -910,6 +903,7 @@
     function checkSpecialCombos() {
       if (currentBurger.length === 0) return;
       const ids = currentBurger.map(i => i.id);
+      console.log('Current Burger IDs:', ids); // Для отладки в консоли (F12)
 
       if (ids.length === 4 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'top-bun') {
         unlockAchievement('cheeseburger');
@@ -929,12 +923,14 @@
       else if (ids.length === 6 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'mayo' && ids[3] === 'mayo' && ids[4] === 'mayo' && ids[5] === 'top-bun') {
         unlockAchievement('bustanator');
       }
-      // Toothless: bottom-bun + 5 соусов в любом порядке (ketchup, mustard, mayo, bbq, spicy) + top-bun
-      else if (ids.length === 6 && ids[0] === 'bottom-bun' && ids[5] === 'top-bun') {
-        const innerItems = ids.slice(1, 5);
+      // Toothless: нижняя булка, верхняя булка и ровно 5 уникальных соусов между ними в любом порядке
+      else if (ids.length === 7 && ids[0] === 'bottom-bun' && ids[6] === 'top-bun') {
+        const middleLayers = ids.slice(1, 6);
         const requiredSauces = ['ketchup', 'mustard', 'mayo', 'bbq', 'spicy'];
-        const isToothlessCombo = requiredSauces.length === innerItems.length && requiredSauces.every(s => innerItems.includes(s));
-        if (isToothlessCombo) {
+        const hasAllSauces = requiredSauces.every(sauce => middleLayers.includes(sauce));
+        const hasNoExtra = middleLayers.length === requiredSauces.length;
+
+        if (hasAllSauces && hasNoExtra) {
           unlockAchievement('toothless');
         }
       }
