@@ -545,12 +545,8 @@
           if (index === 0) {
             img.style.marginBottom = '-10px';
           } else if (isSauce) {
-            // Если соус ложится на котлету, салат или нижнюю булку — опускаем его пониже (-65px), иначе на другие ингредиенты повыше (-50px)
-            if (itemBelow && (itemBelow.id === 'beef-patty' || itemBelow.id === 'lettuce' || itemBelow.id === 'bottom-bun')) {
-              img.style.marginBottom = '-65px';
-            } else {
-              img.style.marginBottom = '-50px';
-            }
+            // Соусы теперь ложатся пониже (-65px) на все ингредиенты
+            img.style.marginBottom = '-65px';
           } else if (item.id === 'lettuce') {
             img.style.marginBottom = '-72px';
           } else if (item.id === 'cheese') {
@@ -558,7 +554,8 @@
           } else if (itemBelow && itemBelow.id === 'lettuce') {
             img.style.marginBottom = '-55px';
           } else {
-            img.style.marginBottom = '-40px';
+            // Обычные ингредиенты опущены на 2px ниже (с -40px до -42px)
+            img.style.marginBottom = '-42px';
           }
 
           img.style.zIndex = index + 1;
