@@ -415,11 +415,12 @@
 
     const MAX_INGREDIENTS = 15;
 
+    // Сыр теперь сразу под верхней булочкой
     const INGREDIENTS = [
       { id: 'top-bun', name: 'Top Bun', image: 'images/top-bun.png' },
+      { id: 'cheese', name: 'Cheese', image: 'images/cheese.png' },
       { id: 'lettuce', name: 'Lettuce', image: 'images/lettuce.png' },
       { id: 'tomato', name: 'Tomato', image: 'images/tomato.png' },
-      { id: 'cheese', name: 'Cheese', image: 'images/cheese.png' },
       { id: 'pickles', name: 'Pickles', image: 'images/pickles.png' },
       { id: 'red-onion', name: 'Red Onion', image: 'images/red-onion.png' },
       { id: 'white-onion', name: 'White Onion', image: 'images/white-onion.png' },
@@ -432,7 +433,6 @@
       { id: 'bottom-bun', name: 'Bottom Bun', image: 'images/bottom-bun.png' }
     ];
 
-    // Пустой массив — стартового бургера больше нет
     let currentBurger = [];
 
     let isEating = false;
