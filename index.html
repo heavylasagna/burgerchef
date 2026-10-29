@@ -14,15 +14,15 @@
 
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background: #f4f6f8;
-      color: #333;
+      background: linear-gradient(135deg, #2b1d14, #4a3525);
+      color: #3e2723;
       height: 100vh;
       overflow: hidden;
       display: flex;
       flex-direction: column;
     }
 
-    /* Растягиваем колонки до самого низа экрана, нижняя панель стала тоньше (85px) */
+    /* Растягиваем колонки до самого низа экрана */
     .app-container {
       display: grid;
       grid-template-columns: 240px 1fr 240px;
@@ -34,14 +34,14 @@
     }
 
     .panel {
-      background: #ffffff;
+      background: #fdfbf7; /* Теплый бежевый фон панелей */
       border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-      border: 1px solid #eef1f5;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      border: 1px solid #e6dcc8;
       padding: 15px;
       display: flex;
       flex-direction: column;
-      height: 100%; /* Занимают всю высоту */
+      height: 100%;
     }
 
     .panel-title {
@@ -49,7 +49,7 @@
       font-weight: 700;
       margin-bottom: 12px;
       text-align: center;
-      color: #2c3e50;
+      color: #6d4c41;
       text-transform: uppercase;
       letter-spacing: 0.8px;
     }
@@ -74,15 +74,15 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #f8fafc;
+      background: #f5efe6;
       padding: 6px 10px;
       border-radius: 12px;
-      border: 1px solid #e2e8f0;
+      border: 1px solid #e4d8c5;
       transition: background 0.2s;
     }
 
     .layer-item:hover {
-      background: #f1f5f9;
+      background: #eee4d3;
     }
 
     .layer-preview {
@@ -98,8 +98,8 @@
 
     .btn-control {
       background: #ffffff;
-      border: 1px solid #cbd5e1;
-      color: #64748b;
+      border: 1px solid #d7ccc8;
+      color: #5d4037;
       width: 24px;
       height: 24px;
       border-radius: 6px;
@@ -113,15 +113,15 @@
     }
 
     .btn-control:hover:not(:disabled) {
-      background: #3b82f6;
+      background: #8d6e63;
       color: #ffffff;
-      border-color: #3b82f6;
+      border-color: #8d6e63;
     }
 
     .btn-control.delete:hover {
-      background: #ef4444;
+      background: #d32f2f;
       color: #ffffff;
-      border-color: #ef4444;
+      border-color: #d32f2f;
     }
 
     .btn-control:disabled {
@@ -183,10 +183,46 @@
       position: relative;
     }
 
+    /* Плавная анимация добавления нового слоя */
+    .burger-layer-img.new-layer {
+      animation: smoothDropIn 0.4s ease-out forwards;
+    }
+
+    @keyframes smoothDropIn {
+      0% {
+        opacity: 0;
+        transform: translateY(-25px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Эффект крошек при поедании */
+    .crumb {
+      position: absolute;
+      border-radius: 3px;
+      pointer-events: none;
+      z-index: 100;
+      animation: crumbFly 0.6s ease-out forwards;
+    }
+
+    @keyframes crumbFly {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1) rotate(0deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--dx), var(--dy)) scale(0.3) rotate(var(--rot));
+      }
+    }
+
     .limit-warning {
       position: absolute;
       top: 10px;
-      background: #ef4444;
+      background: #d32f2f;
       color: #fff;
       padding: 6px 14px;
       border-radius: 20px;
@@ -224,8 +260,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
+      background: #f5efe6;
+      border: 1px solid #e4d8c5;
       border-radius: 14px;
       padding: 8px;
       width: 100%;
@@ -234,9 +270,9 @@
     }
 
     .ingredient-card:hover {
-      background: #ffffff;
-      border-color: #3b82f6;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.12);
+      background: #eee4d3;
+      border-color: #a1887f;
+      box-shadow: 0 4px 12px rgba(109, 76, 65, 0.12);
       transform: translateY(-2px);
     }
 
@@ -253,7 +289,7 @@
       object-fit: contain;
     }
 
-    /* Нижняя панель (компактная высота 85px) */
+    /* Нижняя панель */
     .bottom-panel {
       grid-column: 1 / -1;
       grid-row: 2;
@@ -262,10 +298,10 @@
       justify-content: space-between;
       padding: 0 20px;
       z-index: 100;
-      background: #ffffff;
+      background: #fdfbf7;
       border-radius: 16px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.03);
-      border: 1px solid #eef1f5;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+      border: 1px solid #e6dcc8;
     }
 
     .sauces-group {
@@ -276,20 +312,20 @@
     }
 
     .sauce-chip {
-      background: #f1f5f9;
-      border: 1px solid #cbd5e1;
-      padding: 6px 12px;
+      background: #f5efe6;
+      border: 1px solid #d7ccc8;
+      padding: 6px 14px;
       border-radius: 20px;
       font-size: 0.85rem;
       font-weight: 600;
-      color: #475569;
+      color: #5d4037;
       cursor: pointer;
       transition: all 0.2s;
       white-space: nowrap;
     }
 
     .sauce-chip:hover {
-      background: #e2e8f0;
+      background: #eee4d3;
       transform: translateY(-1px);
     }
 
@@ -309,23 +345,23 @@
     }
 
     .btn-eat {
-      background: #10b981;
+      background: #689f38;
       color: #ffffff;
     }
 
     .btn-eat:hover {
-      background: #059669;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+      background: #558b2f;
+      box-shadow: 0 4px 12px rgba(104, 159, 56, 0.3);
     }
 
     .btn-reset {
-      background: #f43f5e;
+      background: #d32f2f;
       color: #ffffff;
     }
 
     .btn-reset:hover {
-      background: #e11d48;
-      box-shadow: 0 4px 12px rgba(244, 63, 94, 0.25);
+      background: #c62828;
+      box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
     }
 
     ::-webkit-scrollbar {
@@ -333,7 +369,7 @@
       height: 4px;
     }
     ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
+      background: #d7ccc8;
       border-radius: 4px;
     }
   </style>
@@ -363,9 +399,7 @@
 
     <!-- Нижняя панель: Sauces & Actions -->
     <div class="bottom-panel">
-      <div class="sauces-group" id="saucesGroup">
-        <span style="font-size: 0.85rem; font-weight:600; color: #94a3b8; margin-right: 4px;">Sauces:</span>
-      </div>
+      <div class="sauces-group" id="saucesGroup"></div>
       <div class="action-group">
         <button class="btn-action btn-eat" id="eatBtn">Eat 😋</button>
         <button class="btn-action btn-reset" id="resetBtn">Reset 🗑️</button>
@@ -382,7 +416,7 @@
       { id: 'bottom-bun', name: 'Bottom Bun', image: 'images/bottom-bun.png' }
     ];
 
-    // Обновленные соусы с цветными кружками
+    // Соусы с цветными кружками
     const SAUCES = [
       { id: 'mayo', name: '⚪️ Mayo' },
       { id: 'ketchup', name: '🔴 Ketchup' },
@@ -425,7 +459,7 @@
     }
 
     function renderSauces() {
-      saucesGroup.querySelectorAll('.sauce-chip').forEach(el => el.remove());
+      saucesGroup.innerHTML = '';
       SAUCES.forEach(sauce => {
         const chip = document.createElement('div');
         chip.className = 'sauce-chip';
@@ -438,7 +472,7 @@
       });
     }
 
-    function updateBurgerDisplay() {
+    function updateBurgerDisplay(isNewAdded = false) {
       layersTitle.innerText = `Layers (${currentBurger.length}/${MAX_INGREDIENTS})`;
 
       layersList.innerHTML = '';
@@ -465,6 +499,11 @@
           img.src = item.image;
           img.className = 'burger-layer-img';
           
+          if (isNewAdded && index === currentBurger.length - 1) {
+            img.classList.add('new-layer');
+            setTimeout(() => img.classList.remove('new-layer'), 400);
+          }
+
           if (index === 0) {
             img.style.marginBottom = '-10px';
           } else {
@@ -494,7 +533,7 @@
         return;
       }
       currentBurger.push({ ...item });
-      updateBurgerDisplay();
+      updateBurgerDisplay(true);
     }
 
     function addSauce(sauce) {
@@ -503,13 +542,13 @@
         return;
       }
       currentBurger.push({ id: sauce.id, name: `Sauce: ${sauce.name}` });
-      updateBurgerDisplay();
+      updateBurgerDisplay(true);
     }
 
     function removeLayer(index) {
       if (isEating) return;
       currentBurger.splice(index, 1);
-      updateBurgerDisplay();
+      updateBurgerDisplay(false);
     }
 
     function moveLayer(index, direction) {
@@ -519,7 +558,7 @@
         const temp = currentBurger[index];
         currentBurger[index] = currentBurger[targetIndex];
         currentBurger[targetIndex] = temp;
-        updateBurgerDisplay();
+        updateBurgerDisplay(false);
       }
     }
 
@@ -527,26 +566,58 @@
       isEating = false;
       burgerStack.classList.remove('eating');
       currentBurger = [];
-      updateBurgerDisplay();
+      updateBurgerDisplay(false);
     };
+
+    // Функция создания крошек при поедании
+    function spawnCrumbs() {
+      const colors = ['#e0a96d', '#8d6e63', '#d7ccc8', '#ffd54f'];
+      const rect = burgerStack.getBoundingClientRect();
+      const originX = rect.left + rect.width / 2;
+      const originY = rect.top + rect.height / 2;
+
+      for (let i = 0; i < 12; i++) {
+        const crumb = document.createElement('div');
+        crumb.className = 'crumb';
+        
+        const size = Math.floor(Math.random() * 6) + 4;
+        crumb.style.width = `${size}px`;
+        crumb.style.height = `${size}px`;
+        crumb.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        crumb.style.left = `${originX}px`;
+        crumb.style.top = `${originY}px`;
+
+        const dx = (Math.random() - 0.5) * 160 + 'px';
+        const dy = (Math.random() - 0.5) * 160 + 'px';
+        const rot = (Math.random() - 0.5) * 360 + 'deg';
+
+        crumb.style.setProperty('--dx', dx);
+        crumb.style.setProperty('--dy', dy);
+        crumb.style.setProperty('--rot', rot);
+
+        document.body.appendChild(crumb);
+        setTimeout(() => crumb.remove(), 600);
+      }
+    }
 
     document.getElementById('eatBtn').onclick = () => {
       if (currentBurger.length === 0 || isEating) return;
 
       isEating = true;
       burgerStack.classList.add('eating');
+      spawnCrumbs();
       renderIngredientsMenu();
 
       setTimeout(() => {
         currentBurger = [];
         burgerStack.classList.remove('eating');
         isEating = false;
-        updateBurgerDisplay();
+        updateBurgerDisplay(false);
       }, 2000);
     };
 
     renderSauces();
-    updateBurgerDisplay();
+    updateBurgerDisplay(false);
   </script>
 </body>
 </html>
