@@ -140,7 +140,7 @@
       cursor: not-allowed;
     }
 
-    /* 2. ЦЕНТР: Визуальная сборка бургера */
+    /* 2. ЦЕНТР: Визуальная сборка бургера с работающим скроллом */
     .center-stage {
       grid-column: 2;
       grid-row: 1;
@@ -149,9 +149,18 @@
       justify-content: flex-end;
       align-items: center;
       position: relative;
-      padding-bottom: 20px;
+      padding-bottom: 50px; /* Приподнимает бургер от края экрана */
       overflow-y: auto; 
       overflow-x: hidden;
+    }
+
+    .burger-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      min-height: 100%;
+      width: 100%;
     }
 
     .burger-stack {
@@ -170,7 +179,7 @@
       filter: brightness(0.9) sepia(0.2);
     }
 
-    /* Базовый стиль слоя (уменьшен в ~2 раза) */
+    /* Базовый стиль слоя */
     .burger-layer-img {
       display: block;
       width: auto;
@@ -180,23 +189,18 @@
       animation: dropIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
 
-    /* Индивидуальные настройки отступов под конкретные ингредиенты для идеального прилегания */
+    /* Отступы для укладки разных ингредиентов */
     .layer-bottom-bun {
       margin-bottom: -50px;
-      z-index: 1;
     }
     .layer-beef-patty {
       margin-bottom: -60px;
-      z-index: 2;
     }
     .layer-top-bun {
-      margin-bottom: 0px;
-      z-index: 5;
+      margin-bottom: -65px; /* Исправлена высота верхней булочки */
     }
-    /* Для любых других добавляемых слоев по умолчанию */
     .layer-default {
       margin-bottom: -55px;
-      z-index: 3;
     }
 
     @keyframes dropIn {
@@ -218,19 +222,40 @@
       height: 14px;
       background: #e2e8f0;
       border-radius: 50%;
-      margin-top: -2px;
+      margin-top: 10px; /* Тарелка опущена, чтобы не налезала на низ */
       flex-shrink: 0;
     }
 
-    /* Эффект откуса (создается динамически кликом) */
+    /* Уведомление о пределе ингредиентов */
+    .limit-warning {
+      position: absolute;
+      top: 15px;
+      background: #ef4444;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+      z-index: 200;
+    }
+    .limit-warning.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Эффект откуса */
     .bite-mark {
       position: absolute;
-      background: #f4f6f8; /* Цвет фона сцены */
+      background: #f4f6f8;
       border-radius: 50%;
       pointer-events: none;
       transform: scale(0);
       animation: bitePop 0.3s forwards;
-      z-index: 10;
+      z-index: 1000;
       box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
     }
 
@@ -273,6 +298,13 @@
       border-color: #3b82f6;
       box-shadow: 0 4px 12px rgba(59, 130, 246, 0.12);
       transform: translateY(-2px);
+    }
+
+    .ingredient-card.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
     }
 
     .ingredient-card img {
@@ -386,14 +418,17 @@
   <div class="app-container">
     <!-- Левая панель: Список слоев -->
     <div class="panel left-panel">
-      <div class="panel-title">Слои бургера</div>
+      <div class="panel-title" id="layersTitle">Слои (0/30)</div>
       <div class="layers-list" id="layersList"></div>
     </div>
 
     <!-- Центр: Отрисовка бургера -->
     <div class="center-stage" id="centerStage">
-      <div class="burger-stack" id="burgerStack"></div>
-      <div class="plate"></div>
+      <div class="limit-warning" id="limitWarning">Максимум 30 ингредиентов!</div>
+      <div class="burger-wrapper">
+        <div class="burger-stack" id="burgerStack"></div>
+        <div class="plate"></div>
+      </div>
     </div>
 
     <!-- Правая панель: Выбор ингредиентов -->
@@ -415,7 +450,9 @@
   </div>
 
   <script>
-    // 1. Конфигурация ингредиентов
+    const MAX_INGREDIENTS = 30;
+
+    // Конфигурация ингредиентов
     const INGREDIENTS = [
       { id: 'top-bun', name: 'Верхняя булочка', image: 'images/top-bun.png' },
       { id: 'beef-patty', name: 'Говяжья котлета', image: 'images/beef-patty.png' },
@@ -441,9 +478,11 @@
 
     const burgerStack = document.getElementById('burgerStack');
     const layersList = document.getElementById('layersList');
+    const layersTitle = document.getElementById('layersTitle');
     const ingredientsMenu = document.getElementById('ingredientsMenu');
     const saucesGroup = document.getElementById('saucesGroup');
     const centerStage = document.getElementById('centerStage');
+    const limitWarning = document.getElementById('limitWarning');
     const eatBtn = document.getElementById('eatBtn');
 
     function renderIngredientsMenu() {
@@ -451,6 +490,9 @@
       INGREDIENTS.forEach(item => {
         const card = document.createElement('div');
         card.className = 'ingredient-card';
+        if (currentBurger.length >= MAX_INGREDIENTS) {
+          card.classList.add('disabled');
+        }
         card.innerHTML = `
           <img src="${item.image}" alt="${item.name}">
           <span>${item.name}</span>
@@ -480,12 +522,13 @@
       burgerStack.innerHTML = '';
       layersList.innerHTML = '';
 
+      layersTitle.innerText = `Слои (${currentBurger.length}/${MAX_INGREDIENTS})`;
+
       currentBurger.forEach((item, index) => {
         if (item.image) {
           const img = document.createElement('img');
           img.src = item.image;
           
-          // Определяем класс отступа в зависимости от ID слоя
           let spacingClass = 'layer-default';
           if (item.id === 'bottom-bun') spacingClass = 'layer-bottom-bun';
           else if (item.id === 'beef-patty') spacingClass = 'layer-beef-patty';
@@ -493,6 +536,10 @@
 
           img.className = `burger-layer-img ${spacingClass}`;
           img.alt = item.name;
+          
+          // Исправление Z-INDEX: Боле новый ингредиент (с большим индексом) всегда перекрывает более старый
+          img.style.zIndex = index + 1;
+
           burgerStack.appendChild(img);
         }
 
@@ -512,18 +559,35 @@
         layersList.appendChild(listItem);
       });
 
-      // Плавная прокрутка к новому элементу снизу вверх
+      renderIngredientsMenu();
+
+      // Автоматический скролл вверх при добавлении слоев
       setTimeout(() => {
         centerStage.scrollTop = centerStage.scrollHeight;
       }, 50);
     }
 
+    function showLimitWarning() {
+      limitWarning.classList.add('show');
+      setTimeout(() => {
+        limitWarning.classList.remove('show');
+      }, 2000);
+    }
+
     function addIngredient(item) {
+      if (currentBurger.length >= MAX_INGREDIENTS) {
+        showLimitWarning();
+        return;
+      }
       currentBurger.push({ ...item });
       updateBurgerDisplay();
     }
 
     function addSauce(sauce) {
+      if (currentBurger.length >= MAX_INGREDIENTS) {
+        showLimitWarning();
+        return;
+      }
       currentBurger.push({ id: sauce.id, name: `Соус: ${sauce.name}` });
       updateBurgerDisplay();
     }
@@ -550,15 +614,13 @@
       eatBtn.classList.remove('active-eating');
     }
 
-    // Кнопка Сброс
     document.getElementById('resetBtn').onclick = () => {
       exitEatingMode();
       currentBurger = [];
       updateBurgerDisplay();
     };
 
-    // Кнопка Съесть (активация интерактивного поедания кусками)
-    eatBtn.onclick = (e) => {
+    eatBtn.onclick = () => {
       if (currentBurger.length === 0) return;
 
       if (!isEatingMode) {
@@ -569,7 +631,6 @@
       }
     };
 
-    // Клик по стопке бургера для откусывания кусочков
     burgerStack.onclick = (e) => {
       if (!isEatingMode) return;
 
@@ -577,10 +638,9 @@
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
-      // Создаем элемент анимации откуса
       const bite = document.createElement('div');
       bite.className = 'bite-mark';
-      const size = Math.floor(Math.random() * 40) + 45; // Случайный размер укуса
+      const size = Math.floor(Math.random() * 40) + 45;
       bite.style.width = `${size}px`;
       bite.style.height = `${size}px`;
       bite.style.left = `${x - size / 2}px`;
@@ -588,9 +648,8 @@
       
       burgerStack.appendChild(bite);
 
-      // Если кликов много и съедено много частей — постепенно удаляем слои снизу или сверху
       if (burgerStack.querySelectorAll('.bite-mark').length >= currentBurger.length * 3) {
-        currentBurger.shift(); // Убираем нижний слой
+        currentBurger.shift();
         updateBurgerDisplay();
         if (currentBurger.length === 0) {
           exitEatingMode();
@@ -598,7 +657,6 @@
       }
     };
 
-    // Инициализация при загрузке
     renderIngredientsMenu();
     renderSauces();
     updateBurgerDisplay();
