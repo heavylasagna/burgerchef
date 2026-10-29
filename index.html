@@ -1,84 +1,487 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Собери свой бургер</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Конструктор Бургера</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1f1c2c, #928dab);
+      color: #fff;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Главный макет */
+    .app-container {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px;
+      grid-template-rows: 1fr 100px;
+      height: 100vh;
+      width: 100vw;
+      gap: 15px;
+      padding: 15px;
+    }
+
+    .panel {
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      text-align: center;
+      color: #ffca28;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Левая панель: Стек слоев */
+    .left-panel {
+      grid-column: 1;
+      grid-row: 1;
+      overflow: hidden;
+    }
+
+    .layers-list {
+      display: flex;
+      flex-direction: column-reverse; /* Снизу вверх */
+      gap: 8px;
+      overflow-y: auto;
+      flex: 1;
+      padding-right: 5px;
+    }
+
+    .layer-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.2s;
+    }
+
+    .layer-item:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .layer-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .layer-icon {
+      width: 32px;
+      height: 32px;
+    }
+
+    .layer-name {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .layer-controls {
+      display: flex;
+      gap: 4px;
+    }
+
+    .btn-icon {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    .btn-icon:hover {
+      background: #ffca28;
+      color: #000;
+    }
+
+    .btn-icon.delete:hover {
+      background: #ef5350;
+      color: #fff;
+    }
+
+    /* Правая панель: Ингредиенты */
+    .right-panel {
+      grid-column: 3;
+      grid-row: 1;
+      overflow: hidden;
+    }
+
+    .ingredients-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+      flex: 1;
+      padding-right: 5px;
+    }
+
+    .ingredient-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 10px;
+      cursor: pointer;
+      color: white;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .ingredient-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .ingredient-btn svg {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+    }
+
+    /* Центр: Визуализация бургера */
+    .center-stage {
+      grid-column: 2;
+      grid-row: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      position: relative;
+      padding-bottom: 20px;
+    }
+
+    .burger-container {
+      display: flex;
+      flex-direction: column-reverse; /* Нижний слой снизу */
+      align-items: center;
+      width: 320px;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+
+    .burger-layer {
+      width: 100%;
+      height: 35px;
+      margin-bottom: -12px; /* Перекрытие слоев */
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      animation: dropIn 0.3s forwards;
+    }
+
+    @keyframes dropIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50px) scale(1.1);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .burger-plate {
+      width: 360px;
+      height: 18px;
+      background: linear-gradient(to right, #cfd8dc, #eceff1, #cfd8dc);
+      border-radius: 50%;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+      margin-top: -5px;
+    }
+
+    /* Поедание бургера */
+    .burger-container.eating {
+      animation: eatBurger 2.5s forwards ease-in-out;
+    }
+
+    @keyframes eatBurger {
+      0% { transform: scale(1) rotate(0deg); }
+      25% { transform: scale(0.75) rotate(-5deg); }
+      50% { transform: scale(0.5) rotate(5deg); }
+      75% { transform: scale(0.25) rotate(-3deg); }
+      100% { transform: scale(0) rotate(0deg); opacity: 0; }
+    }
+
+    /* Нижняя панель */
+    .bottom-panel {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 0 20px;
+    }
+
+    .sauces-container {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      overflow-x: auto;
+    }
+
+    .sauce-tag {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: 0.2s;
+    }
+
+    .sauce-tag:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .actions-container {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-action {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-eat {
+      background: #66bb6a;
+      color: white;
+    }
+
+    .btn-eat:hover {
+      background: #4caf50;
+      box-shadow: 0 0 12px rgba(76, 175, 80, 0.5);
+    }
+
+    .btn-reset {
+      background: #ef5350;
+      color: white;
+    }
+
+    .btn-reset:hover {
+      background: #f44336;
+      box-shadow: 0 0 12px rgba(244, 67, 54, 0.5);
+    }
+
+    /* Скроллбары */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+  </style>
 </head>
 <body>
 
-<header class="header">
-    <h1>Собери свой бургер</h1>
-    <p>Создай бургер своей мечты!</p>
-</header>
+  <div class="app-container">
+    <!-- Левая панель: Состав -->
+    <div class="panel left-panel">
+      <div class="panel-title">Слои (снизу вверх)</div>
+      <div class="layers-list" id="layersList"></div>
+    </div>
 
-<main class="builder">
+    <!-- Центральная область: Бургер -->
+    <div class="center-stage">
+      <div class="burger-container" id="burgerContainer"></div>
+      <div class="burger-plate"></div>
+    </div>
 
-    <aside class="panel ingredients-panel">
-        <h2>Твой бургер</h2>
-        <p class="panel-description">Верхний слой отображается первым</p>
+    <!-- Правая панель: Ингредиенты -->
+    <div class="panel right-panel">
+      <div class="panel-title">Добавить ингредиент</div>
+      <div class="ingredients-grid" id="ingredientsGrid"></div>
+    </div>
 
-        <div id="ingredients-list" class="ingredients-list"></div>
+    <!-- Нижняя панель: Соусы и Кнопки -->
+    <div class="panel bottom-panel">
+      <div class="sauces-container" id="saucesContainer">
+        <span style="font-size:0.9rem; color:#aaa; margin-right:5px;">Соусы:</span>
+      </div>
+      <div class="actions-container">
+        <button class="btn-action btn-eat" id="eatBtn">Съесть 😋</button>
+        <button class="btn-action btn-reset" id="resetBtn">Сброс 🗑️</button>
+      </div>
+    </div>
+  </div>
 
-        <div class="panel-actions">
-            <button id="save-button" class="action-button save-button">Сохранить</button>
-            <button id="eat-button" class="action-button eat-button">Съесть</button>
-            <button id="reset-button" class="action-button reset-button">Сбросить</button>
-        </div>
-    </aside>
+  <script>
+    // База ингредиентов с SVG-графикой
+    const INGREDIENTS = [
+      { id: 'bun_top', name: 'Верхняя булочка', svg: `<svg viewBox="0 0 100 40"><path d="M5 35 Q50 -10 95 35 Z" fill="#e0a96d"/><circle cx="25" cy="15" r="1.5" fill="#fff"/><circle cx="45" cy="10" r="1.5" fill="#fff"/><circle cx="65" cy="12" r="1.5" fill="#fff"/><circle cx="75" cy="22" r="1.5" fill="#fff"/></svg>` },
+      { id: 'patty', name: 'Котлета', svg: `<svg viewBox="0 0 100 25"><rect x="5" y="5" width="90" height="15" rx="7" fill="#5d4037"/><path d="M10 10 Q25 12 40 10 T70 10 T90 10" stroke="#3e2723" stroke-width="2" fill="none"/></svg>` },
+      { id: 'cheese', name: 'Сыр', svg: `<svg viewBox="0 0 100 20"><polygon points="5,5 95,5 85,18 65,8 45,18 25,8 5,18" fill="#ffd54f"/></svg>` },
+      { id: 'lettuce', name: 'Салат', svg: `<svg viewBox="0 0 100 20"><path d="M 5 10 Q 15 0 25 10 Q 35 20 45 10 Q 55 0 65 10 Q 75 20 85 10 Q 95 0 95 15 L 5 15 Z" fill="#81c784"/></svg>` },
+      { id: 'tomato', name: 'Помидор', svg: `<svg viewBox="0 0 100 20"><rect x="10" y="4" width="35" height="12" rx="4" fill="#e57373"/><rect x="55" y="4" width="35" height="12" rx="4" fill="#e57373"/></svg>` },
+      { id: 'pickle', name: 'Огурцы', svg: `<svg viewBox="0 0 100 20"><ellipse cx="25" cy="10" rx="15" ry="6" fill="#4caf50"/><ellipse cx="50" cy="10" rx="15" ry="6" fill="#388e3c"/><ellipse cx="75" cy="10" rx="15" ry="6" fill="#4caf50"/></svg>` },
+      { id: 'onion', name: 'Лук', svg: `<svg viewBox="0 0 100 20"><path d="M15 5 Q50 0 85 5 Q50 15 15 5" fill="none" stroke="#ba68c8" stroke-width="4"/><path d="M25 12 Q50 7 75 12" fill="none" stroke="#ab47bc" stroke-width="3"/></svg>` },
+      { id: 'bacon', name: 'Бекон', svg: `<svg viewBox="0 0 100 20"><path d="M5 8 Q 25 18 50 8 T 95 8 L 95 14 Q 75 24 50 14 T 5 14 Z" fill="#b71c1c"/></svg>` },
+      { id: 'egg', name: 'Яйцо', svg: `<svg viewBox="0 0 100 20"><ellipse cx="50" cy="10" rx="40" ry="8" fill="#ffffff"/><circle cx="50" cy="10" r="5" fill="#fbc02d"/></svg>` },
+      { id: 'bun_bottom', name: 'Нижняя булочка', svg: `<svg viewBox="0 0 100 30"><path d="M 8 5 L 92 5 L 85 25 L 15 25 Z" fill="#d7ccc8"/><rect x="8" y="2" width="84" height="5" rx="2" fill="#e0a96d"/></svg>` }
+    ];
 
-    <section class="workspace">
-        <div class="workspace-title">
-            <h2>Мастерская бургера</h2>
-            <p>Добавляй ингредиенты и меняй их порядок</p>
-        </div>
+    const SAUCES = [
+      { name: 'Кетчуп 🥫', color: '#e53935' },
+      { name: 'Майонез 🤍', color: '#fffde7' },
+      { name: 'Горчица 🟡', color: '#fbc02d' },
+      { name: 'Барбекю 🍖', color: '#4e342e' },
+      { name: 'Сырный 🧀', color: '#ffa000' }
+    ];
 
-        <div class="burger-stage">
-            <div id="burger-stack" class="burger-stack"></div>
-        </div>
+    // Состояние бургера (массив id выбранных слоев)
+    let burgerState = ['bun_bottom', 'patty', 'cheese', 'bun_top'];
 
-        <div class="sauce-panel">
-            <h3>Выбери соус</h3>
+    const burgerContainer = document.getElementById('burgerContainer');
+    const layersList = document.getElementById('layersList');
+    const ingredientsGrid = document.getElementById('ingredientsGrid');
+    const saucesContainer = document.getElementById('saucesContainer');
 
-            <div class="sauce-list">
-                <button class="sauce-button ketchup" data-sauce="ketchup" type="button">
-                    <span class="sauce-dish">●</span> Кетчуп
-                </button>
+    // Рендер правой панели выбора
+    function renderIngredientsMenu() {
+      ingredientsGrid.innerHTML = '';
+      INGREDIENTS.forEach(item => {
+        const btn = document.createElement('div');
+        btn.className = 'ingredient-btn';
+        btn.innerHTML = `${item.svg}<span>${item.name}</span>`;
+        btn.onclick = () => addIngredient(item.id);
+        ingredientsGrid.appendChild(btn);
+      });
+    }
 
-                <button class="sauce-button mayonnaise" data-sauce="mayonnaise" type="button">
-                    <span class="sauce-dish">●</span> Майонез
-                </button>
+    // Рендер соусов
+    function renderSauces() {
+      SAUCES.forEach(sauce => {
+        const tag = document.createElement('div');
+        tag.className = 'sauce-tag';
+        tag.innerText = sauce.name;
+        tag.onclick = () => addSauce(sauce);
+        saucesContainer.appendChild(tag);
+      });
+    }
 
-                <button class="sauce-button mustard" data-sauce="mustard" type="button">
-                    <span class="sauce-dish">●</span> Горчица
-                </button>
+    // Рендер левой панели (управление слоями) и самого бургера
+    function renderBurger() {
+      burgerContainer.innerHTML = '';
+      layersList.innerHTML = '';
 
-                <button class="sauce-button bbq" data-sauce="bbq" type="button">
-                    <span class="sauce-dish">●</span> Барбекю
-                </button>
+      burgerState.forEach((id, index) => {
+        const itemData = INGREDIENTS.find(i => i.id === id) || { name: 'Соус', svg: `<svg viewBox="0 0 100 15"><path d="M10 5 Q 50 15 90 5" stroke="${id.split('_')[1] || '#f00'}" stroke-width="6" stroke-linecap="round" fill="none"/></svg>` };
 
-                <button class="sauce-button chili" data-sauce="chili" type="button">
-                    <span class="sauce-dish">●</span> Чили
-                </button>
-            </div>
-        </div>
+        // Элемент в центральном бургере
+        const layerEl = document.createElement('div');
+        layerEl.className = 'burger-layer';
+        layerEl.innerHTML = itemData.svg;
+        burgerContainer.appendChild(layerEl);
 
-        <div id="message" class="message" aria-live="polite">
-            Добавь первый ингредиент!
-        </div>
-    </section>
+        // Элемент в левом списке
+        const listItem = document.createElement('div');
+        listItem.className = 'layer-item';
+        listItem.innerHTML = `
+          <div class="layer-info">
+            <div class="layer-icon">${itemData.svg}</div>
+            <span class="layer-name">${itemData.name}</span>
+          </div>
+          <div class="layer-controls">
+            <button class="btn-icon" onclick="moveLayer(${index}, 1)" ${index === burgerState.length - 1 ? 'disabled' : ''}>▲</button>
+            <button class="btn-icon" onclick="moveLayer(${index}, -1)" ${index === 0 ? 'disabled' : ''}>▼</button>
+            <button class="btn-icon delete" onclick="removeLayer(${index})">✕</button>
+          </div>
+        `;
+        layersList.appendChild(listItem);
+      });
+    }
 
-    <aside class="panel catalog-panel">
-        <h2>Ингредиенты</h2>
-        <p class="panel-description">Нажми, чтобы добавить</p>
+    function addIngredient(id) {
+      burgerState.push(id);
+      renderBurger();
+    }
 
-        <div id="catalog" class="catalog"></div>
-    </aside>
+    function addSauce(sauce) {
+      const sauceId = `sauce_${sauce.color}`;
+      burgerState.push(sauceId);
+      renderBurger();
+    }
 
-</main>
+    function removeLayer(index) {
+      burgerState.splice(index, 1);
+      renderBurger();
+    }
 
+    function moveLayer(index, direction) {
+      const newIndex = index + direction;
+      if (newIndex >= 0 && newIndex < burgerState.length) {
+        const temp = burgerState[index];
+        burgerState[index] = burgerState[newIndex];
+        burgerState[newIndex] = temp;
+        renderBurger();
+      }
+    }
+
+    // Кнопка Сброс
+    document.getElementById('resetBtn').onclick = () => {
+      burgerContainer.classList.remove('eating');
+      burgerState = [];
+      renderBurger();
+    };
+
+    // Кнопка Съесть
+    document.getElementById('eatBtn').onclick = () => {
+      if (burgerState.length === 0) return;
+      burgerContainer.classList.add('eating');
+      setTimeout(() => {
+        burgerState = [];
+        renderBurger();
+        burgerContainer.classList.remove('eating');
+      }, 2500);
+    };
+
+    // Инициализация
+    renderIngredientsMenu();
+    renderSauces();
+    renderBurger();
+  </script>
 </body>
 </html>
