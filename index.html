@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Burger Builder & Orders</title>
+  
+  <!-- Иконка вкладки -->
+  <link rel="icon" type="image/png" href="icon.png">
+
   <style>
     * {
       box-sizing: border-box;
@@ -235,6 +239,11 @@
       gap: 10px;
       text-align: center;
       max-width: 90%;
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+    }
+    .top-order-widget.dimmed {
+      opacity: 0.35;
     }
     .top-order-widget span { color: #ffb300; font-weight: bold; }
 
@@ -573,8 +582,8 @@
   <button class="toggle-ui-btn" id="toggleUiBtn" title="Скрыть/показать окна">👁️</button>
   <div class="toast-container" id="toastContainer"></div>
 
-  <!-- Верхний виджет таймера и заказа -->
-  <div class="top-order-widget" id="topOrderWidget">
+  <!-- Верхний виджет таймера и заказа (кликабельный) -->
+  <div class="top-order-widget" id="topOrderWidget" title="Click to toggle opacity">
     <span id="orderStatusText">Next order in: 05:00</span>
   </div>
 
@@ -674,6 +683,12 @@
         if (!isMuted) playSound(SOUNDS.buttons);
       };
 
+      // Переключение полупрозрачности таймера заказов
+      const topOrderWidget = document.getElementById('topOrderWidget');
+      topOrderWidget.onclick = () => {
+        topOrderWidget.classList.toggle('dimmed');
+      };
+
       const ITEM_IMAGES = {
         'bottom-bun': 'images/bottom-bun.png',
         'top-bun': 'images/top-bun.png',
@@ -716,7 +731,7 @@
       let pinnedBurger = JSON.parse(localStorage.getItem('pinned_burger')) || null;
 
       let currentActiveOrder = null; 
-      let timeUntilNextOrder = Math.floor(Math.random() * 240) + 60; // 1-5 минут в секундах
+      let timeUntilNextOrder = Math.floor(Math.random() * 240) + 60;
 
       function unlockAchievement(id) {
         if (!unlockedAchievements[id]) {
@@ -892,7 +907,6 @@
         toggleUiBtn.innerText = document.body.classList.contains('ui-hidden') ? '👁️‍🗨️' : '👁️';
       };
 
-      // Таймер и заказы (новые заказы не идут, пока текущий не выполнен)
       function formatTime(seconds) {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
@@ -1004,7 +1018,7 @@
           setTimeout(() => toast.remove(), 4000);
 
           currentActiveOrder = null;
-          timeUntilNextOrder = Math.floor(Math.random() * 240) + 60; // Сброс таймера до следующего
+          timeUntilNextOrder = Math.floor(Math.random() * 240) + 60;
 
           setTimeout(() => {
             triggerEatAnimation();
