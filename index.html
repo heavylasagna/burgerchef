@@ -515,12 +515,14 @@
             setTimeout(() => img.classList.remove('new-layer'), 400);
           }
 
+          const itemBelow = index > 0 ? currentBurger[index - 1] : null;
+
           if (index === 0) {
             img.style.marginBottom = '-10px';
           } else if (item.id === 'lettuce') {
-            img.style.marginBottom = '-60px'; // Изменено на -60px
+            img.style.marginBottom = '-60px';
           } else if (item.id === 'top-bun') {
-            img.style.marginBottom = '-55px';
+            img.style.marginBottom = (itemBelow && itemBelow.id === 'lettuce') ? '-55px' : '-40px';
           } else {
             img.style.marginBottom = '-40px';
           }
