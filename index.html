@@ -25,7 +25,7 @@
     /* Сетка всего интерфейса */
     .app-container {
       display: grid;
-      grid-template-columns: 300px 1fr 300px;
+      grid-template-columns: 320px 1fr 320px;
       grid-template-rows: 1fr 110px;
       height: 100vh;
       width: 100vw;
@@ -91,8 +91,8 @@
     }
 
     .layer-preview {
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
       object-fit: contain;
     }
 
@@ -149,40 +149,40 @@
       justify-content: flex-end;
       align-items: center;
       position: relative;
-      padding-bottom: 25px;
+      padding-bottom: 20px;
+      overflow-y: auto; /* Добавлена прокрутка для высокого бургера */
+      overflow-x: hidden;
     }
 
     .burger-stack {
       display: flex;
       flex-direction: column-reverse; /* Сборка слоев снизу вверх */
       align-items: center;
-      width: 340px;
       transition: transform 0.4s ease, opacity 0.4s ease;
+      margin-bottom: 0;
     }
 
-    /* Общие стили для картинок ингредиентов в бургере */
+    /* Картинки уменьшены примерно в 2 раза */
     .burger-layer-img {
-      width: 100%;
+      display: block;
+      width: auto;
       height: auto;
-      object-fit: contain;
-      /* Отрицательный отступ снизу подтягивает следующий слой, убирая пустоту */
-      margin-bottom: -55px; 
+      max-width: 200px; /* Уменьшено в 2 раза со 400px до 200px */
+      /* Отрицательный отступ уменьшен пропорционально для более точного наложения */
+      margin-bottom: -65px; 
       position: relative;
       animation: dropIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
 
-    /* Точная настройка для верхней булочки (277px против ~190px остальных) */
-    .burger-layer-img.top-bun-layer {
-      max-height: 277px;
-      /* Больший отрицательный отступ, так как булочка объемная и заходит на слои сверху */
-      margin-bottom: -75px; 
-      z-index: 10;
+    /* Самый верхний слой без сильного отрицательного отступа */
+    .burger-layer-img:last-child {
+      margin-bottom: -20px;
     }
 
     @keyframes dropIn {
       from {
         opacity: 0;
-        transform: translateY(-40px) scale(1.05);
+        transform: translateY(-30px) scale(1.02);
       }
       to {
         opacity: 1;
@@ -191,12 +191,13 @@
     }
 
     .plate {
-      width: 380px;
-      height: 16px;
+      width: 240px; /* Уменьшена тарелка под новые габариты */
+      height: 14px;
       background: #e2e8f0;
       border-radius: 50%;
       box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
-      z-index: 1;
+      z-index: 0;
+      flex-shrink: 0;
     }
 
     /* Анимация "Съесть" */
@@ -248,8 +249,8 @@
     }
 
     .ingredient-card img {
-      width: 50px;
-      height: 50px;
+      width: 45px;
+      height: 45px;
       object-fit: contain;
     }
 
@@ -267,6 +268,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 25px;
+      z-index: 10;
     }
 
     .sauces-group {
@@ -349,7 +351,7 @@
     </div>
 
     <!-- Центр: Отрисовка бургера -->
-    <div class="center-stage">
+    <div class="center-stage" id="centerStage">
       <div class="burger-stack" id="burgerStack"></div>
       <div class="plate"></div>
     </div>
@@ -373,7 +375,7 @@
   </div>
 
   <script>
-    // Конфигурация доступных ингредиентов
+    // 1. Конфигурация ингредиентов
     const INGREDIENTS = [
       { id: 'top-bun', name: 'Верхняя булочка', image: 'images/top-bun.png' },
       { id: 'beef-patty', name: 'Говяжья котлета', image: 'images/beef-patty.png' },
@@ -388,7 +390,7 @@
       { id: 'bbq', name: 'Барбекю 🍖' }
     ];
 
-    // Текущий состав бургера
+    // Начальный бургер
     let currentBurger = [
       { ...INGREDIENTS.find(item => item.id === 'bottom-bun') },
       { ...INGREDIENTS.find(item => item.id === 'beef-patty') },
@@ -399,6 +401,7 @@
     const layersList = document.getElementById('layersList');
     const ingredientsMenu = document.getElementById('ingredientsMenu');
     const saucesGroup = document.getElementById('saucesGroup');
+    const centerStage = document.getElementById('centerStage');
 
     function renderIngredientsMenu() {
       ingredientsMenu.innerHTML = '';
@@ -432,8 +435,7 @@
         if (item.image) {
           const img = document.createElement('img');
           img.src = item.image;
-          // Добавляем специальный класс для верхней булочки, чтобы применить её оригинальные пропорции
-          img.className = `burger-layer-img ${item.id === 'top-bun' ? 'top-bun-layer' : ''}`;
+          img.className = 'burger-layer-img';
           img.alt = item.name;
           burgerStack.appendChild(img);
         }
@@ -453,6 +455,11 @@
         `;
         layersList.appendChild(listItem);
       });
+
+      // Автоматически прокручиваем центральную зону к самому верху бургера при добавлении
+      setTimeout(() => {
+        centerStage.scrollTop = centerStage.scrollHeight;
+      }, 50);
     }
 
     function addIngredient(item) {
