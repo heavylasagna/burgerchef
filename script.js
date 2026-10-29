@@ -28,10 +28,19 @@ const saveButton = document.getElementById("save-button");
 const eatButton = document.getElementById("eat-button");
 const resetButton = document.getElementById("reset-button");
 
-// Настройки расположения слоёв
-const OVERLAP = 0.18;
-const BUN_TO_PATTY_OVERLAP = 0.50;
 const ALPHA_THRESHOLD = 20;
+
+// Положение контактных точек относительно высоты изображения.
+// Значения задаются в долях от 0 до 1, сверху вниз.
+const CONTACT_POINTS = {
+    "bottom-bun": 0.57,
+    "beef-patty-bottom": 0.98,
+    "beef-patty-top": 0.56,
+    "top-bun": 0.96
+};
+
+// Насколько глубоко слои входят друг в друга
+const CONTACT_OVERLAP = 3;
 
 const imageBounds = new Map();
 
@@ -199,28 +208,7 @@ function renderBurger() {
 }
 
 
-// Выбор степени нахлёста между слоями
-
-function getOverlap(previous, current) {
-    // Котлета глубже входит в нижнюю булочку
-    if (
-        previous.id === "bottom-bun" &&
-        current.id === "beef-patty"
-    ) {
-        return BUN_TO_PATTY_OVERLAP;
-    }
-
-    // Верхняя булочка немного накрывает начинку
-    if (current.id === "top-bun") {
-        return 0.30;
-    }
-
-    // Обычное перекрытие остальных ингредиентов
-    return OVERLAP;
-}
-
-
-// Расположение слоёв с учётом прозрачных краёв PNG
+// Расчёт положения трёх основных слоёв
 
 async function positionLayers() {
     if (!burgerStack) return;
@@ -255,13 +243,12 @@ async function positionLayers() {
             return {
                 element,
                 ingredient,
-                bounds,
-                scale,
                 imageHeight: imageHeight * scale,
+                scale,
+                top: bounds.top * scale,
+                bottom: bounds.bottom * scale,
                 visibleHeight: bounds.height * scale,
-
-                // Прозрачное пространство под видимой частью PNG
-                bottomInset:
+                transparentBottom:
                     (imageHeight - 1 - bounds.bottom) * scale
             };
         })
@@ -270,38 +257,97 @@ async function positionLayers() {
     if (currentVersion !== layoutVersion) return;
     if (layers.some(layer => !layer)) return;
 
-    // Высота видимого нижнего края каждого слоя над основанием
     let visibleBottom = 0;
 
     layers.forEach((layer, index) => {
-        const { element, bottomInset } = layer;
+        const { element, ingredient } = layer;
 
-        // CSS bottom отсчитывается от нижнего края самого изображения,
-        // а не от последнего непрозрачного пикселя
-        element.style.bottom =
-            `${visibleBottom - bottomInset}px`;
+        // Нижняя булочка стоит основанием на дне контейнера
+        if (index === 0) {
+            element.style.bottom =
+                `${-layer.bottom}px`;
 
-        if (index < layers.length - 1) {
-            const current = layer;
-            const next = layers[index + 1];
-
-            const overlapRatio = getOverlap(
-                current.ingredient,
-                next.ingredient
-            );
-
-            const overlap = Math.min(
-                current.visibleHeight,
-                next.visibleHeight
-            ) * overlapRatio;
-
-            visibleBottom += current.visibleHeight - overlap;
+            visibleBottom = layer.visibleHeight;
+            return;
         }
+
+        const previous = layers[index - 1];
+
+        // Специальное положение котлеты на нижней булочке
+        if (
+            previous.ingredient.id === "bottom-bun" &&
+            ingredient.id === "beef-patty"
+        ) {
+            const bunContactY =
+                previous.imageHeight * CONTACT_POINTS["bottom-bun"];
+
+            const pattyBottomY =
+                layer.imageHeight *
+                CONTACT_POINTS["beef-patty-bottom"];
+
+            // Координаты точек соприкосновения от нижнего края PNG
+            const bunContactFromBottom =
+                previous.imageHeight - bunContactY;
+
+            const pattyContactFromBottom =
+                layer.imageHeight - pattyBottomY;
+
+            const pattyBottom =
+                bunContactFromBottom -
+                pattyContactFromBottom +
+                CONTACT_OVERLAP;
+
+            element.style.bottom =
+                `${pattyBottom - layer.transparentBottom}px`;
+
+            visibleBottom = pattyBottom + layer.visibleHeight;
+            return;
+        }
+
+        // Специальное положение верхней булочки над котлетой
+        if (
+            previous.ingredient.id === "beef-patty" &&
+            ingredient.id === "top-bun"
+        ) {
+            const pattyTopContactY =
+                previous.imageHeight *
+                CONTACT_POINTS["beef-patty-top"];
+
+            const pattyContactFromBottom =
+                previous.imageHeight - pattyTopContactY;
+
+            const topBunContactFromBottom =
+                layer.imageHeight * (1 - CONTACT_POINTS["top-bun"]);
+
+            const topBunBottom =
+                visibleBottom +
+                pattyContactFromBottom -
+                topBunContactFromBottom;
+
+            element.style.bottom =
+                `${topBunBottom - layer.transparentBottom}px`;
+
+            visibleBottom = topBunBottom + layer.visibleHeight;
+            return;
+        }
+
+        // Для остальных слоёв пока используется простое перекрытие
+        const overlap = Math.min(
+            previous.visibleHeight,
+            layer.visibleHeight
+        ) * 0.18;
+
+        const nextBottom = visibleBottom - overlap;
+
+        element.style.bottom =
+            `${nextBottom - layer.transparentBottom}px`;
+
+        visibleBottom = nextBottom + layer.visibleHeight;
     });
 }
 
 
-// Список ингредиентов с миниатюрами
+// Список ингредиентов
 
 function renderList() {
     if (!ingredientsList) return;
