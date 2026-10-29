@@ -160,14 +160,23 @@
       transition: transform 0.4s ease, opacity 0.4s ease;
     }
 
+    /* Общие стили для картинок ингредиентов в бургере */
     .burger-layer-img {
       width: 100%;
       height: auto;
-      max-height: 90px;
       object-fit: contain;
-      margin-bottom: -22px; /* Перекрытие слоев для реалистичной укладки */
+      /* Отрицательный отступ снизу подтягивает следующий слой, убирая пустоту */
+      margin-bottom: -55px; 
       position: relative;
       animation: dropIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    /* Точная настройка для верхней булочки (277px против ~190px остальных) */
+    .burger-layer-img.top-bun-layer {
+      max-height: 277px;
+      /* Больший отрицательный отступ, так как булочка объемная и заходит на слои сверху */
+      margin-bottom: -75px; 
+      z-index: 10;
     }
 
     @keyframes dropIn {
@@ -187,6 +196,7 @@
       background: #e2e8f0;
       border-radius: 50%;
       box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+      z-index: 1;
     }
 
     /* Анимация "Съесть" */
@@ -363,14 +373,11 @@
   </div>
 
   <script>
-    // 1. Конфигурация доступных ингредиентов с относительными путями к папке images/
+    // Конфигурация доступных ингредиентов
     const INGREDIENTS = [
       { id: 'top-bun', name: 'Верхняя булочка', image: 'images/top-bun.png' },
       { id: 'beef-patty', name: 'Говяжья котлета', image: 'images/beef-patty.png' },
       { id: 'bottom-bun', name: 'Нижняя булочка', image: 'images/bottom-bun.png' }
-      /* Сюда легко добавлять новые ингредиенты по аналогии:
-      { id: 'cheese', name: 'Сыр', image: 'images/cheese.png' },
-      */
     ];
 
     // Конфигурация соусов
@@ -381,7 +388,7 @@
       { id: 'bbq', name: 'Барбекю 🍖' }
     ];
 
-    // Текущий состав бургера (массив элементов)
+    // Текущий состав бургера
     let currentBurger = [
       { ...INGREDIENTS.find(item => item.id === 'bottom-bun') },
       { ...INGREDIENTS.find(item => item.id === 'beef-patty') },
@@ -393,7 +400,6 @@
     const ingredientsMenu = document.getElementById('ingredientsMenu');
     const saucesGroup = document.getElementById('saucesGroup');
 
-    // Отрисовка меню выбора (Правая панель)
     function renderIngredientsMenu() {
       ingredientsMenu.innerHTML = '';
       INGREDIENTS.forEach(item => {
@@ -408,7 +414,6 @@
       });
     }
 
-    // Отрисовка соусов (Нижняя панель)
     function renderSauces() {
       SAUCES.forEach(sauce => {
         const chip = document.createElement('div');
@@ -419,22 +424,20 @@
       });
     }
 
-    // Обновление отображения бургера и левого списка
     function updateBurgerDisplay() {
       burgerStack.innerHTML = '';
       layersList.innerHTML = '';
 
       currentBurger.forEach((item, index) => {
-        // Добавление слоя в визуал бургера
         if (item.image) {
           const img = document.createElement('img');
           img.src = item.image;
-          img.className = 'burger-layer-img';
+          // Добавляем специальный класс для верхней булочки, чтобы применить её оригинальные пропорции
+          img.className = `burger-layer-img ${item.id === 'top-bun' ? 'top-bun-layer' : ''}`;
           img.alt = item.name;
           burgerStack.appendChild(img);
         }
 
-        // Добавление элемента в левую панель управления
         const listItem = document.createElement('div');
         listItem.className = 'layer-item';
         listItem.innerHTML = `
@@ -452,25 +455,21 @@
       });
     }
 
-    // Добавление ингредиента
     function addIngredient(item) {
       currentBurger.push({ ...item });
       updateBurgerDisplay();
     }
 
-    // Добавление соуса
     function addSauce(sauce) {
       currentBurger.push({ id: sauce.id, name: `Соус: ${sauce.name}` });
       updateBurgerDisplay();
     }
 
-    // Удаление слоя
     function removeLayer(index) {
       currentBurger.splice(index, 1);
       updateBurgerDisplay();
     }
 
-    // Перемещение слоя выше/ниже
     function moveLayer(index, direction) {
       const targetIndex = index + direction;
       if (targetIndex >= 0 && targetIndex < currentBurger.length) {
@@ -481,14 +480,12 @@
       }
     }
 
-    // Кнопка "Сброс"
     document.getElementById('resetBtn').onclick = () => {
       burgerStack.classList.remove('eating');
       currentBurger = [];
       updateBurgerDisplay();
     };
 
-    // Кнопка "Съесть"
     document.getElementById('eatBtn').onclick = () => {
       if (currentBurger.length === 0) return;
       burgerStack.classList.add('eating');
@@ -499,7 +496,6 @@
       }, 2200);
     };
 
-    // Инициализация
     renderIngredientsMenu();
     renderSauces();
     updateBurgerDisplay();
