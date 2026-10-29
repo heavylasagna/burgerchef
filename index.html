@@ -312,6 +312,7 @@
       border-radius: 16px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.2);
       border: 1px solid rgba(255, 255, 255, 0.25);
+      transition: all 0.3s ease;
     }
 
     .sauces-group {
@@ -378,7 +379,7 @@
       display: none;
     }
 
-    /* Мобильная адаптация со свободной прокруткой всей страницы */
+    /* Мобильная адаптация */
     @media (max-width: 900px) {
       .toggle-ui-btn {
         position: fixed;
@@ -402,7 +403,7 @@
       }
 
       body {
-        overflow: auto; /* Разрешаем полноценный скролл и обновление страницы */
+        overflow: auto;
       }
 
       .app-container {
@@ -448,10 +449,9 @@
         display: none !important;
       }
 
-      /* Соусы теперь расположены СТРОГО между ингредиентами и слоями */
       .sauces-group.mobile-sauces {
         display: flex !important;
-        order: 2.5;
+        order: 3;
         background: linear-gradient(145deg, rgba(253, 251, 247, 0.9), rgba(245, 239, 230, 0.8));
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
@@ -464,16 +464,30 @@
       }
 
       .left-panel {
-        order: 3;
+        order: 4;
         height: 180px;
       }
 
+      /* Кнопки зафиксированы в самом низу экрана на мобильных устройствах */
       .bottom-panel {
-        order: 4;
-        position: relative;
-        padding: 12px;
+        order: 5;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 10px 15px;
         justify-content: center;
-        border-radius: 14px;
+        border-radius: 16px 16px 0 0;
+        background: rgba(253, 251, 247, 0.95);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+        z-index: 1000;
+      }
+
+      /* Добавляем отступ снизу для контента, чтобы зафиксированная панель его не перекрывала */
+      .app-container {
+        padding-bottom: 75px;
       }
 
       .action-group {
@@ -488,7 +502,7 @@
         text-align: center;
       }
 
-      /* При нажатии на глаз скрываются панели и соусы, освобождая место для бургера */
+      /* При скрытии интерфейса — кнопки остаются в самом низу и растягивается сцена */
       body.ui-hidden .left-panel,
       body.ui-hidden .right-panel,
       body.ui-hidden .sauces-group.mobile-sauces {
@@ -496,7 +510,7 @@
       }
 
       body.ui-hidden .center-stage {
-        min-height: 70vh;
+        min-height: 80vh;
       }
     }
 
@@ -529,29 +543,30 @@
       </div>
     </div>
 
-    <!-- Панель выбора ингредиентов -->
+    <!-- 1. Панель ингредиентов -->
     <div class="panel right-panel">
       <div class="panel-title">Ingredients</div>
       <div class="ingredients-menu" id="ingredientsMenu"></div>
     </div>
 
-    <!-- Панель соусов для мобильных (находится строго между ингредиентами и слоями) -->
+    <!-- 2. Панель соусов для мобильных -->
     <div class="sauces-group mobile-sauces" id="mobileSaucesGroup"></div>
 
-    <!-- Панель слоев -->
+    <!-- 3. Панель слоев -->
     <div class="panel left-panel">
       <div class="panel-title" id="layersTitle">Layers (0/30)</div>
       <div class="layers-list" id="layersList"></div>
     </div>
+  </div>
 
-    <div class="bottom-panel">
-      <!-- Соусы для ПК версии -->
-      <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
-      <div class="action-group">
-        <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
-        <button class="btn-action btn-eat" id="eatBtn">Eat</button>
-        <button class="btn-action btn-reset" id="resetBtn">Reset</button>
-      </div>
+  <!-- 4. Кнопки управления (фиксированы в самом низу экрана на мобильных) -->
+  <div class="bottom-panel">
+    <!-- Соусы для ПК версии -->
+    <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
+    <div class="action-group">
+      <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
+      <button class="btn-action btn-eat" id="eatBtn">Eat</button>
+      <button class="btn-action btn-reset" id="resetBtn">Reset</button>
     </div>
   </div>
 
