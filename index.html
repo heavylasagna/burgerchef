@@ -14,7 +14,8 @@
 
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background: linear-gradient(135deg, #2b1d14, #4a3525);
+      /* Градиентный красивый фон */
+      background: radial-gradient(circle at 50% 30%, #3e2a1d, #1a100a);
       color: #3e2723;
       height: 100vh;
       overflow: hidden;
@@ -22,7 +23,6 @@
       flex-direction: column;
     }
 
-    /* Растягиваем колонки до самого низа экрана */
     .app-container {
       display: grid;
       grid-template-columns: 240px 1fr 240px;
@@ -33,11 +33,14 @@
       padding: 15px;
     }
 
+    /* Полупрозрачные контейнеры с градиентом и матовым стеклом */
     .panel {
-      background: #fdfbf7; /* Теплый бежевый фон панелей */
+      background: linear-gradient(145deg, rgba(253, 251, 247, 0.85), rgba(245, 239, 230, 0.7));
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-      border: 1px solid #e6dcc8;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.25);
       padding: 15px;
       display: flex;
       flex-direction: column;
@@ -49,7 +52,8 @@
       font-weight: 700;
       margin-bottom: 12px;
       text-align: center;
-      color: #6d4c41;
+      color: #fdfbf7;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.4);
       text-transform: uppercase;
       letter-spacing: 0.8px;
     }
@@ -70,6 +74,7 @@
       padding-right: 4px;
     }
 
+    /* Карточки слоев - НЕпрозрачные для четкости */
     .layer-item {
       display: flex;
       align-items: center;
@@ -78,11 +83,13 @@
       padding: 6px 10px;
       border-radius: 12px;
       border: 1px solid #e4d8c5;
-      transition: background 0.2s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      transition: background 0.2s, transform 0.15s;
     }
 
     .layer-item:hover {
-      background: #eee4d3;
+      background: #ffffff;
+      transform: translateY(-1px);
     }
 
     .layer-preview {
@@ -162,7 +169,6 @@
       transition: transform 0.4s ease, opacity 0.4s ease;
     }
 
-    /* Анимация поедания */
     .burger-stack.eating {
       animation: eatAnimation 2s forwards ease-in-out;
     }
@@ -183,7 +189,6 @@
       position: relative;
     }
 
-    /* Плавная анимация добавления нового слоя */
     .burger-layer-img.new-layer {
       animation: smoothDropIn 0.4s ease-out forwards;
     }
@@ -199,7 +204,6 @@
       }
     }
 
-    /* Эффект крошек при поедании */
     .crumb {
       position: absolute;
       border-radius: 3px;
@@ -233,6 +237,7 @@
       transition: all 0.3s ease;
       pointer-events: none;
       z-index: 200;
+      box-shadow: 0 4px 12px rgba(211, 47, 47, 0.4);
     }
     .limit-warning.show {
       opacity: 1;
@@ -256,6 +261,7 @@
       align-items: center;
     }
 
+    /* Карточки ингредиентов - НЕпрозрачные */
     .ingredient-card {
       display: flex;
       align-items: center;
@@ -267,12 +273,13 @@
       width: 100%;
       cursor: pointer;
       transition: all 0.2s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     }
 
     .ingredient-card:hover {
-      background: #eee4d3;
+      background: #ffffff;
       border-color: #a1887f;
-      box-shadow: 0 4px 12px rgba(109, 76, 65, 0.12);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       transform: translateY(-2px);
     }
 
@@ -289,7 +296,7 @@
       object-fit: contain;
     }
 
-    /* Нижняя панель */
+    /* Нижняя панель с градиентом и полупрозрачностью */
     .bottom-panel {
       grid-column: 1 / -1;
       grid-row: 2;
@@ -298,10 +305,12 @@
       justify-content: space-between;
       padding: 0 20px;
       z-index: 100;
-      background: #fdfbf7;
+      background: linear-gradient(145deg, rgba(253, 251, 247, 0.85), rgba(245, 239, 230, 0.7));
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-radius: 16px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-      border: 1px solid #e6dcc8;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      border: 1px solid rgba(255, 255, 255, 0.25);
     }
 
     .sauces-group {
@@ -322,11 +331,13 @@
       cursor: pointer;
       transition: all 0.2s;
       white-space: nowrap;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
     .sauce-chip:hover {
-      background: #eee4d3;
+      background: #ffffff;
       transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 
     .action-group {
@@ -345,23 +356,25 @@
     }
 
     .btn-eat {
-      background: #689f38;
+      background: linear-gradient(135deg, #689f38, #558b2f);
       color: #ffffff;
+      box-shadow: 0 4px 10px rgba(104, 159, 56, 0.3);
     }
 
     .btn-eat:hover {
-      background: #558b2f;
-      box-shadow: 0 4px 12px rgba(104, 159, 56, 0.3);
+      background: linear-gradient(135deg, #558b2f, #33691e);
+      transform: translateY(-1px);
     }
 
     .btn-reset {
-      background: #d32f2f;
+      background: linear-gradient(135deg, #d32f2f, #c62828);
       color: #ffffff;
+      box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3);
     }
 
     .btn-reset:hover {
-      background: #c62828;
-      box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+      background: linear-gradient(135deg, #c62828, #b71c1c);
+      transform: translateY(-1px);
     }
 
     ::-webkit-scrollbar {
@@ -369,7 +382,7 @@
       height: 4px;
     }
     ::-webkit-scrollbar-thumb {
-      background: #d7ccc8;
+      background: rgba(215, 204, 200, 0.8);
       border-radius: 4px;
     }
   </style>
@@ -379,13 +392,13 @@
   <div class="app-container">
     <!-- Левая панель: Layers -->
     <div class="panel left-panel">
-      <div class="panel-title" id="layersTitle">Layers (0/10)</div>
+      <div class="panel-title" id="layersTitle">Layers (0/15)</div>
       <div class="layers-list" id="layersList"></div>
     </div>
 
     <!-- Центр: Burger Stack -->
     <div class="center-stage" id="centerStage">
-      <div class="limit-warning" id="limitWarning">Max 10 ingredients!</div>
+      <div class="limit-warning" id="limitWarning">Max 15 ingredients!</div>
       <div class="burger-wrapper">
         <div class="burger-stack" id="burgerStack"></div>
       </div>
@@ -408,7 +421,8 @@
   </div>
 
   <script>
-    const MAX_INGREDIENTS = 10;
+    // Лимит расширен до 15
+    const MAX_INGREDIENTS = 15;
 
     const INGREDIENTS = [
       { id: 'top-bun', name: 'Top Bun', image: 'images/top-bun.png' },
@@ -416,7 +430,6 @@
       { id: 'bottom-bun', name: 'Bottom Bun', image: 'images/bottom-bun.png' }
     ];
 
-    // Соусы с цветными кружками
     const SAUCES = [
       { id: 'mayo', name: '⚪️ Mayo' },
       { id: 'ketchup', name: '🔴 Ketchup' },
@@ -569,7 +582,6 @@
       updateBurgerDisplay(false);
     };
 
-    // Функция создания крошек при поедании
     function spawnCrumbs() {
       const colors = ['#e0a96d', '#8d6e63', '#d7ccc8', '#ffd54f'];
       const rect = burgerStack.getBoundingClientRect();
