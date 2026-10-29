@@ -545,7 +545,12 @@
           if (index === 0) {
             img.style.marginBottom = '-10px';
           } else if (isSauce) {
-            img.style.marginBottom = '-50px'; // Соусы приподняты выше поверх любых ингредиентов
+            // Если соус ложится на котлету, салат или нижнюю булку — опускаем его пониже (-65px), иначе на другие ингредиенты повыше (-50px)
+            if (itemBelow && (itemBelow.id === 'beef-patty' || itemBelow.id === 'lettuce' || itemBelow.id === 'bottom-bun')) {
+              img.style.marginBottom = '-65px';
+            } else {
+              img.style.marginBottom = '-50px';
+            }
           } else if (item.id === 'lettuce') {
             img.style.marginBottom = '-72px';
           } else if (item.id === 'cheese') {
