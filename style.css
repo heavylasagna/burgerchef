@@ -55,31 +55,40 @@ header h1 {
     gap: 10px;
 }
 
+/* Один элемент в списке добавленных ингредиентов */
 .ingredient-row {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     padding: 6px;
     background: #f8ecd7;
     border-radius: 10px;
 }
 
-.ingredient-row img {
+.ingredient-row img,
+.ingredient-preview {
     width: 65px;
     height: 50px;
+    flex-shrink: 0;
     object-fit: contain;
+}
+
+.ingredient-preview {
+    border-radius: 6px;
 }
 
 .ingredient-controls {
     display: flex;
     flex-direction: column;
     gap: 3px;
+    margin-left: auto;
 }
 
 .ingredient-controls button {
-    padding: 3px 7px;
+    padding: 3px 8px;
 }
 
+/* Центральная область */
 .burger-panel {
     display: flex;
     flex-direction: column;
@@ -94,29 +103,41 @@ header h1 {
     overflow: hidden;
 }
 
-/* Размер и положение всей стопки бургера */
+/* Размер бургера: 2,5 раза меньше, чем 300 × 300 */
 .burger-stack {
     position: absolute;
     left: 50%;
     bottom: 2%;
     transform: translateX(-50%);
-    width: 70%;
-    height: 90%;
+    width: 120px;
+    height: 120px;
 }
 
-/* Картинки ингредиентов */
+/* Изображения отдельных слоёв */
 .burger-layer {
     position: absolute;
     left: 50%;
     width: 100%;
     height: auto;
     max-width: none;
+    display: block;
     object-fit: contain;
     transform: translateX(-50%);
     pointer-events: none;
     user-select: none;
 }
 
+/* Соусы */
+.sauce-layer {
+    position: absolute;
+    left: 50%;
+    height: 7px;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+/* Кнопки */
 .sauce-buttons,
 .action-buttons {
     display: flex;
@@ -140,6 +161,11 @@ button:hover {
     background: #dca96a;
 }
 
+button:active {
+    transform: scale(0.97);
+}
+
+/* Каталог ингредиентов */
 #catalog {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -174,6 +200,7 @@ button:hover {
     font-size: 14px;
 }
 
+/* Планшеты */
 @media (max-width: 800px) {
     .layout {
         grid-template-columns: 1fr 1fr;
@@ -191,12 +218,9 @@ button:hover {
     .catalog-panel {
         min-height: 250px;
     }
-
-    .burger-stack {
-        width: 65%;
-    }
 }
 
+/* Телефоны */
 @media (max-width: 480px) {
     header h1 {
         font-size: 22px;
@@ -216,11 +240,8 @@ button:hover {
         min-height: 350px;
     }
 
-    .burger-stack {
-        width: 80%;
-    }
-
-    .ingredient-row img {
+    .ingredient-row img,
+    .ingredient-preview {
         width: 45px;
     }
 
