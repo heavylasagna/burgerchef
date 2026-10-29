@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Burger Builder & Orders</title>
   
-  <!-- Исправленный путь к иконке в папке images -->
   <link rel="icon" type="image/png" href="images/icon.png">
 
   <style>
@@ -593,7 +592,7 @@
         <button class="close-modal" id="closeRecipesModal">✕</button>
       </div>
       <div class="recipe-tabs">
-        <div class="recipe-tab active" id="tabNormal" onclick="switchRecipeTab('normal')">Normal</div>
+        <div class="recipe-tab active" id="tabNormal" onclick="switchRecipeTab('regular')">Regular</div>
         <div class="recipe-tab" id="tabSecret" onclick="switchRecipeTab('secret')">Secret</div>
       </div>
       <div class="modal-body" id="recipesModalBody"></div>
@@ -692,6 +691,7 @@
         'top-bun': 'images/top-bun.png',
         'beef-patty': 'images/beef-patty.png',
         'cheese': 'images/cheese.png',
+        'hashbrown': 'images/hashbrown.png',
         'fried-egg': 'images/fried-egg.png',
         'champignons': 'images/champignons.png',
         'fried-bacon': 'images/fried-bacon.png',
@@ -709,20 +709,22 @@
         'bbq': 'images/sauce-bbq.png'
       };
 
-      const NORMAL_RECIPES = [
-        { name: 'Simple Burger', ids: ['bottom-bun', 'beef-patty', 'top-bun'] },
-        { name: 'Egg & Bacon Deluxe', ids: ['bottom-bun', 'beef-patty', 'fried-egg', 'fried-bacon', 'top-bun'] },
-        { name: 'Mushroom Melt', ids: ['bottom-bun', 'beef-patty', 'champignons', 'cheese', 'top-bun'] }
+      const REGULAR_RECIPES = [
+        { name: 'Classic Burger', ids: ['bottom-bun', 'beef-patty', 'top-bun'] },
+        { name: 'Cheeseburger', ids: ['bottom-bun', 'beef-patty', 'cheese', 'top-bun'] },
+        { name: 'Vegan Burger', ids: ['bottom-bun', 'hashbrown', 'lettuce', 'tomato', 'red-onion', 'top-bun'] },
+        { name: 'Juicy Burger', ids: ['bottom-bun', 'mayo', 'chicken-patty', 'cheese', 'tomato', 'ketchup', 'top-bun'] },
+        { name: 'Breakfast Burger', ids: ['bottom-bun', 'mayo', 'beef-patty', 'fried-egg', 'fried-bacon', 'top-bun'] },
+        { name: 'Mushroom Burger', ids: ['bottom-bun', 'bbq', 'beef-patty', 'champignons', 'top-bun'] },
+        { name: 'Chicken Burger', ids: ['bottom-bun', 'chicken-patty', 'mayo', 'pickles', 'top-bun'] },
+        { name: 'Double Burger', ids: ['bottom-bun', 'beef-patty', 'cheese', 'beef-patty', 'ketchup', 'top-bun'] },
+        { name: 'Chicken Delux', ids: ['bottom-bun', 'mayo', 'chicken-patty', 'cheese', 'tomato', 'lettuce', 'pickles', 'top-bun'] },
+        { name: 'Stinky Burger', ids: ['bottom-bun', 'mustard', 'chicken-patty', 'white-onion', 'cheese', 'red-onion', 'mustard', 'top-bun'] },
+        { name: 'Fish Burger', ids: ['bottom-bun', 'fish-patty', 'mayo', 'pickles', 'lettuce', 'top-bun'] }
       ];
 
       const SECRET_ACHIEVEMENTS = [
-        { id: 'cheeseburger', title: 'Cheezburger', desc: 'Ideal Roblox burger', icon: '🧀', ids: ['bottom-bun', 'beef-patty', 'cheese', 'top-bun'] },
-        { id: 'mcPicklePounder', title: 'McPickle Pounder', desc: 'Pickle lover dream', icon: '🥒', ids: ['bottom-bun', 'beef-patty', 'cheese', 'pickles', 'pickles', 'pickles', 'top-bun'] },
-        { id: 'tomatonator', title: 'Tomatonator', desc: 'Tomato fanatic', icon: '🍅', ids: ['bottom-bun', 'beef-patty', 'cheese', 'tomato', 'tomato', 'tomato', 'top-bun'] },
-        { id: 'saturnBurger', title: 'Saturn Burger', desc: 'Space flavor', icon: '🪐', ids: ['bottom-bun', 'beef-patty', 'white-onion', 'top-bun'] },
-        { id: 'lilypad', title: 'Lilypad', desc: 'Almost vegan', icon: '🥬', ids: ['bottom-bun', 'beef-patty', 'cheese', 'lettuce', 'top-bun'] },
-        { id: 'bustanator', title: 'Bustanator', desc: 'Mayo overload', icon: '💦', ids: ['bottom-bun', 'beef-patty', 'mayo', 'mayo', 'mayo', 'top-bun'] },
-        { id: 'toothless', title: 'Toothless', desc: 'All sauces combined', icon: '🍼', ids: ['bottom-bun', 'ketchup', 'mustard', 'mayo', 'bbq', 'spicy', 'top-bun'] }
+        { id: 'secretMaster', title: 'Master Chef', desc: 'Cooked special stacked creation', icon: '🌟', ids: ['bottom-bun', 'beef-patty', 'cheese', 'hashbrown', 'top-bun'] }
       ];
 
       let unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements')) || {};
@@ -752,10 +754,10 @@
         setTimeout(() => toast.remove(), 3500);
       }
 
-      let activeRecipeTab = 'normal';
+      let activeRecipeTab = 'regular';
       window.switchRecipeTab = function(tab) {
         activeRecipeTab = tab;
-        document.getElementById('tabNormal').className = `recipe-tab ${tab === 'normal' ? 'active' : ''}`;
+        document.getElementById('tabNormal').className = `recipe-tab ${tab === 'regular' ? 'active' : ''}`;
         document.getElementById('tabSecret').className = `recipe-tab ${tab === 'secret' ? 'active' : ''}`;
         renderRecipesModal();
       }
@@ -764,8 +766,8 @@
         const body = document.getElementById('recipesModalBody');
         body.innerHTML = '';
 
-        if (activeRecipeTab === 'normal') {
-          NORMAL_RECIPES.forEach(r => {
+        if (activeRecipeTab === 'regular') {
+          REGULAR_RECIPES.forEach(r => {
             const card = document.createElement('div');
             card.className = 'recipe-card';
             
@@ -922,7 +924,7 @@
 
       function triggerRandomOrder() {
         const unlockedSecretNames = SECRET_ACHIEVEMENTS.filter(a => unlockedAchievements[a.id]);
-        const allAvailable = [...NORMAL_RECIPES, ...unlockedSecretNames];
+        const allAvailable = [...REGULAR_RECIPES, ...unlockedSecretNames];
         const chosen = allAvailable[Math.floor(Math.random() * allAvailable.length)];
         
         currentActiveOrder = { name: chosen.name || chosen.title, ids: chosen.ids };
@@ -935,6 +937,7 @@
       const INGREDIENTS = [
         { id: 'top-bun', name: 'Top Bun', image: 'images/top-bun.png' },
         { id: 'cheese', name: 'Cheese', image: 'images/cheese.png' },
+        { id: 'hashbrown', name: 'Hashbrown', image: 'images/hashbrown.png' },
         { id: 'fried-egg', name: 'Fried Egg', image: 'images/fried-egg.png' },
         { id: 'champignons', name: 'Champignons', image: 'images/champignons.png' },
         { id: 'fried-bacon', name: 'Fried Bacon', image: 'images/fried-bacon.png' },
@@ -1025,18 +1028,8 @@
         if (currentBurger.length === 0) return;
         const ids = currentBurger.map(i => i.id);
 
-        if (ids.length === 4 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'top-bun') unlockAchievement('cheeseburger');
-        else if (ids.length === 7 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'pickles' && ids[4] === 'pickles' && ids[5] === 'pickles' && ids[6] === 'top-bun') unlockAchievement('mcPicklePounder');
-        else if (ids.length === 7 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'tomato' && ids[4] === 'tomato' && ids[5] === 'tomato' && ids[6] === 'top-bun') unlockAchievement('tomatonator');
-        else if (ids.length === 4 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'white-onion' && ids[3] === 'top-bun') unlockAchievement('saturnBurger');
-        else if (ids.length === 5 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'lettuce' && ids[4] === 'top-bun') unlockAchievement('lilypad');
-        else if (ids.length === 6 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'mayo' && ids[3] === 'mayo' && ids[4] === 'mayo' && ids[5] === 'top-bun') unlockAchievement('bustanator');
-        else if (ids.length === 7 && ids[0] === 'bottom-bun' && ids[6] === 'top-bun') {
-          const middleLayers = ids.slice(1, 6);
-          const requiredSauces = ['ketchup', 'mustard', 'mayo', 'bbq', 'spicy'];
-          if (requiredSauces.every(s => middleLayers.includes(s)) && middleLayers.length === requiredSauces.length) {
-            unlockAchievement('toothless');
-          }
+        if (ids.length === 5 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'hashbrown' && ids[4] === 'top-bun') {
+          unlockAchievement('secretMaster');
         }
 
         checkOrderCompletion(ids);
@@ -1045,14 +1038,15 @@
       function getMarginBottomForLayer(item, itemBelow, index) {
         const isSauce = ['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id);
         if (index === 0) return -10;
-        if (isSauce) return -65;
-        if (item.id === 'top-bun') return -42;
-        if (item.id === 'cheese') return -65;
-        if (item.id === 'fried-egg') return -58;
-        if (item.id === 'fried-bacon') return -52;
-        if (item.id === 'lettuce') return -72;
-        if (itemBelow && itemBelow.id === 'lettuce') return -55;
-        return -42;
+        if (isSauce) return -60; // Исправленный отступ соусов назад к идеальному положению
+        if (item.id === 'top-bun') return -38;
+        if (item.id === 'cheese') return -60;
+        if (item.id === 'hashbrown') return -52;
+        if (item.id === 'fried-egg') return -52;
+        if (item.id === 'fried-bacon') return -48;
+        if (item.id === 'lettuce') return -65;
+        if (itemBelow && itemBelow.id === 'lettuce') return -50;
+        return -38;
       }
 
       function updateBurgerDisplay(isNewAdded = false) {
