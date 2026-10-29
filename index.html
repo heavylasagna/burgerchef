@@ -53,7 +53,7 @@
       letter-spacing: 0.8px;
     }
 
-    /* 1. ЛЕВАЯ ПАНЕЛЬ: Добавленные слои (Снизу вверх) */
+    /* 1. ЛЕВАЯ ПАНЕЛЬ: Добавленные слои */
     .left-panel {
       grid-column: 1;
       grid-row: 1;
@@ -62,7 +62,7 @@
 
     .layers-list {
       display: flex;
-      flex-direction: column-reverse; /* Нижний элемент списка отображается внизу */
+      flex-direction: column-reverse;
       gap: 10px;
       overflow-y: auto;
       flex: 1;
@@ -150,67 +150,94 @@
       align-items: center;
       position: relative;
       padding-bottom: 20px;
-      overflow-y: auto; /* Добавлена прокрутка для высокого бургера */
+      overflow-y: auto; 
       overflow-x: hidden;
     }
 
     .burger-stack {
       display: flex;
-      flex-direction: column-reverse; /* Сборка слоев снизу вверх */
+      flex-direction: column-reverse;
       align-items: center;
-      transition: transform 0.4s ease, opacity 0.4s ease;
-      margin-bottom: 0;
+      position: relative;
+      transition: transform 0.2s ease;
     }
 
-    /* Картинки уменьшены примерно в 2 раза */
+    /* Режим интерактивного поедания курсором */
+    .burger-stack.interactive-eating {
+      cursor: crosshair;
+    }
+    .burger-stack.interactive-eating .burger-layer-img:hover {
+      filter: brightness(0.9) sepia(0.2);
+    }
+
+    /* Базовый стиль слоя (уменьшен в ~2 раза) */
     .burger-layer-img {
       display: block;
       width: auto;
       height: auto;
-      max-width: 200px; /* Уменьшено в 2 раза со 400px до 200px */
-      /* Отрицательный отступ уменьшен пропорционально для более точного наложения */
-      margin-bottom: -65px; 
+      max-width: 200px;
       position: relative;
-      animation: dropIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      animation: dropIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
 
-    /* Самый верхний слой без сильного отрицательного отступа */
-    .burger-layer-img:last-child {
-      margin-bottom: -20px;
+    /* Индивидуальные настройки отступов под конкретные ингредиенты для идеального прилегания */
+    .layer-bottom-bun {
+      margin-bottom: -50px;
+      z-index: 1;
+    }
+    .layer-beef-patty {
+      margin-bottom: -60px;
+      z-index: 2;
+    }
+    .layer-top-bun {
+      margin-bottom: 0px;
+      z-index: 5;
+    }
+    /* Для любых других добавляемых слоев по умолчанию */
+    .layer-default {
+      margin-bottom: -55px;
+      z-index: 3;
     }
 
     @keyframes dropIn {
-      from {
+      0% {
         opacity: 0;
-        transform: translateY(-30px) scale(1.02);
+        transform: translateY(-40px) rotate(-3deg) scale(0.9);
       }
-      to {
+      70% {
+        transform: translateY(5px) rotate(2deg) scale(1.02);
+      }
+      100% {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateY(0) rotate(0deg) scale(1);
       }
     }
 
     .plate {
-      width: 240px; /* Уменьшена тарелка под новые габариты */
+      width: 240px;
       height: 14px;
       background: #e2e8f0;
       border-radius: 50%;
-      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
-      z-index: 0;
+      margin-top: -2px;
       flex-shrink: 0;
     }
 
-    /* Анимация "Съесть" */
-    .burger-stack.eating {
-      animation: eatAnimation 2.2s forwards ease-in-out;
+    /* Эффект откуса (создается динамически кликом) */
+    .bite-mark {
+      position: absolute;
+      background: #f4f6f8; /* Цвет фона сцены */
+      border-radius: 50%;
+      pointer-events: none;
+      transform: scale(0);
+      animation: bitePop 0.3s forwards;
+      z-index: 10;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
     }
 
-    @keyframes eatAnimation {
-      0% { transform: scale(1) rotate(0deg); }
-      30% { transform: scale(0.7) rotate(-6deg); }
-      60% { transform: scale(0.4) rotate(6deg); }
-      85% { transform: scale(0.15) rotate(-3deg); }
-      100% { transform: scale(0) rotate(0deg); opacity: 0; }
+    @keyframes bitePop {
+      to {
+        transform: scale(1);
+      }
     }
 
     /* 3. ПРАВАЯ ПАНЕЛЬ: Меню ингредиентов */
@@ -268,7 +295,8 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 25px;
-      z-index: 10;
+      z-index: 100;
+      background: #ffffff;
     }
 
     .sauces-group {
@@ -321,6 +349,17 @@
       box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
     }
 
+    .btn-eat.active-eating {
+      background: #f59e0b;
+      animation: pulseEat 1.5s infinite;
+    }
+
+    @keyframes pulseEat {
+      0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+    }
+
     .btn-reset {
       background: #f43f5e;
       color: #ffffff;
@@ -334,6 +373,7 @@
     /* Кастомный скроллбар */
     ::-webkit-scrollbar {
       width: 5px;
+      height: 5px;
     }
     ::-webkit-scrollbar-thumb {
       background: #cbd5e1;
@@ -397,11 +437,14 @@
       { ...INGREDIENTS.find(item => item.id === 'top-bun') }
     ];
 
+    let isEatingMode = false;
+
     const burgerStack = document.getElementById('burgerStack');
     const layersList = document.getElementById('layersList');
     const ingredientsMenu = document.getElementById('ingredientsMenu');
     const saucesGroup = document.getElementById('saucesGroup');
     const centerStage = document.getElementById('centerStage');
+    const eatBtn = document.getElementById('eatBtn');
 
     function renderIngredientsMenu() {
       ingredientsMenu.innerHTML = '';
@@ -412,7 +455,10 @@
           <img src="${item.image}" alt="${item.name}">
           <span>${item.name}</span>
         `;
-        card.onclick = () => addIngredient(item);
+        card.onclick = () => {
+          if (isEatingMode) exitEatingMode();
+          addIngredient(item);
+        };
         ingredientsMenu.appendChild(card);
       });
     }
@@ -422,7 +468,10 @@
         const chip = document.createElement('div');
         chip.className = 'sauce-chip';
         chip.innerText = sauce.name;
-        chip.onclick = () => addSauce(sauce);
+        chip.onclick = () => {
+          if (isEatingMode) exitEatingMode();
+          addSauce(sauce);
+        };
         saucesGroup.appendChild(chip);
       });
     }
@@ -435,7 +484,14 @@
         if (item.image) {
           const img = document.createElement('img');
           img.src = item.image;
-          img.className = 'burger-layer-img';
+          
+          // Определяем класс отступа в зависимости от ID слоя
+          let spacingClass = 'layer-default';
+          if (item.id === 'bottom-bun') spacingClass = 'layer-bottom-bun';
+          else if (item.id === 'beef-patty') spacingClass = 'layer-beef-patty';
+          else if (item.id === 'top-bun') spacingClass = 'layer-top-bun';
+
+          img.className = `burger-layer-img ${spacingClass}`;
           img.alt = item.name;
           burgerStack.appendChild(img);
         }
@@ -456,7 +512,7 @@
         layersList.appendChild(listItem);
       });
 
-      // Автоматически прокручиваем центральную зону к самому верху бургера при добавлении
+      // Плавная прокрутка к новому элементу снизу вверх
       setTimeout(() => {
         centerStage.scrollTop = centerStage.scrollHeight;
       }, 50);
@@ -487,22 +543,62 @@
       }
     }
 
+    function exitEatingMode() {
+      isEatingMode = false;
+      burgerStack.classList.remove('interactive-eating');
+      eatBtn.innerText = 'Съесть 😋';
+      eatBtn.classList.remove('active-eating');
+    }
+
+    // Кнопка Сброс
     document.getElementById('resetBtn').onclick = () => {
-      burgerStack.classList.remove('eating');
+      exitEatingMode();
       currentBurger = [];
       updateBurgerDisplay();
     };
 
-    document.getElementById('eatBtn').onclick = () => {
+    // Кнопка Съесть (активация интерактивного поедания кусками)
+    eatBtn.onclick = (e) => {
       if (currentBurger.length === 0) return;
-      burgerStack.classList.add('eating');
-      setTimeout(() => {
-        currentBurger = [];
-        updateBurgerDisplay();
-        burgerStack.classList.remove('eating');
-      }, 2200);
+
+      if (!isEatingMode) {
+        isEatingMode = true;
+        burgerStack.classList.add('interactive-eating');
+        eatBtn.innerText = 'Кликай по бургеру! 🍽️';
+        eatBtn.classList.add('active-eating');
+      }
     };
 
+    // Клик по стопке бургера для откусывания кусочков
+    burgerStack.onclick = (e) => {
+      if (!isEatingMode) return;
+
+      const rect = burgerStack.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      // Создаем элемент анимации откуса
+      const bite = document.createElement('div');
+      bite.className = 'bite-mark';
+      const size = Math.floor(Math.random() * 40) + 45; // Случайный размер укуса
+      bite.style.width = `${size}px`;
+      bite.style.height = `${size}px`;
+      bite.style.left = `${x - size / 2}px`;
+      bite.style.top = `${y - size / 2}px`;
+      
+      burgerStack.appendChild(bite);
+
+      // Если кликов много и съедено много частей — постепенно удаляем слои снизу или сверху
+      if (burgerStack.querySelectorAll('.bite-mark').length >= currentBurger.length * 3) {
+        currentBurger.shift(); // Убираем нижний слой
+        updateBurgerDisplay();
+        if (currentBurger.length === 0) {
+          exitEatingMode();
+        }
+      }
+    };
+
+    // Инициализация при загрузке
     renderIngredientsMenu();
     renderSauces();
     updateBurgerDisplay();
