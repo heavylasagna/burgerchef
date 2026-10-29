@@ -185,7 +185,6 @@
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    /* Эффект сжатия для слоев выше нижней булочки */
     .burger-layer-img.squeezed {
       transform: translateY(var(--sq-offset, 8px)) scaleY(0.82) scaleX(1.04);
     }
@@ -549,9 +548,9 @@
           if (index === 0) {
             img.style.marginBottom = '-10px';
           } else if (item.id === 'lettuce') {
-            img.style.marginBottom = '-60px';
+            img.style.marginBottom = '-70px'; // Салат опускается еще сильнее
           } else if (item.id === 'cheese') {
-            img.style.marginBottom = '-52px'; // Сыр опускается чуть ниже
+            img.style.marginBottom = '-62px'; // Сыр опускается глубже
           } else if (itemBelow && itemBelow.id === 'lettuce') {
             img.style.marginBottom = '-55px';
           } else {
