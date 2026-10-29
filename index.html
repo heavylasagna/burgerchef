@@ -706,6 +706,9 @@
       ingridients: new Audio('audio/ingridients.mp3'),
       buttons: new Audio('audio/buttons.mp3'),
       squeeze: new Audio('audio/squeeze.mp3'),
+      achievement: new Audio('audio/achievement.mp3'), // Универсальный звук по умолчанию
+
+      // Уникальные звуки рецептов (можно оставлять null, тогда применится achievement.mp3)
       cheeseburger: new Audio('audio/cheeseburger.mp3'),
       mcPicklePounder: new Audio('audio/mc-pickle-pounder.mp3'),
       tomatonator: new Audio('audio/tomatonator.mp3'),
@@ -714,7 +717,7 @@
       bustanator: new Audio('audio/bustanator.mp3')
     };
 
-    // Настройка громкости/заглушения (сохраняется в localStorage)
+    // Настройка громкости/заглушения
     let isMuted = JSON.parse(localStorage.getItem('burger_is_muted')) || false;
 
     function updateSoundBtnUI() {
@@ -738,7 +741,7 @@
       if (!isMuted) playSound(SOUNDS.buttons);
     };
 
-    // Список ачивок
+    // Список ачивок (если для какого-то рецепта sound: null, сработает achievement.mp3)
     const ACHIEVEMENTS = [
       { id: 'cheeseburger', title: 'Cheezburger', desc: 'Get your ideal Roblox burger', icon: '🧀', sound: SOUNDS.cheeseburger },
       { id: 'mcPicklePounder', title: 'McPickle Pounder', desc: "You're probably the kind of person who would eat a pickle tiramisu", icon: '🥒', sound: SOUNDS.mcPicklePounder },
@@ -758,6 +761,9 @@
         
         const ach = ACHIEVEMENTS.find(a => a.id === id);
         if (ach) {
+          // Если у ачивки есть свой уникальный звук — играем его, иначе универсальный achievement.mp3
+          const soundToPlay = ach.sound || SOUNDS.achievement;
+          playSound(soundToPlay);
           showAchievementToast(ach);
         }
       }
@@ -848,7 +854,6 @@
       { id: 'bbq', name: '🟤 BBQ', image: 'images/sauce-bbq.png' }
     ];
 
-    // Загрузка ранее сохраненного бургера из localStorage
     let currentBurger = JSON.parse(localStorage.getItem('saved_burger_stack')) || [];
     let isEating = false;
     let isSqueezed = false;
@@ -912,27 +917,21 @@
       const ids = currentBurger.map(i => i.id);
 
       if (ids.length === 4 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'top-bun') {
-        playSound(SOUNDS.cheeseburger);
         unlockAchievement('cheeseburger');
       }
       else if (ids.length === 7 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'pickles' && ids[4] === 'pickles' && ids[5] === 'pickles' && ids[6] === 'top-bun') {
-        playSound(SOUNDS.mcPicklePounder);
         unlockAchievement('mcPicklePounder');
       }
       else if (ids.length === 7 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'tomato' && ids[4] === 'tomato' && ids[5] === 'tomato' && ids[6] === 'top-bun') {
-        playSound(SOUNDS.tomatonator);
         unlockAchievement('tomatonator');
       }
       else if (ids.length === 4 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'white-onion' && ids[3] === 'top-bun') {
-        playSound(SOUNDS.saturnBurger);
         unlockAchievement('saturnBurger');
       }
       else if (ids.length === 5 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'lettuce' && ids[4] === 'top-bun') {
-        playSound(SOUNDS.lilypad);
         unlockAchievement('lilypad');
       }
       else if (ids.length === 6 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'mayo' && ids[3] === 'mayo' && ids[4] === 'mayo' && ids[5] === 'top-bun') {
-        playSound(SOUNDS.bustanator);
         unlockAchievement('bustanator');
       }
     }
@@ -1118,7 +1117,6 @@
       }, 2000);
     };
 
-    // Функция генерации и скачивания PNG картинки с бургером
     document.getElementById('downloadPngBtn').onclick = async () => {
       if (currentBurger.length === 0) {
         alert('Build a burger first!');
