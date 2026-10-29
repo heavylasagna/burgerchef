@@ -706,9 +706,8 @@
       ingridients: new Audio('audio/ingridients.mp3'),
       buttons: new Audio('audio/buttons.mp3'),
       squeeze: new Audio('audio/squeeze.mp3'),
-      achievement: new Audio('audio/achievement.mp3'), // Универсальный звук по умолчанию
+      achievement: new Audio('audio/achievement.mp3'),
 
-      // Уникальные звуки рецептов (можно оставлять null, тогда применится achievement.mp3)
       cheeseburger: new Audio('audio/cheeseburger.mp3'),
       mcPicklePounder: new Audio('audio/mc-pickle-pounder.mp3'),
       tomatonator: new Audio('audio/tomatonator.mp3'),
@@ -717,7 +716,6 @@
       bustanator: new Audio('audio/bustanator.mp3')
     };
 
-    // Настройка громкости/заглушения
     let isMuted = JSON.parse(localStorage.getItem('burger_is_muted')) || false;
 
     function updateSoundBtnUI() {
@@ -741,17 +739,16 @@
       if (!isMuted) playSound(SOUNDS.buttons);
     };
 
-    // Список ачивок (если для какого-то рецепта sound: null, сработает achievement.mp3)
     const ACHIEVEMENTS = [
       { id: 'cheeseburger', title: 'Cheezburger', desc: 'Get your ideal Roblox burger', icon: '🧀', sound: SOUNDS.cheeseburger },
       { id: 'mcPicklePounder', title: 'McPickle Pounder', desc: "You're probably the kind of person who would eat a pickle tiramisu", icon: '🥒', sound: SOUNDS.mcPicklePounder },
       { id: 'tomatonator', title: 'Tomatonator', desc: "If you don't like tomatoes why you even eating burgers", icon: '🍅', sound: SOUNDS.tomatonator },
       { id: 'saturnBurger', title: 'Saturn Burger', desc: 'Saturn has the most moons of all the planets in the solar system', icon: '🪐', sound: SOUNDS.saturnBurger },
       { id: 'lilypad', title: 'Lilypad', desc: 'Almost vegan', icon: '🥬', sound: SOUNDS.lilypad },
-      { id: 'bustanator', title: 'Bustanator', desc: 'I know you love this burger', icon: '💦', sound: SOUNDS.bustanator }
+      { id: 'bustanator', title: 'Bustanator', desc: 'I know you love this burger', icon: '💦', sound: SOUNDS.bustanator },
+      { id: 'toothless', title: 'Toothless', desc: 'Can never have enough sauce', icon: '🍼', sound: null }
     ];
 
-    // Загрузка ачивок из localStorage
     let unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements')) || {};
 
     function unlockAchievement(id) {
@@ -761,7 +758,6 @@
         
         const ach = ACHIEVEMENTS.find(a => a.id === id);
         if (ach) {
-          // Если у ачивки есть свой уникальный звук — играем его, иначе универсальный achievement.mp3
           const soundToPlay = ach.sound || SOUNDS.achievement;
           playSound(soundToPlay);
           showAchievementToast(ach);
@@ -811,7 +807,6 @@
       });
     }
 
-    // Управление модальным окном
     const modal = document.getElementById('achievementsModal');
     document.getElementById('openAchievementsBtn').onclick = () => {
       playSound(SOUNDS.buttons);
@@ -933,6 +928,15 @@
       }
       else if (ids.length === 6 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'mayo' && ids[3] === 'mayo' && ids[4] === 'mayo' && ids[5] === 'top-bun') {
         unlockAchievement('bustanator');
+      }
+      // Toothless: bottom-bun + 5 соусов в любом порядке (mayo, ketchup, mustard, spicy, bbq) + top-bun
+      else if (ids.length === 6 && ids[0] === 'bottom-bun' && ids[5] === 'top-bun') {
+        const innerSauces = ids.slice(1, 5);
+        const requiredSauces = ['ketchup', 'mustard', 'mayo', 'bbq', 'spicy'];
+        const isToothlessCombo = requiredSauces.every(s => innerSauces.includes(s));
+        if (isToothlessCombo) {
+          unlockAchievement('toothless');
+        }
       }
     }
 
@@ -1125,21 +1129,8 @@
 
       playSound(SOUNDS.buttons);
 
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-
-      const canvasWidth = 500;
-      const baseLayerHeight = 120;
-      let totalHeight = 300;
-
-      currentBurger.forEach((item, index) => {
-        const itemBelow = index > 0 ? currentBurger[index - 1] : null;
-        const mb = getMarginBottomForLayer(item, itemBelow, index);
-        totalHeight += (baseLayerHeight + mb);
-      });
-
-      canvas.width = canvasWidth;
-      canvas.height = Math.max(500, totalHeight);
+      const imagesInStack = burgerStack.querySelectorAll('.burger-layer-img');
+      if (imagesInStack.length === 0) return;
 
       const loadedImages = await Promise.all(
         currentBurger.map(item => {
@@ -1152,21 +1143,39 @@
         })
       );
 
-      let currentY = canvas.height - 150;
+      const layerRects = Array.from(imagesInStack).map(imgEl => imgEl.getBoundingClientRect());
+
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      layerRects.forEach(rect => {
+        if (rect.left < minX) minX = rect.left;
+        if (rect.top < minY) minY = rect.top;
+        if (rect.right > maxX) maxX = rect.right;
+        if (rect.bottom > maxY) maxY = rect.bottom;
+      });
+
+      const screenWidth = maxX - minX;
+      const screenHeight = maxY - minY;
+
+      const scale = 2;
+      const padding = 40;
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      canvas.width = (screenWidth + padding * 2) * scale;
+      canvas.height = (screenHeight + padding * 2) * scale;
+
+      ctx.scale(scale, scale);
 
       loadedImages.forEach((img, index) => {
         if (!img) return;
-        const item = currentBurger[index];
-        const itemBelow = index > 0 ? currentBurger[index - 1] : null;
-        const mb = getMarginBottomForLayer(item, itemBelow, index);
+        const rect = layerRects[index];
 
-        const imgWidth = 320;
-        const imgHeight = (img.height / img.width) * imgWidth;
-        const drawX = (canvasWidth - imgWidth) / 2;
-        const drawY = currentY - imgHeight;
+        const x = (rect.left - minX) + padding;
+        const y = (rect.top - minY) + padding;
+        const width = rect.width;
+        const height = rect.height;
 
-        ctx.drawImage(img, drawX, drawY, imgWidth, imgHeight);
-        currentY = drawY + imgHeight + (mb * 2.2); 
+        ctx.drawImage(img, x, y, width, height);
       });
 
       const link = document.createElement('a');
