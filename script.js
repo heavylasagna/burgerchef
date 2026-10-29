@@ -28,12 +28,125 @@ const saveButton = document.getElementById("save-button");
 const eatButton = document.getElementById("eat-button");
 const resetButton = document.getElementById("reset-button");
 
+// Общие настройки перекрытия.
+// Чем больше значение, тем сильнее слои заходят друг на друга.
+const OVERLAP = 0.18;
+
+// Минимальная альфа непрозрачности пикселя.
+// Значение 20 позволяет игнорировать почти прозрачные края.
+const ALPHA_THRESHOLD = 20;
+
+// Информация о границах изображений.
+const imageBounds = new Map();
+
 let burgerLayers = [];
 let selectedSauce = null;
 let nextLayerId = 1;
 
 
-// Создание каталога ингредиентов
+// Анализ прозрачности PNG
+
+function analyzeImage(src) {
+    if (imageBounds.has(src)) {
+        return Promise.resolve(imageBounds.get(src));
+    }
+
+    return new Promise(resolve => {
+        const image = new Image();
+
+        image.onload = () => {
+            try {
+                const canvas = document.createElement("canvas");
+                const context = canvas.getContext("2d", {
+                    willReadFrequently: true
+                });
+
+                canvas.width = image.naturalWidth;
+                canvas.height = image.naturalHeight;
+
+                context.drawImage(image, 0, 0);
+
+                const pixels = context.getImageData(
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height
+                ).data;
+
+                let top = canvas.height;
+                let bottom = -1;
+                let left = canvas.width;
+                let right = -1;
+
+                for (let y = 0; y < canvas.height; y++) {
+                    for (let x = 0; x < canvas.width; x++) {
+                        const alpha = pixels[(y * canvas.width + x) * 4 + 3];
+
+                        if (alpha > ALPHA_THRESHOLD) {
+                            if (y < top) top = y;
+                            if (y > bottom) bottom = y;
+                            if (x < left) left = x;
+                            if (x > right) right = x;
+                        }
+                    }
+                }
+
+                const bounds = bottom === -1
+                    ? {
+                        top: 0,
+                        bottom: canvas.height - 1,
+                        left: 0,
+                        right: canvas.width - 1,
+                        width: canvas.width,
+                        height: canvas.height
+                    }
+                    : {
+                        top,
+                        bottom,
+                        left,
+                        right,
+                        width: right - left + 1,
+                        height: bottom - top + 1
+                    };
+
+                imageBounds.set(src, bounds);
+                resolve(bounds);
+            } catch (error) {
+                // Если браузер не разрешил анализ пикселей,
+                // используем полные размеры изображения.
+                const bounds = {
+                    top: 0,
+                    bottom: image.naturalHeight - 1,
+                    left: 0,
+                    right: image.naturalWidth - 1,
+                    width: image.naturalWidth,
+                    height: image.naturalHeight
+                };
+
+                imageBounds.set(src, bounds);
+                resolve(bounds);
+            }
+        };
+
+        image.onerror = () => {
+            resolve(null);
+        };
+
+        image.src = src;
+    });
+}
+
+
+// Подготовка изображений
+
+async function prepareImages() {
+    await Promise.all(
+        ingredients.map(ingredient => analyzeImage(ingredient.image))
+    );
+}
+
+
+// Каталог ингредиентов
 
 function renderCatalog() {
     if (!catalog) return;
@@ -42,13 +155,17 @@ function renderCatalog() {
 
     ingredients.forEach(ingredient => {
         const button = document.createElement("button");
-
         button.className = "ingredient-card";
         button.type = "button";
-        button.innerHTML = `
-            <img src="${ingredient.image}" alt="${ingredient.name}">
-            <span>${ingredient.name}</span>
-        `;
+
+        const image = document.createElement("img");
+        image.src = ingredient.image;
+        image.alt = ingredient.name;
+
+        const name = document.createElement("span");
+        name.textContent = ingredient.name;
+
+        button.append(image, name);
 
         button.addEventListener("click", () => {
             addIngredient(ingredient);
@@ -59,7 +176,7 @@ function renderCatalog() {
 }
 
 
-// Добавление ингредиента в бургер
+// Добавление ингредиента
 
 function addIngredient(ingredient) {
     burgerLayers.push({
@@ -69,11 +186,12 @@ function addIngredient(ingredient) {
 
     renderBurger();
     renderList();
+
     showMessage(`Добавлено: ${ingredient.name}`);
 }
 
 
-// Отображение бургера
+// Отрисовка бургера
 
 function renderBurger() {
     if (!burgerStack) return;
@@ -87,9 +205,11 @@ function renderBurger() {
         image.alt = ingredient.name;
         image.className = "burger-layer";
         image.dataset.layerId = ingredient.layerId;
+        image.style.position = "absolute";
+        image.style.width = "100%";
+        image.style.height = "auto";
+        image.style.left = "0";
         image.style.zIndex = index + 1;
-
-        image.addEventListener("load", positionLayers);
 
         burgerStack.appendChild(image);
     });
@@ -99,57 +219,90 @@ function renderBurger() {
 }
 
 
-// Расположение слоёв без изменения размера изображений
+// Автоматическое расположение по непрозрачным границам PNG
 
-function positionLayers() {
+async function positionLayers() {
     if (!burgerStack) return;
 
     const elements = Array.from(
         burgerStack.querySelectorAll(".burger-layer")
     );
 
-    let currentBottom = 0;
-    let previousHeight = 0;
-    let previousIngredient = null;
+    if (elements.length === 0) return;
 
-    elements.forEach((element, index) => {
-        const ingredient = burgerLayers[index];
+    const stackWidth = burgerStack.clientWidth;
 
-        element.style.position = "absolute";
-        element.style.width = "100%";
-        element.style.height = "auto";
-        element.style.left = "0";
-        element.style.bottom = `${currentBottom}px`;
+    if (stackWidth === 0) return;
 
-        const height = element.getBoundingClientRect().height;
+    const layerData = await Promise.all(
+        elements.map(async (element, index) => {
+            const ingredient = burgerLayers[index];
+            const bounds = await analyzeImage(ingredient.image);
 
+            if (!bounds) return null;
+
+            const imageWidth = element.naturalWidth;
+            const imageHeight = element.naturalHeight;
+
+            if (!imageWidth || !imageHeight) return null;
+
+            const scale = stackWidth / imageWidth;
+
+            return {
+                element,
+                ingredient,
+                bounds,
+                scale,
+                visibleTop: bounds.top * scale,
+                visibleBottom: bounds.bottom * scale,
+                visibleHeight: bounds.height * scale,
+                fullHeight: imageHeight * scale
+            };
+        })
+    );
+
+    if (layerData.some(layer => !layer)) return;
+
+    let nextVisibleBottom = 0;
+
+    layerData.forEach((layer, index) => {
+        const {
+            element,
+            visibleTop,
+            visibleBottom,
+            visibleHeight
+        } = layer;
+
+        // Первый слой располагается у основания бургера.
         if (index === 0) {
-            currentBottom = 0;
-        } else {
-            const previousIsPatty = previousIngredient.type === "patty";
-            const currentIsPatty = ingredient.type === "patty";
-
-            // Обычные ингредиенты перекрывают друг друга на 42%.
-            // У котлеты перекрытие с соседними слоями — 70%.
-            const overlapRatio =
-                previousIsPatty || currentIsPatty ? 0.70 : 0.42;
-
-            const overlap =
-                Math.min(previousHeight, height) * overlapRatio;
-
-            currentBottom += previousHeight - overlap;
+            element.style.bottom = `${-visibleBottom}px`;
+            nextVisibleBottom = visibleHeight;
+            return;
         }
 
-        element.style.bottom = `${currentBottom}px`;
+        const previousLayer = layerData[index - 1];
 
-        previousHeight = height;
-        previousIngredient = ingredient;
+        // Используем меньшую видимую высоту соседних ингредиентов,
+        // чтобы перекрытие автоматически подстраивалось под их форму.
+        const overlap = Math.min(
+            previousLayer.visibleHeight,
+            visibleHeight
+        ) * OVERLAP;
+
+        // Позиция задаётся относительно нижней видимой границы PNG,
+        // а не нижнего края всего файла.
+        const visibleBottomPosition = nextVisibleBottom - overlap;
+
+        element.style.bottom =
+            `${visibleBottomPosition - visibleBottom}px`;
+
+        nextVisibleBottom =
+            visibleBottomPosition + visibleHeight;
     });
 }
 
 
-// Список добавленных ингредиентов
-// Верхний слой отображается первым
+// Список ингредиентов: верхний слой первым
 
 function renderList() {
     if (!ingredientsList) return;
@@ -200,7 +353,7 @@ function renderList() {
 }
 
 
-// Изменение порядка слоёв
+// Перемещение слоя
 
 function moveIngredient(layerId, direction) {
     const index = burgerLayers.findIndex(
@@ -245,28 +398,27 @@ function renderSauce() {
 
     const oldSauce = burgerStack.querySelector(".sauce-layer");
 
-    if (oldSauce) {
-        oldSauce.remove();
-    }
+    if (oldSauce) oldSauce.remove();
 
     if (!selectedSauce) return;
 
     const sauce = document.createElement("div");
+
     sauce.className = "sauce-layer";
-    sauce.style.backgroundColor = sauces[selectedSauce].color;
     sauce.style.position = "absolute";
     sauce.style.left = "10%";
     sauce.style.width = "80%";
     sauce.style.height = "8px";
     sauce.style.bottom = "50%";
     sauce.style.borderRadius = "50%";
+    sauce.style.backgroundColor = sauces[selectedSauce].color;
     sauce.style.zIndex = burgerLayers.length + 1;
 
     burgerStack.appendChild(sauce);
 }
 
 
-// Обработка кнопок выбора соуса
+// Выбор соуса
 
 document.querySelectorAll("[data-sauce]").forEach(button => {
     button.addEventListener("click", () => {
@@ -275,6 +427,7 @@ document.querySelectorAll("[data-sauce]").forEach(button => {
         if (!sauces[sauceId]) return;
 
         selectedSauce = sauceId;
+
         renderSauce();
 
         showMessage(`Выбран соус: ${sauces[sauceId].name}`);
@@ -318,7 +471,7 @@ if (eatButton) {
 }
 
 
-// Начать сборку заново
+// Сброс бургера
 
 if (resetButton) {
     resetButton.addEventListener("click", () => {
@@ -333,7 +486,7 @@ if (resetButton) {
 }
 
 
-// Вывод сообщения
+// Сообщения
 
 function showMessage(text) {
     if (message) {
@@ -342,10 +495,16 @@ function showMessage(text) {
 }
 
 
-// Начальная загрузка
+// Запуск
 
-renderCatalog();
-renderBurger();
-renderList();
+async function init() {
+    await prepareImages();
+
+    renderCatalog();
+    renderBurger();
+    renderList();
+}
+
+init();
 
 window.addEventListener("resize", positionLayers);
