@@ -415,7 +415,6 @@
 
     const MAX_INGREDIENTS = 15;
 
-    // Все ингредиенты и соусы теперь в едином списке с путями к картинкам
     const INGREDIENTS = [
       { id: 'top-bun', name: 'Top Bun', image: 'images/top-bun.png' },
       { id: 'lettuce', name: 'Lettuce', image: 'images/lettuce.png' },
@@ -433,11 +432,8 @@
       { id: 'bottom-bun', name: 'Bottom Bun', image: 'images/bottom-bun.png' }
     ];
 
-    let currentBurger = [
-      { ...INGREDIENTS.find(item => item.id === 'bottom-bun') },
-      { ...INGREDIENTS.find(item => item.id === 'beef-patty') },
-      { ...INGREDIENTS.find(item => item.id === 'top-bun') }
-    ];
+    // Пустой массив — стартового бургера больше нет
+    let currentBurger = [];
 
     let isEating = false;
     let isSqueezed = false;
@@ -500,13 +496,12 @@
 
           const itemBelow = index > 0 ? currentBurger[index - 1] : null;
 
-          // Настраиваем отступы (для соусов используется та же логика глубокого нахлёста, как у сыра)
           if (index === 0) {
             img.style.marginBottom = '-10px';
           } else if (item.id === 'lettuce') {
             img.style.marginBottom = '-82px';
           } else if (item.id === 'cheese' || ['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id)) {
-            img.style.marginBottom = '-72px'; // Соусы и сыр ложатся глубоко и аккуратно
+            img.style.marginBottom = '-72px';
           } else if (itemBelow && itemBelow.id === 'lettuce') {
             img.style.marginBottom = '-55px';
           } else {
@@ -542,7 +537,6 @@
         showLimitWarning();
         return;
       }
-      // Если это соус — играем звук соуса, иначе обычный звук ингредиента
       const isSauce = ['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id);
       playSound(isSauce ? SOUNDS.sauce : SOUNDS.ingridients);
 
