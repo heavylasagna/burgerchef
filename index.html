@@ -14,7 +14,6 @@
 
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      /* Градиентный красивый фон */
       background: radial-gradient(circle at 50% 30%, #3e2a1d, #1a100a);
       color: #3e2723;
       height: 100vh;
@@ -74,7 +73,7 @@
       padding-right: 4px;
     }
 
-    /* Карточки слоев - НЕпрозрачные для четкости */
+    /* Карточки слоев - непрозрачные для четкости */
     .layer-item {
       display: flex;
       align-items: center;
@@ -261,7 +260,7 @@
       align-items: center;
     }
 
-    /* Карточки ингредиентов - НЕпрозрачные */
+    /* Карточки ингредиентов - непрозрачные */
     .ingredient-card {
       display: flex;
       align-items: center;
@@ -296,7 +295,7 @@
       object-fit: contain;
     }
 
-    /* Нижняя панель с градиентом и полупрозрачностью */
+    /* Нижняя панель */
     .bottom-panel {
       grid-column: 1 / -1;
       grid-row: 2;
@@ -421,11 +420,13 @@
   </div>
 
   <script>
-    // Лимит расширен до 15
     const MAX_INGREDIENTS = 15;
 
+    // Добавлены tomato.png и red-onion.png
     const INGREDIENTS = [
       { id: 'top-bun', name: 'Top Bun', image: 'images/top-bun.png' },
+      { id: 'tomato', name: 'Tomato', image: 'images/tomato.png' },
+      { id: 'red-onion', name: 'Red Onion', image: 'images/red-onion.png' },
       { id: 'beef-patty', name: 'Beef Patty', image: 'images/beef-patty.png' },
       { id: 'bottom-bun', name: 'Bottom Bun', image: 'images/bottom-bun.png' }
     ];
