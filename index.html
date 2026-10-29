@@ -443,7 +443,6 @@
 
     const MAX_INGREDIENTS = 15;
 
-    // Обычные ингредиенты
     const INGREDIENTS = [
       { id: 'top-bun', name: 'Top Bun', image: 'images/top-bun.png' },
       { id: 'cheese', name: 'Cheese', image: 'images/cheese.png' },
@@ -456,7 +455,6 @@
       { id: 'bottom-bun', name: 'Bottom Bun', image: 'images/bottom-bun.png' }
     ];
 
-    // Соусы (располагаются снизу, но ложатся как обычные визуальные слои с отступом -72px)
     const SAUCES = [
       { id: 'mayo', name: '⚪️ Mayo', image: 'images/sauce-mayo.png' },
       { id: 'ketchup', name: '🔴 Ketchup', image: 'images/sauce-ketchup.png' },
@@ -542,13 +540,16 @@
           }
 
           const itemBelow = index > 0 ? currentBurger[index - 1] : null;
+          const isSauce = ['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id);
 
           if (index === 0) {
             img.style.marginBottom = '-10px';
+          } else if (isSauce) {
+            img.style.marginBottom = '-50px'; // Соусы приподняты выше поверх любых ингредиентов
           } else if (item.id === 'lettuce') {
-            img.style.marginBottom = '-82px';
-          } else if (item.id === 'cheese' || ['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id)) {
-            img.style.marginBottom = '-72px'; // Соусы располагаются по высоте так же аккуратно, как сыр
+            img.style.marginBottom = '-72px';
+          } else if (item.id === 'cheese') {
+            img.style.marginBottom = '-65px';
           } else if (itemBelow && itemBelow.id === 'lettuce') {
             img.style.marginBottom = '-55px';
           } else {
