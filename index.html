@@ -369,6 +369,12 @@
       box-shadow: 0 4px 10px rgba(142, 36, 170, 0.3);
     }
 
+    .btn-recipes {
+      background: linear-gradient(135deg, #0288d1, #01579b);
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(2, 136, 209, 0.3);
+    }
+
     .btn-utility {
       background: linear-gradient(135deg, #455a64, #263238);
       color: #ffffff;
@@ -429,7 +435,7 @@
       color: #5d4037;
     }
 
-    .achievements-list {
+    .achievements-list, .recipes-list {
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -438,7 +444,7 @@
       margin-bottom: 15px;
     }
 
-    .achievement-item {
+    .achievement-item, .recipe-item {
       display: flex;
       align-items: center;
       gap: 12px;
@@ -450,23 +456,23 @@
       transition: all 0.2s;
     }
 
-    .achievement-item.unlocked {
+    .achievement-item.unlocked, .recipe-item.unlocked {
       opacity: 1;
       background: #ffffff;
       border-color: #81c784;
       box-shadow: 0 3px 8px rgba(0,0,0,0.05);
     }
 
-    .achievement-icon {
+    .achievement-icon, .recipe-icon {
       font-size: 1.8rem;
     }
 
-    .achievement-info h4 {
+    .achievement-info h4, .recipe-info h4 {
       font-size: 0.9rem;
       color: #3e2723;
     }
 
-    .achievement-info p {
+    .achievement-info p, .recipe-info p {
       font-size: 0.75rem;
       color: #6d4c41;
     }
@@ -646,16 +652,28 @@
   <button class="toggle-ui-btn" id="toggleUiBtn" title="Скрыть/показать окна">👁️</button>
   <div class="toast-container" id="toastContainer"></div>
 
+  <!-- Модальное окно ачивок -->
   <div class="modal-overlay" id="achievementsModal">
     <div class="modal-content">
       <div class="modal-header">
         <h3>🏆 Achievements</h3>
-        <button class="close-modal" id="closeModal">✕</button>
+        <button class="close-modal" id="closeAchievementsModal">✕</button>
       </div>
       <div class="achievements-list" id="achievementsList"></div>
       <div class="modal-footer">
         <button class="btn-reset-achievements" id="resetAchievementsBtn">Reset achievements</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно рецептов -->
+  <div class="modal-overlay" id="recipesModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>📋 Secret Recipes</h3>
+        <button class="close-modal" id="closeRecipesModal">✕</button>
+      </div>
+      <div class="recipes-list" id="recipesList"></div>
     </div>
   </div>
 
@@ -684,6 +702,7 @@
       <div class="action-group">
         <button class="btn-action btn-utility" id="soundToggleBtn" title="Mute/Unmute">🔊</button>
         <button class="btn-action btn-utility" id="downloadPngBtn" title="Download PNG">💾</button>
+        <button class="btn-action btn-recipes" id="openRecipesBtn" title="Secret Recipes">📋</button>
         <button class="btn-action btn-achievements" id="openAchievementsBtn" title="Achievements">🏆</button>
         <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
         <button class="btn-action btn-eat" id="eatBtn">Eat</button>
@@ -733,13 +752,62 @@
     };
 
     const ACHIEVEMENTS = [
-      { id: 'cheeseburger', title: 'Cheezburger', desc: 'Get your ideal Roblox burger', icon: '🧀', sound: SOUNDS.cheeseburger },
-      { id: 'mcPicklePounder', title: 'McPickle Pounder', desc: "You're probably the kind of person who would eat a pickle tiramisu", icon: '🥒', sound: SOUNDS.mcPicklePounder },
-      { id: 'tomatonator', title: 'Tomatonator', desc: "If you don't like tomatoes why you even eating burgers", icon: '🍅', sound: SOUNDS.tomatonator },
-      { id: 'saturnBurger', title: 'Saturn Burger', desc: 'Saturn has the most moons of all the planets in the solar system', icon: '🪐', sound: SOUNDS.saturnBurger },
-      { id: 'lilypad', title: 'Lilypad', desc: 'Almost vegan', icon: '🥬', sound: SOUNDS.lilypad },
-      { id: 'bustanator', title: 'Bustanator', desc: 'I know you love this burger', icon: '💦', sound: SOUNDS.bustanator },
-      { id: 'toothless', title: 'Toothless', desc: 'Can never have enough sauce', icon: '🍼', sound: null }
+      { 
+        id: 'cheeseburger', 
+        title: 'Cheezburger', 
+        desc: 'Get your ideal Roblox burger', 
+        icon: '🧀', 
+        recipe: 'Bottom Bun + Beef Patty + Cheese + Top Bun',
+        sound: SOUNDS.cheeseburger 
+      },
+      { 
+        id: 'mcPicklePounder', 
+        title: 'McPickle Pounder', 
+        desc: "You're probably the kind of person who would eat a pickle tiramisu", 
+        icon: '🥒', 
+        recipe: 'Bottom Bun + Beef Patty + Cheese + 3x Pickles + Top Bun',
+        sound: SOUNDS.mcPicklePounder 
+      },
+      { 
+        id: 'tomatonator', 
+        title: 'Tomatonator', 
+        desc: "If you don't like tomatoes why you even eating burgers", 
+        icon: '🍅', 
+        recipe: 'Bottom Bun + Beef Patty + Cheese + 3x Tomato + Top Bun',
+        sound: SOUNDS.tomatonator 
+      },
+      { 
+        id: 'saturnBurger', 
+        title: 'Saturn Burger', 
+        desc: 'Saturn has the most moons of all the planets in the solar system', 
+        icon: '🪐', 
+        recipe: 'Bottom Bun + Beef Patty + White Onion + Top Bun',
+        sound: SOUNDS.saturnBurger 
+      },
+      { 
+        id: 'lilypad', 
+        title: 'Lilypad', 
+        desc: 'Almost vegan', 
+        icon: '🥬', 
+        recipe: 'Bottom Bun + Beef Patty + Cheese + Lettuce + Top Bun',
+        sound: SOUNDS.lilypad 
+      },
+      { 
+        id: 'bustanator', 
+        title: 'Bustanator', 
+        desc: 'I know you love this burger', 
+        icon: '💦', 
+        recipe: 'Bottom Bun + Beef Patty + 3x Mayo + Top Bun',
+        sound: SOUNDS.bustanator 
+      },
+      { 
+        id: 'toothless', 
+        title: 'Toothless', 
+        desc: 'Can never have enough sauce', 
+        icon: '🍼', 
+        recipe: 'Bottom Bun + All 5 Sauces (any order) + Top Bun',
+        sound: null 
+      }
     ];
 
     let unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements')) || {};
@@ -764,6 +832,7 @@
         localStorage.removeItem('unlocked_achievements');
         playSound(SOUNDS.buttons);
         renderAchievementsModal();
+        renderRecipesModal();
       }
     }
 
@@ -800,19 +869,52 @@
       });
     }
 
-    const modal = document.getElementById('achievementsModal');
+    function renderRecipesModal() {
+      const list = document.getElementById('recipesList');
+      list.innerHTML = '';
+      ACHIEVEMENTS.forEach(ach => {
+        const isUnlocked = unlockedAchievements[ach.id];
+        const item = document.createElement('div');
+        item.className = `recipe-item ${isUnlocked ? 'unlocked' : ''}`;
+        item.innerHTML = `
+          <div class="recipe-icon">${isUnlocked ? ach.icon : '🔒'}</div>
+          <div class="recipe-info">
+            <h4>${ach.title}</h4>
+            <p>${isUnlocked ? ach.recipe : '🔒 Секретный рецепт скрыт...'}</p>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    // Модальные окна управления
+    const achievementsModal = document.getElementById('achievementsModal');
     document.getElementById('openAchievementsBtn').onclick = () => {
       playSound(SOUNDS.buttons);
       renderAchievementsModal();
-      modal.classList.add('open');
+      achievementsModal.classList.add('open');
     };
-    document.getElementById('closeModal').onclick = () => {
+    document.getElementById('closeAchievementsModal').onclick = () => {
       playSound(SOUNDS.buttons);
-      modal.classList.remove('open');
+      achievementsModal.classList.remove('open');
     };
     document.getElementById('resetAchievementsBtn').onclick = resetAchievements;
-    modal.onclick = (e) => {
-      if (e.target === modal) modal.classList.remove('open');
+    achievementsModal.onclick = (e) => {
+      if (e.target === achievementsModal) achievementsModal.classList.remove('open');
+    };
+
+    const recipesModal = document.getElementById('recipesModal');
+    document.getElementById('openRecipesBtn').onclick = () => {
+      playSound(SOUNDS.buttons);
+      renderRecipesModal();
+      recipesModal.classList.add('open');
+    };
+    document.getElementById('closeRecipesModal').onclick = () => {
+      playSound(SOUNDS.buttons);
+      recipesModal.classList.remove('open');
+    };
+    recipesModal.onclick = (e) => {
+      if (e.target === recipesModal) recipesModal.classList.remove('open');
     };
 
     const MAX_INGREDIENTS = 30;
@@ -903,7 +1005,6 @@
     function checkSpecialCombos() {
       if (currentBurger.length === 0) return;
       const ids = currentBurger.map(i => i.id);
-      console.log('Current Burger IDs:', ids); // Для отладки в консоли (F12)
 
       if (ids.length === 4 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'top-bun') {
         unlockAchievement('cheeseburger');
@@ -923,7 +1024,6 @@
       else if (ids.length === 6 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'mayo' && ids[3] === 'mayo' && ids[4] === 'mayo' && ids[5] === 'top-bun') {
         unlockAchievement('bustanator');
       }
-      // Toothless: нижняя булка, верхняя булка и ровно 5 уникальных соусов между ними в любом порядке
       else if (ids.length === 7 && ids[0] === 'bottom-bun' && ids[6] === 'top-bun') {
         const middleLayers = ids.slice(1, 6);
         const requiredSauces = ['ketchup', 'mustard', 'mayo', 'bbq', 'spicy'];
