@@ -185,12 +185,10 @@
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    /* Эффект сжатия для остальных слоев */
     .burger-layer-img.squeezed {
       transform: translateY(var(--sq-offset, 8px)) scaleY(0.82) scaleX(1.04);
     }
 
-    /* Эффект сжатия для самого нижнего слоя (на месте, без смещения экрана вниз) */
     .burger-layer-img.squeezed-base {
       transform: translateY(0px) scaleY(0.75) scaleX(1.06);
     }
@@ -424,9 +422,9 @@
     <div class="bottom-panel">
       <div class="sauces-group" id="saucesGroup"></div>
       <div class="action-group">
-        <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze ✊</button>
-        <button class="btn-action btn-eat" id="eatBtn">Eat 😋</button>
-        <button class="btn-action btn-reset" id="resetBtn">Reset 🗑️</button>
+        <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
+        <button class="btn-action btn-eat" id="eatBtn">Eat</button>
+        <button class="btn-action btn-reset" id="resetBtn">Reset</button>
       </div>
     </div>
   </div>
@@ -560,12 +558,11 @@
 
           img.style.zIndex = index + 1;
 
-          // Логика сжатия для нижнего слоя и остальных
           if (isSqueezed) {
             if (index === 0) {
               img.classList.add('squeezed-base');
             } else {
-              const sqOffset = index * 6; // Плавное уплотнение слоев
+              const sqOffset = index * 6;
               img.style.setProperty('--sq-offset', `${sqOffset}px`);
               img.classList.add('squeezed');
             }
