@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Burger Builder</title>
+  <title>Burger Builder with Achievements</title>
   <style>
     * {
       box-sizing: border-box;
@@ -35,8 +35,6 @@
 
     .panel {
       background: linear-gradient(145deg, rgba(253, 251, 247, 0.85), rgba(245, 239, 230, 0.7));
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
       border-radius: 20px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
       border: 1px solid rgba(255, 255, 255, 0.25);
@@ -198,14 +196,8 @@
     }
 
     @keyframes smoothDropIn {
-      0% {
-        opacity: 0;
-        transform: translateY(-25px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      0% { opacity: 0; transform: translateY(-25px); }
+      100% { opacity: 1; transform: translateY(0); }
     }
 
     .crumb {
@@ -217,14 +209,8 @@
     }
 
     @keyframes crumbFly {
-      0% {
-        opacity: 1;
-        transform: translate(0, 0) scale(1) rotate(0deg);
-      }
-      100% {
-        opacity: 0;
-        transform: translate(var(--dx), var(--dy)) scale(0.3) rotate(var(--rot));
-      }
+      0% { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
+      100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.3) rotate(var(--rot)); }
     }
 
     .limit-warning {
@@ -298,7 +284,6 @@
       object-fit: contain;
     }
 
-    /* ПК версия: нижняя панель с градиентом БЕЗ backdrop-filter */
     .bottom-panel {
       grid-column: 1 / -1;
       grid-row: 2;
@@ -344,6 +329,7 @@
     .action-group {
       display: flex;
       gap: 10px;
+      align-items: center;
     }
 
     .btn-action {
@@ -374,11 +360,145 @@
       box-shadow: 0 4px 10px rgba(211, 47, 47, 0.4);
     }
 
+    .btn-achievements {
+      background: linear-gradient(135deg, #8e24aa, #6a1b9a);
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(142, 36, 170, 0.3);
+    }
+
+    /* Модальное окно ачивок */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(5px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: #fdfbf7;
+      width: 90%;
+      max-width: 450px;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      border: 1px solid #e4d8c5;
+      display: flex;
+      flex-direction: column;
+      max-height: 80vh;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #f5efe6;
+      padding-bottom: 10px;
+    }
+
+    .modal-header h3 {
+      color: #3e2723;
+      font-size: 1.1rem;
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #5d4037;
+    }
+
+    .achievements-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .achievement-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #f5efe6;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid #e4d8c5;
+      opacity: 0.5;
+      transition: all 0.2s;
+    }
+
+    .achievement-item.unlocked {
+      opacity: 1;
+      background: #ffffff;
+      border-color: #81c784;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+    }
+
+    .achievement-icon {
+      font-size: 1.8rem;
+    }
+
+    .achievement-info h4 {
+      font-size: 0.9rem;
+      color: #3e2723;
+    }
+
+    .achievement-info p {
+      font-size: 0.75rem;
+      color: #6d4c41;
+    }
+
+    /* Всплывающее уведомление о новой ачивке */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 3000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .achievement-toast {
+      background: #3e2723;
+      color: #fdfbf7;
+      padding: 12px 18px;
+      border-radius: 14px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+      border: 1px solid #81c784;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: toastAnim 3.5s forwards ease-in-out;
+      pointer-events: auto;
+    }
+
+    @keyframes toastAnim {
+      0% { opacity: 0; transform: translateY(-20px) scale(0.9); }
+      15% { opacity: 1; transform: translateY(0) scale(1); }
+      85% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-20px) scale(0.9); }
+    }
+
     .toggle-ui-btn {
       display: none;
     }
 
-    /* Мобильная адаптация */
     @media (max-width: 900px) {
       .toggle-ui-btn {
         position: fixed;
@@ -397,12 +517,9 @@
         cursor: pointer;
         z-index: 1000;
         box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        transition: all 0.2s;
       }
 
-      body {
-        overflow: auto;
-      }
+      body { overflow: auto; }
 
       .app-container {
         display: flex;
@@ -414,17 +531,8 @@
         padding-bottom: 75px;
       }
 
-      .center-stage {
-        order: 1;
-        min-height: 400px;
-        padding-bottom: 20px;
-        justify-content: flex-end;
-      }
-
-      .right-panel {
-        order: 2;
-        height: 130px;
-      }
+      .center-stage { order: 1; min-height: 400px; padding-bottom: 20px; justify-content: flex-end; }
+      .right-panel { order: 2; height: 130px; }
 
       .ingredients-menu {
         flex-direction: row;
@@ -433,20 +541,10 @@
         padding-bottom: 4px;
       }
 
-      .ingredient-card {
-        min-width: 65px;
-        height: 65px;
-        padding: 4px;
-      }
+      .ingredient-card { min-width: 65px; height: 65px; padding: 4px; }
+      .ingredient-card img { width: 45px; height: 45px; }
 
-      .ingredient-card img {
-        width: 45px;
-        height: 45px;
-      }
-
-      .sauces-group.desktop-sauces {
-        display: none !important;
-      }
+      .sauces-group.desktop-sauces { display: none !important; }
 
       .sauces-group.mobile-sauces {
         display: flex !important;
@@ -456,75 +554,54 @@
         padding: 8px 12px;
         gap: 8px;
         overflow-x: auto;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         border: 1px solid rgba(255, 255, 255, 0.4);
       }
 
-      .left-panel {
-        order: 4;
-        height: 180px;
-      }
+      .left-panel { order: 4; height: 180px; }
 
-      /* Мобильная версия: нижняя панель с градиентом */
       .bottom-panel {
         position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        grid-column: auto;
-        grid-row: auto;
+        bottom: 0; left: 0; right: 0;
+        grid-column: auto; grid-row: auto;
         padding: 10px 15px;
         justify-content: center;
         border-radius: 16px 16px 0 0;
         background: linear-gradient(145deg, rgba(253, 251, 247, 0.95), rgba(245, 239, 230, 0.88));
-        box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
-        border-top: 1px solid rgba(255, 255, 255, 0.4);
         z-index: 1000;
       }
 
-      .action-group {
-        width: 100%;
-        justify-content: space-between;
-      }
-
-      .btn-action {
-        flex: 1;
-        padding: 12px 6px;
-        font-size: 0.85rem;
-        text-align: center;
-      }
+      .action-group { width: 100%; justify-content: space-between; }
+      .btn-action { flex: 1; padding: 10px 4px; font-size: 0.8rem; text-align: center; }
 
       body.ui-hidden .left-panel,
       body.ui-hidden .right-panel,
-      body.ui-hidden .sauces-group.mobile-sauces {
-        display: none !important;
-      }
-
-      body.ui-hidden .center-stage {
-        min-height: 80vh;
-      }
+      body.ui-hidden .sauces-group.mobile-sauces { display: none !important; }
+      body.ui-hidden .center-stage { min-height: 80vh; }
     }
 
     @media (min-width: 901px) {
-      .sauces-group.mobile-sauces {
-        display: none !important;
-      }
+      .sauces-group.mobile-sauces { display: none !important; }
     }
 
-    ::-webkit-scrollbar {
-      width: 4px;
-      height: 4px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(215, 204, 200, 0.8);
-      border-radius: 4px;
-    }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(215, 204, 200, 0.8); border-radius: 4px; }
   </style>
 </head>
 <body>
 
-  <!-- Кнопка скрытия/показа окон (только для телефонов) -->
   <button class="toggle-ui-btn" id="toggleUiBtn" title="Скрыть/показать окна">👁️</button>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Модальное окно ачивок -->
+  <div class="modal-overlay" id="achievementsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🏆 Achievements</h3>
+        <button class="close-modal" id="closeModal">✕</button>
+      </div>
+      <div class="achievements-list" id="achievementsList"></div>
+    </div>
+  </div>
 
   <div class="app-container">
     <div class="center-stage" id="centerStage">
@@ -549,10 +626,11 @@
       <div class="layers-list" id="layersList"></div>
     </div>
 
-    <!-- 4. Нижняя панель (соусы на ПК + кнопки управления) -->
+    <!-- 4. Нижняя панель -->
     <div class="bottom-panel">
       <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
       <div class="action-group">
+        <button class="btn-action btn-achievements" id="openAchievementsBtn">🏆</button>
         <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
         <button class="btn-action btn-eat" id="eatBtn">Eat</button>
         <button class="btn-action btn-reset" id="resetBtn">Reset</button>
@@ -570,9 +648,9 @@
       cheeseburger: new Audio('audio/cheeseburger.mp3'),
       mcPicklePounder: new Audio('audio/mc-pickle-pounder.mp3'),
       tomatonator: new Audio('audio/tomatonator.mp3'),
-      saturnBurger: new Audio('audio/saturn-burger.mp3'), // Новый звук
-      lilypad: new Audio('audio/lilypad.mp3'),             // Новый звук
-      bustanator: new Audio('audio/bustanator.mp3')        // Новый звук
+      saturnBurger: new Audio('audio/saturn-burger.mp3'),
+      lilypad: new Audio('audio/lilypad.mp3'),
+      bustanator: new Audio('audio/bustanator.mp3')
     };
 
     function playSound(sound) {
@@ -581,6 +659,79 @@
         sound.play().catch(() => {});
       }
     }
+
+    // Список ачивок и секретных рецептов
+    const ACHIEVEMENTS = [
+      { id: 'cheeseburger', title: 'Классика жанра', desc: 'Соберите идеальный чизбургер', icon: '🧀', sound: SOUNDS.cheeseburger },
+      { id: 'mcPicklePounder', title: 'Любитель огурчиков', desc: 'Соберите Mc Pickle Pounder с тройными огурцами', icon: '🥒', sound: SOUNDS.mcPicklePounder },
+      { id: 'tomatonator', title: 'Томатный монстр', desc: 'Соберите Tomatonator с тройными томатами', icon: '🍅', sound: SOUNDS.tomatonator },
+      { id: 'saturnBurger', title: 'Космический сатурн', desc: 'Соберите бургер с белым луком', icon: '🪐', sound: SOUNDS.saturnBurger },
+      { id: 'lilypad', title: 'Зеленый лист', desc: 'Соберите бургер Lilypad с салатом', icon: '🍃', sound: SOUNDS.lilypad },
+      { id: 'bustanator', title: 'Майонезный взрыв', desc: 'Соберите Bustanator с тройным майонезом', icon: '⚪', sound: SOUNDS.bustanator }
+    ];
+
+    // Загрузка ачивок из localStorage конкретного устройства
+    let unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements')) || {};
+
+    function unlockAchievement(id) {
+      if (!unlockedAchievements[id]) {
+        unlockedAchievements[id] = true;
+        localStorage.setItem('unlocked_achievements', JSON.stringify(unlockedAchievements));
+        
+        const ach = ACHIEVEMENTS.find(a => a.id === id);
+        if (ach) {
+          showAchievementToast(ach);
+        }
+      }
+    }
+
+    function showAchievementToast(ach) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'achievement-toast';
+      toast.innerHTML = `
+        <span style="font-size: 2rem;">${ach.icon}</span>
+        <div>
+          <h4 style="font-size: 0.85rem; font-weight: bold;">Достижение разблокировано!</h4>
+          <p style="font-size: 0.75rem;">${ach.title}</p>
+        </div>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    function renderAchievementsModal() {
+      const list = document.getElementById('achievementsList');
+      list.innerHTML = '';
+      ACHIEVEMENTS.forEach(ach => {
+        const isUnlocked = unlockedAchievements[ach.id];
+        const item = document.createElement('div');
+        item.className = `achievement-item ${isUnlocked ? 'unlocked' : ''}`;
+        item.innerHTML = `
+          <div class="achievement-icon">${isUnlocked ? ach.icon : '🔒'}</div>
+          <div class="achievement-info">
+            <h4>${ach.title}</h4>
+            <p>${isUnlocked ? ach.desc : 'Секретный рецепт заблокирован'}</p>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    // Управление модальным окном
+    const modal = document.getElementById('achievementsModal');
+    document.getElementById('openAchievementsBtn').onclick = () => {
+      playSound(SOUNDS.buttons);
+      renderAchievementsModal();
+      modal.classList.add('open');
+    };
+    document.getElementById('closeModal').onclick = () => {
+      playSound(SOUNDS.buttons);
+      modal.classList.remove('open');
+    };
+    modal.onclick = (e) => {
+      if (e.target === modal) modal.classList.remove('open');
+    };
 
     const MAX_INGREDIENTS = 30;
 
@@ -610,7 +761,6 @@
     ];
 
     let currentBurger = [];
-
     let isEating = false;
     let isSqueezed = false;
 
@@ -668,67 +818,35 @@
       if (currentBurger.length === 0) return;
       const ids = currentBurger.map(i => i.id);
 
-      // 1. Чизбургер: bottom-bun -> beef-patty -> cheese -> top-bun
-      if (ids.length === 4 &&
-          ids[0] === 'bottom-bun' &&
-          ids[1] === 'beef-patty' &&
-          ids[2] === 'cheese' &&
-          ids[3] === 'top-bun') {
+      // 1. Чизбургер
+      if (ids.length === 4 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'top-bun') {
         playSound(SOUNDS.cheeseburger);
+        unlockAchievement('cheeseburger');
       }
-
-      // 2. Mc Pickle Pounder: bottom-bun -> beef-patty -> cheese -> pickles -> pickles -> pickles -> top-bun
-      if (ids.length === 7 &&
-          ids[0] === 'bottom-bun' &&
-          ids[1] === 'beef-patty' &&
-          ids[2] === 'cheese' &&
-          ids[3] === 'pickles' &&
-          ids[4] === 'pickles' &&
-          ids[5] === 'pickles' &&
-          ids[6] === 'top-bun') {
+      // 2. Mc Pickle Pounder
+      else if (ids.length === 7 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'pickles' && ids[4] === 'pickles' && ids[5] === 'pickles' && ids[6] === 'top-bun') {
         playSound(SOUNDS.mcPicklePounder);
+        unlockAchievement('mcPicklePounder');
       }
-
-      // 3. Tomatonator: bottom-bun -> beef-patty -> cheese -> tomato -> tomato -> tomato -> top-bun
-      if (ids.length === 7 &&
-          ids[0] === 'bottom-bun' &&
-          ids[1] === 'beef-patty' &&
-          ids[2] === 'cheese' &&
-          ids[3] === 'tomato' &&
-          ids[4] === 'tomato' &&
-          ids[5] === 'tomato' &&
-          ids[6] === 'top-bun') {
+      // 3. Tomatonator
+      else if (ids.length === 7 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'tomato' && ids[4] === 'tomato' && ids[5] === 'tomato' && ids[6] === 'top-bun') {
         playSound(SOUNDS.tomatonator);
+        unlockAchievement('tomatonator');
       }
-
-      // 4. Saturn Burger: bottom-bun -> beef-patty -> white-onion -> top-bun
-      if (ids.length === 4 &&
-          ids[0] === 'bottom-bun' &&
-          ids[1] === 'beef-patty' &&
-          ids[2] === 'white-onion' &&
-          ids[3] === 'top-bun') {
+      // 4. Saturn Burger
+      else if (ids.length === 4 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'white-onion' && ids[3] === 'top-bun') {
         playSound(SOUNDS.saturnBurger);
+        unlockAchievement('saturnBurger');
       }
-
-      // 5. Lilypad: bottom-bun -> beef-patty -> cheese -> lettuce -> top-bun
-      if (ids.length === 5 &&
-          ids[0] === 'bottom-bun' &&
-          ids[1] === 'beef-patty' &&
-          ids[2] === 'cheese' &&
-          ids[3] === 'lettuce' &&
-          ids[4] === 'top-bun') {
+      // 5. Lilypad
+      else if (ids.length === 5 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'lettuce' && ids[4] === 'top-bun') {
         playSound(SOUNDS.lilypad);
+        unlockAchievement('lilypad');
       }
-
-      // 6. Bustanator: bottom-bun -> beef-patty -> mayo -> mayo -> mayo -> top-bun
-      if (ids.length === 6 &&
-          ids[0] === 'bottom-bun' &&
-          ids[1] === 'beef-patty' &&
-          ids[2] === 'mayo' &&
-          ids[3] === 'mayo' &&
-          ids[4] === 'mayo' &&
-          ids[5] === 'top-bun') {
+      // 6. Bustanator
+      else if (ids.length === 6 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'mayo' && ids[3] === 'mayo' && ids[4] === 'mayo' && ids[5] === 'top-bun') {
         playSound(SOUNDS.bustanator);
+        unlockAchievement('bustanator');
       }
     }
 
@@ -830,7 +948,7 @@
       }
       playSound(SOUNDS.sauce);
       currentBurger.push({ ...sauce });
-      checkSpecialCombos(); // Добавлено на случай секретного бургера из соусов (Bustanator)
+      checkSpecialCombos();
       updateBurgerDisplay(true);
     }
 
