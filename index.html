@@ -32,7 +32,6 @@
       padding: 15px;
     }
 
-    /* Полупрозрачные контейнеры с градиентом и матовым стеклом */
     .panel {
       background: linear-gradient(145deg, rgba(253, 251, 247, 0.85), rgba(245, 239, 230, 0.7));
       backdrop-filter: blur(12px);
@@ -73,7 +72,6 @@
       padding-right: 4px;
     }
 
-    /* Карточки слоев */
     .layer-item {
       display: flex;
       align-items: center;
@@ -421,13 +419,13 @@
   <script>
     const MAX_INGREDIENTS = 15;
 
-    // Перемещен салат (lettuce.png) ниже в меню
+    // В меню салат остался сразу под верхней булочкой
     const INGREDIENTS = [
       { id: 'top-bun', name: 'Top Bun', image: 'images/top-bun.png' },
+      { id: 'lettuce', name: 'Lettuce', image: 'images/lettuce.png' },
       { id: 'tomato', name: 'Tomato', image: 'images/tomato.png' },
       { id: 'red-onion', name: 'Red Onion', image: 'images/red-onion.png' },
       { id: 'beef-patty', name: 'Beef Patty', image: 'images/beef-patty.png' },
-      { id: 'lettuce', name: 'Lettuce', image: 'images/lettuce.png' },
       { id: 'bottom-bun', name: 'Bottom Bun', image: 'images/bottom-bun.png' }
     ];
 
@@ -439,8 +437,10 @@
       { id: 'bbq', name: '🟤 BBQ' }
     ];
 
+    // Стартовый бургер: салат опущен ближе к котлете
     let currentBurger = [
       { ...INGREDIENTS.find(item => item.id === 'bottom-bun') },
+      { ...INGREDIENTS.find(item => item.id === 'lettuce') },
       { ...INGREDIENTS.find(item => item.id === 'beef-patty') },
       { ...INGREDIENTS.find(item => item.id === 'top-bun') }
     ];
@@ -518,8 +518,11 @@
             setTimeout(() => img.classList.remove('new-layer'), 400);
           }
 
+          // Настройка глубокого прилегания салата на самом бургере
           if (index === 0) {
             img.style.marginBottom = '-10px';
+          } else if (item.id === 'lettuce') {
+            img.style.marginBottom = '-48px';
           } else {
             img.style.marginBottom = '-40px';
           }
