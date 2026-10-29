@@ -690,7 +690,7 @@
       <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
       <div class="action-group">
         <button class="btn-action btn-utility" id="soundToggleBtn" title="Mute/Unmute">🔊</button>
-        <button class="btn-action btn-utility" id="downloadPngBtn" title="Download PNG">📷</button>
+        <button class="btn-action btn-utility" id="downloadPngBtn" title="Download PNG">💾</button>
         <button class="btn-action btn-achievements" id="openAchievementsBtn" title="Achievements">🏆</button>
         <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
         <button class="btn-action btn-eat" id="eatBtn">Eat</button>
@@ -929,11 +929,11 @@
       else if (ids.length === 6 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'mayo' && ids[3] === 'mayo' && ids[4] === 'mayo' && ids[5] === 'top-bun') {
         unlockAchievement('bustanator');
       }
-      // Toothless: bottom-bun + 5 соусов в любом порядке (mayo, ketchup, mustard, spicy, bbq) + top-bun
+      // Toothless: bottom-bun + 5 соусов в любом порядке (ketchup, mustard, mayo, bbq, spicy) + top-bun
       else if (ids.length === 6 && ids[0] === 'bottom-bun' && ids[5] === 'top-bun') {
-        const innerSauces = ids.slice(1, 5);
+        const innerItems = ids.slice(1, 5);
         const requiredSauces = ['ketchup', 'mustard', 'mayo', 'bbq', 'spicy'];
-        const isToothlessCombo = requiredSauces.every(s => innerSauces.includes(s));
+        const isToothlessCombo = requiredSauces.length === innerItems.length && requiredSauces.every(s => innerItems.includes(s));
         if (isToothlessCombo) {
           unlockAchievement('toothless');
         }
