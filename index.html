@@ -299,7 +299,7 @@
       grid-row: 2;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-end;
       padding: 0 20px;
       z-index: 100;
       background: linear-gradient(145deg, rgba(253, 251, 247, 0.85), rgba(245, 239, 230, 0.7));
@@ -308,33 +308,6 @@
       border-radius: 16px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.2);
       border: 1px solid rgba(255, 255, 255, 0.25);
-    }
-
-    .sauces-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      overflow-x: auto;
-    }
-
-    .sauce-chip {
-      background: #f5efe6;
-      border: 1px solid #d7ccc8;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #5d4037;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    .sauce-chip:hover {
-      background: #ffffff;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 
     .action-group {
@@ -416,7 +389,6 @@
     </div>
 
     <div class="bottom-panel">
-      <div class="sauces-group" id="saucesGroup"></div>
       <div class="action-group">
         <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
         <button class="btn-action btn-eat" id="eatBtn">Eat</button>
@@ -443,6 +415,7 @@
 
     const MAX_INGREDIENTS = 15;
 
+    // Все ингредиенты и соусы теперь в едином списке с путями к картинкам
     const INGREDIENTS = [
       { id: 'top-bun', name: 'Top Bun', image: 'images/top-bun.png' },
       { id: 'lettuce', name: 'Lettuce', image: 'images/lettuce.png' },
@@ -451,16 +424,13 @@
       { id: 'pickles', name: 'Pickles', image: 'images/pickles.png' },
       { id: 'red-onion', name: 'Red Onion', image: 'images/red-onion.png' },
       { id: 'white-onion', name: 'White Onion', image: 'images/white-onion.png' },
+      { id: 'mayo', name: 'Mayo', image: 'images/sauce-mayo.png' },
+      { id: 'ketchup', name: 'Ketchup', image: 'images/sauce-ketchup.png' },
+      { id: 'mustard', name: 'Mustard', image: 'images/sauce-mustard.png' },
+      { id: 'spicy', name: 'Spicy', image: 'images/sauce-spicy.png' },
+      { id: 'bbq', name: 'BBQ', image: 'images/sauce-bbq.png' },
       { id: 'beef-patty', name: 'Beef Patty', image: 'images/beef-patty.png' },
       { id: 'bottom-bun', name: 'Bottom Bun', image: 'images/bottom-bun.png' }
-    ];
-
-    const SAUCES = [
-      { id: 'mayo', name: '⚪️ Mayo' },
-      { id: 'ketchup', name: '🔴 Ketchup' },
-      { id: 'mustard', name: '🟡 Mustard' },
-      { id: 'spicy', name: '🟠 Spicy' },
-      { id: 'bbq', name: '🟤 BBQ' }
     ];
 
     let currentBurger = [
@@ -476,7 +446,6 @@
     const layersList = document.getElementById('layersList');
     const layersTitle = document.getElementById('layersTitle');
     const ingredientsMenu = document.getElementById('ingredientsMenu');
-    const saucesGroup = document.getElementById('saucesGroup');
     const centerStage = document.getElementById('centerStage');
     const limitWarning = document.getElementById('limitWarning');
 
@@ -494,20 +463,6 @@
           addIngredient(item);
         };
         ingredientsMenu.appendChild(card);
-      });
-    }
-
-    function renderSauces() {
-      saucesGroup.innerHTML = '';
-      SAUCES.forEach(sauce => {
-        const chip = document.createElement('div');
-        chip.className = 'sauce-chip';
-        chip.innerText = sauce.name;
-        chip.onclick = () => {
-          if (isEating) return;
-          addSauce(sauce);
-        };
-        saucesGroup.appendChild(chip);
       });
     }
 
@@ -545,12 +500,13 @@
 
           const itemBelow = index > 0 ? currentBurger[index - 1] : null;
 
+          // Настраиваем отступы (для соусов используется та же логика глубокого нахлёста, как у сыра)
           if (index === 0) {
             img.style.marginBottom = '-10px';
           } else if (item.id === 'lettuce') {
-            img.style.marginBottom = '-82px'; // Ещё более глубокий нахлёст для салата
-          } else if (item.id === 'cheese') {
-            img.style.marginBottom = '-72px'; // Ещё более глубокий нахлёст для сыра
+            img.style.marginBottom = '-82px';
+          } else if (item.id === 'cheese' || ['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id)) {
+            img.style.marginBottom = '-72px'; // Соусы и сыр ложатся глубоко и аккуратно
           } else if (itemBelow && itemBelow.id === 'lettuce') {
             img.style.marginBottom = '-55px';
           } else {
@@ -586,18 +542,11 @@
         showLimitWarning();
         return;
       }
-      playSound(SOUNDS.ingridients);
-      currentBurger.push({ ...item });
-      updateBurgerDisplay(true);
-    }
+      // Если это соус — играем звук соуса, иначе обычный звук ингредиента
+      const isSauce = ['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id);
+      playSound(isSauce ? SOUNDS.sauce : SOUNDS.ingridients);
 
-    function addSauce(sauce) {
-      if (currentBurger.length >= MAX_INGREDIENTS) {
-        showLimitWarning();
-        return;
-      }
-      playSound(SOUNDS.sauce);
-      currentBurger.push({ id: sauce.id, name: `Sauce: ${sauce.name}` });
+      currentBurger.push({ ...item });
       updateBurgerDisplay(true);
     }
 
@@ -684,7 +633,7 @@
       }, 2000);
     };
 
-    renderSauces();
+    renderIngredientsMenu();
     updateBurgerDisplay(false);
   </script>
 </body>
