@@ -47,7 +47,7 @@
       display: flex;
       flex-direction: column;
       height: 100%;
-      transition: opacity 0.3s ease, transform 0.3s ease;
+      transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
     }
 
     .panel-title {
@@ -149,6 +149,7 @@
       overflow-y: auto; 
       overflow-x: hidden;
       height: 100%;
+      transition: padding-bottom 0.3s ease;
     }
 
     .burger-wrapper {
@@ -159,6 +160,7 @@
       min-height: 100%;
       width: 100%;
       position: relative;
+      transition: transform 0.3s ease;
     }
 
     .burger-stack {
@@ -304,7 +306,7 @@
       grid-row: 2;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-end;
       padding: 0 20px;
       z-index: 100;
       background: linear-gradient(145deg, rgba(253, 251, 247, 0.85), rgba(245, 239, 230, 0.7));
@@ -313,21 +315,20 @@
       border-radius: 16px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.2);
       border: 1px solid rgba(255, 255, 255, 0.25);
-      transition: opacity 0.3s ease, transform 0.3s ease;
     }
 
-    .sauces-group {
+    /* Окно соусов (на ПК внутри сетки или внизу) */
+    .sauces-panel {
       display: flex;
       align-items: center;
       gap: 8px;
       overflow-x: auto;
-      max-width: 50%;
     }
 
     .sauce-chip {
       background: #f5efe6;
       border: 1px solid #d7ccc8;
-      padding: 6px 12px;
+      padding: 6px 14px;
       border-radius: 20px;
       font-size: 0.85rem;
       font-weight: 600;
@@ -350,11 +351,11 @@
     }
 
     .btn-action {
-      padding: 10px 16px;
+      padding: 10px 20px;
       border: none;
       border-radius: 10px;
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       cursor: pointer;
       transition: all 0.2s;
     }
@@ -377,43 +378,34 @@
       box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3);
     }
 
-    /* Кнопка переключения интерфейса (скрыть/показать всё) */
+    /* Кнопка глаза по умолчанию скрыта на ПК */
     .toggle-ui-btn {
-      position: fixed;
-      top: 15px;
-      right: 15px;
-      background: rgba(253, 251, 247, 0.85);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      color: #5d4037;
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.1rem;
-      cursor: pointer;
-      z-index: 1000;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-      transition: all 0.2s;
+      display: none;
     }
 
-    .toggle-ui-btn:hover {
-      background: #ffffff;
-      transform: scale(1.05);
-    }
-
-    /* Класс для скрытия панелей */
-    body.ui-hidden .panel,
-    body.ui-hidden .bottom-panel {
-      opacity: 0;
-      pointer-events: none;
-      visibility: hidden;
-    }
-
-    /* Мобильная адаптация */
+    /* Мобильная адаптация (экраны до 900px) */
     @media (max-width: 900px) {
+      .toggle-ui-btn {
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        background: rgba(253, 251, 247, 0.85);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        color: #5d4037;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: flex; /* Показываем только на мобильных */
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        cursor: pointer;
+        z-index: 1000;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        transition: all 0.2s;
+      }
+
       body {
         overflow: auto;
         height: auto;
@@ -430,18 +422,18 @@
 
       .left-panel {
         order: 3;
-        max-height: 180px;
+        max-height: 160px;
       }
 
       .center-stage {
         order: 1;
-        min-height: 350px;
-        padding-bottom: 20px;
+        min-height: 380px;
+        padding-bottom: 75px;
       }
 
       .right-panel {
         order: 2;
-        max-height: 120px;
+        max-height: 110px;
       }
 
       .ingredients-menu {
@@ -452,30 +444,42 @@
       }
 
       .ingredient-card {
-        min-width: 65px;
-        height: 65px;
+        min-width: 60px;
+        height: 60px;
         padding: 4px;
       }
 
       .ingredient-card img {
-        width: 45px;
-        height: 45px;
+        width: 42px;
+        height: 42px;
+      }
+
+      /* Выносим соусы в отдельное плавающее окно на мобилках */
+      .sauces-panel {
+        position: fixed;
+        bottom: 75px;
+        left: 10px;
+        right: 10px;
+        background: linear-gradient(145deg, rgba(253, 251, 247, 0.9), rgba(245, 239, 230, 0.8));
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 16px;
+        padding: 10px 15px;
+        z-index: 150;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
       }
 
       .bottom-panel {
         order: 4;
-        position: sticky;
+        position: fixed;
         bottom: 10px;
-        flex-direction: column;
-        gap: 10px;
-        padding: 12px;
+        left: 10px;
+        right: 10px;
+        padding: 10px;
         justify-content: center;
-      }
-
-      .sauces-group {
-        max-width: 100%;
-        width: 100%;
-        justify-content: flex-start;
+        border-radius: 14px;
       }
 
       .action-group {
@@ -485,9 +489,27 @@
 
       .btn-action {
         flex: 1;
-        padding: 12px 8px;
-        font-size: 0.85rem;
+        padding: 10px 6px;
+        font-size: 0.8rem;
         text-align: center;
+      }
+
+      /* Скрытие окон по клику на глазок */
+      body.ui-hidden .left-panel,
+      body.ui-hidden .right-panel,
+      body.ui-hidden .sauces-panel {
+        opacity: 0;
+        pointer-events: none;
+        visibility: hidden;
+        transform: translateY(20px);
+      }
+
+      body.ui-hidden .center-stage {
+        padding-bottom: 80px;
+      }
+
+      body.ui-hidden .burger-wrapper {
+        transform: translateY(30px);
       }
     }
 
@@ -503,8 +525,11 @@
 </head>
 <body>
 
-  <!-- Кнопка переключения интерфейса (скрыть/показать всё) -->
-  <button class="toggle-ui-btn" id="toggleUiBtn" title="Скрыть/показать интерфейс">👁️</button>
+  <!-- Кнопка скрытия/показа окон (видна только на телефонах) -->
+  <button class="toggle-ui-btn" id="toggleUiBtn" title="Скрыть/показать окна">👁️</button>
+
+  <!-- Окно соусов -->
+  <div class="sauces-panel" id="saucesGroup"></div>
 
   <div class="app-container">
     <div class="panel left-panel">
@@ -525,7 +550,6 @@
     </div>
 
     <div class="bottom-panel">
-      <div class="sauces-group" id="saucesGroup"></div>
       <div class="action-group">
         <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
         <button class="btn-action btn-eat" id="eatBtn">Eat</button>
@@ -586,7 +610,6 @@
     const limitWarning = document.getElementById('limitWarning');
     const toggleUiBtn = document.getElementById('toggleUiBtn');
 
-    // Логика скрытия/показа интерфейса
     toggleUiBtn.onclick = () => {
       document.body.classList.toggle('ui-hidden');
       toggleUiBtn.innerText = document.body.classList.contains('ui-hidden') ? '👁️‍🗨️' : '👁️';
