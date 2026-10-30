@@ -1009,10 +1009,10 @@
             <button class="speed-btn" data-speed="turbo">Turbo</button>
             <button class="speed-btn" data-speed="super-fast">Super fast</button>
             <button class="speed-btn" data-speed="fast">Fast</button>
-            <button class="speed-btn active" data-speed="medium">Medium</button>
+            <button class="speed-btn" data-speed="medium">Medium</button>
             <button class="speed-btn" data-speed="slow">Slow</button>
             <button class="speed-btn" data-speed="super-slow">Super slow</button>
-            <button class="speed-btn" data-speed="no-orders" style="grid-column: span 2;">No orders</button>
+            <button class="speed-btn active" data-speed="no-orders" style="grid-column: span 2;">No orders</button>
           </div>
         </div>
 
@@ -1130,15 +1130,15 @@
         'mayo': 30, 'ketchup': 30, 'mustard': 30, 'spicy': 30, 'bbq': 30
       };
 
-      // Стандартный старт: Casual режим и Medium скорость с работающим таймером
+      // Старт по умолчанию: Casual режим и No-orders
       let currentGameMode = localStorage.getItem('burger_game_mode') || 'casual';
-      let currentGameSpeed = localStorage.getItem('burger_game_speed') || 'medium';
+      let currentGameSpeed = localStorage.getItem('burger_game_speed') || 'no-orders';
       
       let unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements')) || {};
       let pinnedBurger = JSON.parse(localStorage.getItem('pinned_burger')) || null;
       let currentActiveOrder = JSON.parse(localStorage.getItem('current_active_order')) || null;
       let timeUntilNextOrder = parseInt(localStorage.getItem('time_until_next_order'), 10);
-      if (isNaN(timeUntilNextOrder)) timeUntilNextOrder = 180;
+      if (isNaN(timeUntilNextOrder)) timeUntilNextOrder = 300;
       let currentTurboTimeLeft = parseInt(localStorage.getItem('current_turbo_time_left'), 10);
       if (isNaN(currentTurboTimeLeft)) currentTurboTimeLeft = 180;
 
@@ -1318,8 +1318,6 @@
       const speedButtonsGrid = document.getElementById('speedButtonsGrid');
       const speedButtons = document.querySelectorAll('.speed-btn');
 
-      // --- ЛОГИКА СКОРОСТЕЙ И ТАЙМЕРОВ ---
-
       function getRandomTimeForSpeed(speed) {
         switch(speed) {
           case 'turbo': return 10;
@@ -1328,7 +1326,7 @@
           case 'medium': return Math.floor(Math.random() * 180) + 120;
           case 'slow': return Math.floor(Math.random() * 300) + 300;
           case 'super-slow': return Math.floor(Math.random() * 900) + 900;
-          default: return 180;
+          default: return 300;
         }
       }
 
@@ -1946,7 +1944,6 @@
         });
       }
 
-      // Кнопка мгновенного вызова заказа (🔔)
       if (instantOrderBtn) {
         instantOrderBtn.onclick = () => {
           if (currentGameMode === 'turbo' || currentGameSpeed === 'no-orders') return;
@@ -1955,7 +1952,6 @@
         };
       }
 
-      // Кнопка сервировки (🍽️)
       const serveBtn = document.getElementById('serveBtn');
       if (serveBtn) {
         serveBtn.onclick = () => {
@@ -2037,7 +2033,6 @@
         };
       }
 
-      // Главный игровой цикл таймеров
       setInterval(() => {
         if (currentGameSpeed === 'no-orders' || currentGameMode === 'sandbox') return;
 
@@ -2076,7 +2071,6 @@
         }
       }, 1000);
 
-      // Инициализация при запуске
       updateSpeedButtonsUI(currentGameSpeed);
       applyGameMode(currentGameMode);
 
