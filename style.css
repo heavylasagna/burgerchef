@@ -458,6 +458,7 @@ body {
 
 .btn-action {
   padding: 8px 14px;
+  height: 38px;
   border: none;
   border-radius: 8px;
   font-weight: 700;
