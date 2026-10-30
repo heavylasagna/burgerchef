@@ -251,46 +251,88 @@ document.addEventListener('DOMContentLoaded', () => {
   const modeCasualBtn = document.getElementById('modeCasualBtn');
   const modeTurboBtn = document.getElementById('modeTurboBtn');
   const speedButtonsGrid = document.getElementById('speedButtonsGrid');
+  const speedButtons = document.querySelectorAll('.speed-btn');
+
+  // --- УПРАВЛЕНИЕ СКОРОСТЯМИ И ТАЙМЕРАМИ ---
+
+  function getRandomTimeForSpeed(speed) {
+    switch(speed) {
+      case 'turbo': return 10;
+      case 'super-fast': return Math.floor(Math.random() * 20) + 10;
+      case 'fast': return Math.floor(Math.random() * 30) + 30;
+      case 'medium': return Math.floor(Math.random() * 180) + 120;
+      case 'slow': return Math.floor(Math.random() * 300) + 300;
+      case 'super-slow': return Math.floor(Math.random() * 900) + 900;
+      default: return 300;
+    }
+  }
 
   function triggerRandomOrder() {
     const unlockedSecretNames = SECRET_ACHIEVEMENTS.filter(a => unlockedAchievements[a.id]);
     const allAvailable = [...REGULAR_RECIPES, ...unlockedSecretNames];
     const chosen = allAvailable[Math.floor(Math.random() * allAvailable.length)];
+    
     currentActiveOrder = { name: chosen.name || chosen.title, ids: chosen.ids };
     currentTurboTimeLeft = 180;
+    
     localStorage.setItem('current_active_order', JSON.stringify(currentActiveOrder));
     localStorage.setItem('current_turbo_time_left', currentTurboTimeLeft);
     playSound(SOUNDS.order);
+  }
+
+  function clearActiveOrderState() {
+    currentActiveOrder = null;
+    localStorage.removeItem('current_active_order');
+    localStorage.removeItem('current_turbo_time_left');
+  }
+
+  function updateSpeedButtonsUI(speed) {
+    speedButtons.forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-speed') === speed);
+    });
+  }
+
+  function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  function updateOrderWidgetsText(text) {
+    const w1 = document.getElementById('orderStatusText');
+    if (w1) w1.innerHTML = text;
   }
 
   function applyGameMode(mode) {
     currentGameMode = mode;
     localStorage.setItem('burger_game_mode', mode);
 
-    if(modeSandboxBtn) modeSandboxBtn.classList.toggle('active', mode === 'sandbox');
-    if(modeCasualBtn) modeCasualBtn.classList.toggle('active', mode === 'casual');
-    if(modeTurboBtn) modeTurboBtn.classList.toggle('active', mode === 'turbo');
+    if (modeSandboxBtn) modeSandboxBtn.classList.toggle('active', mode === 'sandbox');
+    if (modeCasualBtn) modeCasualBtn.classList.toggle('active', mode === 'casual');
+    if (modeTurboBtn) modeTurboBtn.classList.toggle('active', mode === 'turbo');
 
     const topWidget = document.getElementById('topOrderWidget');
 
-    // При переключении режима ВСЕГДА полностью сбрасываем предыдущий заказ
-    currentActiveOrder = null;
-    localStorage.removeItem('current_active_order');
+    // Сбрасываем старый заказ при смене режима
+    clearActiveOrderState();
 
     if (mode === 'turbo') {
-      if(speedButtonsGrid) speedButtonsGrid.classList.add('disabled');
-      if(topWidget) topWidget.classList.remove('hidden');
+      if (speedButtonsGrid) speedButtonsGrid.classList.add('disabled');
+      if (topWidget) topWidget.classList.remove('hidden');
+      
       currentTurboTimeLeft = 180;
       localStorage.setItem('current_turbo_time_left', currentTurboTimeLeft);
       triggerRandomOrder();
     } else {
-      if(speedButtonsGrid) speedButtonsGrid.classList.remove('disabled');
-      if (currentGameSpeed === 'no-orders') {
-        if(topWidget) topWidget.classList.add('hidden');
+      if (speedButtonsGrid) speedButtonsGrid.classList.remove('disabled');
+      
+      if (currentGameSpeed === 'no-orders' || mode === 'sandbox') {
+        if (topWidget) topWidget.classList.add('hidden');
       } else {
-        if(topWidget) topWidget.classList.remove('hidden');
+        if (topWidget) topWidget.classList.remove('hidden');
         timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
         localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+        updateOrderWidgetsText(`Next order in: <span>${formatTime(timeUntilNextOrder)}</span>`);
       }
     }
 
@@ -300,19 +342,9 @@ document.addEventListener('DOMContentLoaded', () => {
     renderSauces();
   }
 
-  if(modeSandboxBtn) modeSandboxBtn.onclick = () => applyGameMode('sandbox');
-  if(modeCasualBtn) modeCasualBtn.onclick = () => applyGameMode('casual');
-  if(modeTurboBtn) modeTurboBtn.onclick = () => applyGameMode('turbo');
-
-  applyGameMode(currentGameMode);
-
-  const speedButtons = document.querySelectorAll('.speed-btn');
-  function updateSpeedButtonsUI(speed) {
-    speedButtons.forEach(btn => {
-      btn.classList.toggle('active', btn.getAttribute('data-speed') === speed);
-    });
-  }
-  updateSpeedButtonsUI(currentGameSpeed);
+  if (modeSandboxBtn) modeSandboxBtn.onclick = () => applyGameMode('sandbox');
+  if (modeCasualBtn) modeCasualBtn.onclick = () => applyGameMode('casual');
+  if (modeTurboBtn) modeTurboBtn.onclick = () => applyGameMode('turbo');
 
   speedButtons.forEach(btn => {
     btn.onclick = () => {
@@ -323,47 +355,23 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('burger_game_speed', currentGameSpeed);
       updateSpeedButtonsUI(currentGameSpeed);
 
-      const w1 = document.getElementById('topOrderWidget');
+      const topWidget = document.getElementById('topOrderWidget');
 
-      // При смене скорости ВСЕГДА полностью сбрасываем предыдущий заказ и таймер
-      currentActiveOrder = null;
-      localStorage.removeItem('current_active_order');
+      // Сбрасываем старый заказ при смене скорости
+      clearActiveOrderState();
 
       if (currentGameSpeed === 'no-orders') {
-        if (w1) w1.classList.add('hidden');
+        if (topWidget) topWidget.classList.add('hidden');
       } else {
-        if (w1) w1.classList.remove('hidden');
+        if (topWidget) topWidget.classList.remove('hidden');
         timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
         localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+        updateOrderWidgetsText(`Next order in: <span>${formatTime(timeUntilNextOrder)}</span>`);
       }
+
       updateActionButtonsVisibility();
     };
   });
-
-  function getRandomTimeForSpeed(speed) {
-    switch(speed) {
-      case 'turbo': return 0;
-      case 'super-fast': return Math.floor(Math.random() * 20) + 10;
-      case 'fast': return Math.floor(Math.random() * 30) + 30;
-      case 'medium': return Math.floor(Math.random() * 180) + 120;
-      case 'slow': return Math.floor(Math.random() * 300) + 300;
-      case 'super-slow': return Math.floor(Math.random() * 900) + 900;
-      default: return 300;
-    }
-  }
-
-  const ITEM_IMAGES = {
-    'bottom-bun': 'images/bottom-bun.png', 'top-bun': 'images/top-bun.png',
-    'beef-patty': 'images/beef-patty.png', 'cheese': 'images/cheese.png',
-    'hashbrown': 'images/hashbrown.png', 'fried-egg': 'images/fried-egg.png',
-    'champignons': 'images/champignons.png', 'fried-bacon': 'images/fried-bacon.png',
-    'lettuce': 'images/lettuce.png', 'tomato': 'images/tomato.png',
-    'pickles': 'images/pickles.png', 'red-onion': 'images/red-onion.png',
-    'white-onion': 'images/white-onion.png', 'chicken-patty': 'images/chicken-patty.png',
-    'fish-patty': 'images/fish-patty.png', 'mayo': 'images/sauce-mayo.png',
-    'ketchup': 'images/sauce-ketchup.png', 'mustard': 'images/sauce-mustard.png',
-    'spicy': 'images/sauce-spicy.png', 'bbq': 'images/sauce-bbq.png'
-  };
 
   const REGULAR_RECIPES = [
     { name: 'Classic Burger', ids: ['bottom-bun', 'beef-patty', 'top-bun'] },
@@ -428,6 +436,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const card = document.createElement('div');
         card.className = 'recipe-card';
         let iconsHtml = '';
+        const ITEM_IMAGES = {
+          'bottom-bun': 'images/bottom-bun.png', 'top-bun': 'images/top-bun.png',
+          'beef-patty': 'images/beef-patty.png', 'cheese': 'images/cheese.png',
+          'hashbrown': 'images/hashbrown.png', 'fried-egg': 'images/fried-egg.png',
+          'champignons': 'images/champignons.png', 'fried-bacon': 'images/fried-bacon.png',
+          'lettuce': 'images/lettuce.png', 'tomato': 'images/tomato.png',
+          'pickles': 'images/pickles.png', 'red-onion': 'images/red-onion.png',
+          'white-onion': 'images/white-onion.png', 'chicken-patty': 'images/chicken-patty.png',
+          'fish-patty': 'images/fish-patty.png', 'mayo': 'images/sauce-mayo.png',
+          'ketchup': 'images/sauce-ketchup.png', 'mustard': 'images/sauce-mustard.png',
+          'spicy': 'images/sauce-spicy.png', 'bbq': 'images/sauce-bbq.png'
+        };
         r.ids.forEach(id => { if (ITEM_IMAGES[id]) iconsHtml += `<img src="${ITEM_IMAGES[id]}" title="${id}">`; });
         card.innerHTML = `<div class="recipe-info"><h4>${r.name}</h4><div class="recipe-visual">${iconsHtml}</div></div>`;
         const pinBtn = document.createElement('button');
@@ -450,6 +470,18 @@ document.addEventListener('DOMContentLoaded', () => {
         card.className = `recipe-card ${isUnlocked ? '' : 'locked'}`;
         if (isUnlocked) {
           let iconsHtml = '';
+          const ITEM_IMAGES = {
+            'bottom-bun': 'images/bottom-bun.png', 'top-bun': 'images/top-bun.png',
+            'beef-patty': 'images/beef-patty.png', 'cheese': 'images/cheese.png',
+            'hashbrown': 'images/hashbrown.png', 'fried-egg': 'images/fried-egg.png',
+            'champignons': 'images/champignons.png', 'fried-bacon': 'images/fried-bacon.png',
+            'lettuce': 'images/lettuce.png', 'tomato': 'images/tomato.png',
+            'pickles': 'images/pickles.png', 'red-onion': 'images/red-onion.png',
+            'white-onion': 'images/white-onion.png', 'chicken-patty': 'images/chicken-patty.png',
+            'fish-patty': 'images/fish-patty.png', 'mayo': 'images/sauce-mayo.png',
+            'ketchup': 'images/sauce-ketchup.png', 'mustard': 'images/sauce-mustard.png',
+            'spicy': 'images/sauce-spicy.png', 'bbq': 'images/sauce-bbq.png'
+          };
           ach.ids.forEach(id => { if (ITEM_IMAGES[id]) iconsHtml += `<img src="${ITEM_IMAGES[id]}" title="${id}">`; });
           card.innerHTML = `<div class="recipe-info" style="flex:1;"><h4>${ach.title}</h4><div class="recipe-visual">${iconsHtml}</div></div>`;
           const pinBtn = document.createElement('button');
@@ -478,6 +510,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pinnedBurger) {
       document.getElementById('pinnedTitle').innerHTML = `<span>📌 ${pinnedBurger.name}</span> <button class="unpin-btn" id="unpinBtn">✕</button>`;
       container.innerHTML = '';
+      const ITEM_IMAGES = {
+        'bottom-bun': 'images/bottom-bun.png', 'top-bun': 'images/top-bun.png',
+        'beef-patty': 'images/beef-patty.png', 'cheese': 'images/cheese.png',
+        'hashbrown': 'images/hashbrown.png', 'fried-egg': 'images/fried-egg.png',
+        'champignons': 'images/champignons.png', 'fried-bacon': 'images/fried-bacon.png',
+        'lettuce': 'images/lettuce.png', 'tomato': 'images/tomato.png',
+        'pickles': 'images/pickles.png', 'red-onion': 'images/red-onion.png',
+        'white-onion': 'images/white-onion.png', 'chicken-patty': 'images/chicken-patty.png',
+        'fish-patty': 'images/fish-patty.png', 'mayo': 'images/sauce-mayo.png',
+        'ketchup': 'images/sauce-ketchup.png', 'mustard': 'images/sauce-mustard.png',
+        'spicy': 'images/sauce-spicy.png', 'bbq': 'images/sauce-bbq.png'
+      };
       pinnedBurger.ids.forEach(id => {
         if (ITEM_IMAGES[id]) {
           const img = document.createElement('img');
@@ -943,17 +987,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  function formatTime(seconds) {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  }
-
-  function updateOrderWidgetsText(text) {
-    const w1 = document.getElementById('orderStatusText');
-    if (w1) w1.innerHTML = text;
-  }
-
+  // Главный игровой цикл таймеров
   setInterval(() => {
     if (currentGameSpeed === 'no-orders' || currentGameMode === 'sandbox') return;
 
@@ -991,6 +1025,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   }, 1000);
+
+  // Инициализация при запуске
+  updateSpeedButtonsUI(currentGameSpeed);
+  applyGameMode(currentGameMode);
 
   if (currentActiveOrder && currentGameSpeed !== 'no-orders' && currentGameMode !== 'sandbox') {
     if (currentGameMode === 'turbo') {
