@@ -69,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let currentGameMode = localStorage.getItem('burger_game_mode') || 'casual';
 
-  // Раздельные скорости для каждого режима, сохраняются в localStorage
   let modeSpeeds = JSON.parse(localStorage.getItem('burger_mode_speeds')) || {
     'sandbox': 'no-orders',
     'casual': 'no-orders'
@@ -83,7 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (isNaN(timeUntilNextOrder)) timeUntilNextOrder = 120;
   let currentTurboTimeLeft = 180;
 
-  // Функция для получения текущей активной скорости с учетом режима
   function getCurrentSpeed() {
     if (currentGameMode === 'turbo') return 'turbo-fixed';
     return modeSpeeds[currentGameMode] || 'no-orders';
@@ -259,7 +257,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const isSandboxOrCasual = currentGameMode === 'sandbox' || currentGameMode === 'casual';
 
     if (eatBtn) {
-      if (isSandboxOrCasual) {
+      // В турбо-режиме кнопка Eat скрыта всегда
+      if (currentGameMode === 'turbo') {
+        eatBtn.style.display = 'none';
+      } else if (isSandboxOrCasual) {
         eatBtn.style.display = isNoOrders ? 'flex' : 'none';
       } else {
         eatBtn.style.display = 'flex';
@@ -289,7 +290,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const topWidget = document.getElementById('topOrderWidget');
     const speed = getCurrentSpeed();
 
-    // СБРОС ЗАКАЗА И ТАЙМЕРА ПРИ СМЕНЕ РЕЖИМА
     if (previousMode !== mode) {
       currentActiveOrder = null;
       localStorage.removeItem('current_active_order');
@@ -336,7 +336,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if(modeCasualBtn) modeCasualBtn.onclick = () => applyGameMode('casual');
   if(modeTurboBtn) modeTurboBtn.onclick = () => applyGameMode('turbo');
 
-  // Инициализация интерфейса скоростей под текущий режим
   const speedButtons = document.querySelectorAll('.speed-btn');
   function updateSpeedButtonsUI(speed) {
     speedButtons.forEach(btn => {
@@ -351,14 +350,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (currentGameMode === 'turbo') return;
       const newSpeed = btn.getAttribute('data-speed');
       
-      // Сохраняем скорость отдельно для текущего режима
       modeSpeeds[currentGameMode] = newSpeed;
       localStorage.setItem('burger_mode_speeds', JSON.stringify(modeSpeeds));
       updateSpeedButtonsUI(newSpeed);
 
       const topWidget = document.getElementById('topOrderWidget');
 
-      // СБРОС ЗАКАЗА И ТАЙМЕРА ПРИ СМЕНЕ СКОРОСТИ
       currentActiveOrder = null;
       localStorage.removeItem('current_active_order');
 
@@ -905,7 +902,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       showToast(null, 'Order Complete!', `${currentActiveOrder.name} served successfully!`);
       
-      // Выдача нового заказа в турбо-режиме сразу после успешной сдачи
       if (currentGameMode === 'turbo') {
         triggerRandomOrder();
       } else {
