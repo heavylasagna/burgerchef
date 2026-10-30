@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     buttons: safeAudio('audio/buttons.mp3'),
     squeeze: safeAudio('audio/squeeze.mp3'),
     achievement: safeAudio('audio/achievement.mp3'),
+    buy: safeAudio('audio/buy.mp3'),
     order: safeAudio('audio/order.mp3'),
     complete: safeAudio('audio/complete.mp3'),
     bin: safeAudio('audio/bin.mp3'),
@@ -44,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentBurger = JSON.parse(localStorage.getItem('saved_burger_stack')) || [];
   let isEating = false;
   let isSqueezed = false;
-  let isAddingInProgress = false; // Защита от двойного клика / дублирования булочек
+  let isAddingInProgress = false;
 
   let playerMoney = parseFloat(localStorage.getItem('burger_money'));
   if (isNaN(playerMoney)) playerMoney = 100.00;
@@ -366,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
       unlockedAchievements[ach.id] = true;
       localStorage.setItem('unlocked_achievements', JSON.stringify(unlockedAchievements));
       showToast(ach);
-      playSound(SOUNDS.achievement);
+      playSound(SOUNDS[ach.sound] || SOUNDS.achievement);
     }
   }
 
@@ -547,17 +548,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const totalCost = (ITEM_PRICES[id] || 1) * qty;
 
-    if (currentGameMode === 'sandbox') { alert("Sandbox mode has infinite resources and no money needed!"); return; }
-    if (playerMoney < totalCost) { alert("Not enough money in your wallet!"); return; }
+    if (currentGameMode !== 'sandbox') {
+      if (playerMoney < totalCost) { alert("Not enough money in your wallet!"); return; }
+      playerMoney -= totalCost;
+      updateMoneyDisplay();
+    }
 
-    playerMoney -= totalCost;
     ingredientStock[id] = (ingredientStock[id] ?? 0) + qty;
     saveStock();
-    updateMoneyDisplay();
     renderIngredientsMenu();
     renderSauces();
     renderShopModal();
-    playSound(SOUNDS.buttons);
+    playSound(SOUNDS.buy);
   }
 
   const shopModal = document.getElementById('shopModal');
