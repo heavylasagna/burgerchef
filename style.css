@@ -444,10 +444,6 @@ body {
   white-space: nowrap;
   transition: background 0.3s ease, border-color 0.3s ease;
 }
-.sauce-chip:hover:not(.disabled) {
-  background: var(--modal-bg);
-  border-color: var(--accent-color);
-}
 .sauce-chip.disabled { opacity: 0.4; cursor: not-allowed; }
 
 .action-group {
@@ -456,11 +452,13 @@ body {
   align-items: center;
 }
 
-/* Единый размер и фиксированная высота для абсолютно всех кнопок панели действий */
+/* Единый полый стиль для ВСЕХ кнопок панели действий (без цвета внутри, только рамка темы) */
 .btn-action {
   padding: 0 12px;
   height: 40px;
-  border: none;
+  background: transparent;
+  border: 1.5px solid var(--border-color);
+  color: var(--text-color);
   border-radius: 8px;
   font-weight: 700;
   font-size: 0.85rem;
@@ -468,28 +466,15 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
 }
 
-.btn-squeeze { background: linear-gradient(135deg, #d97706, #b45309); color: #fff; }
-.btn-eat { background: linear-gradient(135deg, #689f38, #558b2f); color: #fff; }
-
-/* Голубая кнопка подачи заказа с градиентом */
-.btn-submit-order {
-  background: linear-gradient(135deg, #00b0ff, #0091ea);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+.btn-action:hover {
+  background: var(--modal-bg);
+  border-color: var(--accent-color);
+  transform: translateY(-1px);
 }
-.btn-submit-order:hover {
-  background: linear-gradient(135deg, #40c4ff, #00b0ff);
-}
-
-.btn-reset { background: linear-gradient(135deg, #d32f2f, #c62828); color: #fff; }
-.btn-shop { background: linear-gradient(135deg, #0288d1, #01579b); color: #fff; }
-.btn-achievements { background: linear-gradient(135deg, #8e24aa, #6a1b9a); color: #fff; }
-.btn-recipes { background: linear-gradient(135deg, #fbc02d, #f57f17); color: #fff; }
-.btn-settings { background: linear-gradient(135deg, #546e7a, #37474f); color: #fff; }
-.btn-utility { background: linear-gradient(135deg, #455a64, #263238); color: #fff; }
 
 .btn-outline-danger {
   background: transparent;
