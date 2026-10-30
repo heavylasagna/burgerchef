@@ -519,14 +519,13 @@ body {
   transform: scale(1.05);
 }
 
-/* Контейнер для кнопок 🍳 и 🔪 на ПК слева от правой панели в рядочек */
+/* Контейнер для кнопок 🍳 и 🔪 на ПК: в самый верх слева от правой панели */
 .pc-custom-buttons-container {
   position: absolute;
-  right: calc(220px + 12px); /* чуть правее, чтобы встать прямо у края панели */
-  top: 50%;
-  transform: translateY(-50%);
+  right: calc(220px + 12px);
+  top: 10px; /* выравниваем по верхнему краю на одном уровне с кошельком и заказами */
   display: flex;
-  flex-direction: row; /* выстраиваем кнопки в ряд горизонтально */
+  flex-direction: row; /* в рядочек */
   align-items: center;
   gap: 8px;
   z-index: 120;
