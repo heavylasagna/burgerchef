@@ -32,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let volumeLevel = parseFloat(localStorage.getItem('burger_volume'));
   if (isNaN(volumeLevel)) volumeLevel = 1.0;
 
-  // ИСПРАВЛЕНИЕ: Добавлена отсутствовавшая функция playSound
   function playSound(audio) {
     if (!audio) return;
     try {
@@ -54,6 +53,35 @@ document.addEventListener('DOMContentLoaded', () => {
   const layersTitle = document.getElementById('layersTitle');
   const centerStage = document.getElementById('centerStage');
   const limitWarning = document.getElementById('limitWarning');
+
+  // ==========================================
+  // ПОЛУПРОЗРАЧНОСТЬ ПАНЕЛЕЙ ПО КЛИКУ (ПК)
+  // ==========================================
+  function initOpacityToggle() {
+    const targetPanels = [leftPanel, rightPanel, bottomPanel];
+
+    targetPanels.forEach(panel => {
+      if (!panel) return;
+      panel.addEventListener('click', (e) => {
+        // На мобильных не применяем (ширина <= 900px)
+        if (window.innerWidth <= 900) return;
+
+        // Если кликнули по интерактивному элементу внутри панели - не затемняем
+        if (
+          e.target.closest('button') ||
+          e.target.closest('.ingredient-card') ||
+          e.target.closest('.layer-item') ||
+          e.target.closest('.sauce-chip') ||
+          e.target.closest('input')
+        ) {
+          return;
+        }
+
+        panel.classList.toggle('dimmed');
+      });
+    });
+  }
+  initOpacityToggle();
 
   const MAX_INGREDIENTS = 30;
   let currentBurger = JSON.parse(localStorage.getItem('saved_burger_stack')) || [];
