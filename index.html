@@ -135,38 +135,16 @@
   </div>
 
   <div class="app-container">
-    
-    <!-- ЭКРАН СБОРКИ БУРГЕРА -->
-    <div class="screen active" id="assemblyScreen">
-      <button class="screen-switch-btn switch-to-grill" id="switchToGrillBtn" title="Перейти на гриль">▶</button>
-      
-      <div class="center-stage" id="centerStage">
-        <div class="limit-warning" id="limitWarning">Max 30 ingredients!</div>
-        <div class="burger-wrapper">
-          <div class="burger-stack" id="burgerStack"></div>
-        </div>
-      </div>
-
-      <div class="panel right-panel" id="rightPanel">
-        <div class="panel-title" id="ingredientsTitle">Ingredients</div>
-        <div class="ingredients-menu" id="ingredientsMenu"></div>
+    <div class="center-stage" id="centerStage">
+      <div class="limit-warning" id="limitWarning">Max 30 ingredients!</div>
+      <div class="burger-wrapper">
+        <div class="burger-stack" id="burgerStack"></div>
       </div>
     </div>
 
-    <!-- ЭКРАН ГРИЛЯ -->
-    <div class="screen" id="grillScreen">
-      <button class="screen-switch-btn switch-to-assembly" id="switchToAssemblyBtn" title="Вернуться к сборке">◀</button>
-
-      <div class="center-stage grill-stage" id="grillStage">
-        <div class="grill-surface" id="grillSurface">
-          <!-- Сюда будут добавляться жарящиеся продукты -->
-        </div>
-      </div>
-
-      <div class="panel right-panel" id="rawIngredientsPanel">
-        <div class="panel-title">Raw Ingredients</div>
-        <div class="ingredients-menu" id="rawIngredientsMenu"></div>
-      </div>
+    <div class="panel right-panel" id="rightPanel">
+      <div class="panel-title" id="ingredientsTitle">Ingredients</div>
+      <div class="ingredients-menu" id="ingredientsMenu"></div>
     </div>
 
     <div class="sauces-group mobile-sauces" id="mobileSaucesGroup"></div>
@@ -177,12 +155,6 @@
     </div>
 
     <div class="bottom-panel" id="bottomPanel">
-      <!-- Кнопки подтверждения/отмены мусорки гриля -->
-      <div class="grill-trash-actions" id="grillTrashActions" style="display: none;">
-        <button class="btn-action btn-confirm-trash" id="confirmTrashBtn" title="Выбросить выбранное">✔️</button>
-        <button class="btn-action btn-cancel-trash" id="cancelTrashBtn" title="Отмена">✕</button>
-      </div>
-
       <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
       <div class="action-group">
         <button class="btn-action btn-recipes" id="openRecipesBtn" title="Recipes">📋</button>
