@@ -268,7 +268,7 @@
       z-index: 150;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 15px;
       text-align: center;
       max-width: 90%;
       cursor: pointer;
@@ -653,6 +653,10 @@
       100% { opacity: 0; transform: translateY(-15px) scale(0.95); }
     }
 
+    .mobile-top-bar {
+      display: none;
+    }
+
     .toggle-ui-btn { display: none; }
 
     @media (max-width: 900px) {
@@ -701,9 +705,20 @@
       .action-group { width: 100%; justify-content: space-between; }
       .btn-action { flex: 1; padding: 8px 2px; font-size: 0.75rem; text-align: center; }
 
-      .toggle-ui-btn {
+      .mobile-top-bar {
         position: fixed;
-        top: 10px; right: 10px;
+        top: 10px; left: 10px; right: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 1000;
+        pointer-events: none;
+      }
+      .mobile-top-bar > * { pointer-events: auto; }
+
+      .top-order-widget { position: static; transform: none; max-width: 70%; font-size: 0.75rem; padding: 4px 10px; }
+
+      .toggle-ui-btn {
         background: var(--modal-bg);
         border: 1px solid var(--border-color);
         color: var(--text-color);
@@ -714,12 +729,12 @@
         justify-content: center;
         font-size: 1rem;
         cursor: pointer;
-        z-index: 1000;
         box-shadow: 0 3px 10px rgba(0,0,0,0.2);
       }
       body.ui-hidden .left-panel,
       body.ui-hidden .right-panel,
-      body.ui-hidden .sauces-group.mobile-sauces { display: none !important; }
+      body.ui-hidden .sauces-group.mobile-sauces,
+      body.ui-hidden .top-order-widget { display: none !important; }
       body.ui-hidden .center-stage { min-height: 75vh; }
     }
     @media (min-width: 901px) {
@@ -729,7 +744,13 @@
 </head>
 <body>
 
-  <button class="toggle-ui-btn" id="toggleUiBtn" title="Скрыть/показать окна">👁️</button>
+  <div class="mobile-top-bar">
+    <div class="top-order-widget" id="topOrderWidgetMobile" title="Click to toggle opacity">
+      <span id="orderStatusTextMobile">Next: 05:00</span>
+    </div>
+    <button class="toggle-ui-btn" id="toggleUiBtn" title="Скрыть/показать окна">👁️</button>
+  </div>
+
   <div class="toast-container" id="toastContainer"></div>
 
   <div class="top-order-widget" id="topOrderWidget" title="Click to toggle opacity">
@@ -985,12 +1006,17 @@
           localStorage.setItem('burger_game_speed', currentGameSpeed);
           updateSpeedButtonsUI(currentGameSpeed);
 
+          const w1 = document.getElementById('topOrderWidget');
+          const w2 = document.getElementById('topOrderWidgetMobile');
+
           if (currentGameSpeed === 'no-orders') {
             currentActiveOrder = null;
             saveOrderState();
-            document.getElementById('topOrderWidget').classList.add('hidden');
+            if (w1) w1.classList.add('hidden');
+            if (w2) w2.classList.add('hidden');
           } else {
-            document.getElementById('topOrderWidget').classList.remove('hidden');
+            if (w1) w1.classList.remove('hidden');
+            if (w2) w2.classList.remove('hidden');
             timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
             saveOrderState();
           }
@@ -998,7 +1024,10 @@
       });
 
       if (currentGameSpeed === 'no-orders') {
-        document.getElementById('topOrderWidget').classList.add('hidden');
+        const w1 = document.getElementById('topOrderWidget');
+        const w2 = document.getElementById('topOrderWidgetMobile');
+        if (w1) w1.classList.add('hidden');
+        if (w2) w2.classList.add('hidden');
       }
 
       function getRandomTimeForSpeed(speed) {
@@ -1018,8 +1047,7 @@
           "⚠️ WARNING: Are you sure you want to reset all game data?\n\n" +
           "This will reset and wipe:\n" +
           "• Achievements & Secret Recipes\n" +
-          "• Custom orders & progress\n" +
-          "• Money, Upgrades, and Shop items\n\n" +
+          "• Custom orders & progress\n\n" +
           "This action cannot be undone!"
         );
         if (confirmWipe) {
@@ -1029,9 +1057,11 @@
       };
 
       const topOrderWidget = document.getElementById('topOrderWidget');
-      topOrderWidget.onclick = () => {
-        topOrderWidget.classList.toggle('dimmed');
-      };
+      topOrderWidget.onclick = () => { topOrderWidget.classList.toggle('dimmed'); };
+      const topOrderWidgetMobile = document.getElementById('topOrderWidgetMobile');
+      if (topOrderWidgetMobile) {
+        topOrderWidgetMobile.onclick = () => { topOrderWidgetMobile.classList.toggle('dimmed'); };
+      }
 
       const ITEM_IMAGES = {
         'bottom-bun': 'images/bottom-bun.png',
@@ -1288,11 +1318,19 @@
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
       }
 
+      function updateOrderWidgetsText(text) {
+        const w1 = document.getElementById('orderStatusText');
+        const w2 = document.getElementById('orderStatusTextMobile');
+        if (w1) w1.innerHTML = text;
+        if (w2) w2.innerHTML = text;
+      }
+
       if (currentGameSpeed === 'no-orders') {
-        topOrderWidget.classList.add('hidden');
+        document.getElementById('topOrderWidget').classList.add('hidden');
+        const mobileWidget = document.getElementById('topOrderWidgetMobile');
+        if (mobileWidget) mobileWidget.classList.add('hidden');
       } else if (currentActiveOrder) {
-        const statusText = document.getElementById('orderStatusText');
-        if (statusText) statusText.innerHTML = `🔔 Order: <span>${currentActiveOrder.name}</span>`;
+        updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span>`);
       }
 
       setInterval(() => {
@@ -1305,14 +1343,11 @@
           return;
         }
 
-        const statusText = document.getElementById('orderStatusText');
         if (!currentActiveOrder) {
           if (timeUntilNextOrder > 0) {
             timeUntilNextOrder--;
             saveOrderState();
-            if (statusText) {
-              statusText.innerHTML = `Next order in: <span>${formatTime(timeUntilNextOrder)}</span>`;
-            }
+            updateOrderWidgetsText(`Next order in: <span>${formatTime(timeUntilNextOrder)}</span>`);
           } else {
             triggerRandomOrder();
           }
@@ -1327,8 +1362,7 @@
         currentActiveOrder = { name: chosen.name || chosen.title, ids: chosen.ids };
         timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
         saveOrderState();
-        const statusText = document.getElementById('orderStatusText');
-        if (statusText) statusText.innerHTML = `🔔 Order: <span>${currentActiveOrder.name}</span>`;
+        updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span>`);
         playSound(SOUNDS.order);
       }
 
@@ -1410,15 +1444,17 @@
         if (ids.length === targetIds.length && ids.every((val, idx) => val === targetIds[idx])) {
           playSound(SOUNDS.complete);
           
-          const toast = document.createElement('div');
-          toast.className = 'achievement-toast';
-          toast.innerHTML = `
-            <h4 style="font-size:0.9rem; margin:0;">Order Complete!</h4>
-            <p style="font-size:0.75rem; opacity:0.8; margin:0;">${currentActiveOrder.name} served successfully</p>
-          `;
           const container = document.getElementById('toastContainer');
-          if (container) container.appendChild(toast);
-          setTimeout(() => toast.remove(), 4000);
+          if (container) {
+            const toast = document.createElement('div');
+            toast.className = 'achievement-toast';
+            toast.innerHTML = `
+              <h4 style="font-size:0.9rem; margin:0;">Order Complete!</h4>
+              <p style="font-size:0.75rem; opacity:0.8; margin:0;">${currentActiveOrder.name} served successfully</p>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+          }
 
           currentActiveOrder = null;
           timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
