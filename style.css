@@ -242,11 +242,12 @@ body {
 }
 .limit-warning.show { opacity: 1; transform: translateY(0); }
 
-/* Виджет кошелька слева сверху */
+/* Кошелёк: смещен левее, строго над сценой, не заходит на левую панель слоев */
 .wallet-widget {
   position: absolute;
   top: 10px;
-  left: 12px;
+  left: 50%;
+  transform: translateX(-180px);
   background: var(--panel-bg-1);
   backdrop-filter: blur(8px);
   color: var(--text-color);
@@ -263,7 +264,7 @@ body {
   transition: opacity 0.3s ease, background 0.3s ease, color 0.3s ease;
 }
 .wallet-widget.dimmed { opacity: 0.35; }
-.wallet-title { opacity: 0.7; font-size: 0.75rem; }
+.wallet-widget.hidden { display: none !important; }
 #walletBadge { color: #81c784; font-weight: bold; }
 
 .top-order-widget {
@@ -851,7 +852,7 @@ input[type="range"]::-moz-range-thumb {
     position: fixed;
     top: 10px; left: 10px; right: 10px;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     z-index: 1000;
     pointer-events: none;
@@ -859,7 +860,17 @@ input[type="range"]::-moz-range-thumb {
   .mobile-top-bar > * { pointer-events: auto; }
 
   .top-order-widget { position: static; transform: none; max-width: 65%; font-size: 0.7rem; padding: 4px 10px; }
-  .wallet-widget { position: fixed; top: 10px; left: 10px; z-index: 1000; padding: 4px 10px; font-size: 0.7rem; }
+  
+  /* Кошелёк на мобильных */
+  .wallet-widget { 
+    position: fixed; 
+    top: 10px; 
+    left: 10px; 
+    transform: none; 
+    z-index: 1000; 
+    padding: 4px 10px; 
+    font-size: 0.7rem; 
+  }
 
   .toggle-ui-btn {
     background: var(--modal-bg);
