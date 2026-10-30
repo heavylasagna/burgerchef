@@ -83,13 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateMoneyDisplay() {
     const badge = document.getElementById('walletBadge');
-    const widget = document.getElementById('walletWidget');
-    if (!badge || !widget) return;
+    if (!badge) return;
 
     if (currentGameMode === 'sandbox') {
-      widget.classList.add('hidden'); // Скрываем кошелек в песочнице
+      badge.innerText = '$∞'; // Знак доллара и символ бесконечности в песочнице
     } else {
-      widget.classList.remove('hidden');
       badge.innerText = `$${playerMoney.toFixed(2)}`;
     }
     localStorage.setItem('burger_money', playerMoney);
@@ -144,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       card.onclick = () => {
         if (isEating) return;
-        if (isOut) { alert(`Out of ${item.name}! Buy more in the shop 🏬.`); return; }
+        if (isOut) { alert(`Out of ${item.name}! Buy more in the shop.`); return; }
         addIngredient(item);
       };
       ingredientsMenu.appendChild(card);
@@ -166,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         chip.onclick = () => {
           if (isEating) return;
-          if (isOut) { alert(`Out of ${sauce.name}! Buy more in the shop 🏬.`); return; }
+          if (isOut) { alert(`Out of ${sauce.name}! Buy more in the shop.`); return; }
           addSauce(sauce);
         };
         container.appendChild(chip);
@@ -281,7 +279,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   applyGameMode(currentGameMode);
 
-  // Настройка кнопок скорости
   const speedButtons = document.querySelectorAll('.speed-btn');
   function updateSpeedButtonsUI(speed) {
     speedButtons.forEach(btn => {
@@ -323,7 +320,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Рецепты и Магазин
   const ITEM_IMAGES = {
     'bottom-bun': 'images/bottom-bun.png', 'top-bun': 'images/top-bun.png',
     'beef-patty': 'images/beef-patty.png', 'cheese': 'images/cheese.png',
@@ -550,7 +546,6 @@ document.addEventListener('DOMContentLoaded', () => {
     playSound(SOUNDS.buttons);
   }
 
-  // Модальные окна
   const shopModal = document.getElementById('shopModal');
   document.getElementById('openShopBtn').onclick = () => { playSound(SOUNDS.buttons); renderShopModal(); shopModal.classList.add('open'); };
   document.getElementById('closeShopModal').onclick = () => { playSound(SOUNDS.buttons); shopModal.classList.remove('open'); };
@@ -594,7 +589,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // --- Логика бургера и заказов ---
   function updateBurgerDisplay(isNewAdded = false) {
     saveBurgerState();
     if (layersTitle) layersTitle.innerText = `Layers (${currentBurger.length}/${MAX_INGREDIENTS})`;
