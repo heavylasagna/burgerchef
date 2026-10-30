@@ -17,17 +17,21 @@
       --item-bg: rgba(45, 30, 22, 0.75);
       --item-border: rgba(255, 179, 0, 0.15);
       --modal-bg: rgba(26, 16, 10, 0.95);
+      --accent-color: #ffb300;
+      --panel-title-color: #ffb300;
     }
 
     body.light-theme {
-      background: radial-gradient(circle at 50% 30%, #b0bec5, #78909c);
-      --panel-bg-1: rgba(255, 255, 255, 0.95);
-      --panel-bg-2: rgba(238, 238, 238, 0.9);
-      --text-color: #263238;
-      --border-color: rgba(0, 0, 0, 0.1);
-      --item-bg: #eceff1;
-      --item-border: #cfd8dc;
-      --modal-bg: #ffffff;
+      --bg-gradient: radial-gradient(circle at 50% 30%, #d7ccc8, #a1887f);
+      --panel-bg-1: rgba(253, 251, 247, 0.92);
+      --panel-bg-2: rgba(245, 239, 230, 0.92);
+      --text-color: #3e2723;
+      --border-color: rgba(141, 110, 99, 0.3);
+      --item-bg: rgba(255, 255, 255, 0.85);
+      --item-border: rgba(215, 204, 200, 0.6);
+      --modal-bg: rgba(253, 251, 247, 0.98);
+      --accent-color: #8d6e63;
+      --panel-title-color: #5d4037;
     }
 
     * {
@@ -46,7 +50,7 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      transition: background 0.3s ease;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
     .app-container {
@@ -63,14 +67,14 @@
       background: linear-gradient(145deg, var(--panel-bg-1), var(--panel-bg-2));
       backdrop-filter: blur(10px);
       border-radius: 16px;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
       border: 1px solid var(--border-color);
       padding: 12px;
       display: flex;
       flex-direction: column;
       height: 100%;
       overflow: hidden;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.3s ease, background 0.3s ease, border-color 0.3s ease;
     }
     .panel.dimmed { opacity: 0.35; }
 
@@ -79,8 +83,8 @@
       font-weight: 700;
       margin-bottom: 8px;
       text-align: center;
-      color: #ffb300;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+      color: var(--panel-title-color);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.2);
       text-transform: uppercase;
       letter-spacing: 0.6px;
       cursor: pointer;
@@ -108,6 +112,7 @@
       padding: 4px 8px;
       border-radius: 10px;
       border: 1px solid var(--item-border);
+      transition: background 0.3s ease, border-color 0.3s ease;
     }
 
     .layer-preview {
@@ -122,9 +127,9 @@
     }
 
     .btn-control {
-      background: rgba(62, 39, 35, 0.8);
-      border: 1px solid rgba(255, 179, 0, 0.3);
-      color: #fdfbf7;
+      background: var(--item-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
       width: 24px;
       height: 24px;
       border-radius: 5px;
@@ -137,8 +142,8 @@
     }
 
     .btn-control:hover:not(:disabled) {
-      background: #ffb300;
-      color: #1a100a;
+      background: var(--accent-color);
+      color: #fff;
     }
 
     .btn-control.delete:hover {
@@ -252,14 +257,14 @@
       top: 10px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(20, 12, 8, 0.9);
+      background: var(--panel-bg-1);
       backdrop-filter: blur(8px);
-      color: #fdfbf7;
-      border: 1px solid rgba(255, 179, 0, 0.4);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
       border-radius: 14px;
       padding: 6px 16px;
       font-size: 0.8rem;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
       z-index: 150;
       display: flex;
       align-items: center;
@@ -267,11 +272,11 @@
       text-align: center;
       max-width: 90%;
       cursor: pointer;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.3s ease, background 0.3s ease, color 0.3s ease;
     }
     .top-order-widget.dimmed { opacity: 0.35; }
     .top-order-widget.hidden { display: none !important; }
-    .top-order-widget span { color: #ffb300; font-weight: bold; }
+    .top-order-widget span { color: var(--accent-color); font-weight: bold; }
 
     .pinned-recipe-widget {
       position: absolute;
@@ -284,9 +289,10 @@
       padding: 8px 12px;
       font-size: 0.75rem;
       max-width: 200px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
       z-index: 50;
       display: none;
+      transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
     }
     .pinned-recipe-widget.active { display: block; }
     .pinned-recipe-widget h5 { color: var(--text-color); margin-bottom: 4px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; }
@@ -323,8 +329,8 @@
     }
 
     .ingredient-card:hover {
-      background: rgba(65, 43, 31, 0.9);
-      border-color: #ffb300;
+      background: var(--modal-bg);
+      border-color: var(--accent-color);
       transform: translateY(-1px);
     }
 
@@ -341,10 +347,10 @@
       background: linear-gradient(145deg, var(--panel-bg-1), var(--panel-bg-2));
       backdrop-filter: blur(10px);
       border-radius: 14px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
       border: 1px solid var(--border-color);
       z-index: 100;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.3s ease, background 0.3s ease;
     }
     .bottom-panel.dimmed { opacity: 0.35; }
 
@@ -365,10 +371,11 @@
       color: var(--text-color);
       cursor: pointer;
       white-space: nowrap;
+      transition: background 0.3s ease, border-color 0.3s ease;
     }
     .sauce-chip:hover {
-      background: rgba(65, 43, 31, 0.9);
-      border-color: #ffb300;
+      background: var(--modal-bg);
+      border-color: var(--accent-color);
     }
 
     .action-group {
@@ -387,7 +394,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
 
     .btn-squeeze { background: linear-gradient(135deg, #d97706, #b45309); color: #fff; }
@@ -416,8 +423,8 @@
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(6px);
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -436,11 +443,12 @@
       max-width: 440px;
       border-radius: 16px;
       padding: 16px;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
       border: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
       max-height: 80vh;
+      transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     }
 
     .modal-header {
@@ -448,10 +456,10 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
-      border-bottom: 2px solid rgba(255, 179, 0, 0.15);
+      border-bottom: 2px solid var(--border-color);
       padding-bottom: 8px;
     }
-    .modal-header h3 { color: #ffb300; font-size: 1rem; }
+    .modal-header h3 { color: var(--text-color); font-size: 1rem; }
     .close-modal { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--text-color); }
 
     .recipe-tabs {
@@ -472,9 +480,9 @@
       text-align: center;
     }
     .recipe-tab.active {
-      background: #ffb300;
-      color: #1a100a;
-      border-color: #ffb300;
+      background: var(--accent-color);
+      color: #fff;
+      border-color: var(--accent-color);
     }
 
     .modal-body {
@@ -494,6 +502,7 @@
       padding: 10px;
       border-radius: 10px;
       border: 1px solid var(--item-border);
+      transition: background 0.3s ease, border-color 0.3s ease;
     }
     .settings-group label {
       font-size: 0.8rem;
@@ -507,7 +516,7 @@
       -webkit-appearance: none;
       width: 100%;
       height: 6px;
-      background: #3e2723;
+      background: var(--border-color);
       border-radius: 3px;
       outline: none;
     }
@@ -517,14 +526,14 @@
       width: 16px;
       height: 16px;
       border-radius: 50%;
-      background: #ffb300;
+      background: var(--accent-color);
       cursor: pointer;
     }
     input[type="range"]::-moz-range-thumb {
       width: 16px;
       height: 16px;
       border-radius: 50%;
-      background: #ffb300;
+      background: var(--accent-color);
       cursor: pointer;
     }
 
@@ -537,16 +546,17 @@
       padding: 6px;
       border-radius: 6px;
       border: 1px solid var(--item-border);
-      background: var(--item-bg);
+      background: var(--modal-bg);
       color: var(--text-color);
       font-weight: 600;
       font-size: 0.8rem;
       cursor: pointer;
+      transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
     }
     .settings-row button.active {
-      background: #ffb300;
-      color: #1a100a;
-      border-color: #ffb300;
+      background: var(--accent-color);
+      color: #fff;
+      border-color: var(--accent-color);
     }
 
     .speed-grid {
@@ -558,17 +568,18 @@
       padding: 6px;
       border-radius: 6px;
       border: 1px solid var(--item-border);
-      background: var(--item-bg);
+      background: var(--modal-bg);
       color: var(--text-color);
       font-weight: 600;
       font-size: 0.75rem;
       cursor: pointer;
       text-align: center;
+      transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
     }
     .speed-btn.active {
-      background: #ffb300;
-      color: #1a100a;
-      border-color: #ffb300;
+      background: var(--accent-color);
+      color: #fff;
+      border-color: var(--accent-color);
     }
 
     .recipe-card, .achievement-item {
@@ -593,14 +604,14 @@
       width: 26px;
       height: 26px;
       object-fit: contain;
-      background: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.4);
       border-radius: 4px;
       padding: 1px;
       border: 1px solid var(--item-border);
     }
 
     .btn-pin {
-      background: #5d4037;
+      background: var(--accent-color);
       color: #fff;
       border: none;
       padding: 6px 10px;
@@ -624,11 +635,11 @@
       max-width: 90vw;
     }
     .achievement-toast {
-      background: rgba(20, 12, 8, 0.95);
-      color: #fdfbf7;
+      background: var(--modal-bg);
+      color: var(--text-color);
       padding: 12px 20px;
       border-radius: 12px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
       border: 2px solid #81c784;
       display: flex;
       flex-direction: column;
@@ -704,7 +715,7 @@
         font-size: 1rem;
         cursor: pointer;
         z-index: 1000;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
       }
       body.ui-hidden .left-panel,
       body.ui-hidden .right-panel,
@@ -871,7 +882,6 @@
         mcPicklePounder: safeAudio('audio/mc-pickle-pounder.mp3')
       };
 
-      // Проверка размера экрана: затемнение срабатывает только на десктопе (> 900px)
       const leftPanel = document.getElementById('leftPanel');
       const rightPanel = document.getElementById('rightPanel');
       const bottomPanel = document.getElementById('bottomPanel');
@@ -922,6 +932,7 @@
         }
       }
 
+      // Управление темами с сохранением и дефолтной темной
       window.setTheme = function(theme) {
         const darkBtn = document.getElementById('themeDarkBtn');
         const lightBtn = document.getElementById('themeLightBtn');
@@ -1096,8 +1107,8 @@
         const toast = document.createElement('div');
         toast.className = 'achievement-toast';
         toast.innerHTML = `
-          <h4 style="font-size:0.9rem; color:#fdfbf7; margin:0;">${ach.title}</h4>
-          <p style="font-size:0.75rem; color:#d7ccc8; margin:0;">Secret recipe unlocked!</p>
+          <h4 style="font-size:0.9rem; margin:0;">${ach.title}</h4>
+          <p style="font-size:0.75rem; opacity:0.8; margin:0;">Secret recipe unlocked!</p>
         `;
         container.appendChild(toast);
         setTimeout(() => toast.remove(), 3500);
@@ -1167,7 +1178,7 @@
               card.innerHTML = `
                 <div class="recipe-info" style="flex:1;">
                   <h4>${ach.title}</h4>
-                  <p style="font-size:0.75rem; color:#8d6e63;">Secret recipe locked...</p>
+                  <p style="font-size:0.75rem; opacity:0.6;">Secret recipe locked...</p>
                 </div>`;
             }
             body.appendChild(card);
@@ -1401,8 +1412,8 @@
           const toast = document.createElement('div');
           toast.className = 'achievement-toast';
           toast.innerHTML = `
-            <h4 style="font-size:0.9rem; color:#fdfbf7; margin:0;">Order Complete!</h4>
-            <p style="font-size:0.75rem; color:#d7ccc8; margin:0;">${currentActiveOrder.name} served successfully</p>
+            <h4 style="font-size:0.9rem; margin:0;">Order Complete!</h4>
+            <p style="font-size:0.75rem; opacity:0.8; margin:0;">${currentActiveOrder.name} served successfully</p>
           `;
           const container = document.getElementById('toastContainer');
           if (container) container.appendChild(toast);
