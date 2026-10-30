@@ -273,10 +273,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const topWidget = document.getElementById('topOrderWidget');
 
+    // При переключении режима ВСЕГДА полностью сбрасываем предыдущий заказ
+    currentActiveOrder = null;
+    localStorage.removeItem('current_active_order');
+
     if (mode === 'turbo') {
       if(speedButtonsGrid) speedButtonsGrid.classList.add('disabled');
       if(topWidget) topWidget.classList.remove('hidden');
-      // Принудительно сбрасываем и генерируем новый заказ со свежим таймером турбо-игры
       currentTurboTimeLeft = 180;
       localStorage.setItem('current_turbo_time_left', currentTurboTimeLeft);
       triggerRandomOrder();
@@ -284,14 +287,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if(speedButtonsGrid) speedButtonsGrid.classList.remove('disabled');
       if (currentGameSpeed === 'no-orders') {
         if(topWidget) topWidget.classList.add('hidden');
-        currentActiveOrder = null;
-        localStorage.removeItem('current_active_order');
       } else {
         if(topWidget) topWidget.classList.remove('hidden');
-        if (!currentActiveOrder) {
-          timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
-          localStorage.setItem('time_until_next_order', timeUntilNextOrder);
-        }
+        timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
+        localStorage.setItem('time_until_next_order', timeUntilNextOrder);
       }
     }
 
@@ -319,7 +318,6 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.onclick = () => {
       if (currentGameMode === 'turbo') return;
       const newSpeed = btn.getAttribute('data-speed');
-      if (currentGameSpeed === newSpeed) return;
       
       currentGameSpeed = newSpeed;
       localStorage.setItem('burger_game_speed', currentGameSpeed);
@@ -327,6 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const w1 = document.getElementById('topOrderWidget');
 
+      // При смене скорости ВСЕГДА полностью сбрасываем предыдущий заказ и таймер
       currentActiveOrder = null;
       localStorage.removeItem('current_active_order');
 
