@@ -55,25 +55,37 @@ document.addEventListener('DOMContentLoaded', () => {
   const limitWarning = document.getElementById('limitWarning');
 
   // ==========================================
-  // ПОЛУПРОЗРАЧНОСТЬ ТОЛЬКО ПО КЛИКУ НА ЗАГОЛОВОК (ПК)
+  // НАСТРОЙКА ПОЛУПРОЗРАЧНОСТИ (ПК)
   // ==========================================
   function initOpacityToggle() {
-    // Находим все заголовки внутри боковых панелей
-    const titles = document.querySelectorAll('.panel > .panel-title, .bottom-panel > .panel-title');
-
-    titles.forEach(title => {
-      title.style.cursor = 'pointer'; // Делаем курсор указателем, показывая, что сюда можно кликнуть
-      title.addEventListener('click', (e) => {
-        // На мобильных не применяем
+    // 1. Левая и правая панели — только по клику на их заголовки
+    const sideTitles = document.querySelectorAll('.panel:not(.bottom-panel) .panel-title');
+    sideTitles.forEach(title => {
+      title.style.cursor = 'pointer';
+      title.addEventListener('click', () => {
         if (window.innerWidth <= 900) return;
-
-        // Находим родительскую панель этого заголовка и переключаем затемнение
-        const panel = title.closest('.panel') || title.closest('.bottom-panel');
-        if (panel) {
-          panel.classList.toggle('dimmed');
-        }
+        const panel = title.closest('.panel');
+        if (panel) panel.classList.toggle('dimmed');
       });
     });
+
+    // 2. Нижнее меню — по клику на любое пустое пространство
+    if (bottomPanel) {
+      bottomPanel.addEventListener('click', (e) => {
+        if (window.innerWidth <= 900) return;
+
+        // Если кликнули по кнопкам, чипсам соусов или инпутам внутри меню — не затемняем
+        if (
+          e.target.closest('button') ||
+          e.target.closest('.sauce-chip') ||
+          e.target.closest('input')
+        ) {
+          return;
+        }
+
+        bottomPanel.classList.toggle('dimmed');
+      });
+    }
   }
   initOpacityToggle();
 
