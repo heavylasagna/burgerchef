@@ -99,12 +99,12 @@ document.addEventListener('DOMContentLoaded', () => {
   initOpacityToggle();
 
   // ==========================================
-  // ДОБАВЛЕНИЕ КНОПОК 🍳 И 🔪 (ТОЛЬКО ДЛЯ ПК)
+  // ДОБАВЛЕНИЕ КНОПОК 🍳 И 🔪 (ПК и ТЕЛЕФОН)
   // ==========================================
   function initCustomActionButtons() {
     const appContainer = document.querySelector('.app-container');
     
-    // Создаем контейнер для ПК справа от панели ингредиентов (если его еще нет)
+    // 1. Для ПК: создаем контейнер справа от панели ингредиентов
     if (appContainer && !document.getElementById('pcCustomButtonsContainer')) {
       const pcContainer = document.createElement('div');
       pcContainer.id = 'pcCustomButtonsContainer';
@@ -125,6 +125,27 @@ document.addEventListener('DOMContentLoaded', () => {
       pcContainer.appendChild(eggBtn);
       pcContainer.appendChild(knifeBtn);
       appContainer.appendChild(pcContainer);
+    }
+
+    // 2. Для телефона: создаем блок под глазом справа сверху (без дублирования у кошелька)
+    if (appContainer && !document.getElementById('mobileCustomButtonsContainer')) {
+      const mobileContainer = document.createElement('div');
+      mobileContainer.id = 'mobileCustomButtonsContainer';
+      mobileContainer.className = 'mobile-custom-buttons-container';
+
+      const mEgg = document.createElement('button');
+      mEgg.className = 'nav-arrow-btn';
+      mEgg.innerHTML = '🍳';
+      mEgg.onclick = () => { playSound(SOUNDS.buttons); };
+
+      const mKnife = document.createElement('button');
+      mKnife.className = 'nav-arrow-btn';
+      mKnife.innerHTML = '🔪';
+      mKnife.onclick = () => { playSound(SOUNDS.buttons); };
+
+      mobileContainer.appendChild(mEgg);
+      mobileContainer.appendChild(mKnife);
+      document.body.appendChild(mobileContainer);
     }
   }
   initCustomActionButtons();
@@ -586,10 +607,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('pinnedIngredientsContainer');
     if (!widget || !container) return;
     if (pinnedBurger) {
-      document.getElementById('pinnedTitle').innerHTML = `<span>📌 ${pinnedBurger.name}</span> <button class="unpin-btn" id="unpinBtn">✕</button>`;
+      // Убираем название бургера на ПК, оставляя только кнопку закрытия
+      document.getElementById('pinnedTitle').innerHTML = `<button class="unpin-btn" id="unpinBtn" style="margin-left:auto; display:block;">✕</button>`;
       container.innerHTML = '';
       
-      // На ПК выстраиваем снизу вверх (чтобы нижний ингредиент был в самом низу)
+      // На ПК выстраиваем снизу вверх (нижний ингредиент в самом низу)
       const listToRender = (window.innerWidth > 900) ? [...pinnedBurger.ids].reverse() : pinnedBurger.ids;
 
       listToRender.forEach(id => {
@@ -611,7 +633,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Обновляем виджет закрепленного рецепта при изменении размера экрана
   window.addEventListener('resize', () => {
     updatePinnedWidget();
   });
