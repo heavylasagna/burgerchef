@@ -242,7 +242,6 @@ body {
 }
 .limit-warning.show { opacity: 1; transform: translateY(0); }
 
-/* Кошелёк: справа от панели слоёв */
 .wallet-widget {
   position: absolute;
   top: 10px;
@@ -266,7 +265,6 @@ body {
 .wallet-widget.hidden { display: none !important; }
 #walletBadge { color: #81c784; font-weight: bold; }
 
-/* Закрепленный рецепт: строго ПОД кошельком */
 .pinned-recipe-widget {
   position: absolute;
   top: 52px;
@@ -428,6 +426,7 @@ body {
   align-items: center;
 }
 
+/* Единый стиль для всех нижних кнопок с градиентами */
 .btn-action {
   padding: 8px 14px;
   border: none;
@@ -439,16 +438,21 @@ body {
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  color: #fff;
+  transition: transform 0.1s ease, filter 0.2s ease;
 }
+.btn-action:hover { filter: brightness(1.1); }
+.btn-action:active { transform: scale(0.96); }
 
-.btn-squeeze { background: linear-gradient(135deg, #d97706, #b45309); color: #fff; }
-.btn-eat { background: linear-gradient(135deg, #689f38, #558b2f); color: #fff; }
-.btn-reset { background: linear-gradient(135deg, #d32f2f, #c62828); color: #fff; }
-.btn-shop { background: linear-gradient(135deg, #0288d1, #01579b); color: #fff; }
-.btn-achievements { background: linear-gradient(135deg, #8e24aa, #6a1b9a); color: #fff; }
-.btn-recipes { background: linear-gradient(135deg, #fbc02d, #f57f17); color: #fff; }
-.btn-settings { background: linear-gradient(135deg, #546e7a, #37474f); color: #fff; }
-.btn-utility { background: linear-gradient(135deg, #455a64, #263238); color: #fff; }
+.btn-recipes { background: linear-gradient(135deg, #fbc02d, #f57f17); }
+.btn-shop { background: linear-gradient(135deg, #0288d1, #01579b); }
+.btn-achievements { background: linear-gradient(135deg, #8e24aa, #6a1b9a); }
+.btn-serve { background: linear-gradient(135deg, #00897b, #004d40); }
+.btn-squeeze { background: linear-gradient(135deg, #d97706, #b45309); }
+.btn-eat { background: linear-gradient(135deg, #689f38, #558b2f); }
+.btn-reset { background: linear-gradient(135deg, #d32f2f, #c62828); }
+.btn-utility { background: linear-gradient(135deg, #455a64, #263238); }
+.btn-settings { background: linear-gradient(135deg, #78909c, #455a64); }
 
 .btn-outline-danger {
   background: transparent;
@@ -496,9 +500,7 @@ body {
   transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-.modal-content.wide {
-  max-width: 650px;
-}
+.modal-content.wide { max-width: 650px; }
 
 .modal-header {
   display: flex;
