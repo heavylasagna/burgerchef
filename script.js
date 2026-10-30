@@ -29,6 +29,19 @@ document.addEventListener('DOMContentLoaded', () => {
     mcPicklePounder: safeAudio('audio/mc-pickle-pounder.mp3')
   };
 
+  let volumeLevel = parseFloat(localStorage.getItem('burger_volume'));
+  if (isNaN(volumeLevel)) volumeLevel = 1.0;
+
+  // ИСПРАВЛЕНИЕ: Добавлена отсутствовавшая функция playSound
+  function playSound(audio) {
+    if (!audio) return;
+    try {
+      audio.currentTime = 0;
+      audio.volume = volumeLevel;
+      audio.play().catch(() => {});
+    } catch(e) {}
+  }
+
   // DOM Элементы
   const leftPanel = document.getElementById('leftPanel');
   const rightPanel = document.getElementById('rightPanel');
@@ -202,9 +215,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
-
-  let volumeLevel = parseFloat(localStorage.getItem('burger_volume'));
-  if (isNaN(volumeLevel)) volumeLevel = 1.0;
 
   const volumeRange = document.getElementById('volumeRange');
   const volumeVal = document.getElementById('volumeVal');
@@ -608,15 +618,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const shopModal = document.getElementById('shopModal');
-  document.getElementById('openShopBtn').onclick = () => { playSound(SOUNDS.buttons); renderShopModal(); shopModal.classList.add('open'); };
-  document.getElementById('closeShopModal').onclick = () => { playSound(SOUNDS.buttons); shopModal.classList.remove('open'); };
+  const openShopBtn = document.getElementById('openShopBtn');
+  if (openShopBtn) openShopBtn.onclick = () => { playSound(SOUNDS.buttons); renderShopModal(); shopModal.classList.add('open'); };
+  
+  const closeShopModal = document.getElementById('closeShopModal');
+  if (closeShopModal) closeShopModal.onclick = () => { playSound(SOUNDS.buttons); shopModal.classList.remove('open'); };
 
   const recipesModal = document.getElementById('recipesModal');
-  document.getElementById('openRecipesBtn').onclick = () => { playSound(SOUNDS.buttons); renderRecipesModal(); recipesModal.classList.add('open'); };
-  document.getElementById('closeRecipesModal').onclick = () => { playSound(SOUNDS.buttons); recipesModal.classList.remove('open'); };
+  const openRecipesBtn = document.getElementById('openRecipesBtn');
+  if (openRecipesBtn) openRecipesBtn.onclick = () => { playSound(SOUNDS.buttons); renderRecipesModal(); recipesModal.classList.add('open'); };
+  
+  const closeRecipesModal = document.getElementById('closeRecipesModal');
+  if (closeRecipesModal) closeRecipesModal.onclick = () => { playSound(SOUNDS.buttons); recipesModal.classList.remove('open'); };
 
   const achievementsModal = document.getElementById('achievementsModal');
-  document.getElementById('openAchievementsBtn').onclick = () => {
+  const openAchievementsBtn = document.getElementById('openAchievementsBtn');
+  if (openAchievementsBtn) openAchievementsBtn.onclick = () => {
     playSound(SOUNDS.buttons);
     const list = document.getElementById('achievementsList');
     if (list) {
@@ -632,7 +649,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     achievementsModal.classList.add('open');
   };
-  document.getElementById('closeAchievementsModal').onclick = () => { playSound(SOUNDS.buttons); achievementsModal.classList.remove('open'); };
+  
+  const closeAchievementsModal = document.getElementById('closeAchievementsModal');
+  if (closeAchievementsModal) closeAchievementsModal.onclick = () => { playSound(SOUNDS.buttons); achievementsModal.classList.remove('open'); };
 
   const resetAchievementsBtn = document.getElementById('resetAchievementsBtn');
   if (resetAchievementsBtn) {
@@ -648,10 +667,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const settingsModal = document.getElementById('settingsModal');
-  document.getElementById('openSettingsBtn').onclick = () => { playSound(SOUNDS.buttons); settingsModal.classList.add('open'); };
-  document.getElementById('closeSettingsModal').onclick = () => { playSound(SOUNDS.buttons); settingsModal.classList.remove('open'); };
+  const openSettingsBtn = document.getElementById('openSettingsBtn');
+  if (openSettingsBtn) openSettingsBtn.onclick = () => { playSound(SOUNDS.buttons); settingsModal.classList.add('open'); };
+  
+  const closeSettingsModal = document.getElementById('closeSettingsModal');
+  if (closeSettingsModal) closeSettingsModal.onclick = () => { playSound(SOUNDS.buttons); settingsModal.classList.remove('open'); };
 
-  document.getElementById('hardResetBtn').onclick = () => {
+  const hardResetBtn = document.getElementById('hardResetBtn');
+  if (hardResetBtn) hardResetBtn.onclick = () => {
     if (confirm("⚠️ WARNING: Wipe all data?")) { localStorage.clear(); location.reload(); }
   };
 
