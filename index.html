@@ -7,13 +7,78 @@
   
   <link rel="icon" type="image/png" href="images/icon.png">
   <link rel="stylesheet" href="style.css">
+  <!-- Подключение html2canvas для сохранения картинки бургера -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
-  <!-- Кошелёк -->
-  <div class="wallet-widget" id="walletWidget">
+  <div class="mobile-top-bar">
+    <button class="toggle-ui-btn" id="toggleUiBtn" title="Скрыть/показать окна">👁️</button>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Кошелёк (справа от панели слоёв) -->
+  <div class="wallet-widget" id="walletWidget" title="Click to toggle opacity">
     <span id="walletBadge">$100.00</span>
+  </div>
+
+  <!-- Закреплённый рецепт: расположен СТРОГО ПОД кошельком -->
+  <div class="pinned-recipe-widget" id="pinnedRecipeWidget">
+    <h5 id="pinnedTitle"><span>📌 Pinned</span> <button class="unpin-btn" id="unpinBtn">✕</button></h5>
+    <div class="pinned-ingredients" id="pinnedIngredientsContainer"></div>
+  </div>
+
+  <div class="top-order-widget" id="topOrderWidget" title="Click to toggle opacity">
+    <span id="orderStatusText">Next order in: 05:00</span>
+  </div>
+
+  <!-- Модальное окно Рецептов -->
+  <div class="modal-overlay" id="recipesModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Burger Recipes</h3>
+        <button class="close-modal" id="closeRecipesModal">✕</button>
+      </div>
+      <div class="recipe-tabs">
+        <div class="recipe-tab active" id="tabNormal" onclick="switchRecipeTab('regular')">Regular</div>
+        <div class="recipe-tab" id="tabSecret" onclick="switchRecipeTab('secret')">Secret</div>
+      </div>
+      <div class="modal-body" id="recipesModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Модальное окно Магазина -->
+  <div class="modal-overlay" id="shopModal">
+    <div class="modal-content wide">
+      <div class="modal-header">
+        <h3>Shop</h3>
+        <button class="close-modal" id="closeShopModal">✕</button>
+      </div>
+      <div class="recipe-tabs" id="shopTabs">
+        <div class="recipe-tab active" onclick="switchShopTab('all')">All</div>
+        <div class="recipe-tab" onclick="switchShopTab('bread')">Bread</div>
+        <div class="recipe-tab" onclick="switchShopTab('patty')">Patty</div>
+        <div class="recipe-tab" onclick="switchShopTab('vegetables')">Vegetables</div>
+        <div class="recipe-tab" onclick="switchShopTab('protein')">Protein</div>
+        <div class="recipe-tab" onclick="switchShopTab('sauce')">Sauce</div>
+      </div>
+      <div class="modal-body" id="shopModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Модальное окно Достижений -->
+  <div class="modal-overlay" id="achievementsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Achievements</h3>
+        <button class="close-modal" id="closeAchievementsModal">✕</button>
+      </div>
+      <div class="modal-body" id="achievementsList"></div>
+      <div style="border-top: 1px solid var(--item-border); padding-top: 8px; display: flex; justify-content: flex-end;">
+        <button class="btn-action btn-reset" style="padding: 4px 10px; font-size: 0.75rem;" id="resetAchievementsBtn">Reset</button>
+      </div>
+    </div>
   </div>
 
   <!-- Модальное окно Настроек -->
@@ -24,10 +89,12 @@
         <button class="close-modal" id="closeSettingsModal">✕</button>
       </div>
       <div class="modal-body">
+        
         <div class="settings-group">
           <label>Volume: <span id="volumeVal">100%</span></label>
           <input type="range" id="volumeRange" min="0" max="100" value="100">
         </div>
+
         <div class="settings-group">
           <label>Theme</label>
           <div class="settings-row">
@@ -35,22 +102,52 @@
             <button id="themeLightBtn" onclick="setTheme('light')">Light</button>
           </div>
         </div>
+
+        <div class="settings-group">
+          <label>Game Mode</label>
+          <div class="settings-row" id="gameModeButtonsRow">
+            <button id="modeSandboxBtn" class="active" data-mode="sandbox">Sandbox</button>
+            <button id="modeCasualBtn" data-mode="casual">Casual</button>
+            <button id="modeTurboBtn" data-mode="turbo">Turbo</button>
+          </div>
+        </div>
+
+        <div class="settings-group" id="speedGroupContainer">
+          <label>Order frequency</label>
+          <div class="speed-grid" id="speedButtonsGrid">
+            <button class="speed-btn" data-speed="turbo">Turbo</button>
+            <button class="speed-btn" data-speed="super-fast">Super fast</button>
+            <button class="speed-btn" data-speed="fast">Fast</button>
+            <button class="speed-btn active" data-speed="medium">Medium</button>
+            <button class="speed-btn" data-speed="slow">Slow</button>
+            <button class="speed-btn" data-speed="super-slow">Super slow</button>
+            <button class="speed-btn" data-speed="no-orders" style="grid-column: span 2;">No orders</button>
+          </div>
+        </div>
+
+        <div class="settings-group" style="background: transparent; border-color: rgba(211,47,47,0.3);">
+          <label style="color: #d32f2f;">Danger Zone</label>
+          <button class="btn-outline-danger" id="hardResetBtn" style="width: 100%;">Reset</button>
+        </div>
+
       </div>
     </div>
   </div>
 
-  <!-- Основной интерфейс -->
   <div class="app-container">
     <div class="center-stage" id="centerStage">
+      <div class="limit-warning" id="limitWarning">Max 30 ingredients!</div>
       <div class="burger-wrapper">
         <div class="burger-stack" id="burgerStack"></div>
       </div>
     </div>
 
     <div class="panel right-panel" id="rightPanel">
-      <div class="panel-title">Ingredients</div>
+      <div class="panel-title" id="ingredientsTitle">Ingredients</div>
       <div class="ingredients-menu" id="ingredientsMenu"></div>
     </div>
+
+    <div class="sauces-group mobile-sauces" id="mobileSaucesGroup"></div>
 
     <div class="panel left-panel" id="leftPanel">
       <div class="panel-title" id="layersTitle">Layers (0/30)</div>
@@ -58,13 +155,16 @@
     </div>
 
     <div class="bottom-panel" id="bottomPanel">
-      <div class="sauces-group" id="desktopSaucesGroup"></div>
+      <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
       <div class="action-group">
+        <button class="btn-action btn-recipes" id="openRecipesBtn" title="Recipes">📋</button>
+        <button class="btn-action btn-shop" id="openShopBtn" title="Shop">🏬</button>
+        <button class="btn-action btn-achievements" id="openAchievementsBtn" title="Achievements">🏆</button>
         <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
         <button class="btn-action btn-eat" id="eatBtn">Eat</button>
-        <button class="btn-action btn-reset" id="resetBtn">🗑️</button>
-        <button class="btn-action btn-utility" id="downloadPngBtn">💾</button>
-        <button class="btn-action btn-settings" id="openSettingsBtn">⚙️</button>
+        <button class="btn-action btn-reset" id="resetBtn" title="Bin">🗑️</button>
+        <button class="btn-action btn-utility" id="downloadPngBtn" title="Download PNG">💾</button>
+        <button class="btn-action btn-settings" id="openSettingsBtn" title="Settings">⚙️</button>
       </div>
     </div>
   </div>
