@@ -13,6 +13,7 @@
   <div class="mobile-top-bar">
     <div class="top-order-widget" id="topOrderWidgetMobile" title="Click to toggle opacity">
       <span id="orderStatusTextMobile">Next: 05:00</span>
+      <div class="wallet-badge" id="walletBadgeMobile">$100</div>
     </div>
     <button class="toggle-ui-btn" id="toggleUiBtn" title="Скрыть/показать окна">👁️</button>
   </div>
@@ -21,8 +22,10 @@
 
   <div class="top-order-widget" id="topOrderWidget" title="Click to toggle opacity">
     <span id="orderStatusText">Next order in: 05:00</span>
+    <div class="wallet-badge" id="walletBadge">$100</div>
   </div>
 
+  <!-- Модальное окно Рецептов -->
   <div class="modal-overlay" id="recipesModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -37,6 +40,26 @@
     </div>
   </div>
 
+  <!-- Модальное окно Магазина 🏬 -->
+  <div class="modal-overlay" id="shopModal">
+    <div class="modal-content wide">
+      <div class="modal-header">
+        <h3>🏬 Ingredient Shop</h3>
+        <button class="close-modal" id="closeShopModal">✕</button>
+      </div>
+      <div class="recipe-tabs" id="shopTabs">
+        <div class="recipe-tab active" onclick="switchShopTab('all')">All</div>
+        <div class="recipe-tab" onclick="switchShopTab('bread')">Bread</div>
+        <div class="recipe-tab" onclick="switchShopTab('patty')">Patty</div>
+        <div class="recipe-tab" onclick="switchShopTab('vegetables')">Vegetables</div>
+        <div class="recipe-tab" onclick="switchShopTab('protein')">Protein</div>
+        <div class="recipe-tab" onclick="switchShopTab('sauce')">Sauce</div>
+      </div>
+      <div class="modal-body" id="shopModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Модальное окно Достижений -->
   <div class="modal-overlay" id="achievementsModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -50,6 +73,7 @@
     </div>
   </div>
 
+  <!-- Модальное окно Настроек -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -130,6 +154,7 @@
       <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
       <div class="action-group">
         <button class="btn-action btn-recipes" id="openRecipesBtn" title="Recipes">📋</button>
+        <button class="btn-action btn-shop" id="openShopBtn" title="Shop">🏬</button>
         <button class="btn-action btn-achievements" id="openAchievementsBtn" title="Achievements">🏆</button>
         <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
         <button class="btn-action btn-eat" id="eatBtn">Eat</button>
