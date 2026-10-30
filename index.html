@@ -643,7 +643,7 @@
         <button class="btn-action btn-achievements" id="openAchievementsBtn" title="Achievements">🏆</button>
         <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
         <button class="btn-action btn-eat" id="eatBtn">Eat</button>
-        <button class="btn-action btn-reset" id="resetBtn">Reset</button>
+        <button class="btn-action btn-reset" id="resetBtn" title="Bin">🗑️ Bin</button>
       </div>
     </div>
   </div>
@@ -669,6 +669,7 @@
         achievement: safeAudio('audio/achievement.mp3'),
         order: safeAudio('audio/order.mp3'),
         complete: safeAudio('audio/complete.mp3'),
+        bin: safeAudio('audio/bin.mp3'),
         cheeseburger: safeAudio('audio/cheeseburger.mp3'),
         tomatonator: safeAudio('audio/tomatonator.mp3'),
         lilypad: safeAudio('audio/lilypad.mp3'),
@@ -751,7 +752,6 @@
       let unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements')) || {};
       let pinnedBurger = JSON.parse(localStorage.getItem('pinned_burger')) || null;
 
-      // Восстанавливаем сохраненный заказ и таймер из localStorage
       let currentActiveOrder = JSON.parse(localStorage.getItem('current_active_order')) || null;
       let timeUntilNextOrder = parseInt(localStorage.getItem('time_until_next_order'), 10);
       if (isNaN(timeUntilNextOrder)) {
@@ -777,8 +777,6 @@
         if (!container) return;
         const toast = document.createElement('div');
         toast.className = 'achievement-toast';
-        
-        // Заголовок — название ачивки, меньший текст — "Secret recipe unlocked!"
         toast.innerHTML = `
           <h4 style="font-size:0.9rem; color:#fdfbf7; margin:0;">${ach.title}</h4>
           <p style="font-size:0.75rem; color:#d7ccc8; margin:0;">Secret recipe unlocked!</p>
@@ -955,7 +953,6 @@
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
       }
 
-      // Если при загрузке уже есть активный заказ, сразу отобразим его в виджете
       if (currentActiveOrder) {
         const statusText = document.getElementById('orderStatusText');
         if (statusText) statusText.innerHTML = `🔔 Order: <span>${currentActiveOrder.name}</span>`;
@@ -1224,7 +1221,7 @@
       const resetBtn = document.getElementById('resetBtn');
       if (resetBtn) {
         resetBtn.onclick = () => {
-          playSound(SOUNDS.buttons);
+          playSound(SOUNDS.bin); // Используем звук bin.mp3 для корзины
           isEating = false; isSqueezed = false;
           if (burgerStack) burgerStack.classList.remove('eating');
           currentBurger = [];
