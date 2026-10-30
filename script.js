@@ -99,66 +99,54 @@ document.addEventListener('DOMContentLoaded', () => {
   initOpacityToggle();
 
   // ==========================================
-  // ДОБАВЛЕНИЕ КНОПОК-СТРЕЛОК (ПК и ТЕЛЕФОН)
+  // ДОБАВЛЕНИЕ КНОПОК 🍳 И 🔪 (ПК и ТЕЛЕФОН)
   // ==========================================
-  function initNavArrows() {
-    // 1. Для ПК: добавляем стрелки справа от правой панели (меню ингредиентов)
+  function initCustomActionButtons() {
+    // 1. Для ПК: добавляем кнопки слева от правой панели (меню ингредиентов)
     const targetRightPanel = document.querySelector('.right-panel');
-    if (targetRightPanel && !document.getElementById('pcScrollUpBtn')) {
-      const upArrow = document.createElement('button');
-      upArrow.id = 'pcScrollUpBtn';
-      upArrow.className = 'nav-arrow-btn pc-arrow-right-side';
-      upArrow.style.top = '40%';
-      upArrow.innerHTML = '▲';
-      upArrow.title = 'Прокрутить вверх';
-      upArrow.onclick = () => {
-        const ingredientsMenu = document.getElementById('ingredientsMenu');
-        if (ingredientsMenu) ingredientsMenu.scrollBy({ top: -100, behavior: 'smooth' });
-      };
-      targetRightPanel.appendChild(upArrow);
+    if (targetRightPanel && !document.getElementById('pcEggBtn')) {
+      const eggBtn = document.createElement('button');
+      eggBtn.id = 'pcEggBtn';
+      eggBtn.className = 'nav-arrow-btn pc-custom-btn-left';
+      eggBtn.style.top = '40%';
+      eggBtn.innerHTML = '🍳';
+      eggBtn.title = 'Действие 🍳';
+      eggBtn.onclick = () => { playSound(SOUNDS.buttons); };
+      targetRightPanel.appendChild(eggBtn);
 
-      const downArrow = document.createElement('button');
-      downArrow.id = 'pcScrollDownBtn';
-      downArrow.className = 'nav-arrow-btn pc-arrow-right-side';
-      downArrow.style.top = '60%';
-      downArrow.innerHTML = '▼';
-      downArrow.title = 'Прокрутить вниз';
-      downArrow.onclick = () => {
-        const ingredientsMenu = document.getElementById('ingredientsMenu');
-        if (ingredientsMenu) ingredientsMenu.scrollBy({ top: 100, behavior: 'smooth' });
-      };
-      targetRightPanel.appendChild(downArrow);
+      const knifeBtn = document.createElement('button');
+      knifeBtn.id = 'pcKnifeBtn';
+      knifeBtn.className = 'nav-arrow-btn pc-custom-btn-left';
+      knifeBtn.style.top = '52%';
+      knifeBtn.innerHTML = '🔪';
+      knifeBtn.title = 'Действие 🔪';
+      knifeBtn.onclick = () => { playSound(SOUNDS.buttons); };
+      targetRightPanel.appendChild(knifeBtn);
     }
 
-    // 2. Для телефона: добавляем блок со стрелками справа на экраны
+    // 2. Для телефона: добавляем блок с кнопками под глазом
     const appContainer = document.querySelector('.app-container');
-    if (appContainer && !document.getElementById('mobileArrowsContainer')) {
+    if (appContainer && !document.getElementById('mobileCustomButtonsContainer')) {
       const mobileContainer = document.createElement('div');
-      mobileContainer.id = 'mobileArrowsContainer';
-      mobileContainer.className = 'mobile-arrows-container';
+      mobileContainer.id = 'mobileCustomButtonsContainer';
+      mobileContainer.className = 'mobile-custom-buttons-container';
 
-      const mUp = document.createElement('button');
-      mUp.className = 'nav-arrow-btn';
-      mUp.innerHTML = '▲';
-      mUp.onclick = () => {
-        const centerStage = document.getElementById('centerStage');
-        if (centerStage) centerStage.scrollBy({ top: -150, behavior: 'smooth' });
-      };
+      const mEgg = document.createElement('button');
+      mEgg.className = 'nav-arrow-btn';
+      mEgg.innerHTML = '🍳';
+      mEgg.onclick = () => { playSound(SOUNDS.buttons); };
 
-      const mDown = document.createElement('button');
-      mDown.className = 'nav-arrow-btn';
-      mDown.innerHTML = '▼';
-      mDown.onclick = () => {
-        const centerStage = document.getElementById('centerStage');
-        if (centerStage) centerStage.scrollBy({ top: 150, behavior: 'smooth' });
-      };
+      const mKnife = document.createElement('button');
+      mKnife.className = 'nav-arrow-btn';
+      mKnife.innerHTML = '🔪';
+      mKnife.onclick = () => { playSound(SOUNDS.buttons); };
 
-      mobileContainer.appendChild(mUp);
-      mobileContainer.appendChild(mDown);
+      mobileContainer.appendChild(mEgg);
+      mobileContainer.appendChild(mKnife);
       document.body.appendChild(mobileContainer);
     }
   }
-  initNavArrows();
+  initCustomActionButtons();
 
   const MAX_INGREDIENTS = 30;
   let currentBurger = JSON.parse(localStorage.getItem('saved_burger_stack')) || [];
