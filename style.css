@@ -297,6 +297,7 @@ body {
   100% { opacity: 0; transform: translateY(-15px) scale(0.95); }
 }
 
+/* Закрепленный рецепт (ПК): вертикальный, без названия, крупные картинки, минимальное расстояние */
 .pinned-recipe-widget {
   position: absolute;
   top: 52px;
@@ -305,19 +306,32 @@ body {
   backdrop-filter: blur(8px);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: 8px 12px;
-  font-size: 0.75rem;
-  max-width: 200px;
+  padding: 6px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   z-index: 50;
   display: none;
   transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  width: max-content;
 }
-.pinned-recipe-widget.active { display: block; }
-.pinned-recipe-widget h5 { color: var(--text-color); margin-bottom: 4px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; }
-.pinned-recipe-widget .unpin-btn { background: none; border: none; cursor: pointer; font-size: 0.8rem; color: var(--text-color); }
-.pinned-ingredients { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
-.pinned-ingredients img { width: 22px; height: 22px; object-fit: contain; }
+.pinned-recipe-widget.active { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.pinned-header {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 2px;
+}
+.pinned-recipe-widget .unpin-btn { background: none; border: none; cursor: pointer; font-size: 0.75rem; color: var(--text-color); padding: 0 2px; }
+.pinned-ingredients { 
+  display: flex; 
+  flex-direction: column-reverse; /* Снизу вверх как бургер или сверху вниз — по порядку */
+  gap: 1px; 
+  align-items: center; 
+}
+.pinned-ingredients img { 
+  width: 48px; 
+  height: 48px; 
+  object-fit: contain; 
+}
 
 .top-order-widget {
   position: absolute;
@@ -866,51 +880,35 @@ input[type="range"]::-webkit-slider-thumb {
   .action-group { width: 100%; justify-content: space-between; }
   .btn-action { flex: 1; padding: 8px 2px; font-size: 0.75rem; text-align: center; }
 
+  /* Убрана фиксация (position: fixed) на мобильных для глаза, кошелька и рецепта */
   .mobile-top-bar {
-    position: fixed;
-    top: 10px; left: 10px; right: 10px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    z-index: 1000;
-    pointer-events: none;
-  }
-  .mobile-top-bar > * { pointer-events: auto; }
-
-  .top-order-widget { 
-    position: fixed !important; 
-    top: 10px !important; 
-    left: 50% !important; 
-    transform: translateX(-50%) !important; 
-    width: max-content !important; 
-    max-width: 65% !important; 
-    font-size: 0.7rem !important; 
-    padding: 4px 10px !important; 
-    display: flex !important; 
-    flex-direction: column !important; 
-    align-items: center !important; 
-    justify-content: center !important; 
-    text-align: center !important; 
-    gap: 2px !important; 
-    z-index: 1000 !important; 
-  }
-
-  .top-order-widget .order-timer-badge {
-    display: block !important;
-    margin-top: 2px !important;
+    position: static !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    margin-bottom: 6px;
+    pointer-events: auto;
   }
   
   .wallet-widget { 
-    position: fixed; 
-    top: 10px; 
-    left: 10px; 
-    transform: none; 
-    z-index: 1000; 
-    padding: 4px 10px; 
-    font-size: 0.7rem; 
+    position: static !important; 
+    transform: none !important; 
+    width: 100% !important;
+    margin-bottom: 6px;
+    padding: 6px 10px; 
+    font-size: 0.75rem; 
   }
 
-  .pinned-recipe-widget { top: 45px; left: 10px; }
+  .pinned-recipe-widget { 
+    position: static !important; 
+    width: 100% !important;
+    margin-bottom: 6px;
+    padding: 6px !important;
+  }
+  .pinned-ingredients img { 
+    width: 32px !important; 
+    height: 32px !important; 
+  }
 
   .toggle-ui-btn {
     background: var(--modal-bg);
@@ -931,7 +929,8 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .sauces-group.mobile-sauces,
   body.ui-hidden .top-order-widget,
   body.ui-hidden .wallet-widget,
-  body.ui-hidden .pinned-recipe-widget { display: none !important; }
+  body.ui-hidden .pinned-recipe-widget,
+  body.ui-hidden .mobile-top-bar { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
 }
 @media (min-width: 901px) {
