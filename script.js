@@ -68,13 +68,26 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   let currentGameMode = localStorage.getItem('burger_game_mode') || 'casual';
-  let currentGameSpeed = localStorage.getItem('burger_game_speed') || 'no-orders';
+
+  // Раздельные скорости для каждого режима, сохраняются в localStorage
+  let modeSpeeds = JSON.parse(localStorage.getItem('burger_mode_speeds')) || {
+    'sandbox': 'no-orders',
+    'casual': 'no-orders'
+  };
+
   let unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements')) || {};
   let pinnedBurger = JSON.parse(localStorage.getItem('pinned_burger')) || null;
   let currentActiveOrder = JSON.parse(localStorage.getItem('current_active_order')) || null;
+  
   let timeUntilNextOrder = parseInt(localStorage.getItem('time_until_next_order'), 10);
   if (isNaN(timeUntilNextOrder)) timeUntilNextOrder = 120;
   let currentTurboTimeLeft = 180;
+
+  // Функция для получения текущей активной скорости с учетом режима
+  function getCurrentSpeed() {
+    if (currentGameMode === 'turbo') return 'turbo-fixed';
+    return modeSpeeds[currentGameMode] || 'no-orders';
+  }
 
   function saveStock() {
     localStorage.setItem('burger_ingredient_stock', JSON.stringify(ingredientStock));
@@ -241,7 +254,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateActionButtonsVisibility() {
     if (squeezeBtn) squeezeBtn.style.display = 'flex';
 
-    const isNoOrders = currentGameSpeed === 'no-orders';
+    const currentSpeed = getCurrentSpeed();
+    const isNoOrders = currentSpeed === 'no-orders';
     const isSandboxOrCasual = currentGameMode === 'sandbox' || currentGameMode === 'casual';
 
     if (eatBtn) {
@@ -253,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (submitOrderBtn) {
-      const hasActiveOrders = currentGameSpeed !== 'no-orders' && currentActiveOrder !== null;
+      const hasActiveOrders = !isNoOrders && currentActiveOrder !== null;
       submitOrderBtn.style.display = hasActiveOrders ? 'flex' : 'none';
     }
   }
@@ -264,6 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const speedButtonsGrid = document.getElementById('speedButtonsGrid');
 
   function applyGameMode(mode) {
+    const previousMode = currentGameMode;
     currentGameMode = mode;
     localStorage.setItem('burger_game_mode', mode);
 
@@ -272,22 +287,37 @@ document.addEventListener('DOMContentLoaded', () => {
     if(modeTurboBtn) modeTurboBtn.classList.toggle('active', mode === 'turbo');
 
     const topWidget = document.getElementById('topOrderWidget');
+    const speed = getCurrentSpeed();
 
-    if (mode === 'sandbox') {
-      if(speedButtonsGrid) speedButtonsGrid.classList.remove('disabled');
-      if (currentGameSpeed === 'no-orders') {
-        if(topWidget) topWidget.classList.add('hidden');
-      } else {
-        if(topWidget) topWidget.classList.remove('hidden');
+    // СБРОС ЗАКАЗА И ТАЙМЕРА ПРИ СМЕНЕ РЕЖИМА
+    if (previousMode !== mode) {
+      currentActiveOrder = null;
+      localStorage.removeItem('current_active_order');
+      if (speed !== 'no-orders') {
+        if (mode === 'turbo') {
+          currentTurboTimeLeft = 180;
+          triggerRandomOrder();
+        } else {
+          timeUntilNextOrder = getRandomTimeForSpeed(speed);
+          localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+        }
       }
-    } else if (mode === 'casual') {
+    }
+
+    if (mode === 'sandbox' || mode === 'casual') {
       if(speedButtonsGrid) speedButtonsGrid.classList.remove('disabled');
-      if (currentGameSpeed === 'no-orders') {
+      updateSpeedButtonsUI(speed);
+
+      if (speed === 'no-orders') {
         if(topWidget) topWidget.classList.add('hidden');
         currentActiveOrder = null;
         localStorage.removeItem('current_active_order');
       } else {
         if(topWidget) topWidget.classList.remove('hidden');
+        if (!currentActiveOrder && previousMode !== mode) {
+          timeUntilNextOrder = getRandomTimeForSpeed(speed);
+          localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+        }
       }
     } else if (mode === 'turbo') {
       if(speedButtonsGrid) speedButtonsGrid.classList.add('disabled');
@@ -306,32 +336,37 @@ document.addEventListener('DOMContentLoaded', () => {
   if(modeCasualBtn) modeCasualBtn.onclick = () => applyGameMode('casual');
   if(modeTurboBtn) modeTurboBtn.onclick = () => applyGameMode('turbo');
 
-  applyGameMode(currentGameMode);
-
+  // Инициализация интерфейса скоростей под текущий режим
   const speedButtons = document.querySelectorAll('.speed-btn');
   function updateSpeedButtonsUI(speed) {
     speedButtons.forEach(btn => {
       btn.classList.toggle('active', btn.getAttribute('data-speed') === speed);
     });
   }
-  updateSpeedButtonsUI(currentGameSpeed);
+
+  applyGameMode(currentGameMode);
 
   speedButtons.forEach(btn => {
     btn.onclick = () => {
       if (currentGameMode === 'turbo') return;
-      currentGameSpeed = btn.getAttribute('data-speed');
-      localStorage.setItem('burger_game_speed', currentGameSpeed);
-      updateSpeedButtonsUI(currentGameSpeed);
+      const newSpeed = btn.getAttribute('data-speed');
+      
+      // Сохраняем скорость отдельно для текущего режима
+      modeSpeeds[currentGameMode] = newSpeed;
+      localStorage.setItem('burger_mode_speeds', JSON.stringify(modeSpeeds));
+      updateSpeedButtonsUI(newSpeed);
 
-      const w1 = document.getElementById('topOrderWidget');
+      const topWidget = document.getElementById('topOrderWidget');
 
-      if (currentGameSpeed === 'no-orders') {
-        currentActiveOrder = null;
-        localStorage.removeItem('current_active_order');
-        if (w1) w1.classList.add('hidden');
+      // СБРОС ЗАКАЗА И ТАЙМЕРА ПРИ СМЕНЕ СКОРОСТИ
+      currentActiveOrder = null;
+      localStorage.removeItem('current_active_order');
+
+      if (newSpeed === 'no-orders') {
+        if (topWidget) topWidget.classList.add('hidden');
       } else {
-        if (w1) w1.classList.remove('hidden');
-        timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
+        if (topWidget) topWidget.classList.remove('hidden');
+        timeUntilNextOrder = getRandomTimeForSpeed(newSpeed);
         localStorage.setItem('time_until_next_order', timeUntilNextOrder);
       }
       updateActionButtonsVisibility();
@@ -340,7 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function getRandomTimeForSpeed(speed) {
     switch(speed) {
-      case 'turbo': return 0;
+      case 'turbo-fixed': return 0;
       case 'super-fast': return Math.floor(Math.random() * 20) + 10;
       case 'fast': return Math.floor(Math.random() * 30) + 30;
       case 'medium': return Math.floor(Math.random() * 180) + 120;
@@ -642,7 +677,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Обновленная функция сохранения картинки с обрезкой пустого пространства
   const downloadPngBtn = document.getElementById('downloadPngBtn');
   if (downloadPngBtn) {
     downloadPngBtn.onclick = () => {
@@ -655,14 +689,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const targetElement = document.getElementById('burgerStack');
       if (!targetElement) return;
 
-      // Временно добавляем класс для компактной обрезки по размеру бургера
       targetElement.classList.add('capturing-png');
 
       html2canvas(targetElement, {
         backgroundColor: null,
         scale: 2
       }).then(canvas => {
-        targetElement.classList.remove('capturing-png'); // Возвращаем стили обратно
+        targetElement.classList.remove('capturing-png');
 
         const link = document.createElement('a');
         link.download = 'my-burger.png';
@@ -871,8 +904,14 @@ document.addEventListener('DOMContentLoaded', () => {
         updateMoneyDisplay(reward, true);
       }
       showToast(null, 'Order Complete!', `${currentActiveOrder.name} served successfully!`);
-      currentActiveOrder = null;
-      localStorage.removeItem('current_active_order');
+      
+      // Выдача нового заказа в турбо-режиме сразу после успешной сдачи
+      if (currentGameMode === 'turbo') {
+        triggerRandomOrder();
+      } else {
+        currentActiveOrder = null;
+        localStorage.removeItem('current_active_order');
+      }
       updateActionButtonsVisibility();
       setTimeout(() => { if (eatBtn && eatBtn.style.display !== 'none') eatBtn.click(); else { currentBurger = []; updateBurgerDisplay(false); } }, 600);
     } else {
@@ -894,7 +933,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     
-    if (currentActiveOrder && currentGameSpeed === 'no-orders') {
+    const currentSpeed = getCurrentSpeed();
+    if (currentActiveOrder && currentSpeed === 'no-orders') {
       const targetIds = currentActiveOrder.ids;
       if (ids.length === targetIds.length && ids.every((val, idx) => val === targetIds[idx])) {
         playSound(SOUNDS.complete);
@@ -929,16 +969,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const allAvailable = [...REGULAR_RECIPES, ...unlockedSecretNames];
     const chosen = allAvailable[Math.floor(Math.random() * allAvailable.length)];
     currentActiveOrder = { name: chosen.name || chosen.title, ids: chosen.ids };
-    currentTurboTimeLeft = 180;
+    
+    if (currentGameMode === 'turbo') {
+      currentTurboTimeLeft = 180;
+    }
+    
     localStorage.setItem('current_active_order', JSON.stringify(currentActiveOrder));
-    timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
-    localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+    
+    const speed = getCurrentSpeed();
+    if (speed !== 'no-orders' && currentGameMode !== 'turbo') {
+      timeUntilNextOrder = getRandomTimeForSpeed(speed);
+      localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+    }
+    
     playSound(SOUNDS.order);
     updateActionButtonsVisibility();
   }
 
   setInterval(() => {
-    if (currentGameSpeed === 'no-orders') return;
+    const currentSpeed = getCurrentSpeed();
+    if (currentSpeed === 'no-orders') return;
 
     if (currentGameMode === 'turbo') {
       if (!currentActiveOrder) {
@@ -972,7 +1022,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, 1000);
 
-  if (currentActiveOrder && currentGameSpeed !== 'no-orders') {
+  if (currentActiveOrder && getCurrentSpeed() !== 'no-orders') {
     if (currentGameMode === 'turbo') {
       updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span> <span class="order-timer-badge">⏱️ ${formatTime(currentTurboTimeLeft)}</span>`);
     } else {
