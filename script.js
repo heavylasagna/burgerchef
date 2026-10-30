@@ -95,7 +95,43 @@ document.addEventListener('DOMContentLoaded', () => {
   const savedTheme = localStorage.getItem('burger_theme') || 'dark';
   setTheme(savedTheme);
 
-  // Кошелек и экономика
+  // Элементы интерфейса меню и складов
+  const ingredientsMenu = document.getElementById('ingredientsMenu');
+  const desktopSaucesGroup = document.getElementById('desktopSaucesGroup');
+  const mobileSaucesGroup = document.getElementById('mobileSaucesGroup');
+  const burgerStack = document.getElementById('burgerStack');
+  const layersList = document.getElementById('layersList');
+  const layersTitle = document.getElementById('layersTitle');
+  const centerStage = document.getElementById('centerStage');
+  const limitWarning = document.getElementById('limitWarning');
+
+  const MAX_INGREDIENTS = 30;
+  const INGREDIENTS = [
+    { id: 'top-bun', name: 'Top Bun', image: 'images/top-bun.png' },
+    { id: 'cheese', name: 'Cheese', image: 'images/cheese.png' },
+    { id: 'fried-egg', name: 'Fried Egg', image: 'images/fried-egg.png' },
+    { id: 'champignons', name: 'Champignons', image: 'images/champignons.png' },
+    { id: 'fried-bacon', name: 'Fried Bacon', image: 'images/fried-bacon.png' },
+    { id: 'lettuce', name: 'Lettuce', image: 'images/lettuce.png' },
+    { id: 'tomato', name: 'Tomato', image: 'images/tomato.png' },
+    { id: 'pickles', name: 'Pickles', image: 'images/pickles.png' },
+    { id: 'red-onion', name: 'Red Onion', image: 'images/red-onion.png' },
+    { id: 'white-onion', name: 'White Onion', image: 'images/white-onion.png' },
+    { id: 'hashbrown', name: 'Hashbrown', image: 'images/hashbrown.png' },
+    { id: 'beef-patty', name: 'Beef Patty', image: 'images/beef-patty.png' },
+    { id: 'chicken-patty', name: 'Chicken Patty', image: 'images/chicken-patty.png' },
+    { id: 'fish-patty', name: 'Fish Patty', image: 'images/fish-patty.png' },
+    { id: 'bottom-bun', name: 'Bottom Bun', image: 'images/bottom-bun.png' }
+  ];
+
+  const SAUCES = [
+    { id: 'mayo', name: '⚪️ Mayo', image: 'images/sauce-mayo.png' },
+    { id: 'ketchup', name: '🔴 Ketchup', image: 'images/sauce-ketchup.png' },
+    { id: 'mustard', name: '🟡 Mustard', image: 'images/sauce-mustard.png' },
+    { id: 'spicy', name: '🟠 Spicy', image: 'images/sauce-spicy.png' },
+    { id: 'bbq', name: '🟤 BBQ', image: 'images/sauce-bbq.png' }
+  ];
+
   let playerMoney = parseFloat(localStorage.getItem('burger_money'));
   if (isNaN(playerMoney)) playerMoney = 100.00;
 
@@ -110,16 +146,14 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('burger_money', playerMoney);
   }
 
-  // Цены за 1 единицу
   const ITEM_PRICES = {
     'bottom-bun': 2, 'top-bun': 2,
     'beef-patty': 5, 'chicken-patty': 4, 'fish-patty': 4, 'fried-bacon': 3, 'fried-egg': 2,
     'cheese': 3, 'hashbrown': 3, 'champignons': 3,
     'lettuce': 1, 'tomato': 1, 'pickles': 1, 'red-onion': 1, 'white-onion': 1,
-    'mayo': 2, 'ketchup': 2, 'mustard': 2, 'spicy': 2, 'bbq': 2 // цена пачки из 10 шт соуса
+    'mayo': 2, 'ketchup': 2, 'mustard': 2, 'spicy': 2, 'bbq': 2
   };
 
-  // Склады ингредиентов
   let ingredientStock = JSON.parse(localStorage.getItem('burger_ingredient_stock')) || {
     'bottom-bun': 20, 'top-bun': 20,
     'beef-patty': 15, 'chicken-patty': 15, 'fish-patty': 15, 'fried-bacon': 10, 'fried-egg': 10,
@@ -130,6 +164,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function saveStock() {
     localStorage.setItem('burger_ingredient_stock', JSON.stringify(ingredientStock));
+  }
+
+  function renderIngredientsMenu() {
+    if (!ingredientsMenu) return;
+    ingredientsMenu.innerHTML = '';
+    INGREDIENTS.forEach(item => {
+      const card = document.createElement('div');
+      const stock = ingredientStock[item.id] ?? 0;
+      const isOut = currentGameMode !== 'sandbox' && stock <= 0;
+
+      card.className = `ingredient-card ${currentBurger.length >= MAX_INGREDIENTS || isEating || isOut ? 'disabled' : ''}`;
+      
+      let countHtml = currentGameMode === 'sandbox' ? '' : `<span class="ingredient-stock-count">${stock}</span>`;
+      card.innerHTML = `<img src="${item.image}" alt="${item.name}">${countHtml}`;
+      
+      card.onclick = () => {
+        if (isEating) return;
+        if (isOut) { alert(`Out of ${item.name}! Buy more in the shop 🏬.`); return; }
+        addIngredient(item);
+      };
+      ingredientsMenu.appendChild(card);
+    });
+  }
+
+  function renderSauces() {
+    if (desktopSaucesGroup) desktopSaucesGroup.innerHTML = '';
+    if (mobileSaucesGroup) mobileSaucesGroup.innerHTML = '';
+    SAUCES.forEach(sauce => {
+      [desktopSaucesGroup, mobileSaucesGroup].forEach(container => {
+        if (!container) return;
+        const chip = document.createElement('div');
+        const stock = ingredientStock[sauce.id] ?? 0;
+        const isOut = currentGameMode !== 'sandbox' && stock <= 0;
+
+        chip.className = `sauce-chip ${isOut ? 'disabled' : ''}`;
+        chip.innerText = `${sauce.name}${currentGameMode === 'sandbox' ? '' : ' (' + stock + ')'}`;
+        
+        chip.onclick = () => {
+          if (isEating) return;
+          if (isOut) { alert(`Out of ${sauce.name}! Buy more in the shop 🏬.`); return; }
+          addSauce(sauce);
+        };
+        container.appendChild(chip);
+      });
+    });
   }
 
   const squeezeBtn = document.getElementById('squeezeBtn');
@@ -696,109 +775,12 @@ document.addEventListener('DOMContentLoaded', () => {
     playSound(SOUNDS.order);
   }
 
-  const MAX_INGREDIENTS = 30;
-  const INGREDIENTS = [
-    { id: 'top-bun', name: 'Top Bun', image: 'images/top-bun.png' },
-    { id: 'cheese', name: 'Cheese', image: 'images/cheese.png' },
-    { id: 'fried-egg', name: 'Fried Egg', image: 'images/fried-egg.png' },
-    { id: 'champignons', name: 'Champignons', image: 'images/champignons.png' },
-    { id: 'fried-bacon', name: 'Fried Bacon', image: 'images/fried-bacon.png' },
-    { id: 'lettuce', name: 'Lettuce', image: 'images/lettuce.png' },
-    { id: 'tomato', name: 'Tomato', image: 'images/tomato.png' },
-    { id: 'pickles', name: 'Pickles', image: 'images/pickles.png' },
-    { id: 'red-onion', name: 'Red Onion', image: 'images/red-onion.png' },
-    { id: 'white-onion', name: 'White Onion', image: 'images/white-onion.png' },
-    { id: 'hashbrown', name: 'Hashbrown', image: 'images/hashbrown.png' },
-    { id: 'beef-patty', name: 'Beef Patty', image: 'images/beef-patty.png' },
-    { id: 'chicken-patty', name: 'Chicken Patty', image: 'images/chicken-patty.png' },
-    { id: 'fish-patty', name: 'Fish Patty', image: 'images/fish-patty.png' },
-    { id: 'bottom-bun', name: 'Bottom Bun', image: 'images/bottom-bun.png' }
-  ];
-
-  const SAUCES = [
-    { id: 'mayo', name: '⚪️ Mayo', image: 'images/sauce-mayo.png' },
-    { id: 'ketchup', name: '🔴 Ketchup', image: 'images/sauce-ketchup.png' },
-    { id: 'mustard', name: '🟡 Mustard', image: 'images/sauce-mustard.png' },
-    { id: 'spicy', name: '🟠 Spicy', image: 'images/sauce-spicy.png' },
-    { id: 'bbq', name: '🟤 BBQ', image: 'images/sauce-bbq.png' }
-  ];
-
   let currentBurger = JSON.parse(localStorage.getItem('saved_burger_stack')) || [];
   let isEating = false;
   let isSqueezed = false;
 
   function saveBurgerState() {
     localStorage.setItem('saved_burger_stack', JSON.stringify(currentBurger));
-  }
-
-  const burgerStack = document.getElementById('burgerStack');
-  const layersList = document.getElementById('layersList');
-  const layersTitle = document.getElementById('layersTitle');
-  const ingredientsMenu = document.getElementById('ingredientsMenu');
-  const desktopSaucesGroup = document.getElementById('desktopSaucesGroup');
-  const mobileSaucesGroup = document.getElementById('mobileSaucesGroup');
-  const centerStage = document.getElementById('centerStage');
-  const limitWarning = document.getElementById('limitWarning');
-
-  function renderIngredientsMenu() {
-    if (!ingredientsMenu) return;
-    ingredientsMenu.innerHTML = '';
-    INGREDIENTS.forEach(item => {
-      const card = document.createElement('div');
-      const stock = ingredientStock[item.id] ?? 0;
-      const isOut = currentGameMode !== 'sandbox' && stock <= 0;
-
-      card.className = `ingredient-card ${currentBurger.length >= MAX_INGREDIENTS || isEating || isOut ? 'disabled' : ''}`;
-      
-      let countHtml = currentGameMode === 'sandbox' ? '' : `<span class="ingredient-stock-count">${stock}</span>`;
-      card.innerHTML = `<img src="${item.image}" alt="${item.name}">${countHtml}`;
-      
-      card.onclick = () => {
-        if (isEating) return;
-        if (isOut) { alert(`Out of ${item.name}! Buy more in the shop 🏬.`); return; }
-        addIngredient(item);
-      };
-      ingredientsMenu.appendChild(card);
-    });
-  }
-
-  function renderSauces() {
-    if (desktopSaucesGroup) desktopSaucesGroup.innerHTML = '';
-    if (mobileSaucesGroup) mobileSaucesGroup.innerHTML = '';
-    SAUCES.forEach(sauce => {
-      [desktopSaucesGroup, mobileSaucesGroup].forEach(container => {
-        if (!container) return;
-        const chip = document.createElement('div');
-        const stock = ingredientStock[sauce.id] ?? 0;
-        const isOut = currentGameMode !== 'sandbox' && stock <= 0;
-
-        chip.className = `sauce-chip ${isOut ? 'disabled' : ''}`;
-        chip.innerText = `${sauce.name}${currentGameMode === 'sandbox' ? '' : ' (' + stock + ')'}`;
-        
-        chip.onclick = () => {
-          if (isEating) return;
-          if (isOut) { alert(`Out of ${sauce.name}! Buy more in the shop 🏬.`); return; }
-          addSauce(sauce);
-        };
-        container.appendChild(chip);
-      });
-    });
-  }
-
-  function calculateBurgerCost(ids) {
-    return ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0);
-  }
-
-  function getSpeedMultiplier(speed) {
-    switch(speed) {
-      case 'turbo': return 1.3;
-      case 'super-fast': return 1.5;
-      case 'fast': return 1.7;
-      case 'medium': return 2.0;
-      case 'slow': return 2.5;
-      case 'super-slow': return 3.0;
-      default: return 2.0;
-    }
   }
 
   function checkOrderCompletion(ids) {
@@ -827,6 +809,22 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         triggerEatAnimation();
       }, 600);
+    }
+  }
+
+  function calculateBurgerCost(ids) {
+    return ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0);
+  }
+
+  function getSpeedMultiplier(speed) {
+    switch(speed) {
+      case 'turbo': return 1.3;
+      case 'super-fast': return 1.5;
+      case 'fast': return 1.7;
+      case 'medium': return 2.0;
+      case 'slow': return 2.5;
+      case 'super-slow': return 3.0;
+      default: return 2.0;
     }
   }
 
