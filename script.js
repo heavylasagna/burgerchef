@@ -55,10 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const limitWarning = document.getElementById('limitWarning');
 
   // ==========================================
-  // НАСТРОЙКА ПОЛУПРОЗРАЧНОСТИ (ПК)
+  // НАСТРОЙКА ПОЛУПРОЗРАЧНОСТИ
   // ==========================================
   function initOpacityToggle() {
-    // 1. Левая и правая панели — только по клику на их заголовки
+    // 1. Левая и правая панели — только по клику на их заголовки (ПК)
     const sideTitles = document.querySelectorAll('.panel:not(.bottom-panel) .panel-title');
     sideTitles.forEach(title => {
       title.style.cursor = 'pointer';
@@ -69,12 +69,10 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // 2. Нижнее меню — по клику на любое пустое пространство
+    // 2. Нижнее меню — по клику на пустое пространство (ПК)
     if (bottomPanel) {
       bottomPanel.addEventListener('click', (e) => {
         if (window.innerWidth <= 900) return;
-
-        // Если кликнули по кнопкам, чипсам соусов или инпутам внутри меню — не затемняем
         if (
           e.target.closest('button') ||
           e.target.closest('.sauce-chip') ||
@@ -82,8 +80,22 @@ document.addEventListener('DOMContentLoaded', () => {
         ) {
           return;
         }
-
         bottomPanel.classList.toggle('dimmed');
+      });
+    }
+
+    // 3. Таймер/Заказ и Кошелёк — по клику на них самих (ПК и телефоны)
+    const topOrderWidget = document.getElementById('topOrderWidget');
+    if (topOrderWidget) {
+      topOrderWidget.addEventListener('click', () => {
+        topOrderWidget.classList.toggle('dimmed');
+      });
+    }
+
+    const walletWidget = document.getElementById('walletWidget');
+    if (walletWidget) {
+      walletWidget.addEventListener('click', () => {
+        walletWidget.classList.toggle('dimmed');
       });
     }
   }
