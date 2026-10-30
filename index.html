@@ -16,9 +16,15 @@
 
   <div class="toast-container" id="toastContainer"></div>
 
-  <!-- Кошелёк (теперь справа от панели слоёв) -->
+  <!-- Кошелёк (справа от панели слоёв) -->
   <div class="wallet-widget" id="walletWidget" title="Click to toggle opacity">
     <span id="walletBadge">$100.00</span>
+  </div>
+
+  <!-- Закреплённый рецепт: расположен СТРОГО ПОД кошельком -->
+  <div class="pinned-recipe-widget" id="pinnedRecipeWidget">
+    <h5 id="pinnedTitle"><span>📌 Pinned</span> <button class="unpin-btn" id="unpinBtn">✕</button></h5>
+    <div class="pinned-ingredients" id="pinnedIngredientsContainer"></div>
   </div>
 
   <div class="top-order-widget" id="topOrderWidget" title="Click to toggle opacity">
@@ -128,10 +134,6 @@
 
   <div class="app-container">
     <div class="center-stage" id="centerStage">
-      <div class="pinned-recipe-widget" id="pinnedRecipeWidget">
-        <h5 id="pinnedTitle"><span>📌 Pinned</span> <button class="unpin-btn" id="unpinBtn">✕</button></h5>
-        <div class="pinned-ingredients" id="pinnedIngredientsContainer"></div>
-      </div>
       <div class="limit-warning" id="limitWarning">Max 30 ingredients!</div>
       <div class="burger-wrapper">
         <div class="burger-stack" id="burgerStack"></div>
