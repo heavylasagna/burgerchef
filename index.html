@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Burger Builder & Orders</title>
+  <title>Burger Maker</title>
   
   <link rel="icon" type="image/png" href="images/icon.png">
 
@@ -815,7 +815,6 @@
       </div>
     </div>
 
-    <!-- Панель Ingredients (клик по заголовку переключает полупрозрачность) -->
     <div class="panel right-panel" id="rightPanel">
       <div class="panel-title" id="ingredientsTitle">Ingredients</div>
       <div class="ingredients-menu" id="ingredientsMenu"></div>
@@ -823,13 +822,11 @@
 
     <div class="sauces-group mobile-sauces" id="mobileSaucesGroup"></div>
 
-    <!-- Панель Layers (клик по заголовку переключает полупрозрачность) -->
     <div class="panel left-panel" id="leftPanel">
       <div class="panel-title" id="layersTitle">Layers (0/30)</div>
       <div class="layers-list" id="layersList"></div>
     </div>
 
-    <!-- Нижняя панель (клик по пустой зоне переключает полупрозрачность) -->
     <div class="bottom-panel" id="bottomPanel">
       <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
       <div class="action-group">
@@ -874,25 +871,30 @@
         mcPicklePounder: safeAudio('audio/mc-pickle-pounder.mp3')
       };
 
-      // Логика полупрозрачности для панелей по клику на заголовки / пустые области
+      // Проверка размера экрана: затемнение срабатывает только на десктопе (> 900px)
       const leftPanel = document.getElementById('leftPanel');
       const rightPanel = document.getElementById('rightPanel');
       const bottomPanel = document.getElementById('bottomPanel');
 
       document.getElementById('layersTitle').onclick = (e) => {
-        e.stopPropagation();
-        leftPanel.classList.toggle('dimmed');
+        if (window.innerWidth > 900) {
+          e.stopPropagation();
+          leftPanel.classList.toggle('dimmed');
+        }
       };
 
       document.getElementById('ingredientsTitle').onclick = (e) => {
-        e.stopPropagation();
-        rightPanel.classList.toggle('dimmed');
+        if (window.innerWidth > 900) {
+          e.stopPropagation();
+          rightPanel.classList.toggle('dimmed');
+        }
       };
 
       bottomPanel.onclick = (e) => {
-        // Проверяем, что кликнули именно по самой панели, а не по кнопкам или соусам внутри неё
-        if (e.target === bottomPanel || e.target.classList.contains('sauces-group')) {
-          bottomPanel.classList.toggle('dimmed');
+        if (window.innerWidth > 900) {
+          if (e.target === bottomPanel || e.target.classList.contains('sauces-group')) {
+            bottomPanel.classList.toggle('dimmed');
+          }
         }
       };
 
