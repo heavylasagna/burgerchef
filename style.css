@@ -242,7 +242,7 @@ body {
 }
 .limit-warning.show { opacity: 1; transform: translateY(0); }
 
-/* Кошелёк: справа от слоёв бургера */
+/* Кошелёк: справа от панели слоёв */
 .wallet-widget {
   position: absolute;
   top: 10px;
@@ -266,7 +266,7 @@ body {
 .wallet-widget.hidden { display: none !important; }
 #walletBadge { color: #81c784; font-weight: bold; }
 
-/* Закрепленный рецепт: строго под кошельком */
+/* Закрепленный рецепт: строго ПОД кошельком */
 .pinned-recipe-widget {
   position: absolute;
   top: 52px;
