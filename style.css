@@ -518,6 +518,7 @@ body {
   transform: scale(1.05);
 }
 
+/* На ПК стрелка встанет строго слева от правой панели (как на твоем первом рисунке) */
 .pc-arrow-right-side {
   position: absolute;
   left: -48px;
@@ -685,7 +686,6 @@ body {
   font-size: 0.75rem;
   cursor: pointer;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  transition: transform 0.1s;
 }
 .btn-buy:hover { transform: scale(1.03); background: linear-gradient(135deg, #7cb342, #689f38); }
 
@@ -958,10 +958,10 @@ input[type="range"]::-webkit-slider-thumb {
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
   }
 
-  /* Мобильные стрелки справа от сцены */
+  /* Мобильные стрелки закреплены внутри экрана телефона, не вылезая за границу */
   .mobile-arrows-container {
     position: fixed;
-    right: 10px;
+    right: 12px;
     top: 50%;
     transform: translateY(-50%);
     display: flex;
