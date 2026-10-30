@@ -472,14 +472,14 @@ body {
 .btn-squeeze { background: linear-gradient(135deg, #d97706, #b45309); color: #fff; }
 .btn-eat { background: linear-gradient(135deg, #689f38, #558b2f); color: #fff; }
 
-/* Чёрная кнопка подачи заказа */
+/* Кнопка подачи заказа (голубая) */
 .btn-submit-order {
-  background: linear-gradient(135deg, #2b2b2b, #141414);
+  background: linear-gradient(135deg, #00b0ff, #0091ea);
   color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 .btn-submit-order:hover {
-  background: linear-gradient(135deg, #3d3d3d, #212121);
+  background: linear-gradient(135deg, #40c4ff, #00b0ff);
 }
 
 .btn-reset { background: linear-gradient(135deg, #d32f2f, #c62828); color: #fff; }
