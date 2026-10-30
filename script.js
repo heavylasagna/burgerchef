@@ -102,30 +102,31 @@ document.addEventListener('DOMContentLoaded', () => {
   // ДОБАВЛЕНИЕ КНОПОК 🍳 И 🔪 (ПК и ТЕЛЕФОН)
   // ==========================================
   function initCustomActionButtons() {
-    // 1. Для ПК: добавляем кнопки слева от правой панели (меню ингредиентов)
-    const targetRightPanel = document.querySelector('.right-panel');
-    if (targetRightPanel && !document.getElementById('pcEggBtn')) {
+    // 1. Для ПК: создаем контейнер слева от правой панели
+    const appContainer = document.querySelector('.app-container');
+    if (appContainer && !document.getElementById('pcCustomButtonsContainer')) {
+      const pcContainer = document.createElement('div');
+      pcContainer.id = 'pcCustomButtonsContainer';
+      pcContainer.className = 'pc-custom-buttons-container';
+
       const eggBtn = document.createElement('button');
-      eggBtn.id = 'pcEggBtn';
-      eggBtn.className = 'nav-arrow-btn pc-custom-btn-left';
-      eggBtn.style.top = '40%';
+      eggBtn.className = 'nav-arrow-btn';
       eggBtn.innerHTML = '🍳';
       eggBtn.title = 'Действие 🍳';
       eggBtn.onclick = () => { playSound(SOUNDS.buttons); };
-      targetRightPanel.appendChild(eggBtn);
 
       const knifeBtn = document.createElement('button');
-      knifeBtn.id = 'pcKnifeBtn';
-      knifeBtn.className = 'nav-arrow-btn pc-custom-btn-left';
-      knifeBtn.style.top = '52%';
+      knifeBtn.className = 'nav-arrow-btn';
       knifeBtn.innerHTML = '🔪';
       knifeBtn.title = 'Действие 🔪';
       knifeBtn.onclick = () => { playSound(SOUNDS.buttons); };
-      targetRightPanel.appendChild(knifeBtn);
+
+      pcContainer.appendChild(eggBtn);
+      pcContainer.appendChild(knifeBtn);
+      appContainer.appendChild(pcContainer);
     }
 
     // 2. Для телефона: добавляем блок с кнопками под глазом
-    const appContainer = document.querySelector('.app-container');
     if (appContainer && !document.getElementById('mobileCustomButtonsContainer')) {
       const mobileContainer = document.createElement('div');
       mobileContainer.id = 'mobileCustomButtonsContainer';
