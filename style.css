@@ -519,10 +519,10 @@ body {
   transform: scale(1.05);
 }
 
-/* Контейнер для кнопок 🍳 и 🔪 на ПК: с небольшим отступом с правой стороны */
+/* Контейнер для кнопок 🍳 и 🔪 на ПК: небольшой аккуратный отступ */
 .pc-custom-buttons-container {
   position: absolute;
-  right: calc(220px + 15px); /* небольшой отступ справа */
+  right: calc(220px + 22px); /* аккуратный небольшой отступ с правой стороны */
   top: 10px;
   display: flex;
   flex-direction: row;
