@@ -879,29 +879,29 @@ input[type="range"]::-webkit-slider-thumb {
   }
   .mobile-top-bar > * { pointer-events: auto; }
 
-  /* Виджет заказа: ровно по центру, сжат по длинне текста */
+  /* Виджет заказа: строго по центру, сжат по длине текста, не перекрывает кошелек */
   .top-order-widget { 
-    position: fixed; 
-    top: 10px; 
-    left: 50%; 
-    transform: translateX(-50%); 
-    width: fit-content; 
-    max-width: 60%; 
-    font-size: 0.7rem; 
-    padding: 4px 10px; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: center; 
-    text-align: center; 
-    gap: 2px; 
-    z-index: 1000; 
+    position: fixed !important; 
+    top: 10px !important; 
+    left: 50% !important; 
+    transform: translateX(-50%) !important; 
+    width: max-content !important; 
+    max-width: 65% !important; 
+    font-size: 0.7rem !important; 
+    padding: 4px 10px !important; 
+    display: flex !important; 
+    flex-direction: column !important; 
+    align-items: center !important; 
+    justify-content: center !important; 
+    text-align: center !important; 
+    gap: 2px !important; 
+    z-index: 1000 !important; 
   }
 
-  /* Перенос таймера под текст заказа в мобильной версии */
+  /* Таймер в турбо-режиме строго на новой строчке под названием */
   .top-order-widget .order-timer-badge {
-    display: block;
-    margin-top: 2px;
+    display: block !important;
+    margin-top: 2px !important;
   }
   
   .wallet-widget { 
