@@ -231,11 +231,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const squeezeBtn = document.getElementById('squeezeBtn');
   const eatBtn = document.getElementById('eatBtn');
+  const instantOrderBtn = document.getElementById('instantOrderBtn');
 
   function updateActionButtonsVisibility() {
     const isNoOrders = (currentGameMode === 'sandbox' || currentGameMode === 'casual') && currentGameSpeed === 'no-orders';
     if (squeezeBtn) squeezeBtn.style.display = (currentGameMode === 'sandbox' || isNoOrders) ? 'flex' : 'none';
     if (eatBtn) eatBtn.style.display = (currentGameMode === 'sandbox' || isNoOrders) ? 'flex' : 'none';
+
+    // Кнопка мгновенного заказа скрывается при No orders или в Turbo режиме
+    if (instantOrderBtn) {
+      if (currentGameMode === 'turbo' || currentGameSpeed === 'no-orders') {
+        instantOrderBtn.style.display = 'none';
+      } else {
+        instantOrderBtn.style.display = 'flex';
+      }
+    }
   }
 
   const modeSandboxBtn = document.getElementById('modeSandboxBtn');
@@ -268,7 +278,8 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         if(topWidget) topWidget.classList.remove('hidden');
         if (!currentActiveOrder) {
-          triggerRandomOrder();
+          timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
+          localStorage.setItem('time_until_next_order', timeUntilNextOrder);
         }
       }
     }
@@ -297,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.onclick = () => {
       if (currentGameMode === 'turbo') return;
       const newSpeed = btn.getAttribute('data-speed');
-      if (currentGameSpeed === newSpeed && currentActiveOrder) return; // если скорость та же и заказ есть — не трогаем
+      if (currentGameSpeed === newSpeed) return;
       
       currentGameSpeed = newSpeed;
       localStorage.setItem('burger_game_speed', currentGameSpeed);
@@ -305,14 +316,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const w1 = document.getElementById('topOrderWidget');
 
+      // При смене скорости всегда сбрасываем текущий заказ и запускаем таймер заново (кроме No orders)
+      currentActiveOrder = null;
+      localStorage.removeItem('current_active_order');
+
       if (currentGameSpeed === 'no-orders') {
-        currentActiveOrder = null;
-        localStorage.removeItem('current_active_order');
         if (w1) w1.classList.add('hidden');
       } else {
         if (w1) w1.classList.remove('hidden');
-        // Принудительно сбрасываем и создаем новый заказ при смене скорости
-        triggerRandomOrder();
+        timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
+        localStorage.setItem('time_until_next_order', timeUntilNextOrder);
       }
       updateActionButtonsVisibility();
     };
@@ -828,6 +841,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Кнопка мгновенного вызова заказа (🔔)
+  if (instantOrderBtn) {
+    instantOrderBtn.onclick = () => {
+      if (currentGameMode === 'turbo' || currentGameSpeed === 'no-orders') return;
+      triggerRandomOrder();
+      showToast(null, 'New Order!', 'Order called instantly!');
+    };
+  }
+
   // Кнопка сервировки (🍽️)
   const serveBtn = document.getElementById('serveBtn');
   if (serveBtn) {
@@ -931,8 +953,6 @@ document.addEventListener('DOMContentLoaded', () => {
     currentTurboTimeLeft = 180;
     localStorage.setItem('current_active_order', JSON.stringify(currentActiveOrder));
     localStorage.setItem('current_turbo_time_left', currentTurboTimeLeft);
-    timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
-    localStorage.setItem('time_until_next_order', timeUntilNextOrder);
     playSound(SOUNDS.order);
   }
 
