@@ -58,15 +58,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // ПОЛУПРОЗРАЧНОСТЬ ПАНЕЛЕЙ ПО КЛИКУ (ПК)
   // ==========================================
   function initOpacityToggle() {
-    const targetPanels = [leftPanel, rightPanel, bottomPanel];
+    const panels = [leftPanel, rightPanel, bottomPanel];
 
-    targetPanels.forEach(panel => {
+    panels.forEach(panel => {
       if (!panel) return;
       panel.addEventListener('click', (e) => {
-        // На мобильных не применяем (ширина <= 900px)
+        // На мобильных не применяем
         if (window.innerWidth <= 900) return;
 
-        // Если кликнули по интерактивному элементу внутри панели - не затемняем
+        // Если кликнули по кнопкам или элементам внутри — не затемняем
         if (
           e.target.closest('button') ||
           e.target.closest('.ingredient-card') ||
