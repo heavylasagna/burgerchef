@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentBurger = JSON.parse(localStorage.getItem('saved_burger_stack')) || [];
   let isEating = false;
   let isSqueezed = false;
-  let isAddingInProgress = false;
+  let isAddingInProgress = false; // Защита от дублирования слоев
 
   let playerMoney = parseFloat(localStorage.getItem('burger_money'));
   if (isNaN(playerMoney)) playerMoney = 100.00;
@@ -615,6 +615,34 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleUiBtn.onclick = () => {
       document.body.classList.toggle('ui-hidden');
       toggleUiBtn.innerText = document.body.classList.contains('ui-hidden') ? '👁️‍🗨️' : '👁️';
+    };
+  }
+
+  // Обработчик кнопки сохранения бургера в PNG
+  const downloadPngBtn = document.getElementById('downloadPngBtn');
+  if (downloadPngBtn) {
+    downloadPngBtn.onclick = () => {
+      if (currentBurger.length === 0) {
+        alert("Your burger stack is empty! Build a burger first.");
+        return;
+      }
+      playSound(SOUNDS.buttons);
+      
+      const targetElement = document.getElementById('centerStage');
+      if (!targetElement) return;
+
+      html2canvas(targetElement, {
+        backgroundColor: null,
+        scale: 2
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'my-burger.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }).catch(err => {
+        console.error("Failed to save image:", err);
+        alert("Could not save image.");
+      });
     };
   }
 
