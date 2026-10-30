@@ -83,8 +83,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateMoneyDisplay() {
     const badge = document.getElementById('walletBadge');
-    const text = currentGameMode === 'sandbox' ? 'Sandbox' : `$${playerMoney.toFixed(2)}`;
-    if (badge) badge.innerText = text;
+    const widget = document.getElementById('walletWidget');
+    if (!badge || !widget) return;
+
+    if (currentGameMode === 'sandbox') {
+      widget.classList.add('hidden'); // Скрываем кошелек в песочнице
+    } else {
+      widget.classList.remove('hidden');
+      badge.innerText = `$${playerMoney.toFixed(2)}`;
+    }
     localStorage.setItem('burger_money', playerMoney);
   }
 
@@ -126,7 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
       
       let infoHtml = `<img src="${item.image}" alt="${item.name}">`;
       
-      // В песочнице — символ бесконечности, в остальных режимах — xКоличество
       const countText = currentGameMode === 'sandbox' ? '∞' : `x${stock}`;
       infoHtml += `
         <div class="ingredient-info-row">
@@ -156,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isOut = currentGameMode !== 'sandbox' && stock <= 0;
 
         chip.className = `sauce-chip ${isOut ? 'disabled' : ''}`;
-        chip.innerText = sauce.name; // Без количества
+        chip.innerText = sauce.name;
         
         chip.onclick = () => {
           if (isEating) return;
@@ -186,9 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const topOrderWidget = document.getElementById('topOrderWidget');
   if (topOrderWidget) topOrderWidget.onclick = () => { topOrderWidget.classList.toggle('dimmed'); };
-
-  const topOrderWidgetMobile = document.getElementById('topOrderWidgetMobile');
-  if (topOrderWidgetMobile) topOrderWidgetMobile.onclick = () => { topOrderWidgetMobile.classList.toggle('dimmed'); };
 
   let volumeLevel = parseFloat(localStorage.getItem('burger_volume')) ?? 1.0;
   const volumeRange = document.getElementById('volumeRange');
@@ -248,25 +251,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if(modeTurboBtn) modeTurboBtn.classList.toggle('active', mode === 'turbo');
 
     const topWidget = document.getElementById('topOrderWidget');
-    const topWidgetMob = document.getElementById('topOrderWidgetMobile');
 
     if (mode === 'sandbox') {
       if(speedButtonsGrid) speedButtonsGrid.classList.remove('disabled');
       if (currentGameSpeed === 'no-orders') {
         if(topWidget) topWidget.classList.add('hidden');
-        if(topWidgetMob) topWidgetMob.classList.add('hidden');
       } else {
         if(topWidget) topWidget.classList.remove('hidden');
-        if(topWidgetMob) topWidgetMob.classList.remove('hidden');
       }
     } else if (mode === 'casual') {
       if(speedButtonsGrid) speedButtonsGrid.classList.remove('disabled');
       if(topWidget) topWidget.classList.remove('hidden');
-      if(topWidgetMob) topWidgetMob.classList.remove('hidden');
     } else if (mode === 'turbo') {
       if(speedButtonsGrid) speedButtonsGrid.classList.add('disabled');
       if(topWidget) topWidget.classList.remove('hidden');
-      if(topWidgetMob) topWidgetMob.classList.remove('hidden');
       currentTurboTimeLeft = 180;
       if (!currentActiveOrder) triggerRandomOrder();
     }
@@ -300,16 +298,13 @@ document.addEventListener('DOMContentLoaded', () => {
       updateSpeedButtonsUI(currentGameSpeed);
 
       const w1 = document.getElementById('topOrderWidget');
-      const w2 = document.getElementById('topOrderWidgetMobile');
 
       if (currentGameSpeed === 'no-orders' && currentGameMode === 'sandbox') {
         currentActiveOrder = null;
         localStorage.removeItem('current_active_order');
         if (w1) w1.classList.add('hidden');
-        if (w2) w2.classList.add('hidden');
       } else {
         if (w1) w1.classList.remove('hidden');
-        if (w2) w2.classList.remove('hidden');
         timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
         localStorage.setItem('time_until_next_order', timeUntilNextOrder);
       }
@@ -505,6 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     filtered.forEach(item => {
       const unitPrice = ITEM_PRICES[item.id] || 1;
+      const stockDisplay = currentGameMode === 'sandbox' ? '∞' : (ingredientStock[item.id] ?? 0);
       const card = document.createElement('div');
       card.className = 'shop-item-card';
       card.innerHTML = `
@@ -512,7 +508,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <img src="${item.image}" alt="${item.name}">
           <div class="shop-item-details">
             <h4>${item.name} ${item.isSauce ? '<span style="color:#ffb300; font-size:0.7rem;">x10</span>' : ''}</h4>
-            <p>$${unitPrice.toFixed(2)} ${item.isSauce ? 'per pack' : 'each'} | Stock: ${ingredientStock[item.id] ?? 0}</p>
+            <p>$${unitPrice.toFixed(2)} ${item.isSauce ? 'per pack' : 'each'} | Stock: ${stockDisplay}</p>
           </div>
         </div>
         <div class="shop-buy-group">
@@ -780,7 +776,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Главный игровой цикл (таймеры заказов)
   function formatTime(seconds) {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -789,9 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateOrderWidgetsText(text) {
     const w1 = document.getElementById('orderStatusText');
-    const w2 = document.getElementById('orderStatusTextMobile');
     if (w1) w1.innerHTML = text;
-    if (w2) w2.innerHTML = text;
   }
 
   function triggerRandomOrder() {
@@ -806,7 +799,6 @@ document.addEventListener('DOMContentLoaded', () => {
     playSound(SOUNDS.order);
   }
 
-  // Интервал тиков игры (заказы и таймер в турбо режиме)
   setInterval(() => {
     if (currentGameMode === 'sandbox' && currentGameSpeed === 'no-orders') return;
 
@@ -849,7 +841,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Финальный запуск отрисовки
   renderSauces();
   renderIngredientsMenu();
   updateBurgerDisplay(false);
