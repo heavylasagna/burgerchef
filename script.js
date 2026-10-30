@@ -587,6 +587,19 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   document.getElementById('closeAchievementsModal').onclick = () => { playSound(SOUNDS.buttons); achievementsModal.classList.remove('open'); };
 
+  const resetAchievementsBtn = document.getElementById('resetAchievementsBtn');
+  if (resetAchievementsBtn) {
+    resetAchievementsBtn.onclick = () => {
+      if (confirm("⚠️ Are you sure you want to reset all unlocked achievements?")) {
+        unlockedAchievements = {};
+        localStorage.removeItem('unlocked_achievements');
+        playSound(SOUNDS.bin);
+        achievementsModal.classList.remove('open');
+        showToast({title: 'Achievements Reset!'}, 'Reset', 'All secret recipes locked again.');
+      }
+    };
+  }
+
   const settingsModal = document.getElementById('settingsModal');
   document.getElementById('openSettingsBtn').onclick = () => { playSound(SOUNDS.buttons); settingsModal.classList.add('open'); };
   document.getElementById('closeSettingsModal').onclick = () => { playSound(SOUNDS.buttons); settingsModal.classList.remove('open'); };
