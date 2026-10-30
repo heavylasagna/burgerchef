@@ -41,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch(e) {}
   }
 
-  // DOM Элементы
   const leftPanel = document.getElementById('leftPanel');
   const rightPanel = document.getElementById('rightPanel');
   const bottomPanel = document.getElementById('bottomPanel');
@@ -133,7 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
   
   let timeUntilNextOrder = parseInt(localStorage.getItem('time_until_next_order'), 10);
   if (isNaN(timeUntilNextOrder)) timeUntilNextOrder = 120;
-  let currentTurboTimeLeft = 180;
 
   function getCurrentSpeed() {
     if (currentGameMode === 'turbo') return 'turbo';
@@ -334,7 +332,6 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.removeItem('current_active_order');
       if (speed !== 'no-orders') {
         if (speed === 'turbo') {
-          currentTurboTimeLeft = 180;
           triggerRandomOrder();
         } else {
           timeUntilNextOrder = getRandomTimeForSpeed(speed);
@@ -353,7 +350,6 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('current_active_order');
       } else if (speed === 'turbo') {
         if(topWidget) topWidget.classList.remove('hidden');
-        currentTurboTimeLeft = 180;
         if (!currentActiveOrder) triggerRandomOrder();
       } else {
         if(topWidget) topWidget.classList.remove('hidden');
@@ -365,7 +361,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (mode === 'turbo') {
       if(speedButtonsGrid) speedButtonsGrid.classList.add('disabled');
       if(topWidget) topWidget.classList.remove('hidden');
-      currentTurboTimeLeft = 180;
       if (!currentActiveOrder) triggerRandomOrder();
     }
 
@@ -406,7 +401,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (topWidget) topWidget.classList.add('hidden');
       } else if (newSpeed === 'turbo') {
         if (topWidget) topWidget.classList.remove('hidden');
-        currentTurboTimeLeft = 180;
         triggerRandomOrder();
       } else {
         if (topWidget) topWidget.classList.remove('hidden');
@@ -1040,10 +1034,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const chosen = allAvailable[Math.floor(Math.random() * allAvailable.length)];
     currentActiveOrder = { name: chosen.name || chosen.title, ids: chosen.ids };
     
-    if (currentGameMode === 'turbo' || getCurrentSpeed() === 'turbo') {
-      currentTurboTimeLeft = 180;
-    }
-    
     localStorage.setItem('current_active_order', JSON.stringify(currentActiveOrder));
     
     const speed = getCurrentSpeed();
@@ -1060,21 +1050,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentSpeed = getCurrentSpeed();
     if (currentSpeed === 'no-orders') return;
 
+    // В турбо-режиме (или при выбранной турбо скорости) таймер 3 минуты не используется
     if (currentGameMode === 'turbo' || currentSpeed === 'turbo') {
       if (!currentActiveOrder) {
         triggerRandomOrder();
       } else {
-        if (currentTurboTimeLeft > 0) {
-          currentTurboTimeLeft--;
-          updateOrderWidgetsText(currentActiveOrder.name, formatTime(currentTurboTimeLeft));
-        } else {
-          currentTurboTimeLeft = 180;
-          playSound(SOUNDS.wrongOrder);
-          playerMoney = Math.max(0, playerMoney - 5);
-          updateMoneyDisplay(5, false);
-          showToast({title: 'Time Out! -$5'}, 'Order Failed', 'You ran out of time!');
-          triggerRandomOrder();
-        }
+        updateOrderWidgetsText(currentActiveOrder.name); // Отображаем заказ без обратного отсчета таймера
       }
       return;
     }
@@ -1095,7 +1076,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (currentActiveOrder && getCurrentSpeed() !== 'no-orders') {
     if (currentGameMode === 'turbo' || getCurrentSpeed() === 'turbo') {
-      updateOrderWidgetsText(currentActiveOrder.name, formatTime(currentTurboTimeLeft));
+      updateOrderWidgetsText(currentActiveOrder.name);
     } else {
       updateOrderWidgetsText(currentActiveOrder.name);
     }
