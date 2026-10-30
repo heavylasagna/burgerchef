@@ -268,7 +268,7 @@
       z-index: 150;
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 10px;
       text-align: center;
       max-width: 90%;
       cursor: pointer;
@@ -277,14 +277,6 @@
     .top-order-widget.dimmed { opacity: 0.35; }
     .top-order-widget.hidden { display: none !important; }
     .top-order-widget span { color: var(--accent-color); font-weight: bold; }
-    .wallet-display {
-      background: rgba(0, 0, 0, 0.25);
-      padding: 2px 8px;
-      border-radius: 8px;
-      color: #81c784;
-      font-weight: bold;
-      border: 1px solid rgba(129, 199, 132, 0.3);
-    }
 
     .pinned-recipe-widget {
       position: absolute;
@@ -326,32 +318,24 @@
     .ingredient-card {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
       background: var(--item-bg);
       border: 1px solid var(--item-border);
       border-radius: 12px;
-      padding: 6px 10px;
+      padding: 6px;
       width: 100%;
       cursor: pointer;
       transition: all 0.2s;
     }
 
-    .ingredient-card:hover:not(.disabled) {
+    .ingredient-card:hover {
       background: var(--modal-bg);
       border-color: var(--accent-color);
       transform: translateY(-1px);
     }
 
     .ingredient-card.disabled { opacity: 0.4; cursor: not-allowed; }
-    .ingredient-card img { width: 36px; height: 36px; object-fit: contain; }
-    .ingredient-count {
-      font-size: 0.75rem;
-      font-weight: bold;
-      background: rgba(0,0,0,0.3);
-      padding: 2px 6px;
-      border-radius: 6px;
-      color: var(--accent-color);
-    }
+    .ingredient-card img { width: 42px; height: 42px; object-fit: contain; }
 
     .bottom-panel {
       grid-column: 1 / -1;
@@ -393,7 +377,6 @@
       background: var(--modal-bg);
       border-color: var(--accent-color);
     }
-    .sauce-chip.disabled { opacity: 0.4; cursor: not-allowed; }
 
     .action-group {
       display: flex;
@@ -670,10 +653,6 @@
       100% { opacity: 0; transform: translateY(-15px) scale(0.95); }
     }
 
-    .mobile-top-bar {
-      display: none;
-    }
-
     .toggle-ui-btn { display: none; }
 
     @media (max-width: 900px) {
@@ -695,9 +674,8 @@
         overflow-y: hidden;
         padding-bottom: 4px;
       }
-      .ingredient-card { min-width: 75px; height: 55px; padding: 2px; flex-direction: column; justify-content: center; }
-      .ingredient-card img { width: 30px; height: 30px; }
-      .ingredient-count { font-size: 0.65rem; padding: 1px 4px; }
+      .ingredient-card { min-width: 55px; height: 55px; padding: 2px; }
+      .ingredient-card img { width: 38px; height: 38px; }
 
       .sauces-group.desktop-sauces { display: none !important; }
       .sauces-group.mobile-sauces {
@@ -723,21 +701,9 @@
       .action-group { width: 100%; justify-content: space-between; }
       .btn-action { flex: 1; padding: 8px 2px; font-size: 0.75rem; text-align: center; }
 
-      .mobile-top-bar {
-        position: fixed;
-        top: 10px; left: 10px; right: 10px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        z-index: 1000;
-        pointer-events: none;
-      }
-      .mobile-top-bar > * { pointer-events: auto; }
-
-      .top-order-widget { position: static; transform: none; max-width: 65%; font-size: 0.7rem; padding: 4px 10px; }
-      .wallet-display { font-size: 0.75rem; padding: 2px 6px; }
-
       .toggle-ui-btn {
+        position: fixed;
+        top: 10px; right: 10px;
         background: var(--modal-bg);
         border: 1px solid var(--border-color);
         color: var(--text-color);
@@ -748,12 +714,12 @@
         justify-content: center;
         font-size: 1rem;
         cursor: pointer;
+        z-index: 1000;
         box-shadow: 0 3px 10px rgba(0,0,0,0.2);
       }
       body.ui-hidden .left-panel,
       body.ui-hidden .right-panel,
-      body.ui-hidden .sauces-group.mobile-sauces,
-      body.ui-hidden .top-order-widget { display: none !important; }
+      body.ui-hidden .sauces-group.mobile-sauces { display: none !important; }
       body.ui-hidden .center-stage { min-height: 75vh; }
     }
     @media (min-width: 901px) {
@@ -763,25 +729,17 @@
 </head>
 <body>
 
-  <div class="mobile-top-bar">
-    <div class="top-order-widget" id="topOrderWidgetMobile" title="Click to toggle opacity">
-      <span id="orderStatusTextMobile">Next: 05:00</span>
-      <div class="wallet-display" id="walletDisplayMobile">$100</div>
-    </div>
-    <button class="toggle-ui-btn" id="toggleUiBtn" title="Скрыть/показать окна">👁️</button>
-  </div>
-
+  <button class="toggle-ui-btn" id="toggleUiBtn" title="Скрыть/показать окна">👁️</button>
   <div class="toast-container" id="toastContainer"></div>
 
   <div class="top-order-widget" id="topOrderWidget" title="Click to toggle opacity">
     <span id="orderStatusText">Next order in: 05:00</span>
-    <div class="wallet-display" id="walletDisplay">$100</div>
   </div>
 
   <div class="modal-overlay" id="recipesModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>📋 Burger Recipes</h3>
+        <h3>Burger Recipes</h3>
         <button class="close-modal" id="closeRecipesModal">✕</button>
       </div>
       <div class="recipe-tabs">
@@ -1003,29 +961,9 @@
           sandboxBtn.classList.add('active');
         }
         localStorage.setItem('burger_game_mode', mode);
-        updateMoneyDisplay();
       }
       const savedMode = localStorage.getItem('burger_game_mode') || 'sandbox';
       setGameMode(savedMode);
-
-      let playerMoney = parseFloat(localStorage.getItem('burger_money'));
-      if (isNaN(playerMoney)) playerMoney = 100.00;
-
-      function updateMoneyDisplay() {
-        const mode = localStorage.getItem('burger_game_mode') || 'sandbox';
-        const displays = [document.getElementById('walletDisplay'), document.getElementById('walletDisplayMobile')];
-        displays.forEach(d => {
-          if (!d) return;
-          if (mode === 'sandbox') {
-            d.innerText = 'Sandbox';
-            d.style.color = '#ffb300';
-          } else {
-            d.innerText = `$${playerMoney.toFixed(2)}`;
-            d.style.color = '#81c784';
-          }
-        });
-        localStorage.setItem('burger_money', playerMoney);
-      }
 
       let currentGameSpeed = localStorage.getItem('burger_game_speed') || 'medium';
       const speedButtons = document.querySelectorAll('.speed-btn');
@@ -1051,12 +989,8 @@
             currentActiveOrder = null;
             saveOrderState();
             document.getElementById('topOrderWidget').classList.add('hidden');
-            const mobileWidget = document.getElementById('topOrderWidgetMobile');
-            if (mobileWidget) mobileWidget.classList.add('hidden');
           } else {
             document.getElementById('topOrderWidget').classList.remove('hidden');
-            const mobileWidget = document.getElementById('topOrderWidgetMobile');
-            if (mobileWidget) mobileWidget.classList.remove('hidden');
             timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
             saveOrderState();
           }
@@ -1065,8 +999,6 @@
 
       if (currentGameSpeed === 'no-orders') {
         document.getElementById('topOrderWidget').classList.add('hidden');
-        const mobileWidget = document.getElementById('topOrderWidgetMobile');
-        if (mobileWidget) mobileWidget.classList.add('hidden');
       }
 
       function getRandomTimeForSpeed(speed) {
@@ -1100,62 +1032,6 @@
       topOrderWidget.onclick = () => {
         topOrderWidget.classList.toggle('dimmed');
       };
-      const topOrderWidgetMobile = document.getElementById('topOrderWidgetMobile');
-      if (topOrderWidgetMobile) {
-        topOrderWidgetMobile.onclick = () => {
-          topOrderWidgetMobile.classList.toggle('dimmed');
-        };
-      }
-
-      const ITEM_PRICES = {
-        'bottom-bun': 2,
-        'top-bun': 2,
-        'beef-patty': 5,
-        'cheese': 3,
-        'hashbrown': 3,
-        'fried-egg': 2,
-        'champignons': 3,
-        'fried-bacon': 3,
-        'lettuce': 1,
-        'tomato': 1,
-        'pickles': 1,
-        'red-onion': 1,
-        'white-onion': 1,
-        'chicken-patty': 4,
-        'fish-patty': 4,
-        'mayo': 0.20,
-        'ketchup': 0.20,
-        'mustard': 0.20,
-        'spicy': 0.20,
-        'bbq': 0.20
-      };
-
-      let ingredientStock = JSON.parse(localStorage.getItem('burger_ingredient_stock')) || {
-        'bottom-bun': 20,
-        'top-bun': 20,
-        'beef-patty': 15,
-        'cheese': 15,
-        'hashbrown': 10,
-        'fried-egg': 10,
-        'champignons': 10,
-        'fried-bacon': 10,
-        'lettuce': 20,
-        'tomato': 20,
-        'pickles': 20,
-        'red-onion': 15,
-        'white-onion': 15,
-        'chicken-patty': 15,
-        'fish-patty': 15,
-        'mayo': 30,
-        'ketchup': 30,
-        'mustard': 30,
-        'spicy': 30,
-        'bbq': 30
-      };
-
-      function saveStock() {
-        localStorage.setItem('burger_ingredient_stock', JSON.stringify(ingredientStock));
-      }
 
       const ITEM_IMAGES = {
         'bottom-bun': 'images/bottom-bun.png',
@@ -1226,14 +1102,14 @@
         }
       }
 
-      function showToast(ach, customTitle, customDesc) {
+      function showToast(ach) {
         const container = document.getElementById('toastContainer');
         if (!container) return;
         const toast = document.createElement('div');
         toast.className = 'achievement-toast';
         toast.innerHTML = `
-          <h4 style="font-size:0.9rem; margin:0;">${customTitle || ach.title}</h4>
-          <p style="font-size:0.75rem; opacity:0.8; margin:0;">${customDesc || 'Secret recipe unlocked!'}</p>
+          <h4 style="font-size:0.9rem; margin:0;">${ach.title}</h4>
+          <p style="font-size:0.75rem; opacity:0.8; margin:0;">Secret recipe unlocked!</p>
         `;
         container.appendChild(toast);
         setTimeout(() => toast.remove(), 3500);
@@ -1412,19 +1288,11 @@
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
       }
 
-      function updateOrderWidgetsText(text) {
-        const w1 = document.getElementById('orderStatusText');
-        const w2 = document.getElementById('orderStatusTextMobile');
-        if (w1) w1.innerHTML = text;
-        if (w2) w2.innerHTML = text;
-      }
-
       if (currentGameSpeed === 'no-orders') {
-        document.getElementById('topOrderWidget').classList.add('hidden');
-        const mobileWidget = document.getElementById('topOrderWidgetMobile');
-        if (mobileWidget) mobileWidget.classList.add('hidden');
+        topOrderWidget.classList.add('hidden');
       } else if (currentActiveOrder) {
-        updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span>`);
+        const statusText = document.getElementById('orderStatusText');
+        if (statusText) statusText.innerHTML = `🔔 Order: <span>${currentActiveOrder.name}</span>`;
       }
 
       setInterval(() => {
@@ -1437,11 +1305,14 @@
           return;
         }
 
+        const statusText = document.getElementById('orderStatusText');
         if (!currentActiveOrder) {
           if (timeUntilNextOrder > 0) {
             timeUntilNextOrder--;
             saveOrderState();
-            updateOrderWidgetsText(`Next order in: <span>${formatTime(timeUntilNextOrder)}</span>`);
+            if (statusText) {
+              statusText.innerHTML = `Next order in: <span>${formatTime(timeUntilNextOrder)}</span>`;
+            }
           } else {
             triggerRandomOrder();
           }
@@ -1456,7 +1327,8 @@
         currentActiveOrder = { name: chosen.name || chosen.title, ids: chosen.ids };
         timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
         saveOrderState();
-        updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span>`);
+        const statusText = document.getElementById('orderStatusText');
+        if (statusText) statusText.innerHTML = `🔔 Order: <span>${currentActiveOrder.name}</span>`;
         playSound(SOUNDS.order);
       }
 
@@ -1507,26 +1379,12 @@
       function renderIngredientsMenu() {
         if (!ingredientsMenu) return;
         ingredientsMenu.innerHTML = '';
-        const mode = localStorage.getItem('burger_game_mode') || 'sandbox';
-
         INGREDIENTS.forEach(item => {
           const card = document.createElement('div');
-          const count = ingredientStock[item.id] ?? 0;
-          const isOut = mode !== 'sandbox' && count <= 0;
-
-          card.className = `ingredient-card ${currentBurger.length >= MAX_INGREDIENTS || isEating || isOut ? 'disabled' : ''}`;
-          
-          let countHtml = mode === 'sandbox' ? '' : `<span class="ingredient-count">${count}</span>`;
-          card.innerHTML = `<img src="${item.image}" alt="${item.name}">${countHtml}`;
-          
-          card.onclick = () => {
-            if (isEating) return;
-            if (mode !== 'sandbox' && count <= 0) {
-              alert(`Out of ${item.name}!`);
-              return;
-            }
-            addIngredient(item);
-          };
+          card.className = 'ingredient-card';
+          if (currentBurger.length >= MAX_INGREDIENTS || isEating) card.classList.add('disabled');
+          card.innerHTML = `<img src="${item.image}" alt="${item.name}">`;
+          card.onclick = () => { if (!isEating) addIngredient(item); };
           ingredientsMenu.appendChild(card);
         });
       }
@@ -1534,45 +1392,16 @@
       function renderSauces() {
         if (desktopSaucesGroup) desktopSaucesGroup.innerHTML = '';
         if (mobileSaucesGroup) mobileSaucesGroup.innerHTML = '';
-        const mode = localStorage.getItem('burger_game_mode') || 'sandbox';
-
         SAUCES.forEach(sauce => {
           [desktopSaucesGroup, mobileSaucesGroup].forEach(container => {
             if (!container) return;
             const chip = document.createElement('div');
-            const count = ingredientStock[sauce.id] ?? 0;
-            const isOut = mode !== 'sandbox' && count <= 0;
-
-            chip.className = `sauce-chip ${isOut ? 'disabled' : ''}`;
+            chip.className = 'sauce-chip';
             chip.innerText = sauce.name;
-            
-            chip.onclick = () => {
-              if (isEating) return;
-              if (mode !== 'sandbox' && count <= 0) {
-                alert(`Out of ${sauce.name}!`);
-                return;
-              }
-              addSauce(sauce);
-            };
+            chip.onclick = () => { if (!isEating) addSauce(sauce); };
             container.appendChild(chip);
           });
         });
-      }
-
-      function calculateBurgerCost(ids) {
-        return ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 0), 0);
-      }
-
-      function getSpeedMultiplier(speed) {
-        switch(speed) {
-          case 'turbo': return 1.3;
-          case 'super-fast': return 1.5;
-          case 'fast': return 1.7;
-          case 'medium': return 2.0;
-          case 'slow': return 2.5;
-          case 'super-slow': return 3.0;
-          default: return 2.0;
-        }
       }
 
       function checkOrderCompletion(ids) {
@@ -1581,19 +1410,15 @@
         if (ids.length === targetIds.length && ids.every((val, idx) => val === targetIds[idx])) {
           playSound(SOUNDS.complete);
           
-          const mode = localStorage.getItem('burger_game_mode') || 'sandbox';
-          let earnedText = '';
-
-          if (mode !== 'sandbox' && currentGameSpeed !== 'no-orders') {
-            const cost = calculateBurgerCost(ids);
-            const mult = getSpeedMultiplier(currentGameSpeed);
-            const reward = Math.round(cost * mult * 100) / 100;
-            playerMoney += reward;
-            updateMoneyDisplay();
-            earnedText = `Earned: +$${reward.toFixed(2)}`;
-          }
-
-          showToast(null, 'Order Complete!', `${currentActiveOrder.name} served successfully! ${earnedText}`);
+          const toast = document.createElement('div');
+          toast.className = 'achievement-toast';
+          toast.innerHTML = `
+            <h4 style="font-size:0.9rem; margin:0;">Order Complete!</h4>
+            <p style="font-size:0.75rem; opacity:0.8; margin:0;">${currentActiveOrder.name} served successfully</p>
+          `;
+          const container = document.getElementById('toastContainer');
+          if (container) container.appendChild(toast);
+          setTimeout(() => toast.remove(), 4000);
 
           currentActiveOrder = null;
           timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
@@ -1681,7 +1506,6 @@
           });
         }
         renderIngredientsMenu();
-        renderSauces();
         if (centerStage) {
           setTimeout(() => { centerStage.scrollTop = centerStage.scrollHeight; }, 50);
         }
@@ -1696,14 +1520,6 @@
 
       function addIngredient(item) {
         if (currentBurger.length >= MAX_INGREDIENTS) { showLimitWarning(); return; }
-        const mode = localStorage.getItem('burger_game_mode') || 'sandbox';
-        
-        if (mode !== 'sandbox') {
-          if ((ingredientStock[item.id] ?? 0) <= 0) return;
-          ingredientStock[item.id]--;
-          saveStock();
-        }
-
         playSound(SOUNDS.ingridients);
         currentBurger.push({ ...item });
         checkSpecialCombos();
@@ -1712,14 +1528,6 @@
 
       function addSauce(sauce) {
         if (currentBurger.length >= MAX_INGREDIENTS) { showLimitWarning(); return; }
-        const mode = localStorage.getItem('burger_game_mode') || 'sandbox';
-
-        if (mode !== 'sandbox') {
-          if ((ingredientStock[sauce.id] ?? 0) <= 0) return;
-          ingredientStock[sauce.id]--;
-          saveStock();
-        }
-
         playSound(SOUNDS.sauce);
         currentBurger.push({ ...sauce });
         checkSpecialCombos();
@@ -1728,14 +1536,6 @@
 
       window.removeLayer = function(index) {
         if (isEating) return;
-        const removed = currentBurger[index];
-        const mode = localStorage.getItem('burger_game_mode') || 'sandbox';
-
-        if (mode !== 'sandbox' && removed) {
-          ingredientStock[removed.id] = (ingredientStock[removed.id] ?? 0) + 1;
-          saveStock();
-        }
-
         playSound(SOUNDS.buttons);
         currentBurger.splice(index, 1);
         checkSpecialCombos();
@@ -1768,14 +1568,6 @@
       const resetBtn = document.getElementById('resetBtn');
       if (resetBtn) {
         resetBtn.onclick = () => {
-          const mode = localStorage.getItem('burger_game_mode') || 'sandbox';
-          if (mode !== 'sandbox' && currentBurger.length > 0) {
-            currentBurger.forEach(item => {
-              ingredientStock[item.id] = (ingredientStock[item.id] ?? 0) + 1;
-            });
-            saveStock();
-          }
-
           playSound(SOUNDS.bin);
           isEating = false; isSqueezed = false;
           if (burgerStack) burgerStack.classList.remove('eating');
@@ -1870,7 +1662,6 @@
       renderIngredientsMenu();
       updateBurgerDisplay(false);
       updatePinnedWidget();
-      updateMoneyDisplay();
     });
   </script>
 </body>
