@@ -64,10 +64,8 @@ body {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  cursor: pointer;
-  transition: opacity 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
-.panel.dimmed { opacity: 0.35; }
 
 .panel-title {
   font-size: 0.85rem;
@@ -78,7 +76,6 @@ body {
   text-shadow: 0 1px 3px rgba(0,0,0,0.2);
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  cursor: pointer;
 }
 
 .left-panel {
@@ -252,10 +249,8 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  cursor: pointer;
-  transition: opacity 0.3s ease, background 0.3s ease, color 0.3s ease;
+  transition: background 0.3s ease, color 0.3s ease;
 }
-.wallet-widget.dimmed { opacity: 0.35; }
 .wallet-widget.hidden { display: none !important; }
 #walletBadge { color: #81c784; font-weight: bold; }
 
@@ -340,10 +335,8 @@ body {
   gap: 15px;
   text-align: center;
   max-width: 90%;
-  cursor: pointer;
-  transition: opacity 0.3s ease, background 0.3s ease, color 0.3s ease;
+  transition: background 0.3s ease, color 0.3s ease;
 }
-.top-order-widget.dimmed { opacity: 0.35; }
 .top-order-widget.hidden { display: none !important; }
 .top-order-widget span { color: var(--accent-color); font-weight: bold; }
 .order-timer-badge { color: #e57373; font-weight: bold; font-family: monospace; }
@@ -425,10 +418,8 @@ body {
   box-shadow: 0 8px 20px rgba(0,0,0,0.2);
   border: 1px solid var(--border-color);
   z-index: 100;
-  cursor: pointer;
-  transition: opacity 0.3s ease, background 0.3s ease;
+  transition: background 0.3s ease;
 }
-.bottom-panel.dimmed { opacity: 0.35; }
 
 .sauces-group {
   display: flex;
