@@ -939,4 +939,25 @@ input[type="range"]::-moz-range-thumb {
 }
 @media (min-width: 901px) {
   .sauces-group.mobile-sauces { display: none !important; }
+
+  /* Кастомный дизайн скроллбаров под общую стилистику */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+  border: 1px solid var(--item-border);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
 }
