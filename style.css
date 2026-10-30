@@ -235,6 +235,7 @@ body {
 }
 .limit-warning.show { opacity: 1; transform: translateY(0); }
 
+/* Кошелек: на десктопе абсолютный, на мобилках фиксированный */
 .wallet-widget {
   position: absolute;
   top: 10px;
@@ -298,7 +299,7 @@ body {
   100% { opacity: 0; transform: translateY(-15px) scale(0.95); }
 }
 
-/* Закрепленный рецепт (ПК): компактный, вертикальный, одинаковые маленькие зазоры */
+/* Закрепленный рецепт: минимальные зазоры (ПК: увеличенные картинки, моб: аккуратные) */
 .pinned-recipe-widget {
   position: absolute;
   top: 54px;
@@ -307,7 +308,7 @@ body {
   backdrop-filter: blur(8px);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: 8px 8px;
+  padding: 6px 8px;
   font-size: 0.85rem;
   width: 76px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
@@ -316,10 +317,10 @@ body {
   transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 .pinned-recipe-widget.active { display: block; }
-.pinned-recipe-widget h5 { color: var(--text-color); margin-bottom: 4px; font-size: 0.85rem; display: flex; justify-content: flex-end; align-items: center; }
+.pinned-recipe-widget h5 { color: var(--text-color); margin-bottom: 2px; font-size: 0.85rem; display: flex; justify-content: flex-end; align-items: center; }
 .pinned-recipe-widget .unpin-btn { background: none; border: none; cursor: pointer; font-size: 0.85rem; color: var(--text-color); }
-.pinned-ingredients { display: flex; flex-direction: column; gap: 3px; align-items: center; }
-.pinned-ingredients img { width: 32px; height: 32px; object-fit: contain; }
+.pinned-ingredients { display: flex; flex-direction: column; gap: 2px; align-items: center; }
+.pinned-ingredients img { width: 36px; height: 36px; object-fit: contain; }
 
 .top-order-widget {
   position: absolute;
@@ -913,16 +914,17 @@ input[type="range"]::-webkit-slider-thumb {
   .action-group { width: 100%; justify-content: space-between; }
   .btn-action { flex: 1; padding: 8px 2px; font-size: 0.75rem; text-align: center; }
 
+  /* Жестко фиксируем верхнюю панель, кошелек, рецепт и кнопки под глазом, чтобы они никогда не прокручивались со страницей */
   .mobile-top-bar {
-    position: fixed;
-    top: 10px; left: 10px; right: 10px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    z-index: 1000;
-    pointer-events: none;
+    position: fixed !important;
+    top: 10px !important; left: 10px !important; right: 10px !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    z-index: 1000 !important;
+    pointer-events: none !important;
   }
-  .mobile-top-bar > * { pointer-events: auto; }
+  .mobile-top-bar > * { pointer-events: auto !important; }
 
   .top-order-widget { 
     position: fixed !important; 
@@ -947,7 +949,6 @@ input[type="range"]::-webkit-slider-thumb {
     margin-top: 2px !important;
   }
   
-  /* Фиксируем кошелек на мобилке строго слева сверху */
   .wallet-widget { 
     position: fixed !important; 
     top: 10px !important; 
@@ -958,20 +959,20 @@ input[type="range"]::-webkit-slider-thumb {
     font-size: 0.7rem !important; 
   }
 
-  /* Фиксированный вертикальный компактный рецепт на мобилке */
   .pinned-recipe-widget { 
     position: fixed !important;
     top: 45px !important; 
     left: 10px !important; 
     width: 65px !important;
     padding: 6px 6px !important;
+    z-index: 1000 !important;
   }
-  .pinned-recipe-widget h5 { margin-bottom: 3px; font-size: 0.75rem; display: flex; justify-content: flex-end; align-items: center; }
+  .pinned-recipe-widget h5 { margin-bottom: 2px; font-size: 0.75rem; display: flex; justify-content: flex-end; align-items: center; }
   .pinned-recipe-widget .unpin-btn { font-size: 0.75rem; }
   .pinned-ingredients { 
     display: flex !important;
     flex-direction: column !important; 
-    gap: 3px !important; 
+    gap: 2px !important; 
     align-items: center !important;
   }
   .pinned-ingredients img { width: 28px !important; height: 28px !important; object-fit: contain; }
@@ -990,15 +991,9 @@ input[type="range"]::-webkit-slider-thumb {
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
   }
 
-  /* На мобильных устройствах кнопки 🍳 и 🔪 берутся из разметки под глазом и фиксируются справа сверху */
+  /* Фиксируем блок с кнопками под глазом справа сверху, исключая дубликаты у кошелька */
   .mobile-custom-buttons-container {
-    position: fixed !important;
-    right: 10px !important;
-    top: 54px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 8px !important;
-    z-index: 1000 !important;
+    display: none !important;
   }
 
   body.ui-hidden .left-panel,
@@ -1006,8 +1001,7 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .sauces-group.mobile-sauces,
   body.ui-hidden .top-order-widget,
   body.ui-hidden .wallet-widget,
-  body.ui-hidden .pinned-recipe-widget,
-  body.ui-hidden .mobile-custom-buttons-container { display: none !important; }
+  body.ui-hidden .pinned-recipe-widget { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
 }
 
