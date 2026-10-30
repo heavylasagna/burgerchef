@@ -192,7 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Исправление звука при старте: считываем из localStorage или ставим 1.0 (100%) по умолчанию
   let volumeLevel = parseFloat(localStorage.getItem('burger_volume'));
   if (isNaN(volumeLevel)) volumeLevel = 1.0;
 
@@ -643,6 +642,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
+  // Обновленная функция сохранения картинки с обрезкой пустого пространства
   const downloadPngBtn = document.getElementById('downloadPngBtn');
   if (downloadPngBtn) {
     downloadPngBtn.onclick = () => {
@@ -652,18 +652,24 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       playSound(SOUNDS.buttons);
       
-      const targetElement = document.getElementById('centerStage');
+      const targetElement = document.getElementById('burgerStack');
       if (!targetElement) return;
+
+      // Временно добавляем класс для компактной обрезки по размеру бургера
+      targetElement.classList.add('capturing-png');
 
       html2canvas(targetElement, {
         backgroundColor: null,
         scale: 2
       }).then(canvas => {
+        targetElement.classList.remove('capturing-png'); // Возвращаем стили обратно
+
         const link = document.createElement('a');
         link.download = 'my-burger.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
       }).catch(err => {
+        targetElement.classList.remove('capturing-png');
         console.error("Failed to save image:", err);
         alert("Could not save image.");
       });
