@@ -64,7 +64,6 @@ body {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  cursor: pointer;
   transition: opacity 0.3s ease, background 0.3s ease, border-color 0.3s ease;
 }
 .panel.dimmed { opacity: 0.25; }
@@ -251,9 +250,11 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: background 0.3s ease, color 0.3s ease;
+  cursor: pointer;
+  transition: opacity 0.3s ease, background 0.3s ease, color 0.3s ease;
 }
 .wallet-widget.hidden { display: none !important; }
+.wallet-widget.dimmed { opacity: 0.25 !important; }
 #walletBadge { color: #81c784; font-weight: bold; }
 
 .money-popup-container {
@@ -338,9 +339,11 @@ body {
   text-align: center;
   width: max-content;
   max-width: 90%;
-  transition: background 0.3s ease, color 0.3s ease;
+  cursor: pointer;
+  transition: opacity 0.3s ease, background 0.3s ease, color 0.3s ease;
 }
 .top-order-widget.hidden { display: none !important; }
+.top-order-widget.dimmed { opacity: 0.25 !important; }
 .top-order-widget span { color: var(--accent-color); font-weight: bold; }
 .order-timer-badge { color: #e57373; font-weight: bold; font-family: monospace; display: block; margin-top: 2px; }
 
@@ -421,7 +424,6 @@ body {
   box-shadow: 0 8px 20px rgba(0,0,0,0.2);
   border: 1px solid var(--border-color);
   z-index: 100;
-  cursor: pointer;
   transition: opacity 0.3s ease, background 0.3s ease;
 }
 .bottom-panel.dimmed { opacity: 0.25; }
@@ -875,7 +877,6 @@ input[type="range"]::-webkit-slider-thumb {
   }
   .mobile-top-bar > * { pointer-events: auto; }
 
-  /* Виджет заказа: строго по центру, сжат по длине текста, не перекрывает кошелек */
   .top-order-widget { 
     position: fixed !important; 
     top: 10px !important; 
@@ -894,7 +895,6 @@ input[type="range"]::-webkit-slider-thumb {
     z-index: 1000 !important; 
   }
 
-  /* Таймер в турбо-режиме строго на новой строчке под названием */
   .top-order-widget .order-timer-badge {
     display: block !important;
     margin-top: 2px !important;
@@ -925,6 +925,7 @@ input[type="range"]::-webkit-slider-thumb {
     cursor: pointer;
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
   }
+
   body.ui-hidden .left-panel,
   body.ui-hidden .right-panel,
   body.ui-hidden .sauces-group.mobile-sauces,
