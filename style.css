@@ -494,7 +494,7 @@ body {
   background: rgba(211, 47, 47, 0.2);
 }
 
-/* Стили для кнопок-стрелок */
+/* Стили для кнопок 🍳 и 🔪 */
 .nav-arrow-btn {
   background: var(--modal-bg);
   color: var(--text-color);
@@ -518,8 +518,8 @@ body {
   transform: scale(1.05);
 }
 
-/* На ПК стрелка встанет строго слева от правой панели (как на твоем первом рисунке) */
-.pc-arrow-right-side {
+/* На ПК кнопки слева от правой панели */
+.pc-custom-btn-left {
   position: absolute;
   left: -48px;
   transform: translateY(-50%);
@@ -664,6 +664,17 @@ body {
   background: var(--accent-color);
   color: #fff;
 }
+
+/* Убираем стандартные стрелочки у числовых инпутов в магазине */
+.shop-buy-group input[type="number"]::-webkit-inner-spin-button,
+.shop-buy-group input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.shop-buy-group input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 .shop-buy-group input {
   background: var(--modal-bg);
   color: var(--text-color);
@@ -847,7 +858,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 .mobile-top-bar { display: none; }
 .toggle-ui-btn { display: none; }
-.mobile-arrows-container { display: none; }
+.mobile-custom-buttons-container { display: none; }
 
 @media (max-width: 900px) {
   body { overflow: auto; }
@@ -958,15 +969,14 @@ input[type="range"]::-webkit-slider-thumb {
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
   }
 
-  /* Мобильные стрелки закреплены внутри экрана телефона, не вылезая за границу */
-  .mobile-arrows-container {
+  /* Мобильные кнопки под глазом справа сверху */
+  .mobile-custom-buttons-container {
     position: fixed;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
+    right: 10px;
+    top: 54px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     z-index: 2500;
   }
 
@@ -976,10 +986,10 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .top-order-widget,
   body.ui-hidden .wallet-widget,
   body.ui-hidden .pinned-recipe-widget,
-  body.ui-hidden .mobile-arrows-container { display: none !important; }
+  body.ui-hidden .mobile-custom-buttons-container { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
 }
 @media (min-width: 901px) {
   .sauces-group.mobile-sauces { display: none !important; }
-  .mobile-arrows-container { display: none !important; }
+  .mobile-custom-buttons-container { display: none !important; }
 }
