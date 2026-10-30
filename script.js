@@ -82,31 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (isNaN(timeUntilNextOrder)) timeUntilNextOrder = 120;
   let currentTurboTimeLeft = 180;
 
-  // ==========================================
-  // ПОЛУПРОЗРАЧНОСТЬ ПАНЕЛЕЙ ПО КЛИКУ НА СВОБОДНОЕ МЕСТО
-  // ==========================================
-  function initOpacityToggle() {
-    const targetPanels = document.querySelectorAll('.panel, .bottom-panel, .wallet-widget, .top-order-widget');
-
-    targetPanels.forEach(panel => {
-      panel.addEventListener('click', (e) => {
-        if (
-          e.target.closest('button') ||
-          e.target.closest('.ingredient-card') ||
-          e.target.closest('.layer-item') ||
-          e.target.closest('.sauce-chip') ||
-          e.target.closest('input') ||
-          e.target.closest('.recipe-card') ||
-          e.target.closest('.shop-item-card')
-        ) {
-          return;
-        }
-        panel.classList.toggle('dimmed');
-      });
-    });
-  }
-  initOpacityToggle();
-
   function getCurrentSpeed() {
     if (currentGameMode === 'turbo') return 'turbo-fixed';
     return modeSpeeds[currentGameMode] || 'no-orders';
