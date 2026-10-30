@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   initOpacityToggle();
 
-  // Чисто ПК-шные кнопки 🍳 и 🔪 (никакого кода для мобилок здесь нет)
+  // Создаем кнопки 🍳 и 🔪 СТРОГО для ПК. На мобилках они зашиты в верстку под глазом.
   function initCustomActionButtons() {
     const appContainer = document.querySelector('.app-container');
     const existingPcContainer = document.getElementById('pcCustomButtonsContainer');
