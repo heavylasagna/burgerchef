@@ -58,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // НАСТРОЙКА ПОЛУПРОЗРАЧНОСТИ
   // ==========================================
   function initOpacityToggle() {
-    // 1. Левая и правая панели — только по клику на их заголовки (ПК)
     const sideTitles = document.querySelectorAll('.panel:not(.bottom-panel) .panel-title');
     sideTitles.forEach(title => {
       title.style.cursor = 'pointer';
@@ -69,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // 2. Нижнее меню — по клику на пустое пространство (ПК)
     if (bottomPanel) {
       bottomPanel.addEventListener('click', (e) => {
         if (window.innerWidth <= 900) return;
@@ -84,7 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // 3. Таймер/Заказ и Кошелёк — по клику на них самих (ПК и телефоны)
     const topOrderWidget = document.getElementById('topOrderWidget');
     if (topOrderWidget) {
       topOrderWidget.addEventListener('click', () => {
@@ -105,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ДОБАВЛЕНИЕ КНОПОК-СТРЕЛОК (ПК и ТЕЛЕФОН)
   // ==========================================
   function initNavArrows() {
-    // 1. Для ПК: добавляем стрелки слева от правой панели (меню ингредиентов)
+    // 1. Для ПК: добавляем стрелки справа от правой панели (меню ингредиентов)
     const targetRightPanel = document.querySelector('.right-panel');
     if (targetRightPanel && !document.getElementById('pcScrollUpBtn')) {
       const upArrow = document.createElement('button');
