@@ -65,15 +65,15 @@ document.addEventListener('DOMContentLoaded', () => {
     'mayo': 30, 'ketchup': 30, 'mustard': 30, 'spicy': 30, 'bbq': 30
   };
 
-  // По умолчанию: Casual режим игры и No orders скорость
+  // По умолчанию: Casual режим игры и Medium скорость вместо No orders
   let currentGameMode = localStorage.getItem('burger_game_mode') || 'casual';
-  let currentGameSpeed = localStorage.getItem('burger_game_speed') || 'no-orders';
+  let currentGameSpeed = localStorage.getItem('burger_game_speed') || 'medium';
   
   let unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements')) || {};
   let pinnedBurger = JSON.parse(localStorage.getItem('pinned_burger')) || null;
   let currentActiveOrder = JSON.parse(localStorage.getItem('current_active_order')) || null;
   let timeUntilNextOrder = parseInt(localStorage.getItem('time_until_next_order'), 10);
-  if (isNaN(timeUntilNextOrder)) timeUntilNextOrder = 120;
+  if (isNaN(timeUntilNextOrder)) timeUntilNextOrder = 180;
   let currentTurboTimeLeft = parseInt(localStorage.getItem('current_turbo_time_left'), 10);
   if (isNaN(currentTurboTimeLeft)) currentTurboTimeLeft = 180;
 
@@ -263,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'medium': return Math.floor(Math.random() * 180) + 120;
       case 'slow': return Math.floor(Math.random() * 300) + 300;
       case 'super-slow': return Math.floor(Math.random() * 900) + 900;
-      default: return 300;
+      default: return 180;
     }
   }
 
@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const topWidget = document.getElementById('topOrderWidget');
 
-    // Сбрасываем старый заказ при смене режима
+    // Полный сброс перед переключением режима
     clearActiveOrderState();
 
     if (mode === 'turbo') {
@@ -357,7 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const topWidget = document.getElementById('topOrderWidget');
 
-      // Сбрасываем старый заказ при смене скорости
+      // Полный сброс перед сменой скорости
       clearActiveOrderState();
 
       if (currentGameSpeed === 'no-orders') {
@@ -431,23 +431,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!body) return;
     body.innerHTML = '';
 
+    const ITEM_IMAGES = {
+      'bottom-bun': 'images/bottom-bun.png', 'top-bun': 'images/top-bun.png',
+      'beef-patty': 'images/beef-patty.png', 'cheese': 'images/cheese.png',
+      'hashbrown': 'images/hashbrown.png', 'fried-egg': 'images/fried-egg.png',
+      'champignons': 'images/champignons.png', 'fried-bacon': 'images/fried-bacon.png',
+      'lettuce': 'images/lettuce.png', 'tomato': 'images/tomato.png',
+      'pickles': 'images/pickles.png', 'red-onion': 'images/red-onion.png',
+      'white-onion': 'images/white-onion.png', 'chicken-patty': 'images/chicken-patty.png',
+      'fish-patty': 'images/fish-patty.png', 'mayo': 'images/sauce-mayo.png',
+      'ketchup': 'images/sauce-ketchup.png', 'mustard': 'images/sauce-mustard.png',
+      'spicy': 'images/sauce-spicy.png', 'bbq': 'images/sauce-bbq.png'
+    };
+
     if (activeRecipeTab === 'regular') {
       REGULAR_RECIPES.forEach(r => {
         const card = document.createElement('div');
         card.className = 'recipe-card';
         let iconsHtml = '';
-        const ITEM_IMAGES = {
-          'bottom-bun': 'images/bottom-bun.png', 'top-bun': 'images/top-bun.png',
-          'beef-patty': 'images/beef-patty.png', 'cheese': 'images/cheese.png',
-          'hashbrown': 'images/hashbrown.png', 'fried-egg': 'images/fried-egg.png',
-          'champignons': 'images/champignons.png', 'fried-bacon': 'images/fried-bacon.png',
-          'lettuce': 'images/lettuce.png', 'tomato': 'images/tomato.png',
-          'pickles': 'images/pickles.png', 'red-onion': 'images/red-onion.png',
-          'white-onion': 'images/white-onion.png', 'chicken-patty': 'images/chicken-patty.png',
-          'fish-patty': 'images/fish-patty.png', 'mayo': 'images/sauce-mayo.png',
-          'ketchup': 'images/sauce-ketchup.png', 'mustard': 'images/sauce-mustard.png',
-          'spicy': 'images/sauce-spicy.png', 'bbq': 'images/sauce-bbq.png'
-        };
         r.ids.forEach(id => { if (ITEM_IMAGES[id]) iconsHtml += `<img src="${ITEM_IMAGES[id]}" title="${id}">`; });
         card.innerHTML = `<div class="recipe-info"><h4>${r.name}</h4><div class="recipe-visual">${iconsHtml}</div></div>`;
         const pinBtn = document.createElement('button');
@@ -470,18 +471,6 @@ document.addEventListener('DOMContentLoaded', () => {
         card.className = `recipe-card ${isUnlocked ? '' : 'locked'}`;
         if (isUnlocked) {
           let iconsHtml = '';
-          const ITEM_IMAGES = {
-            'bottom-bun': 'images/bottom-bun.png', 'top-bun': 'images/top-bun.png',
-            'beef-patty': 'images/beef-patty.png', 'cheese': 'images/cheese.png',
-            'hashbrown': 'images/hashbrown.png', 'fried-egg': 'images/fried-egg.png',
-            'champignons': 'images/champignons.png', 'fried-bacon': 'images/fried-bacon.png',
-            'lettuce': 'images/lettuce.png', 'tomato': 'images/tomato.png',
-            'pickles': 'images/pickles.png', 'red-onion': 'images/red-onion.png',
-            'white-onion': 'images/white-onion.png', 'chicken-patty': 'images/chicken-patty.png',
-            'fish-patty': 'images/fish-patty.png', 'mayo': 'images/sauce-mayo.png',
-            'ketchup': 'images/sauce-ketchup.png', 'mustard': 'images/sauce-mustard.png',
-            'spicy': 'images/sauce-spicy.png', 'bbq': 'images/sauce-bbq.png'
-          };
           ach.ids.forEach(id => { if (ITEM_IMAGES[id]) iconsHtml += `<img src="${ITEM_IMAGES[id]}" title="${id}">`; });
           card.innerHTML = `<div class="recipe-info" style="flex:1;"><h4>${ach.title}</h4><div class="recipe-visual">${iconsHtml}</div></div>`;
           const pinBtn = document.createElement('button');
