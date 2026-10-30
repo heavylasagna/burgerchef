@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!badge) return;
 
     if (currentGameMode === 'sandbox') {
-      badge.innerText = '$∞'; // Знак доллара и символ бесконечности в песочнице
+      badge.innerText = '$∞';
     } else {
       badge.innerText = `$${playerMoney.toFixed(2)}`;
     }
@@ -130,7 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
       card.className = `ingredient-card ${currentBurger.length >= MAX_INGREDIENTS || isEating || isOut ? 'disabled' : ''}`;
       
       let infoHtml = `<img src="${item.image}" alt="${item.name}">`;
-      
       const countText = currentGameMode === 'sandbox' ? '∞' : `x${stock}`;
       infoHtml += `
         <div class="ingredient-info-row">
@@ -172,7 +171,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // UI События панелей и виджетов
   document.getElementById('layersTitle').onclick = (e) => {
     if (window.innerWidth > 900) { e.stopPropagation(); leftPanel.classList.toggle('dimmed'); }
   };
@@ -259,7 +257,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } else if (mode === 'casual') {
       if(speedButtonsGrid) speedButtonsGrid.classList.remove('disabled');
-      if(topWidget) topWidget.classList.remove('hidden');
+      if (currentGameSpeed === 'no-orders') {
+        if(topWidget) topWidget.classList.add('hidden');
+        currentActiveOrder = null;
+        localStorage.removeItem('current_active_order');
+      } else {
+        if(topWidget) topWidget.classList.remove('hidden');
+      }
     } else if (mode === 'turbo') {
       if(speedButtonsGrid) speedButtonsGrid.classList.add('disabled');
       if(topWidget) topWidget.classList.remove('hidden');
@@ -296,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const w1 = document.getElementById('topOrderWidget');
 
-      if (currentGameSpeed === 'no-orders' && currentGameMode === 'sandbox') {
+      if (currentGameSpeed === 'no-orders') {
         currentActiveOrder = null;
         localStorage.removeItem('current_active_order');
         if (w1) w1.classList.add('hidden');
@@ -794,7 +798,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   setInterval(() => {
-    if (currentGameMode === 'sandbox' && currentGameSpeed === 'no-orders') return;
+    if (currentGameSpeed === 'no-orders') return;
 
     if (currentGameMode === 'turbo') {
       if (!currentActiveOrder) {
@@ -827,7 +831,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, 1000);
 
-  if (currentActiveOrder) {
+  if (currentActiveOrder && currentGameSpeed !== 'no-orders') {
     if (currentGameMode === 'turbo') {
       updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span> <span class="order-timer-badge">⏱️ ${formatTime(currentTurboTimeLeft)}</span>`);
     } else {
