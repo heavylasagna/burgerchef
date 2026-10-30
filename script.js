@@ -1,1035 +1,922 @@
-document.addEventListener('DOMContentLoaded', () => {
-  function safeAudio(path) {
-    try {
-      const a = new Audio(path);
-      a.onerror = () => {};
-      return a;
-    } catch(e) {
-      return null;
-    }
+:root {
+  --bg-gradient: radial-gradient(circle at 50% 30%, #3e2a1d, #1a100a);
+  --panel-bg-1: rgba(30, 20, 15, 0.85);
+  --panel-bg-2: rgba(20, 12, 8, 0.85);
+  --text-color: #fdfbf7;
+  --border-color: rgba(255, 179, 0, 0.2);
+  --item-bg: rgba(45, 30, 22, 0.75);
+  --item-border: rgba(255, 179, 0, 0.15);
+  --modal-bg: rgba(26, 16, 10, 0.95);
+  --accent-color: #ffb300;
+  --panel-title-color: #ffb300;
+}
+
+body.light-theme {
+  --bg-gradient: radial-gradient(circle at 50% 30%, #d7ccc8, #a1887f);
+  --panel-bg-1: rgba(253, 251, 247, 0.92);
+  --panel-bg-2: rgba(245, 239, 230, 0.92);
+  --text-color: #3e2723;
+  --border-color: rgba(141, 110, 99, 0.3);
+  --item-bg: rgba(255, 255, 255, 0.85);
+  --item-border: rgba(215, 204, 200, 0.6);
+  --modal-bg: rgba(253, 251, 247, 0.98);
+  --accent-color: #8d6e63;
+  --panel-title-color: #5d4037;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg-gradient);
+  color: var(--text-color);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.app-container {
+  display: grid;
+  grid-template-columns: 220px 1fr 220px;
+  grid-template-rows: 1fr 80px;
+  height: 100vh;
+  width: 100vw;
+  gap: 12px;
+  padding: 12px;
+}
+
+.panel {
+  background: linear-gradient(145deg, var(--panel-bg-1), var(--panel-bg-2));
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  transition: opacity 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+}
+.panel.dimmed { opacity: 0.35; }
+
+.panel-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-align: center;
+  color: var(--panel-title-color);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+}
+
+.left-panel {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.layers-list {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 6px;
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 2px;
+}
+
+.layer-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--item-bg);
+  padding: 4px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--item-border);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.layer-preview {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.layer-controls {
+  display: flex;
+  gap: 3px;
+}
+
+.btn-control {
+  background: var(--item-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+
+.btn-control:hover:not(:disabled) {
+  background: var(--accent-color);
+  color: #fff;
+}
+
+.btn-control.delete:hover {
+  background: #d32f2f;
+  color: #ffffff;
+}
+
+.btn-control:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.center-stage {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  position: relative;
+  padding-bottom: 20px;
+  overflow-y: auto; 
+  overflow-x: hidden;
+  height: 100%;
+}
+
+.burger-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.burger-stack {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  position: relative;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+/* Класс для аккуратной обрезки PNG */
+.burger-stack.capturing-png {
+  padding: 10px 20px;
+  display: inline-flex;
+  width: max-content;
+}
+
+.burger-stack.eating {
+  animation: eatAnimation 2s forwards ease-in-out;
+}
+
+@keyframes eatAnimation {
+  0% { transform: scale(1) rotate(0deg); opacity: 1; }
+  25% { transform: scale(0.75) rotate(-5deg); }
+  50% { transform: scale(0.5) rotate(5deg); }
+  75% { transform: scale(0.25) rotate(-3deg); }
+  100% { transform: scale(0) rotate(0deg); opacity: 0; }
+}
+
+.burger-layer-img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 150px;
+  position: relative;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.burger-layer-img.squeezed {
+  transform: translateY(var(--sq-offset, 8px)) scaleY(0.82) scaleX(1.04);
+}
+
+.burger-layer-img.new-layer {
+  animation: smoothDropIn 0.35s ease-out forwards;
+}
+
+@keyframes smoothDropIn {
+  0% { opacity: 0; transform: translateY(-20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.limit-warning {
+  position: absolute;
+  top: 55px;
+  background: #d32f2f;
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  z-index: 200;
+}
+.limit-warning.show { opacity: 1; transform: translateY(0); }
+
+/* Кошелёк: справа от панели слоёв */
+.wallet-widget {
+  position: absolute;
+  top: 10px;
+  left: 240px; 
+  background: var(--panel-bg-1);
+  backdrop-filter: blur(8px);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: opacity 0.3s ease, background 0.3s ease, color 0.3s ease;
+}
+.wallet-widget.dimmed { opacity: 0.35; }
+.wallet-widget.hidden { display: none !important; }
+#walletBadge { color: #81c784; font-weight: bold; }
+
+/* Всплывающие уведомления об изменении денег рядом с кошельком */
+.money-popup-container {
+  position: absolute;
+  top: 10px;
+  left: 335px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 200;
+  pointer-events: none;
+}
+
+.money-popup {
+  font-size: 0.8rem;
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+  animation: moneyPopupAnim 2.5s forwards ease-in-out;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
+.money-popup.plus {
+  background: rgba(104, 159, 56, 0.85);
+  color: #fff;
+  border: 1px solid #81c784;
+}
+
+.money-popup.minus {
+  background: rgba(211, 47, 47, 0.85);
+  color: #fff;
+  border: 1px solid #e57373;
+}
+
+@keyframes moneyPopupAnim {
+  0% { opacity: 0; transform: translateY(5px) scale(0.9); }
+  15% { opacity: 1; transform: translateY(0) scale(1); }
+  75% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-15px) scale(0.95); }
+}
+
+/* Закрепленный рецепт: строго ПОД кошельком */
+.pinned-recipe-widget {
+  position: absolute;
+  top: 52px;
+  left: 240px;
+  background: var(--modal-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  max-width: 200px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  z-index: 50;
+  display: none;
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+.pinned-recipe-widget.active { display: block; }
+.pinned-recipe-widget h5 { color: var(--text-color); margin-bottom: 4px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; }
+.pinned-recipe-widget .unpin-btn { background: none; border: none; cursor: pointer; font-size: 0.8rem; color: var(--text-color); }
+.pinned-ingredients { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
+.pinned-ingredients img { width: 22px; height: 22px; object-fit: contain; }
+
+.top-order-widget {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel-bg-1);
+  backdrop-filter: blur(8px);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 6px 16px;
+  font-size: 0.8rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  text-align: center;
+  max-width: 90%;
+  cursor: pointer;
+  transition: opacity 0.3s ease, background 0.3s ease, color 0.3s ease;
+}
+.top-order-widget.dimmed { opacity: 0.35; }
+.top-order-widget.hidden { display: none !important; }
+.top-order-widget span { color: var(--accent-color); font-weight: bold; }
+.order-timer-badge { color: #e57373; font-weight: bold; font-family: monospace; }
+
+.right-panel {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.ingredients-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 2px;
+  align-items: center;
+}
+
+.ingredient-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--item-bg);
+  border: 1px solid var(--item-border);
+  border-radius: 12px;
+  padding: 6px 10px;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ingredient-card:hover:not(.disabled) {
+  background: var(--modal-bg);
+  border-color: var(--accent-color);
+  transform: translateY(-1px);
+}
+
+.ingredient-card.disabled { opacity: 0.4; cursor: not-allowed; }
+.ingredient-card img { width: 36px; height: 36px; object-fit: contain; }
+
+.ingredient-info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.ingredient-name {
+  font-size: 0.75rem;
+  color: var(--text-color);
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90px;
+}
+
+.ingredient-stock-count {
+  font-size: 0.75rem;
+  font-weight: bold;
+  background: rgba(0,0,0,0.3);
+  padding: 2px 6px;
+  border-radius: 6px;
+  color: var(--accent-color);
+  opacity: 0.85;
+}
+
+.bottom-panel {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15px;
+  background: linear-gradient(145deg, var(--panel-bg-1), var(--panel-bg-2));
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  border: 1px solid var(--border-color);
+  z-index: 100;
+  transition: opacity 0.3s ease, background 0.3s ease;
+}
+.bottom-panel.dimmed { opacity: 0.35; }
+
+.sauces-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+}
+
+.sauce-chip {
+  background: var(--item-bg);
+  border: 1px solid var(--item-border);
+  padding: 5px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-color);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+.sauce-chip.disabled { opacity: 0.4; cursor: not-allowed; }
+
+.action-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Единый полый стиль для ВСЕХ кнопок панели действий */
+.btn-action {
+  padding: 0 12px;
+  height: 40px;
+  background: transparent;
+  border: 1.5px solid var(--border-color);
+  color: var(--text-color);
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
+}
+
+.btn-action:hover {
+  background: var(--modal-bg);
+  border-color: var(--accent-color);
+  transform: translateY(-1px);
+}
+
+.btn-outline-danger {
+  background: transparent;
+  border: 2px solid #d32f2f;
+  color: #d32f2f;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-outline-danger:hover {
+  background: rgba(211, 47, 47, 0.2);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+.modal-overlay.open { opacity: 1; visibility: visible; }
+
+.modal-content {
+  background: var(--modal-bg);
+  backdrop-filter: blur(12px);
+  color: var(--text-color);
+  width: 90%;
+  max-width: 440px;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.modal-content.wide { max-width: 650px; }
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 8px;
+}
+.modal-header h3 { color: var(--text-color); font-size: 1rem; }
+.close-modal { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--text-color); }
+
+.recipe-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.recipe-tab {
+  flex: 1;
+  min-width: 65px;
+  padding: 6px 4px;
+  background: var(--item-bg);
+  border: 1px solid var(--item-border);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  cursor: pointer;
+  color: var(--text-color);
+  text-align: center;
+}
+.recipe-tab.active {
+  background: var(--accent-color);
+  color: #fff;
+  border-color: var(--accent-color);
+}
+
+.modal-body {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 2px;
+  margin-bottom: 12px;
+}
+
+.shop-item-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--item-bg);
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--item-border);
+  gap: 12px;
+}
+.shop-item-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+.shop-item-info img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 2px;
+}
+.shop-item-details h4 {
+  font-size: 0.85rem;
+  color: var(--text-color);
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.shop-item-details p {
+  font-size: 0.75rem;
+  color: var(--accent-color);
+  font-weight: bold;
+}
+.shop-buy-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.shop-qty-btn {
+  background: var(--item-bg);
+  border: 1px solid var(--item-border);
+  color: var(--text-color);
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.shop-qty-btn:hover {
+  background: var(--accent-color);
+  color: #fff;
+}
+.shop-buy-group input {
+  background: var(--modal-bg);
+  color: var(--text-color);
+  border: 1px solid var(--item-border);
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: 0.8rem;
+  outline: none;
+  width: 45px;
+  text-align: center;
+  font-weight: bold;
+}
+.btn-buy {
+  background: linear-gradient(135deg, #689f38, #558b2f);
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 0.75rem;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  transition: transform 0.1s;
+}
+.btn-buy:hover { transform: scale(1.03); background: linear-gradient(135deg, #7cb342, #689f38); }
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--item-bg);
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--item-border);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+.settings-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-color);
+  display: flex;
+  justify-content: space-between;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--border-color);
+  border-radius: 3px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  cursor: pointer;
+}
+
+.settings-row {
+  display: flex;
+  gap: 8px;
+}
+.settings-row button {
+  flex: 1;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid var(--item-border);
+  background: var(--modal-bg);
+  color: var(--text-color);
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.settings-row button.active {
+  background: var(--accent-color);
+  color: #fff;
+  border-color: var(--accent-color);
+}
+
+.speed-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+.speed-grid.disabled { opacity: 0.35; pointer-events: none; }
+.speed-btn {
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid var(--item-border);
+  background: var(--modal-bg);
+  color: var(--text-color);
+  font-weight: 600;
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-align: center;
+}
+.speed-btn.active {
+  background: var(--accent-color);
+  color: #fff;
+  border-color: var(--accent-color);
+}
+
+.recipe-card, .achievement-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--item-bg);
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--item-border);
+}
+.recipe-card.locked { opacity: 0.5; }
+.recipe-info h4 { font-size: 0.85rem; color: var(--text-color); margin-bottom: 3px; }
+
+.recipe-visual {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  align-items: center;
+}
+.recipe-visual img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  background: rgba(255,255,255,0.4);
+  border-radius: 4px;
+  padding: 1px;
+  border: 1px solid var(--item-border);
+}
+
+.btn-pin {
+  background: var(--accent-color);
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.btn-pin.pinned { background: #689f38; }
+
+.toast-container {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+  width: 400px;
+  max-width: 90vw;
+}
+.achievement-toast {
+  background: var(--modal-bg);
+  color: var(--text-color);
+  padding: 12px 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  border: 2px solid #81c784;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: toastAnim 3.5s forwards ease-in-out;
+}
+@keyframes toastAnim {
+  0% { opacity: 0; transform: translateY(-15px) scale(0.95); }
+  15% { opacity: 1; transform: translateY(0) scale(1); }
+  85% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-15px) scale(0.95); }
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; border: 1px solid var(--item-border); }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
+
+.mobile-top-bar { display: none; }
+.toggle-ui-btn { display: none; }
+
+@media (max-width: 900px) {
+  body { overflow: auto; }
+  .app-container {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    width: 100%;
+    padding: 8px;
+    gap: 8px;
+    padding-bottom: 75px;
   }
+  .center-stage { order: 1; min-height: 350px; padding-bottom: 10px; justify-content: flex-end; }
+  .right-panel { order: 2; height: 115px; }
+  .ingredients-menu {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 4px;
+  }
+  .ingredient-card { min-width: 95px; height: 55px; padding: 2px 6px; flex-direction: row; justify-content: space-between; }
+  .ingredient-card img { width: 30px; height: 30px; }
+  .ingredient-info-row { flex-direction: column; align-items: flex-start; gap: 1px; }
+  .ingredient-name { max-width: 50px; font-size: 0.65rem; }
+  .ingredient-stock-count { font-size: 0.65rem; padding: 1px 4px; }
 
-  const SOUNDS = {
-    eating: safeAudio('audio/eating.mp3'),
-    sauce: safeAudio('audio/sauce.mp3'),
-    ingridients: safeAudio('audio/ingridients.mp3'),
-    buttons: safeAudio('audio/buttons.mp3'),
-    squeeze: safeAudio('audio/squeeze.mp3'),
-    achievement: safeAudio('audio/achievement.mp3'),
-    buy: safeAudio('audio/buy.mp3'),
-    order: safeAudio('audio/order.mp3'),
-    complete: safeAudio('audio/complete.mp3'),
-    bin: safeAudio('audio/bin.mp3'),
-    wrongOrder: safeAudio('audio/wrong-order.mp3'),
-    cheeseburger: safeAudio('audio/cheeseburger.mp3'),
-    tomatonator: safeAudio('audio/tomatonator.mp3'),
-    lilypad: safeAudio('audio/lilypad.mp3'),
-    saturnBurger: safeAudio('audio/saturn-burger.mp3'),
-    bustanator: safeAudio('audio/bustanator.mp3'),
-    mcPicklePounder: safeAudio('audio/mc-pickle-pounder.mp3')
-  };
+  .sauces-group.desktop-sauces { display: none !important; }
+  .sauces-group.mobile-sauces {
+    display: flex !important;
+    order: 3;
+    background: linear-gradient(145deg, var(--panel-bg-1), var(--panel-bg-2));
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    padding: 6px 10px;
+    gap: 6px;
+    overflow-x: auto;
+    border: 1px solid var(--border-color);
+  }
+  .left-panel { order: 4; height: 150px; }
+  .bottom-panel {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    padding: 8px 12px;
+    justify-content: center;
+    border-radius: 12px 12px 0 0;
+    z-index: 1000;
+  }
+  .action-group { width: 100%; justify-content: space-between; }
+  .btn-action { flex: 1; padding: 8px 2px; font-size: 0.75rem; text-align: center; }
 
-  // DOM Элементы
-  const leftPanel = document.getElementById('leftPanel');
-  const rightPanel = document.getElementById('rightPanel');
-  const bottomPanel = document.getElementById('bottomPanel');
-  const ingredientsMenu = document.getElementById('ingredientsMenu');
-  const desktopSaucesGroup = document.getElementById('desktopSaucesGroup');
-  const mobileSaucesGroup = document.getElementById('mobileSaucesGroup');
-  const burgerStack = document.getElementById('burgerStack');
-  const layersList = document.getElementById('layersList');
-  const layersTitle = document.getElementById('layersTitle');
-  const centerStage = document.getElementById('centerStage');
-  const limitWarning = document.getElementById('limitWarning');
+  .mobile-top-bar {
+    position: fixed;
+    top: 10px; left: 10px; right: 10px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    z-index: 1000;
+    pointer-events: none;
+  }
+  .mobile-top-bar > * { pointer-events: auto; }
 
-  const MAX_INGREDIENTS = 30;
-  let currentBurger = JSON.parse(localStorage.getItem('saved_burger_stack')) || [];
-  let isEating = false;
-  let isSqueezed = false;
-  let isAddingInProgress = false;
-
-  let playerMoney = parseFloat(localStorage.getItem('burger_money'));
-  if (isNaN(playerMoney)) playerMoney = 100.00;
-
-  const ITEM_PRICES = {
-    'bottom-bun': 2, 'top-bun': 2,
-    'beef-patty': 5, 'chicken-patty': 4, 'fish-patty': 4, 'fried-bacon': 3, 'fried-egg': 2,
-    'cheese': 3, 'hashbrown': 3, 'champignons': 3,
-    'lettuce': 1, 'tomato': 1, 'pickles': 1, 'red-onion': 1, 'white-onion': 1,
-    'mayo': 2, 'ketchup': 2, 'mustard': 2, 'spicy': 2, 'bbq': 2
-  };
-
-  let ingredientStock = JSON.parse(localStorage.getItem('burger_ingredient_stock')) || {
-    'bottom-bun': 20, 'top-bun': 20,
-    'beef-patty': 15, 'chicken-patty': 15, 'fish-patty': 15, 'fried-bacon': 10, 'fried-egg': 10,
-    'cheese': 15, 'hashbrown': 10, 'champignons': 10,
-    'lettuce': 20, 'tomato': 20, 'pickles': 20, 'red-onion': 15, 'white-onion': 15,
-    'mayo': 30, 'ketchup': 30, 'mustard': 30, 'spicy': 30, 'bbq': 30
-  };
-
-  let currentGameMode = localStorage.getItem('burger_game_mode') || 'casual';
-
-  let modeSpeeds = JSON.parse(localStorage.getItem('burger_mode_speeds')) || {
-    'sandbox': 'no-orders',
-    'casual': 'no-orders'
-  };
-
-  let unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements')) || {};
-  let pinnedBurger = JSON.parse(localStorage.getItem('pinned_burger')) || null;
-  let currentActiveOrder = JSON.parse(localStorage.getItem('current_active_order')) || null;
+  .top-order-widget { position: static; transform: none; max-width: 65%; font-size: 0.7rem; padding: 4px 10px; }
   
-  let timeUntilNextOrder = parseInt(localStorage.getItem('time_until_next_order'), 10);
-  if (isNaN(timeUntilNextOrder)) timeUntilNextOrder = 120;
-  let currentTurboTimeLeft = 180;
-
-  function getCurrentSpeed() {
-    if (currentGameMode === 'turbo') return 'turbo-fixed';
-    return modeSpeeds[currentGameMode] || 'no-orders';
+  .wallet-widget { 
+    position: fixed; 
+    top: 10px; 
+    left: 10px; 
+    transform: none; 
+    z-index: 1000; 
+    padding: 4px 10px; 
+    font-size: 0.7rem; 
   }
 
-  function saveStock() {
-    localStorage.setItem('burger_ingredient_stock', JSON.stringify(ingredientStock));
+  .pinned-recipe-widget { top: 45px; left: 10px; }
+
+  .toggle-ui-btn {
+    background: var(--modal-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
   }
-
-  function saveBurgerState() {
-    localStorage.setItem('saved_burger_stack', JSON.stringify(currentBurger));
-  }
-
-  function showMoneyPopup(amount, isPlus) {
-    let container = document.getElementById('moneyPopupContainer');
-    if (!container) {
-      container = document.createElement('div');
-      container.id = 'moneyPopupContainer';
-      container.className = 'money-popup-container';
-      document.body.appendChild(container);
-    }
-    const popup = document.createElement('div');
-    popup.className = `money-popup ${isPlus ? 'plus' : 'minus'}`;
-    popup.innerText = `${isPlus ? '+' : ''}$${amount.toFixed(2)}`;
-    container.appendChild(popup);
-    setTimeout(() => popup.remove(), 2500);
-  }
-
-  function updateMoneyDisplay(changeAmount = null, isPlus = true) {
-    const badge = document.getElementById('walletBadge');
-    if (!badge) return;
-
-    if (currentGameMode === 'sandbox') {
-      badge.innerText = '$∞';
-    } else {
-      badge.innerText = `$${playerMoney.toFixed(2)}`;
-      if (changeAmount !== null && changeAmount !== 0) {
-        showMoneyPopup(changeAmount, isPlus);
-      }
-    }
-    localStorage.setItem('burger_money', playerMoney);
-  }
-
-  const INGREDIENTS = [
-    { id: 'top-bun', name: 'Top Bun', image: 'images/top-bun.png' },
-    { id: 'cheese', name: 'Cheese', image: 'images/cheese.png' },
-    { id: 'fried-egg', name: 'Fried Egg', image: 'images/fried-egg.png' },
-    { id: 'champignons', name: 'Champignons', image: 'images/champignons.png' },
-    { id: 'fried-bacon', name: 'Fried Bacon', image: 'images/fried-bacon.png' },
-    { id: 'lettuce', name: 'Lettuce', image: 'images/lettuce.png' },
-    { id: 'tomato', name: 'Tomato', image: 'images/tomato.png' },
-    { id: 'pickles', name: 'Pickles', image: 'images/pickles.png' },
-    { id: 'red-onion', name: 'Red Onion', image: 'images/red-onion.png' },
-    { id: 'white-onion', name: 'White Onion', image: 'images/white-onion.png' },
-    { id: 'hashbrown', name: 'Hashbrown', image: 'images/hashbrown.png' },
-    { id: 'beef-patty', name: 'Beef Patty', image: 'images/beef-patty.png' },
-    { id: 'chicken-patty', name: 'Chicken Patty', image: 'images/chicken-patty.png' },
-    { id: 'fish-patty', name: 'Fish Patty', image: 'images/fish-patty.png' },
-    { id: 'bottom-bun', name: 'Bottom Bun', image: 'images/bottom-bun.png' }
-  ];
-
-  const SAUCES = [
-    { id: 'mayo', name: '⚪️ Mayo', image: 'images/sauce-mayo.png' },
-    { id: 'ketchup', name: '🔴 Ketchup', image: 'images/sauce-ketchup.png' },
-    { id: 'mustard', name: '🟡 Mustard', image: 'images/sauce-mustard.png' },
-    { id: 'spicy', name: '🟠 Spicy', image: 'images/sauce-spicy.png' },
-    { id: 'bbq', name: '🟤 BBQ', image: 'images/sauce-bbq.png' }
-  ];
-
-  function renderIngredientsMenu() {
-    if (!ingredientsMenu) return;
-    ingredientsMenu.innerHTML = '';
-    INGREDIENTS.forEach(item => {
-      const card = document.createElement('div');
-      const stock = ingredientStock[item.id] ?? 0;
-      const isOut = currentGameMode !== 'sandbox' && stock <= 0;
-
-      card.className = `ingredient-card ${currentBurger.length >= MAX_INGREDIENTS || isEating || isOut ? 'disabled' : ''}`;
-      
-      let infoHtml = `<img src="${item.image}" alt="${item.name}">`;
-      const countText = currentGameMode === 'sandbox' ? '∞' : `x${stock}`;
-      infoHtml += `
-        <div class="ingredient-info-row">
-          <span class="ingredient-name" title="${item.name}">${item.name}</span>
-          <span class="ingredient-stock-count">${countText}</span>
-        </div>`;
-
-      card.innerHTML = infoHtml;
-      
-      card.onclick = () => {
-        if (isEating || isAddingInProgress) return;
-        if (isOut) { alert(`Out of ${item.name}! Buy more in the shop.`); return; }
-        addIngredient(item);
-      };
-      ingredientsMenu.appendChild(card);
-    });
-  }
-
-  function renderSauces() {
-    if (desktopSaucesGroup) desktopSaucesGroup.innerHTML = '';
-    if (mobileSaucesGroup) mobileSaucesGroup.innerHTML = '';
-    SAUCES.forEach(sauce => {
-      [desktopSaucesGroup, mobileSaucesGroup].forEach(container => {
-        if (!container) return;
-        const chip = document.createElement('div');
-        const stock = ingredientStock[sauce.id] ?? 0;
-        const isOut = currentGameMode !== 'sandbox' && stock <= 0;
-
-        chip.className = `sauce-chip ${isOut ? 'disabled' : ''}`;
-        chip.innerText = sauce.name;
-        
-        chip.onclick = () => {
-          if (isEating || isAddingInProgress) return;
-          if (isOut) { alert(`Out of ${sauce.name}! Buy more in the shop.`); return; }
-          addSauce(sauce);
-        };
-        container.appendChild(chip);
-      });
-    });
-  }
-
-  let volumeLevel = parseFloat(localStorage.getItem('burger_volume'));
-  if (isNaN(volumeLevel)) volumeLevel = 1.0;
-
-  const volumeRange = document.getElementById('volumeRange');
-  const volumeVal = document.getElementById('volumeVal');
-  if (volumeRange) {
-    volumeRange.value = volumeLevel * 100;
-    volumeVal.innerText = `${volumeRange.value}%`;
-    volumeRange.oninput = () => {
-      volumeLevel = volumeRange.value / 100;
-      volumeVal.innerText = `${volumeRange.value}%`;
-      localStorage.setItem('burger_volume', volumeLevel);
-    };
-  }
-
-  function playSound(sound) {
-    if (sound && volumeLevel > 0) {
-      try { 
-        sound.currentTime = 0; 
-        sound.volume = volumeLevel; 
-        sound.play().catch(() => {}); 
-      } catch(e){}
-    }
-  }
-
-  window.setTheme = function(theme) {
-    const darkBtn = document.getElementById('themeDarkBtn');
-    const lightBtn = document.getElementById('themeLightBtn');
-    if (theme === 'light') {
-      document.body.classList.add('light-theme');
-      if(darkBtn) darkBtn.classList.remove('active');
-      if(lightBtn) lightBtn.classList.add('active');
-      localStorage.setItem('burger_theme', 'light');
-    } else {
-      document.body.classList.remove('light-theme');
-      if(lightBtn) lightBtn.classList.remove('active');
-      if(darkBtn) darkBtn.classList.add('active');
-      localStorage.setItem('burger_theme', 'dark');
-    }
-  }
-  setTheme(localStorage.getItem('burger_theme') || 'dark');
-
-  const squeezeBtn = document.getElementById('squeezeBtn');
-  const eatBtn = document.getElementById('eatBtn');
-  const submitOrderBtn = document.getElementById('submitOrderBtn');
-
-  function updateActionButtonsVisibility() {
-    if (squeezeBtn) squeezeBtn.style.display = 'flex';
-
-    const currentSpeed = getCurrentSpeed();
-    const isNoOrders = currentSpeed === 'no-orders';
-    const isSandboxOrCasual = currentGameMode === 'sandbox' || currentGameMode === 'casual';
-
-    if (eatBtn) {
-      // В турбо-режиме кнопка Eat скрыта всегда
-      if (currentGameMode === 'turbo') {
-        eatBtn.style.display = 'none';
-      } else if (isSandboxOrCasual) {
-        eatBtn.style.display = isNoOrders ? 'flex' : 'none';
-      } else {
-        eatBtn.style.display = 'flex';
-      }
-    }
-
-    if (submitOrderBtn) {
-      const hasActiveOrders = !isNoOrders && currentActiveOrder !== null;
-      submitOrderBtn.style.display = hasActiveOrders ? 'flex' : 'none';
-    }
-  }
-
-  const modeSandboxBtn = document.getElementById('modeSandboxBtn');
-  const modeCasualBtn = document.getElementById('modeCasualBtn');
-  const modeTurboBtn = document.getElementById('modeTurboBtn');
-  const speedButtonsGrid = document.getElementById('speedButtonsGrid');
-
-  function applyGameMode(mode) {
-    const previousMode = currentGameMode;
-    currentGameMode = mode;
-    localStorage.setItem('burger_game_mode', mode);
-
-    if(modeSandboxBtn) modeSandboxBtn.classList.toggle('active', mode === 'sandbox');
-    if(modeCasualBtn) modeCasualBtn.classList.toggle('active', mode === 'casual');
-    if(modeTurboBtn) modeTurboBtn.classList.toggle('active', mode === 'turbo');
-
-    const topWidget = document.getElementById('topOrderWidget');
-    const speed = getCurrentSpeed();
-
-    if (previousMode !== mode) {
-      currentActiveOrder = null;
-      localStorage.removeItem('current_active_order');
-      if (speed !== 'no-orders') {
-        if (mode === 'turbo') {
-          currentTurboTimeLeft = 180;
-          triggerRandomOrder();
-        } else {
-          timeUntilNextOrder = getRandomTimeForSpeed(speed);
-          localStorage.setItem('time_until_next_order', timeUntilNextOrder);
-        }
-      }
-    }
-
-    if (mode === 'sandbox' || mode === 'casual') {
-      if(speedButtonsGrid) speedButtonsGrid.classList.remove('disabled');
-      updateSpeedButtonsUI(speed);
-
-      if (speed === 'no-orders') {
-        if(topWidget) topWidget.classList.add('hidden');
-        currentActiveOrder = null;
-        localStorage.removeItem('current_active_order');
-      } else {
-        if(topWidget) topWidget.classList.remove('hidden');
-        if (!currentActiveOrder && previousMode !== mode) {
-          timeUntilNextOrder = getRandomTimeForSpeed(speed);
-          localStorage.setItem('time_until_next_order', timeUntilNextOrder);
-        }
-      }
-    } else if (mode === 'turbo') {
-      if(speedButtonsGrid) speedButtonsGrid.classList.add('disabled');
-      if(topWidget) topWidget.classList.remove('hidden');
-      currentTurboTimeLeft = 180;
-      if (!currentActiveOrder) triggerRandomOrder();
-    }
-
-    updateActionButtonsVisibility();
-    updateMoneyDisplay();
-    renderIngredientsMenu();
-    renderSauces();
-  }
-
-  if(modeSandboxBtn) modeSandboxBtn.onclick = () => applyGameMode('sandbox');
-  if(modeCasualBtn) modeCasualBtn.onclick = () => applyGameMode('casual');
-  if(modeTurboBtn) modeTurboBtn.onclick = () => applyGameMode('turbo');
-
-  const speedButtons = document.querySelectorAll('.speed-btn');
-  function updateSpeedButtonsUI(speed) {
-    speedButtons.forEach(btn => {
-      btn.classList.toggle('active', btn.getAttribute('data-speed') === speed);
-    });
-  }
-
-  applyGameMode(currentGameMode);
-
-  speedButtons.forEach(btn => {
-    btn.onclick = () => {
-      if (currentGameMode === 'turbo') return;
-      const newSpeed = btn.getAttribute('data-speed');
-      
-      modeSpeeds[currentGameMode] = newSpeed;
-      localStorage.setItem('burger_mode_speeds', JSON.stringify(modeSpeeds));
-      updateSpeedButtonsUI(newSpeed);
-
-      const topWidget = document.getElementById('topOrderWidget');
-
-      currentActiveOrder = null;
-      localStorage.removeItem('current_active_order');
-
-      if (newSpeed === 'no-orders') {
-        if (topWidget) topWidget.classList.add('hidden');
-      } else {
-        if (topWidget) topWidget.classList.remove('hidden');
-        timeUntilNextOrder = getRandomTimeForSpeed(newSpeed);
-        localStorage.setItem('time_until_next_order', timeUntilNextOrder);
-      }
-      updateActionButtonsVisibility();
-    };
-  });
-
-  function getRandomTimeForSpeed(speed) {
-    switch(speed) {
-      case 'turbo-fixed': return 0;
-      case 'super-fast': return Math.floor(Math.random() * 20) + 10;
-      case 'fast': return Math.floor(Math.random() * 30) + 30;
-      case 'medium': return Math.floor(Math.random() * 180) + 120;
-      case 'slow': return Math.floor(Math.random() * 300) + 300;
-      case 'super-slow': return Math.floor(Math.random() * 900) + 900;
-      default: return 300;
-    }
-  }
-
-  const ITEM_IMAGES = {
-    'bottom-bun': 'images/bottom-bun.png', 'top-bun': 'images/top-bun.png',
-    'beef-patty': 'images/beef-patty.png', 'cheese': 'images/cheese.png',
-    'hashbrown': 'images/hashbrown.png', 'fried-egg': 'images/fried-egg.png',
-    'champignons': 'images/champignons.png', 'fried-bacon': 'images/fried-bacon.png',
-    'lettuce': 'images/lettuce.png', 'tomato': 'images/tomato.png',
-    'pickles': 'images/pickles.png', 'red-onion': 'images/red-onion.png',
-    'white-onion': 'images/white-onion.png', 'chicken-patty': 'images/chicken-patty.png',
-    'fish-patty': 'images/fish-patty.png', 'mayo': 'images/sauce-mayo.png',
-    'ketchup': 'images/sauce-ketchup.png', 'mustard': 'images/sauce-mustard.png',
-    'spicy': 'images/sauce-spicy.png', 'bbq': 'images/sauce-bbq.png'
-  };
-
-  const REGULAR_RECIPES = [
-    { name: 'Classic Burger', ids: ['bottom-bun', 'beef-patty', 'top-bun'] },
-    { name: 'Cheeseburger', ids: ['bottom-bun', 'beef-patty', 'cheese', 'top-bun'] },
-    { name: 'Vegan Burger', ids: ['bottom-bun', 'hashbrown', 'lettuce', 'tomato', 'red-onion', 'top-bun'] },
-    { name: 'Juicy Burger', ids: ['bottom-bun', 'mayo', 'chicken-patty', 'cheese', 'tomato', 'ketchup', 'top-bun'] },
-    { name: 'Breakfast Burger', ids: ['bottom-bun', 'mayo', 'beef-patty', 'fried-egg', 'fried-bacon', 'top-bun'] },
-    { name: 'Mushroom Burger', ids: ['bottom-bun', 'bbq', 'beef-patty', 'champignons', 'top-bun'] },
-    { name: 'Chicken Burger', ids: ['bottom-bun', 'chicken-patty', 'mayo', 'pickles', 'top-bun'] },
-    { name: 'Double Burger', ids: ['bottom-bun', 'beef-patty', 'cheese', 'beef-patty', 'ketchup', 'top-bun'] },
-    { name: 'Chicken Delux', ids: ['bottom-bun', 'mayo', 'chicken-patty', 'cheese', 'tomato', 'lettuce', 'pickles', 'top-bun'] },
-    { name: 'Stinky Burger', ids: ['bottom-bun', 'mustard', 'chicken-patty', 'white-onion', 'cheese', 'red-onion', 'mustard', 'top-bun'] },
-    { name: 'Fish Burger', ids: ['bottom-bun', 'fish-patty', 'mayo', 'pickles', 'lettuce', 'top-bun'] }
-  ];
-
-  const SECRET_ACHIEVEMENTS = [
-    { id: 'cheeseburgerAch', title: 'Cheezeburger', desc: 'Ideal Roblox burger', sound: 'cheeseburger', ids: ['bottom-bun', 'beef-patty', 'cheese', 'top-bun'] },
-    { id: 'tomatonatorAch', title: 'Tomatonator', desc: 'If you don\'t like tomatoes why you even eat burgers?', sound: 'tomatonator', ids: ['bottom-bun', 'beef-patty', 'cheese', 'tomato', 'tomato', 'tomato', 'top-bun'] },
-    { id: 'lilypadAch', title: 'Lilypad', desc: 'Straight from the swamp', sound: 'lilypad', ids: ['bottom-bun', 'beef-patty', 'cheese', 'lettuce', 'lettuce', 'top-bun'] },
-    { id: 'saturnBurgerAch', title: 'Saturn Burger', desc: 'Saturn has the most moons of any planet in the solar system.', sound: 'saturnBurger', ids: ['bottom-bun', 'beef-patty', 'white-onion', 'top-bun'] },
-    { id: 'bustanatorAch', title: 'Bustanator', desc: 'I know you like this one', sound: 'bustanator', ids: ['bottom-bun', 'beef-patty', 'mayo', 'mayo', 'mayo', 'top-bun'] },
-    { id: 'mcPicklePounderAch', title: 'McPickle Pounder', desc: 'You\'re probably the kind of people who would eat a pickle tiramisu', sound: 'mcPicklePounder', ids: ['bottom-bun', 'beef-patty', 'cheese', 'pickles', 'pickles', 'pickles', 'top-bun'] }
-  ];
-
-  function unlockAchievement(ach) {
-    if (!unlockedAchievements[ach.id]) {
-      unlockedAchievements[ach.id] = true;
-      localStorage.setItem('unlocked_achievements', JSON.stringify(unlockedAchievements));
-      showToast(ach);
-      playSound(SOUNDS[ach.sound] || SOUNDS.achievement);
-    }
-  }
-
-  function showToast(ach, customTitle, customDesc) {
-    const container = document.getElementById('toastContainer');
-    if (!container) return;
-    const toast = document.createElement('div');
-    toast.className = 'achievement-toast';
-    toast.innerHTML = `
-      <h4 style="font-size:0.9rem; margin:0;">${customTitle || ach.title}</h4>
-      <p style="font-size:0.75rem; opacity:0.8; margin:0;">${customDesc || 'Secret recipe unlocked!'}</p>
-    `;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3500);
-  }
-
-  let activeRecipeTab = 'regular';
-  window.switchRecipeTab = function(tab) {
-    activeRecipeTab = tab;
-    document.getElementById('tabNormal').className = `recipe-tab ${tab === 'regular' ? 'active' : ''}`;
-    document.getElementById('tabSecret').className = `recipe-tab ${tab === 'secret' ? 'active' : ''}`;
-    renderRecipesModal();
-  }
-
-  function renderRecipesModal() {
-    const body = document.getElementById('recipesModalBody');
-    if (!body) return;
-    body.innerHTML = '';
-
-    if (activeRecipeTab === 'regular') {
-      REGULAR_RECIPES.forEach(r => {
-        const card = document.createElement('div');
-        card.className = 'recipe-card';
-        let iconsHtml = '';
-        r.ids.forEach(id => { if (ITEM_IMAGES[id]) iconsHtml += `<img src="${ITEM_IMAGES[id]}" title="${id}">`; });
-        card.innerHTML = `<div class="recipe-info"><h4>${r.name}</h4><div class="recipe-visual">${iconsHtml}</div></div>`;
-        const pinBtn = document.createElement('button');
-        pinBtn.className = `btn-pin ${pinnedBurger && pinnedBurger.name === r.name ? 'pinned' : ''}`;
-        pinBtn.innerText = '📌';
-        pinBtn.onclick = () => {
-          pinnedBurger = pinnedBurger && pinnedBurger.name === r.name ? null : { name: r.name, ids: r.ids };
-          if (pinnedBurger) localStorage.setItem('pinned_burger', JSON.stringify(pinnedBurger));
-          else localStorage.removeItem('pinned_burger');
-          renderRecipesModal();
-          updatePinnedWidget();
-        };
-        card.appendChild(pinBtn);
-        body.appendChild(card);
-      });
-    } else {
-      SECRET_ACHIEVEMENTS.forEach(ach => {
-        const isUnlocked = unlockedAchievements[ach.id];
-        const card = document.createElement('div');
-        card.className = `recipe-card ${isUnlocked ? '' : 'locked'}`;
-        if (isUnlocked) {
-          let iconsHtml = '';
-          ach.ids.forEach(id => { if (ITEM_IMAGES[id]) iconsHtml += `<img src="${ITEM_IMAGES[id]}" title="${id}">`; });
-          card.innerHTML = `<div class="recipe-info" style="flex:1;"><h4>${ach.title}</h4><div class="recipe-visual">${iconsHtml}</div></div>`;
-          const pinBtn = document.createElement('button');
-          pinBtn.className = `btn-pin ${pinnedBurger && pinnedBurger.name === ach.title ? 'pinned' : ''}`;
-          pinBtn.innerText = '📌';
-          pinBtn.onclick = () => {
-            pinnedBurger = pinnedBurger && pinnedBurger.name === ach.title ? null : { name: ach.title, ids: ach.ids };
-            if (pinnedBurger) localStorage.setItem('pinned_burger', JSON.stringify(pinnedBurger));
-            else localStorage.removeItem('pinned_burger');
-            renderRecipesModal();
-            updatePinnedWidget();
-          };
-          card.appendChild(pinBtn);
-        } else {
-          card.innerHTML = `<div class="recipe-info" style="flex:1;"><h4>${ach.title}</h4><p style="font-size:0.75rem; opacity:0.6;">Secret recipe locked...</p></div>`;
-        }
-        body.appendChild(card);
-      });
-    }
-  }
-
-  function updatePinnedWidget() {
-    const widget = document.getElementById('pinnedRecipeWidget');
-    const container = document.getElementById('pinnedIngredientsContainer');
-    if (!widget || !container) return;
-    if (pinnedBurger) {
-      document.getElementById('pinnedTitle').innerHTML = `<span>📌 ${pinnedBurger.name}</span> <button class="unpin-btn" id="unpinBtn">✕</button>`;
-      container.innerHTML = '';
-      pinnedBurger.ids.forEach(id => {
-        if (ITEM_IMAGES[id]) {
-          const img = document.createElement('img');
-          img.src = ITEM_IMAGES[id];
-          container.appendChild(img);
-        }
-      });
-      widget.classList.add('active');
-      document.getElementById('unpinBtn').onclick = () => {
-        pinnedBurger = null;
-        localStorage.removeItem('pinned_burger');
-        updatePinnedWidget();
-        renderRecipesModal();
-      };
-    } else {
-      widget.classList.remove('active');
-    }
-  }
-
-  const SHOP_ITEMS = [
-    { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
-    { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
-    { id: 'beef-patty', name: 'Beef Patty', category: 'patty', image: 'images/beef-patty.png' },
-    { id: 'chicken-patty', name: 'Chicken Patty', category: 'patty', image: 'images/chicken-patty.png' },
-    { id: 'fish-patty', name: 'Fish Patty', category: 'patty', image: 'images/fish-patty.png' },
-    { id: 'hashbrown', name: 'Hashbrown (Драник)', category: 'patty', image: 'images/hashbrown.png' },
-    { id: 'fried-bacon', name: 'Fried Bacon', category: 'protein', image: 'images/fried-bacon.png' },
-    { id: 'fried-egg', name: 'Fried Egg', category: 'protein', image: 'images/fried-egg.png' },
-    { id: 'cheese', name: 'Cheese', category: 'protein', image: 'images/cheese.png' },
-    { id: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/champignons.png' },
-    { id: 'lettuce', name: 'Lettuce', category: 'vegetables', image: 'images/lettuce.png' },
-    { id: 'tomato', name: 'Tomato', category: 'vegetables', image: 'images/tomato.png' },
-    { id: 'pickles', name: 'Pickles', category: 'vegetables', image: 'images/pickles.png' },
-    { id: 'red-onion', name: 'Red Onion', category: 'vegetables', image: 'images/red-onion.png' },
-    { id: 'white-onion', name: 'White Onion', category: 'vegetables', image: 'images/white-onion.png' },
-    { id: 'mayo', name: 'Mayo', category: 'sauce', image: 'images/sauce-mayo.png', isSauce: true },
-    { id: 'ketchup', name: 'Ketchup', category: 'sauce', image: 'images/sauce-ketchup.png', isSauce: true },
-    { id: 'mustard', name: 'Mustard', category: 'sauce', image: 'images/sauce-mustard.png', isSauce: true },
-    { id: 'spicy', name: 'Spicy', category: 'sauce', image: 'images/sauce-spicy.png', isSauce: true },
-    { id: 'bbq', name: 'BBQ', category: 'sauce', image: 'images/sauce-bbq.png', isSauce: true }
-  ];
-
-  let activeShopTab = 'all';
-  window.switchShopTab = function(tab) {
-    activeShopTab = tab;
-    document.querySelectorAll('#shopTabs .recipe-tab').forEach(t => {
-      t.classList.toggle('active', t.innerText.toLowerCase() === tab);
-    });
-    renderShopModal();
-  }
-
-  function renderShopModal() {
-    const body = document.getElementById('shopModalBody');
-    if (!body) return;
-    body.innerHTML = '';
-    const filtered = activeShopTab === 'all' ? SHOP_ITEMS : SHOP_ITEMS.filter(i => i.category === activeShopTab);
-
-    filtered.forEach(item => {
-      const unitPrice = ITEM_PRICES[item.id] || 1;
-      const stockDisplay = currentGameMode === 'sandbox' ? '∞' : (ingredientStock[item.id] ?? 0);
-      const card = document.createElement('div');
-      card.className = 'shop-item-card';
-      card.innerHTML = `
-        <div class="shop-item-info">
-          <img src="${item.image}" alt="${item.name}">
-          <div class="shop-item-details">
-            <h4>${item.name} ${item.isSauce ? '<span style="color:#ffb300; font-size:0.7rem;">x10</span>' : ''}</h4>
-            <p>$${unitPrice.toFixed(2)} ${item.isSauce ? 'per pack' : 'each'} | Stock: ${stockDisplay}</p>
-          </div>
-        </div>
-        <div class="shop-buy-group">
-          <button class="shop-qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
-          <input type="number" min="0" max="100" value="0" id="qty-${item.id}">
-          <button class="shop-qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
-          <button class="btn-buy" onclick="buyItem('${item.id}')">Buy</button>
-        </div>
-      `;
-      body.appendChild(card);
-    });
-  }
-
-  window.changeQty = function(id, delta) {
-    const input = document.getElementById(`qty-${id}`);
-    if (!input) return;
-    let val = parseInt(input.value) || 0;
-    val = Math.max(0, Math.min(100, val + delta));
-    input.value = val;
-  }
-
-  window.buyItem = function(id) {
-    const input = document.getElementById(`qty-${id}`);
-    const qty = parseInt(input.value) || 0;
-    if (qty <= 0) { alert("Please select quantity greater than 0!"); return; }
-    
-    const totalCost = (ITEM_PRICES[id] || 1) * qty;
-
-    if (currentGameMode !== 'sandbox') {
-      if (playerMoney < totalCost) { alert("Not enough money in your wallet!"); return; }
-      playerMoney -= totalCost;
-      updateMoneyDisplay(totalCost, false);
-    }
-
-    ingredientStock[id] = (ingredientStock[id] ?? 0) + qty;
-    saveStock();
-    renderIngredientsMenu();
-    renderSauces();
-    renderShopModal();
-    playSound(SOUNDS.buy);
-  }
-
-  const shopModal = document.getElementById('shopModal');
-  document.getElementById('openShopBtn').onclick = () => { playSound(SOUNDS.buttons); renderShopModal(); shopModal.classList.add('open'); };
-  document.getElementById('closeShopModal').onclick = () => { playSound(SOUNDS.buttons); shopModal.classList.remove('open'); };
-
-  const recipesModal = document.getElementById('recipesModal');
-  document.getElementById('openRecipesBtn').onclick = () => { playSound(SOUNDS.buttons); renderRecipesModal(); recipesModal.classList.add('open'); };
-  document.getElementById('closeRecipesModal').onclick = () => { playSound(SOUNDS.buttons); recipesModal.classList.remove('open'); };
-
-  const achievementsModal = document.getElementById('achievementsModal');
-  document.getElementById('openAchievementsBtn').onclick = () => {
-    playSound(SOUNDS.buttons);
-    const list = document.getElementById('achievementsList');
-    if (list) {
-      list.innerHTML = '';
-      SECRET_ACHIEVEMENTS.forEach(ach => {
-        const isUnlocked = unlockedAchievements[ach.id];
-        const item = document.createElement('div');
-        item.className = 'achievement-item';
-        item.style.opacity = isUnlocked ? '1' : '0.5';
-        item.innerHTML = `<div class="recipe-info" style="flex:1;"><h4>${ach.title}</h4><p>${isUnlocked ? ach.desc : 'Secret locked'}</p></div>`;
-        list.appendChild(item);
-      });
-    }
-    achievementsModal.classList.add('open');
-  };
-  document.getElementById('closeAchievementsModal').onclick = () => { playSound(SOUNDS.buttons); achievementsModal.classList.remove('open'); };
-
-  const resetAchievementsBtn = document.getElementById('resetAchievementsBtn');
-  if (resetAchievementsBtn) {
-    resetAchievementsBtn.onclick = () => {
-      if (confirm("⚠️ Are you sure you want to reset all unlocked achievements?")) {
-        unlockedAchievements = {};
-        localStorage.removeItem('unlocked_achievements');
-        playSound(SOUNDS.bin);
-        achievementsModal.classList.remove('open');
-        showToast({title: 'Achievements Reset!'}, 'Reset', 'All secret recipes locked again.');
-      }
-    };
-  }
-
-  const settingsModal = document.getElementById('settingsModal');
-  document.getElementById('openSettingsBtn').onclick = () => { playSound(SOUNDS.buttons); settingsModal.classList.add('open'); };
-  document.getElementById('closeSettingsModal').onclick = () => { playSound(SOUNDS.buttons); settingsModal.classList.remove('open'); };
-
-  document.getElementById('hardResetBtn').onclick = () => {
-    if (confirm("⚠️ WARNING: Wipe all data?")) { localStorage.clear(); location.reload(); }
-  };
-
-  const toggleUiBtn = document.getElementById('toggleUiBtn');
-  if (toggleUiBtn) {
-    toggleUiBtn.onclick = () => {
-      document.body.classList.toggle('ui-hidden');
-      toggleUiBtn.innerText = document.body.classList.contains('ui-hidden') ? '👁️‍🗨️' : '👁️';
-    };
-  }
-
-  const downloadPngBtn = document.getElementById('downloadPngBtn');
-  if (downloadPngBtn) {
-    downloadPngBtn.onclick = () => {
-      if (currentBurger.length === 0) {
-        alert("Your burger stack is empty! Build a burger first.");
-        return;
-      }
-      playSound(SOUNDS.buttons);
-      
-      const targetElement = document.getElementById('burgerStack');
-      if (!targetElement) return;
-
-      targetElement.classList.add('capturing-png');
-
-      html2canvas(targetElement, {
-        backgroundColor: null,
-        scale: 2
-      }).then(canvas => {
-        targetElement.classList.remove('capturing-png');
-
-        const link = document.createElement('a');
-        link.download = 'my-burger.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      }).catch(err => {
-        targetElement.classList.remove('capturing-png');
-        console.error("Failed to save image:", err);
-        alert("Could not save image.");
-      });
-    };
-  }
-
-  function updateBurgerDisplay(isNewAdded = false) {
-    saveBurgerState();
-    if (layersTitle) layersTitle.innerText = `Layers (${currentBurger.length}/${MAX_INGREDIENTS})`;
-
-    if (layersList) {
-      layersList.innerHTML = '';
-      currentBurger.forEach((item, index) => {
-        const listItem = document.createElement('div');
-        listItem.className = 'layer-item';
-        listItem.innerHTML = `
-          <div class="layer-info">${item.image ? `<img src="${item.image}" class="layer-preview">` : ''}</div>
-          <div class="layer-controls">
-            <button class="btn-control" onclick="moveLayer(${index}, 1)" ${index === currentBurger.length - 1 || isEating ? 'disabled' : ''}>▲</button>
-            <button class="btn-control" onclick="moveLayer(${index}, -1)" ${index === 0 || isEating ? 'disabled' : ''}>▼</button>
-            <button class="btn-control delete" onclick="removeLayer(${index})" ${isEating ? 'disabled' : ''}>✕</button>
-          </div>
-        `;
-        layersList.appendChild(listItem);
-      });
-    }
-
-    if (burgerStack) {
-      burgerStack.innerHTML = '';
-      currentBurger.forEach((item, index) => {
-        if (item.image) {
-          const img = document.createElement('img');
-          img.src = item.image;
-          img.className = 'burger-layer-img';
-          if (isNewAdded && index === currentBurger.length - 1) {
-            img.classList.add('new-layer');
-            setTimeout(() => img.classList.remove('new-layer'), 350);
-          }
-          const itemBelow = index > 0 ? currentBurger[index - 1] : null;
-          const isSauce = ['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id);
-          let mb = -38;
-          if (index === 0) mb = -10;
-          else if (isSauce) mb = -50;
-          else if (item.id === 'top-bun') mb = -38;
-          else if (item.id === 'cheese') mb = -60;
-          else if (item.id === 'hashbrown') mb = -38;
-          else if (item.id === 'fried-egg') mb = -52;
-          else if (item.id === 'fried-bacon') mb = -48;
-          else if (item.id === 'lettuce') mb = -65;
-          else if (itemBelow && itemBelow.id === 'lettuce') mb = -50;
-
-          img.style.marginBottom = `${mb}px`;
-          img.style.zIndex = index + 1;
-
-          if (isSqueezed && index > 0) {
-            img.style.setProperty('--sq-offset', `${index * 6}px`);
-            img.classList.add('squeezed');
-          }
-          burgerStack.appendChild(img);
-        }
-      });
-    }
-    renderIngredientsMenu();
-    renderSauces();
-    if (centerStage) setTimeout(() => { centerStage.scrollTop = centerStage.scrollHeight; }, 50);
-  }
-
-  function addIngredient(item) {
-    if (isEating || isAddingInProgress) return;
-    if (currentBurger.length >= MAX_INGREDIENTS) {
-      if (limitWarning) { limitWarning.classList.add('show'); setTimeout(() => limitWarning.classList.remove('show'), 2000); }
-      return;
-    }
-    if (currentGameMode !== 'sandbox') {
-      if ((ingredientStock[item.id] ?? 0) <= 0) return;
-      ingredientStock[item.id]--;
-      saveStock();
-    }
-
-    isAddingInProgress = true;
-    playSound(SOUNDS.ingridients);
-    currentBurger.push({ ...item });
-    checkSpecialCombos();
-    updateBurgerDisplay(true);
-
-    setTimeout(() => {
-      isAddingInProgress = false;
-    }, 150);
-  }
-
-  function addSauce(sauce) {
-    if (isEating || isAddingInProgress) return;
-    if (currentBurger.length >= MAX_INGREDIENTS) return;
-    if (currentGameMode !== 'sandbox') {
-      if ((ingredientStock[sauce.id] ?? 0) <= 0) return;
-      ingredientStock[sauce.id]--;
-      saveStock();
-    }
-
-    isAddingInProgress = true;
-    playSound(SOUNDS.sauce);
-    currentBurger.push({ ...sauce });
-    checkSpecialCombos();
-    updateBurgerDisplay(true);
-
-    setTimeout(() => {
-      isAddingInProgress = false;
-    }, 150);
-  }
-
-  window.removeLayer = function(index) {
-    if (isEating) return;
-    const removed = currentBurger[index];
-    if (currentGameMode !== 'sandbox' && removed) {
-      ingredientStock[removed.id] = (ingredientStock[removed.id] ?? 0) + 1;
-      saveStock();
-    }
-    playSound(SOUNDS.buttons);
-    currentBurger.splice(index, 1);
-    checkSpecialCombos();
-    updateBurgerDisplay(false);
-  };
-
-  window.moveLayer = function(index, direction) {
-    if (isEating) return;
-    const targetIndex = index + direction;
-    if (targetIndex >= 0 && targetIndex < currentBurger.length) {
-      playSound(SOUNDS.buttons);
-      const temp = currentBurger[index];
-      currentBurger[index] = currentBurger[targetIndex];
-      currentBurger[targetIndex] = temp;
-      checkSpecialCombos();
-      updateBurgerDisplay(false);
-    }
-  };
-
-  if (squeezeBtn) {
-    squeezeBtn.onclick = () => {
-      if (currentBurger.length <= 1 || isEating) return;
-      playSound(SOUNDS.squeeze);
-      isSqueezed = !isSqueezed;
-      updateBurgerDisplay(false);
-    };
-  }
-
-  if (submitOrderBtn) {
-    submitOrderBtn.onclick = () => {
-      if (currentActiveOrder && currentBurger.length > 0) {
-        checkOrderSubmission();
-      } else {
-        alert("No active order or burger stack is empty!");
-      }
-    };
-  }
-
-  const resetBtn = document.getElementById('resetBtn');
-  if (resetBtn) {
-    resetBtn.onclick = () => {
-      if (currentGameMode !== 'sandbox' && currentBurger.length > 0) {
-        currentBurger.forEach(item => { ingredientStock[item.id] = (ingredientStock[item.id] ?? 0) + 1; });
-        saveStock();
-      }
-      playSound(SOUNDS.bin);
-      isEating = false; isSqueezed = false;
-      if (burgerStack) burgerStack.classList.remove('eating');
-      currentBurger = [];
-      updateBurgerDisplay(false);
-    };
-  }
-
-  if (eatBtn) {
-    eatBtn.onclick = () => {
-      if (currentBurger.length === 0 || isEating) return;
-      playSound(SOUNDS.eating);
-      isEating = true; isSqueezed = false;
-      if (burgerStack) burgerStack.classList.add('eating');
-      setTimeout(() => {
-        currentBurger = [];
-        if (burgerStack) burgerStack.classList.remove('eating');
-        isEating = false;
-        updateBurgerDisplay(false);
-      }, 2000);
-    };
-  }
-
-  function checkOrderSubmission() {
-    const ids = currentBurger.map(i => i.id);
-    if (!currentActiveOrder) return;
-
-    const targetIds = currentActiveOrder.ids;
-    const isCorrect = ids.length === targetIds.length && ids.every((val, idx) => val === targetIds[idx]);
-
-    if (isCorrect) {
-      playSound(SOUNDS.complete);
-      if (currentGameMode !== 'sandbox') {
-        const cost = ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0);
-        const reward = Math.round(cost * 2 * 100) / 100;
-        playerMoney += reward;
-        updateMoneyDisplay(reward, true);
-      }
-      showToast(null, 'Order Complete!', `${currentActiveOrder.name} served successfully!`);
-      
-      if (currentGameMode === 'turbo') {
-        triggerRandomOrder();
-      } else {
-        currentActiveOrder = null;
-        localStorage.removeItem('current_active_order');
-      }
-      updateActionButtonsVisibility();
-      setTimeout(() => { if (eatBtn && eatBtn.style.display !== 'none') eatBtn.click(); else { currentBurger = []; updateBurgerDisplay(false); } }, 600);
-    } else {
-      playSound(SOUNDS.wrongOrder);
-      if (currentGameMode !== 'sandbox') {
-        playerMoney = Math.max(0, playerMoney - 3);
-        updateMoneyDisplay(3, false);
-      }
-      showToast(null, 'Wrong Order! -$3', 'Recipe does not match current order!');
-    }
-  }
-
-  function checkSpecialCombos() {
-    if (currentBurger.length === 0) return;
-    const ids = currentBurger.map(i => i.id);
-    SECRET_ACHIEVEMENTS.forEach(ach => {
-      if (ids.length === ach.ids.length && ids.every((val, idx) => val === ach.ids[idx])) {
-        unlockAchievement(ach);
-      }
-    });
-    
-    const currentSpeed = getCurrentSpeed();
-    if (currentActiveOrder && currentSpeed === 'no-orders') {
-      const targetIds = currentActiveOrder.ids;
-      if (ids.length === targetIds.length && ids.every((val, idx) => val === targetIds[idx])) {
-        playSound(SOUNDS.complete);
-        if (currentGameMode !== 'sandbox') {
-          const cost = ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0);
-          const reward = Math.round(cost * 2 * 100) / 100;
-          playerMoney += reward;
-          updateMoneyDisplay(reward, true);
-        }
-        showToast(null, 'Order Complete!', `${currentActiveOrder.name} served successfully!`);
-        currentActiveOrder = null;
-        localStorage.removeItem('current_active_order');
-        updateActionButtonsVisibility();
-        setTimeout(() => { if (eatBtn && eatBtn.style.display !== 'none') eatBtn.click(); else { currentBurger = []; updateBurgerDisplay(false); } }, 600);
-      }
-    }
-  }
-
-  function formatTime(seconds) {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  }
-
-  function updateOrderWidgetsText(text) {
-    const w1 = document.getElementById('orderStatusText');
-    if (w1) w1.innerHTML = text;
-  }
-
-  function triggerRandomOrder() {
-    const unlockedSecretNames = SECRET_ACHIEVEMENTS.filter(a => unlockedAchievements[a.id]);
-    const allAvailable = [...REGULAR_RECIPES, ...unlockedSecretNames];
-    const chosen = allAvailable[Math.floor(Math.random() * allAvailable.length)];
-    currentActiveOrder = { name: chosen.name || chosen.title, ids: chosen.ids };
-    
-    if (currentGameMode === 'turbo') {
-      currentTurboTimeLeft = 180;
-    }
-    
-    localStorage.setItem('current_active_order', JSON.stringify(currentActiveOrder));
-    
-    const speed = getCurrentSpeed();
-    if (speed !== 'no-orders' && currentGameMode !== 'turbo') {
-      timeUntilNextOrder = getRandomTimeForSpeed(speed);
-      localStorage.setItem('time_until_next_order', timeUntilNextOrder);
-    }
-    
-    playSound(SOUNDS.order);
-    updateActionButtonsVisibility();
-  }
-
-  setInterval(() => {
-    const currentSpeed = getCurrentSpeed();
-    if (currentSpeed === 'no-orders') return;
-
-    if (currentGameMode === 'turbo') {
-      if (!currentActiveOrder) {
-        triggerRandomOrder();
-      } else {
-        if (currentTurboTimeLeft > 0) {
-          currentTurboTimeLeft--;
-          updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span> <span class="order-timer-badge">⏱️ ${formatTime(currentTurboTimeLeft)}</span>`);
-        } else {
-          currentTurboTimeLeft = 180;
-          playSound(SOUNDS.wrongOrder);
-          playerMoney = Math.max(0, playerMoney - 5);
-          updateMoneyDisplay(5, false);
-          showToast({title: 'Time Out! -$5'}, 'Order Failed', 'You ran out of time!');
-          triggerRandomOrder();
-        }
-      }
-      return;
-    }
-
-    if (!currentActiveOrder) {
-      if (timeUntilNextOrder > 0) {
-        timeUntilNextOrder--;
-        localStorage.setItem('time_until_next_order', timeUntilNextOrder);
-        updateOrderWidgetsText(`Next order in: <span>${formatTime(timeUntilNextOrder)}</span>`);
-      } else {
-        triggerRandomOrder();
-      }
-    } else {
-      updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span>`);
-    }
-  }, 1000);
-
-  if (currentActiveOrder && getCurrentSpeed() !== 'no-orders') {
-    if (currentGameMode === 'turbo') {
-      updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span> <span class="order-timer-badge">⏱️ ${formatTime(currentTurboTimeLeft)}</span>`);
-    } else {
-      updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span>`);
-    }
-  }
-
-  renderSauces();
-  renderIngredientsMenu();
-  updateBurgerDisplay(false);
-  updatePinnedWidget();
-  updateMoneyDisplay();
-  updateActionButtonsVisibility();
-});
+  body.ui-hidden .left-panel,
+  body.ui-hidden .right-panel,
+  body.ui-hidden .sauces-group.mobile-sauces,
+  body.ui-hidden .top-order-widget,
+  body.ui-hidden .wallet-widget,
+  body.ui-hidden .pinned-recipe-widget { display: none !important; }
+  body.ui-hidden .center-stage { min-height: 75vh; }
+}
+@media (min-width: 901px) {
+  .sauces-group.mobile-sauces { display: none !important; }
+}
