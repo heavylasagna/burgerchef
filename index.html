@@ -946,7 +946,7 @@
         { id: 'red-onion', name: 'Red Onion', image: 'images/red-onion.png' },
         { id: 'white-onion', name: 'White Onion', image: 'images/white-onion.png' },
         { id: 'beef-patty', name: 'Beef Patty', image: 'images/beef-patty.png' },
-        { id: 'hashbrown', name: 'Hashbrown', image: 'images/hashbrown.png' }, // Драник теперь рядом с остальными котлетами
+        { id: 'hashbrown', name: 'Hashbrown', image: 'images/hashbrown.png' },
         { id: 'chicken-patty', name: 'Chicken Patty', image: 'images/chicken-patty.png' },
         { id: 'fish-patty', name: 'Fish Patty', image: 'images/fish-patty.png' },
         { id: 'bottom-bun', name: 'Bottom Bun', image: 'images/bottom-bun.png' }
@@ -1038,10 +1038,11 @@
       function getMarginBottomForLayer(item, itemBelow, index) {
         const isSauce = ['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id);
         if (index === 0) return -10;
-        if (isSauce) return -55; // Зафиксированный отступ соусов
+        if (isSauce) return -55;
         if (item.id === 'top-bun') return -38;
         if (item.id === 'cheese') return -60;
-        if (item.id === 'hashbrown') return -48; // Выровнено под высоту остальных котлет
+        // Драник теперь использует такой же отступ, как и остальные котлеты (-38)
+        if (item.id === 'hashbrown') return -38;
         if (item.id === 'fried-egg') return -52;
         if (item.id === 'fried-bacon') return -48;
         if (item.id === 'lettuce') return -65;
