@@ -82,6 +82,7 @@ body {
 .left-panel {
   grid-column: 1;
   grid-row: 1;
+  position: relative;
 }
 
 .layers-list {
@@ -493,6 +494,37 @@ body {
   background: rgba(211, 47, 47, 0.2);
 }
 
+/* Стили для кнопок-стрелок */
+.nav-arrow-btn {
+  position: absolute;
+  background: var(--modal-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  z-index: 120;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.nav-arrow-btn:hover {
+  background: var(--accent-color);
+  color: #fff;
+  transform: scale(1.05);
+}
+
+.pc-arrow-left {
+  position: absolute;
+  left: -45px;
+  transform: translateY(-50%);
+}
+
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -816,6 +848,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 .mobile-top-bar { display: none; }
 .toggle-ui-btn { display: none; }
+.mobile-arrows-container { display: none; }
 
 @media (max-width: 900px) {
   body { overflow: auto; }
@@ -926,14 +959,28 @@ input[type="range"]::-webkit-slider-thumb {
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
   }
 
+  /* Мобильные стрелки справа от сцены */
+  .mobile-arrows-container {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 120;
+  }
+
   body.ui-hidden .left-panel,
   body.ui-hidden .right-panel,
   body.ui-hidden .sauces-group.mobile-sauces,
   body.ui-hidden .top-order-widget,
   body.ui-hidden .wallet-widget,
-  body.ui-hidden .pinned-recipe-widget { display: none !important; }
+  body.ui-hidden .pinned-recipe-widget,
+  body.ui-hidden .mobile-arrows-container { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
 }
 @media (min-width: 901px) {
   .sauces-group.mobile-sauces { display: none !important; }
+  .mobile-arrows-container { display: none !important; }
 }
