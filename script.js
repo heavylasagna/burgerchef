@@ -125,13 +125,15 @@ document.addEventListener('DOMContentLoaded', () => {
       card.className = `ingredient-card ${currentBurger.length >= MAX_INGREDIENTS || isEating || isOut ? 'disabled' : ''}`;
       
       let infoHtml = `<img src="${item.image}" alt="${item.name}">`;
-      if (currentGameMode !== 'sandbox') {
-        infoHtml += `
-          <div class="ingredient-info-row">
-            <span class="ingredient-name" title="${item.name}">${item.name}</span>
-            <span class="ingredient-stock-count">x${stock}</span>
-          </div>`;
-      }
+      
+      // В песочнице — символ бесконечности, в остальных режимах — xКоличество
+      const countText = currentGameMode === 'sandbox' ? '∞' : `x${stock}`;
+      infoHtml += `
+        <div class="ingredient-info-row">
+          <span class="ingredient-name" title="${item.name}">${item.name}</span>
+          <span class="ingredient-stock-count">${countText}</span>
+        </div>`;
+
       card.innerHTML = infoHtml;
       
       card.onclick = () => {
@@ -514,7 +516,9 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </div>
         <div class="shop-buy-group">
-          <input type="number" min="1" max="100" value="5" id="qty-${item.id}">
+          <button class="shop-qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
+          <input type="number" min="0" max="100" value="0" id="qty-${item.id}">
+          <button class="shop-qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
           <button class="btn-buy" onclick="buyItem('${item.id}')">Buy</button>
         </div>
       `;
@@ -522,9 +526,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  window.changeQty = function(id, delta) {
+    const input = document.getElementById(`qty-${id}`);
+    if (!input) return;
+    let val = parseInt(input.value) || 0;
+    val = Math.max(0, Math.min(100, val + delta));
+    input.value = val;
+  }
+
   window.buyItem = function(id) {
     const input = document.getElementById(`qty-${id}`);
-    const qty = parseInt(input.value) || 1;
+    const qty = parseInt(input.value) || 0;
+    if (qty <= 0) { alert("Please select quantity greater than 0!"); return; }
+    
     const totalCost = (ITEM_PRICES[id] || 1) * qty;
 
     if (currentGameMode === 'sandbox') { alert("Sandbox mode has infinite resources and no money needed!"); return; }
