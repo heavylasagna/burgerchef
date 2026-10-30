@@ -69,7 +69,7 @@ body {
   pointer-events: auto;
 }
 
-/* Кнопка-стрелочка, поднятая чуть выше идеального центра */
+/* Кнопка-стрелочка для перехода (справа от центра, слева от правой панели) */
 .screen-switch-btn {
   position: absolute;
   right: 236px;
@@ -91,6 +91,12 @@ body {
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
   z-index: 150;
   transition: all 0.2s ease;
+}
+
+/* Для экрана гриля стрелочка должна быть слева по центру */
+#grillScreen .screen-switch-btn {
+  right: auto;
+  left: 236px;
 }
 
 .screen-switch-btn:hover {
@@ -930,9 +936,26 @@ input[type="range"]::-webkit-slider-thumb {
     gap: 8px;
     padding-bottom: 75px;
   }
-  .center-stage { order: 1; min-height: 350px; padding-bottom: 10px; justify-content: flex-end; }
-  .right-panel { order: 2; height: 115px; }
-  .screen-switch-btn { display: none !important; }
+  .center-stage { order: 1; min-height: 300px; padding-bottom: 5px; justify-content: flex-end; }
+  .grill-stage { order: 1; min-height: 300px; padding-bottom: 5px; }
+  .right-panel { order: 2; height: 110px; }
+  
+  /* Аккуратные мобильные стрелочки переключения экранов */
+  .screen-switch-btn {
+    position: fixed;
+    top: 50px;
+    right: 15px;
+    left: auto;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    z-index: 1200;
+  }
+  #grillScreen .screen-switch-btn {
+    left: 15px;
+    right: auto;
+  }
+
   .ingredients-menu {
     flex-direction: row;
     overflow-x: auto;
@@ -956,8 +979,9 @@ input[type="range"]::-webkit-slider-thumb {
     gap: 6px;
     overflow-x: auto;
     border: 1px solid var(--border-color);
+    margin: 0;
   }
-  .left-panel { order: 4; height: 150px; }
+  .left-panel { order: 4; height: 130px; }
   .bottom-panel {
     position: fixed;
     bottom: 0; left: 0; right: 0;
