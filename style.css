@@ -178,6 +178,13 @@ body {
   transition: transform 0.4s ease, opacity 0.4s ease;
 }
 
+/* Стили для аккуратной обрезки PNG без лишнего воздуха */
+.burger-stack.capturing-png {
+  padding: 10px 20px;
+  display: inline-flex;
+  width: max-content;
+}
+
 .burger-stack.eating {
   animation: eatAnimation 2s forwards ease-in-out;
 }
@@ -452,7 +459,6 @@ body {
   align-items: center;
 }
 
-/* Единый полый стиль для ВСЕХ кнопок панели действий (без цвета внутри, только рамка темы) */
 .btn-action {
   padding: 0 12px;
   height: 40px;
@@ -822,7 +828,7 @@ input[type="range"]::-moz-range-thumb {
   100% { opacity: 0; transform: translateY(-15px) scale(0.95); }
 }
 
-/* Кастомные скроллбары, меняющиеся под текущую тему */
+/* Кастомные скроллбары */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
