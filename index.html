@@ -8,6 +8,42 @@
   <link rel="icon" type="image/png" href="images/icon.png">
 
   <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at 50% 30%, #3e2a1d, #1a100a);
+      --text-main: #3e2723;
+      --panel-bg-1: rgba(253, 251, 247, 0.9);
+      --panel-bg-2: rgba(245, 239, 230, 0.75);
+      --panel-border: rgba(255, 255, 255, 0.3);
+      --item-bg: #f5efe6;
+      --item-border: #e4d8c5;
+      --item-hover: #ffffff;
+      --btn-control-bg: #ffffff;
+      --btn-control-border: #d7ccc8;
+      --btn-control-color: #5d4037;
+      --modal-bg: #fdfbf7;
+      --modal-header-border: #f5efe6;
+      --widget-bg: rgba(62, 39, 35, 0.92);
+      --widget-color: #fdfbf7;
+    }
+
+    body.light-theme {
+      --bg-gradient: radial-gradient(circle at 50% 30%, #fef6ee, #f3e5db);
+      --text-main: #2d1810;
+      --panel-bg-1: rgba(255, 255, 255, 0.95);
+      --panel-bg-2: rgba(250, 246, 240, 0.9);
+      --panel-border: rgba(255, 255, 255, 0.8);
+      --item-bg: #fffbf7;
+      --item-border: #ebdcd0;
+      --item-hover: #ffffff;
+      --btn-control-bg: #fbf5ef;
+      --btn-control-border: #d7ccc8;
+      --btn-control-color: #4e342e;
+      --modal-bg: #ffffff;
+      --modal-header-border: #f3e5db;
+      --widget-bg: rgba(93, 64, 55, 0.95);
+      --widget-color: #ffffff;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -18,12 +54,13 @@
 
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background: radial-gradient(circle at 50% 30%, #3e2a1d, #1a100a);
-      color: #3e2723;
+      background: var(--bg-gradient);
+      color: var(--text-main);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
     .app-container {
@@ -37,15 +74,16 @@
     }
 
     .panel {
-      background: linear-gradient(145deg, rgba(253, 251, 247, 0.9), rgba(245, 239, 230, 0.75));
+      background: linear-gradient(145deg, var(--panel-bg-1), var(--panel-bg-2));
       border-radius: 16px;
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      border: 1px solid var(--panel-border);
       padding: 12px;
       display: flex;
       flex-direction: column;
       height: 100%;
       overflow: hidden;
+      transition: background 0.3s ease, border 0.3s ease;
     }
 
     .panel-title {
@@ -57,6 +95,11 @@
       text-shadow: 0 1px 3px rgba(0,0,0,0.4);
       text-transform: uppercase;
       letter-spacing: 0.6px;
+    }
+
+    body.light-theme .panel-title {
+      color: #4e342e;
+      text-shadow: none;
     }
 
     .left-panel {
@@ -77,10 +120,10 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #f5efe6;
+      background: var(--item-bg);
       padding: 4px 8px;
       border-radius: 10px;
-      border: 1px solid #e4d8c5;
+      border: 1px solid var(--item-border);
     }
 
     .layer-preview {
@@ -95,9 +138,9 @@
     }
 
     .btn-control {
-      background: #ffffff;
-      border: 1px solid #d7ccc8;
-      color: #5d4037;
+      background: var(--btn-control-bg);
+      border: 1px solid var(--btn-control-border);
+      color: var(--btn-control-color);
       width: 24px;
       height: 24px;
       border-radius: 5px;
@@ -112,10 +155,12 @@
     .btn-control:hover:not(:disabled) {
       background: #8d6e63;
       color: #ffffff;
+      border-color: #8d6e63;
     }
 
     .btn-control.delete:hover {
       background: #d32f2f;
+      border-color: #d32f2f;
       color: #ffffff;
     }
 
@@ -225,8 +270,8 @@
       top: 10px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(62, 39, 35, 0.92);
-      color: #fdfbf7;
+      background: var(--widget-bg);
+      color: var(--widget-color);
       border: 1px solid rgba(255, 179, 0, 0.4);
       border-radius: 14px;
       padding: 6px 16px;
@@ -239,7 +284,7 @@
       text-align: center;
       max-width: 90%;
       cursor: pointer;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.3s ease, background 0.3s ease;
     }
     .top-order-widget.dimmed {
       opacity: 0.35;
@@ -250,8 +295,8 @@
       position: absolute;
       top: 55px;
       left: 10px;
-      background: rgba(253, 251, 247, 0.9);
-      border: 1px solid #d7ccc8;
+      background: var(--panel-bg-1);
+      border: 1px solid var(--item-border);
       border-radius: 12px;
       padding: 8px 12px;
       font-size: 0.75rem;
@@ -261,7 +306,7 @@
       display: none;
     }
     .pinned-recipe-widget.active { display: block; }
-    .pinned-recipe-widget h5 { color: #5d4037; margin-bottom: 4px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; }
+    .pinned-recipe-widget h5 { color: var(--btn-control-color); margin-bottom: 4px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; }
     .pinned-recipe-widget .unpin-btn { background: none; border: none; cursor: pointer; font-size: 0.8rem; }
     .pinned-ingredients { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
     .pinned-ingredients img { width: 22px; height: 22px; object-fit: contain; }
@@ -285,8 +330,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #f5efe6;
-      border: 1px solid #e4d8c5;
+      background: var(--item-bg);
+      border: 1px solid var(--item-border);
       border-radius: 12px;
       padding: 6px;
       width: 100%;
@@ -295,7 +340,7 @@
     }
 
     .ingredient-card:hover {
-      background: #ffffff;
+      background: var(--item-hover);
       border-color: #a1887f;
       transform: translateY(-1px);
     }
@@ -310,11 +355,12 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 15px;
-      background: linear-gradient(145deg, rgba(253, 251, 247, 0.95), rgba(245, 239, 230, 0.88));
+      background: linear-gradient(145deg, var(--panel-bg-1), var(--panel-bg-2));
       border-radius: 14px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-      border: 1px solid rgba(255, 255, 255, 0.4);
+      border: 1px solid var(--panel-border);
       z-index: 100;
+      transition: background 0.3s ease;
     }
 
     .sauces-group {
@@ -325,13 +371,13 @@
     }
 
     .sauce-chip {
-      background: #f5efe6;
-      border: 1px solid #d7ccc8;
+      background: var(--item-bg);
+      border: 1px solid var(--item-border);
       padding: 5px 12px;
       border-radius: 16px;
       font-size: 0.8rem;
       font-weight: 600;
-      color: #5d4037;
+      color: var(--btn-control-color);
       cursor: pointer;
       white-space: nowrap;
     }
@@ -377,16 +423,18 @@
     .modal-overlay.open { opacity: 1; visibility: visible; }
 
     .modal-content {
-      background: #fdfbf7;
+      background: var(--modal-bg);
+      color: var(--text-main);
       width: 90%;
       max-width: 440px;
       border-radius: 16px;
       padding: 16px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-      border: 1px solid #e4d8c5;
+      border: 1px solid var(--item-border);
       display: flex;
       flex-direction: column;
       max-height: 80vh;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
     .modal-header {
@@ -394,11 +442,11 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
-      border-bottom: 2px solid #f5efe6;
+      border-bottom: 2px solid var(--modal-header-border);
       padding-bottom: 8px;
     }
-    .modal-header h3 { color: #3e2723; font-size: 1rem; }
-    .close-modal { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: #5d4037; }
+    .modal-header h3 { color: var(--text-main); font-size: 1rem; }
+    .close-modal { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--btn-control-color); }
 
     .recipe-tabs {
       display: flex;
@@ -408,13 +456,13 @@
     .recipe-tab {
       flex: 1;
       padding: 6px;
-      background: #f5efe6;
-      border: 1px solid #d7ccc8;
+      background: var(--item-bg);
+      border: 1px solid var(--item-border);
       border-radius: 8px;
       font-weight: 600;
       font-size: 0.8rem;
       cursor: pointer;
-      color: #5d4037;
+      color: var(--btn-control-color);
       text-align: center;
     }
     .recipe-tab.active {
@@ -432,17 +480,17 @@
       margin-bottom: 12px;
     }
 
-    .recipe-card, .achievement-item {
+    .recipe-card, .achievement-item, .settings-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #f5efe6;
-      padding: 8px 10px;
+      background: var(--item-bg);
+      padding: 10px 12px;
       border-radius: 10px;
-      border: 1px solid #e4d8c5;
+      border: 1px solid var(--item-border);
     }
     .recipe-card.locked { opacity: 0.5; }
-    .recipe-info h4 { font-size: 0.85rem; color: #3e2723; margin-bottom: 3px; }
+    .recipe-info h4 { font-size: 0.85rem; color: var(--text-main); margin-bottom: 3px; }
     
     .recipe-visual {
       display: flex;
@@ -457,7 +505,7 @@
       background: rgba(255,255,255,0.6);
       border-radius: 4px;
       padding: 1px;
-      border: 1px solid #e4d8c5;
+      border: 1px solid var(--item-border);
     }
 
     .btn-pin {
@@ -470,6 +518,60 @@
       cursor: pointer;
     }
     .btn-pin.pinned { background: #689f38; }
+
+    /* Стили для настроек в модалке */
+    .settings-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .settings-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .settings-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .settings-control input[type="range"] {
+      flex: 1;
+      accent-color: #8d6e63;
+      cursor: pointer;
+    }
+    .settings-select {
+      background: var(--modal-bg);
+      color: var(--text-main);
+      border: 1px solid var(--item-border);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .theme-buttons {
+      display: flex;
+      gap: 8px;
+      flex: 1;
+    }
+    .theme-btn {
+      flex: 1;
+      padding: 6px;
+      background: var(--item-bg);
+      border: 1px solid var(--item-border);
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      color: var(--btn-control-color);
+      text-align: center;
+    }
+    .theme-btn.active {
+      background: #8d6e63;
+      color: #fff;
+      border-color: #8d6e63;
+    }
 
     .toast-container {
       position: fixed;
@@ -531,12 +633,12 @@
       .sauces-group.mobile-sauces {
         display: flex !important;
         order: 3;
-        background: linear-gradient(145deg, rgba(253, 251, 247, 0.9), rgba(245, 239, 230, 0.75));
+        background: linear-gradient(145deg, var(--panel-bg-1), var(--panel-bg-2));
         border-radius: 10px;
         padding: 6px 10px;
         gap: 6px;
         overflow-x: auto;
-        border: 1px solid rgba(255, 255, 255, 0.4);
+        border: 1px solid var(--panel-border);
       }
       .left-panel { order: 4; height: 150px; }
       .bottom-panel {
@@ -553,9 +655,9 @@
       .toggle-ui-btn {
         position: fixed;
         top: 10px; right: 10px;
-        background: rgba(253, 251, 247, 0.9);
-        border: 1px solid #d7ccc8;
-        color: #5d4037;
+        background: var(--panel-bg-1);
+        border: 1px solid var(--item-border);
+        color: var(--btn-control-color);
         width: 36px; height: 36px;
         border-radius: 50%;
         display: flex;
@@ -585,6 +687,7 @@
     <span id="orderStatusText">Next order in: 05:00</span>
   </div>
 
+  <!-- Окно рецептов -->
   <div class="modal-overlay" id="recipesModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -599,6 +702,7 @@
     </div>
   </div>
 
+  <!-- Окно достижений -->
   <div class="modal-overlay" id="achievementsModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -606,8 +710,47 @@
         <button class="close-modal" id="closeAchievementsModal">✕</button>
       </div>
       <div class="modal-body" id="achievementsList"></div>
-      <div style="border-top: 1px solid #f5efe6; padding-top: 8px; display: flex; justify-content: flex-end;">
+      <div style="border-top: 1px solid var(--modal-header-border); padding-top: 8px; display: flex; justify-content: flex-end;">
         <button class="btn-action btn-reset" style="padding: 4px 10px; font-size: 0.75rem;" id="resetAchievementsBtn">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Окно настроек -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>⚙️ Settings</h3>
+        <button class="close-modal" id="closeSettingsModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-group">
+          <div class="settings-label">🔊 Volume</div>
+          <div class="settings-control">
+            <input type="range" id="volumeSlider" min="0" max="100" value="50">
+            <span id="volumeValue" style="font-size: 0.8rem; font-weight: bold; width: 35px; text-align: right;">50%</span>
+          </div>
+        </div>
+
+        <div class="settings-group" style="margin-top: 8px;">
+          <div class="settings-label">🎨 Theme</div>
+          <div class="theme-buttons">
+            <div class="theme-btn" id="themeDarkBtn" onclick="setTheme('dark')">Dark Theme</div>
+            <div class="theme-btn" id="themeLightBtn" onclick="setTheme('light')">Light Theme</div>
+          </div>
+        </div>
+
+        <div class="settings-group" style="margin-top: 8px;">
+          <div class="settings-label">📦 Order Mode</div>
+          <select class="settings-select" id="orderModeSelect">
+            <option value="turbo">Turbo (Instant / Continuous)</option>
+            <option value="super-fast">Super fast (10s - 20s)</option>
+            <option value="fast">Fast (30s - 1m)</option>
+            <option value="medium" selected>Medium (2m - 5m)</option>
+            <option value="slow">Slow (10m - 15m)</option>
+            <option value="super-slow">Super slow (30m - 1h)</option>
+          </select>
+        </div>
       </div>
     </div>
   </div>
@@ -639,7 +782,7 @@
     <div class="bottom-panel">
       <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
       <div class="action-group">
-        <button class="btn-action btn-utility" id="soundToggleBtn" title="Mute/Unmute">🔊</button>
+        <button class="btn-action btn-utility" id="openSettingsBtn" title="Settings">⚙️</button>
         <button class="btn-action btn-utility" id="downloadPngBtn" title="Download PNG">💾</button>
         <button class="btn-action btn-recipes" id="openRecipesBtn" title="Recipes">📋</button>
         <button class="btn-action btn-achievements" id="openAchievementsBtn" title="Achievements">🏆</button>
@@ -663,23 +806,86 @@
         complete: new Audio('audio/complete.mp3')
       };
 
-      let isMuted = JSON.parse(localStorage.getItem('burger_is_muted')) || false;
-      function updateSoundBtnUI() {
-        const btn = document.getElementById('soundToggleBtn');
-        if (btn) btn.innerText = isMuted ? '🔇' : '🔊';
+      // Настройки громкости и звука
+      let currentVolume = JSON.parse(localStorage.getItem('burger_volume')) ?? 50;
+      const volumeSlider = document.getElementById('volumeSlider');
+      const volumeValue = document.getElementById('volumeValue');
+      
+      volumeSlider.value = currentVolume;
+      volumeValue.innerText = `${currentVolume}%`;
+
+      function applyVolume() {
+        const vol = currentVolume / 100;
+        Object.values(SOUNDS).forEach(sound => {
+          if (sound) sound.volume = vol;
+        });
       }
+      applyVolume();
+
+      volumeSlider.oninput = (e) => {
+        currentVolume = parseInt(e.target.value);
+        volumeValue.innerText = `${currentVolume}%`;
+        localStorage.setItem('burger_volume', JSON.stringify(currentVolume));
+        applyVolume();
+      };
+
       function playSound(sound) {
-        if (!isMuted && sound) {
+        if (currentVolume > 0 && sound) {
           sound.currentTime = 0;
           sound.play().catch(() => {});
         }
       }
-      document.getElementById('soundToggleBtn').onclick = () => {
-        isMuted = !isMuted;
-        localStorage.setItem('burger_is_muted', JSON.stringify(isMuted));
-        updateSoundBtnUI();
-        if (!isMuted) playSound(SOUNDS.buttons);
+
+      // Настройки темы (по умолчанию dark)
+      let currentTheme = localStorage.getItem('burger_theme') || 'dark';
+      window.setTheme = function(theme) {
+        currentTheme = theme;
+        localStorage.setItem('burger_theme', theme);
+        if (theme === 'light') {
+          document.body.classList.add('light-theme');
+          document.getElementById('themeLightBtn').classList.add('active');
+          document.getElementById('themeDarkBtn').classList.remove('active');
+        } else {
+          document.body.classList.remove('light-theme');
+          document.getElementById('themeDarkBtn').classList.add('active');
+          document.getElementById('themeLightBtn').classList.remove('active');
+        }
+      }
+      setTheme(currentTheme);
+
+      // Настройки режима заказов
+      let orderMode = localStorage.getItem('burger_order_mode') || 'medium';
+      const orderModeSelect = document.getElementById('orderModeSelect');
+      orderModeSelect.value = orderMode;
+
+      orderModeSelect.onchange = (e) => {
+        orderMode = e.target.value;
+        localStorage.setItem('burger_order_mode', orderMode);
+        resetOrderTimer();
       };
+
+      function getNextOrderTimeInterval() {
+        switch (orderMode) {
+          case 'turbo': return 0;
+          case 'super-fast': return Math.floor(Math.random() * 11) + 10; // 10 - 20 сек
+          case 'fast': return Math.floor(Math.random() * 31) + 30; // 30 сек - 1 мин
+          case 'medium': return Math.floor(Math.random() * 181) + 120; // 2 - 5 мин
+          case 'slow': return Math.floor(Math.random() * 301) + 600; // 10 - 15 мин
+          case 'super-slow': return Math.floor(Math.random() * 1801) + 1800; // 30 мин - 1 час
+          default: return 180;
+        }
+      }
+
+      let timeUntilNextOrder = getNextOrderTimeInterval();
+
+      function resetOrderTimer() {
+        if (!currentActiveOrder) {
+          timeUntilNextOrder = getNextOrderTimeInterval();
+          if (orderMode === 'turbo') {
+            triggerRandomOrder();
+          }
+        }
+      }
 
       const topOrderWidget = document.getElementById('topOrderWidget');
       topOrderWidget.onclick = () => {
@@ -731,7 +937,6 @@
       let pinnedBurger = JSON.parse(localStorage.getItem('pinned_burger')) || null;
 
       let currentActiveOrder = null; 
-      let timeUntilNextOrder = Math.floor(Math.random() * 240) + 60;
 
       function unlockAchievement(id) {
         if (!unlockedAchievements[id]) {
@@ -817,7 +1022,7 @@
               card.innerHTML = `
                 <div class="recipe-info" style="flex:1;">
                   <h4>${ach.title}</h4>
-                  <p style="font-size:0.75rem; color:#6d4c41;">Secret recipe locked...</p>
+                  <p style="font-size:0.75rem; color:#8d6e63;">Secret recipe locked...</p>
                 </div>`;
             }
             body.appendChild(card);
@@ -880,6 +1085,7 @@
         });
       }
 
+      // Управление модалками
       const recipesModal = document.getElementById('recipesModal');
       document.getElementById('openRecipesBtn').onclick = () => { playSound(SOUNDS.buttons); renderRecipesModal(); recipesModal.classList.add('open'); };
       document.getElementById('closeRecipesModal').onclick = () => { playSound(SOUNDS.buttons); recipesModal.classList.remove('open'); };
@@ -898,6 +1104,11 @@
         }
       };
 
+      const settingsModal = document.getElementById('settingsModal');
+      document.getElementById('openSettingsBtn').onclick = () => { playSound(SOUNDS.buttons); settingsModal.classList.add('open'); };
+      document.getElementById('closeSettingsModal').onclick = () => { playSound(SOUNDS.buttons); settingsModal.classList.remove('open'); };
+      settingsModal.onclick = (e) => { if (e.target === settingsModal) settingsModal.classList.remove('open'); };
+
       const toggleUiBtn = document.getElementById('toggleUiBtn');
       toggleUiBtn.onclick = () => {
         document.body.classList.toggle('ui-hidden');
@@ -913,7 +1124,9 @@
       setInterval(() => {
         const statusText = document.getElementById('orderStatusText');
         if (!currentActiveOrder) {
-          if (timeUntilNextOrder > 0) {
+          if (orderMode === 'turbo') {
+            triggerRandomOrder();
+          } else if (timeUntilNextOrder > 0) {
             timeUntilNextOrder--;
             statusText.innerHTML = `Next order in: <span>${formatTime(timeUntilNextOrder)}</span>`;
           } else {
@@ -1016,7 +1229,7 @@
           setTimeout(() => toast.remove(), 4000);
 
           currentActiveOrder = null;
-          timeUntilNextOrder = Math.floor(Math.random() * 240) + 60;
+          timeUntilNextOrder = getNextOrderTimeInterval();
 
           setTimeout(() => {
             triggerEatAnimation();
@@ -1226,7 +1439,6 @@
         link.click();
       };
 
-      updateSoundBtnUI();
       renderSauces();
       renderIngredientsMenu();
       updateBurgerDisplay(false);
