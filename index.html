@@ -1038,10 +1038,10 @@
       function getMarginBottomForLayer(item, itemBelow, index) {
         const isSauce = ['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id);
         if (index === 0) return -10;
-        if (isSauce) return -60; // Исправленный отступ соусов назад к идеальному положению
+        if (isSauce) return -55; // Установлено на -55 по вашему запросу
         if (item.id === 'top-bun') return -38;
         if (item.id === 'cheese') return -60;
-        if (item.id === 'hashbrown') return -52;
+        if (item.id === 'hashbrown') return -48; // Выровнено под высоту остальных котлет
         if (item.id === 'fried-egg') return -52;
         if (item.id === 'fried-bacon') return -48;
         if (item.id === 'lettuce') return -65;
