@@ -41,8 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch(e) {}
   }
 
-  const leftPanel = document.getElementById('leftPanel');
-  const rightPanel = document.getElementById('rightPanel');
   const bottomPanel = document.getElementById('bottomPanel');
   const ingredientsMenu = document.getElementById('ingredientsMenu');
   const desktopSaucesGroup = document.getElementById('desktopSaucesGroup');
@@ -93,41 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   initOpacityToggle();
-
-  function initCustomActionButtons() {
-    const appContainer = document.querySelector('.app-container');
-    const existingPcContainer = document.getElementById('pcCustomButtonsContainer');
-
-    if (window.innerWidth > 900) {
-      if (appContainer && !existingPcContainer) {
-        const pcContainer = document.createElement('div');
-        pcContainer.id = 'pcCustomButtonsContainer';
-        pcContainer.className = 'pc-custom-buttons-container';
-
-        const eggBtn = document.createElement('button');
-        eggBtn.className = 'nav-arrow-btn';
-        eggBtn.innerHTML = '🍳';
-        eggBtn.title = 'Действие 🍳';
-        eggBtn.onclick = () => { playSound(SOUNDS.buttons); };
-
-        const knifeBtn = document.createElement('button');
-        knifeBtn.className = 'nav-arrow-btn';
-        knifeBtn.innerHTML = '🔪';
-        knifeBtn.title = 'Действие 🔪';
-        knifeBtn.onclick = () => { playSound(SOUNDS.buttons); };
-
-        pcContainer.appendChild(eggBtn);
-        pcContainer.appendChild(knifeBtn);
-        appContainer.appendChild(pcContainer);
-      }
-    } else {
-      if (existingPcContainer) {
-        existingPcContainer.remove();
-      }
-    }
-  }
-  initCustomActionButtons();
-  window.addEventListener('resize', initCustomActionButtons);
 
   const MAX_INGREDIENTS = 30;
   let currentBurger = JSON.parse(localStorage.getItem('saved_burger_stack')) || [];
@@ -1098,6 +1061,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentSpeed = getCurrentSpeed();
     if (currentSpeed === 'no-orders') return;
 
+    // ГАРАНТИЯ МГНОВЕННОЙ ВЫДАЧИ: если турбо-режим или пресет турбо, таймер заказов обновляется сразу без ожидания
     if (currentGameMode === 'turbo' || currentSpeed === 'turbo-fixed') {
       if (!currentActiveOrder) {
         triggerRandomOrder();
