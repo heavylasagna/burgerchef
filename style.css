@@ -298,27 +298,28 @@ body {
   100% { opacity: 0; transform: translateY(-15px) scale(0.95); }
 }
 
+/* 4. ПК версия закрепленных рецептов: вертикальные, чуть крупнее, под кошельком */
 .pinned-recipe-widget {
   position: absolute;
-  top: 52px;
+  top: 54px;
   left: 240px;
   background: var(--modal-bg);
   backdrop-filter: blur(8px);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: 8px 12px;
-  font-size: 0.75rem;
-  max-width: 200px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  width: 175px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   z-index: 50;
   display: none;
   transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 .pinned-recipe-widget.active { display: block; }
-.pinned-recipe-widget h5 { color: var(--text-color); margin-bottom: 4px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; }
-.pinned-recipe-widget .unpin-btn { background: none; border: none; cursor: pointer; font-size: 0.8rem; color: var(--text-color); }
-.pinned-ingredients { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
-.pinned-ingredients img { width: 22px; height: 22px; object-fit: contain; }
+.pinned-recipe-widget h5 { color: var(--text-color); margin-bottom: 6px; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; }
+.pinned-recipe-widget .unpin-btn { background: none; border: none; cursor: pointer; font-size: 0.85rem; color: var(--text-color); }
+.pinned-ingredients { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.pinned-ingredients img { width: 28px; height: 28px; object-fit: contain; }
 
 .top-order-widget {
   position: absolute;
@@ -519,10 +520,10 @@ body {
   transform: scale(1.05);
 }
 
-/* Контейнер для кнопок 🍳 и 🔪 на ПК: небольшой аккуратный отступ */
+/* Контейнер для кнопок 🍳 и 🔪 на ПК */
 .pc-custom-buttons-container {
   position: absolute;
-  right: calc(220px + 22px); /* аккуратный небольшой отступ с правой стороны */
+  right: calc(220px + 22px);
   top: 10px;
   display: flex;
   flex-direction: row;
@@ -531,6 +532,7 @@ body {
   z-index: 120;
 }
 
+/* 3. Модальные окна перекрывают всё, а кнопки уходят под них (z-index меньше 2000) */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -975,7 +977,7 @@ input[type="range"]::-webkit-slider-thumb {
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
   }
 
-  /* Мобильные кнопки под глазом справа сверху */
+  /* 3. Мобильные кнопки под глазом скрываются при скрытии интерфейса и уходят под модалки (z-index: 500) */
   .mobile-custom-buttons-container {
     position: fixed;
     right: 10px;
@@ -983,7 +985,7 @@ input[type="range"]::-webkit-slider-thumb {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    z-index: 2500;
+    z-index: 500;
   }
 
   body.ui-hidden .left-panel,
