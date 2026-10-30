@@ -69,6 +69,36 @@ body {
   pointer-events: auto;
 }
 
+/* Пустые кнопки-стрелочки, вынесенные за пределы правой панели */
+.screen-switch-btn {
+  position: absolute;
+  right: 236px; /* Ровно слева от правой панели (220px ширина панели + 16px отступ) */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 56px;
+  background: linear-gradient(145deg, var(--panel-bg-1), var(--panel-bg-2));
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  color: var(--accent-color);
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: bold;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  z-index: 150;
+  transition: all 0.2s ease;
+}
+
+.screen-switch-btn:hover {
+  background: var(--modal-bg);
+  border-color: var(--accent-color);
+  transform: translateY(-50%) scale(1.05);
+}
+
 .panel {
   background: linear-gradient(145deg, var(--panel-bg-1), var(--panel-bg-2));
   backdrop-filter: blur(10px);
@@ -84,35 +114,6 @@ body {
   transition: opacity 0.3s ease, background 0.3s ease, border-color 0.3s ease;
 }
 .panel.dimmed { opacity: 0.35; }
-
-/* Кнопки переключения экранов (стрелочки по центру слева от панели) */
-.screen-switch-btn {
-  position: absolute;
-  left: -14px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 28px;
-  height: 48px;
-  background: var(--panel-bg-1);
-  border: 1px solid var(--border-color);
-  color: var(--accent-color);
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  font-weight: bold;
-  box-shadow: -3px 0 10px rgba(0,0,0,0.3);
-  z-index: 50;
-  transition: background 0.2s, transform 0.2s, color 0.2s;
-}
-
-.screen-switch-btn:hover {
-  background: var(--accent-color);
-  color: #fff;
-  transform: translateY(-50%) scale(1.05);
-}
 
 .panel-title {
   font-size: 0.85rem;
@@ -931,6 +932,7 @@ input[type="range"]::-webkit-slider-thumb {
   }
   .center-stage { order: 1; min-height: 350px; padding-bottom: 10px; justify-content: flex-end; }
   .right-panel { order: 2; height: 115px; }
+  .screen-switch-btn { display: none !important; } /* На мобилках переключение сделаем или оставим скрытым при необходимости */
   .ingredients-menu {
     flex-direction: row;
     overflow-x: auto;
@@ -1010,7 +1012,8 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .sauces-group.mobile-sauces,
   body.ui-hidden .top-order-widget,
   body.ui-hidden .wallet-widget,
-  body.ui-hidden .pinned-recipe-widget { display: none !important; }
+  body.ui-hidden .pinned-recipe-widget,
+  body.ui-hidden .screen-switch-btn { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
 }
 @media (min-width: 901px) {
