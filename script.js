@@ -229,9 +229,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const squeezeBtn = document.getElementById('squeezeBtn');
   const eatBtn = document.getElementById('eatBtn');
 
-  function updateActionButtonsVisibility(mode) {
-    if (squeezeBtn) squeezeBtn.style.display = mode === 'sandbox' ? 'flex' : 'none';
-    if (eatBtn) eatBtn.style.display = mode === 'sandbox' ? 'flex' : 'none';
+  function updateActionButtonsVisibility() {
+    const isNoOrders = (currentGameMode === 'sandbox' || currentGameMode === 'casual') && currentGameSpeed === 'no-orders';
+    if (squeezeBtn) squeezeBtn.style.display = (currentGameMode === 'sandbox' || isNoOrders) ? 'flex' : 'none';
+    if (eatBtn) eatBtn.style.display = (currentGameMode === 'sandbox' || isNoOrders) ? 'flex' : 'none';
   }
 
   const modeSandboxBtn = document.getElementById('modeSandboxBtn');
@@ -257,6 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('current_active_order');
       } else {
         if(topWidget) topWidget.classList.remove('hidden');
+        if (!currentActiveOrder) triggerRandomOrder();
       }
     } else if (mode === 'casual') {
       if(speedButtonsGrid) speedButtonsGrid.classList.remove('disabled');
@@ -266,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('current_active_order');
       } else {
         if(topWidget) topWidget.classList.remove('hidden');
-        if (!currentActiveOrder) timeUntilNextOrder = 5;
+        if (!currentActiveOrder) triggerRandomOrder();
       }
     } else if (mode === 'turbo') {
       if(speedButtonsGrid) speedButtonsGrid.classList.add('disabled');
@@ -275,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!currentActiveOrder) triggerRandomOrder();
     }
 
-    updateActionButtonsVisibility(mode);
+    updateActionButtonsVisibility();
     updateMoneyDisplay();
     renderIngredientsMenu();
     renderSauces();
@@ -310,12 +312,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (w1) w1.classList.add('hidden');
       } else {
         if (w1) w1.classList.remove('hidden');
-        timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
-        localStorage.setItem('time_until_next_order', timeUntilNextOrder);
-        if (!currentActiveOrder && currentGameMode !== 'sandbox') {
-          triggerRandomOrder();
-        }
+        // При смене скорости принудительно генерируем новый заказ и сбрасываем таймер
+        triggerRandomOrder();
       }
+      updateActionButtonsVisibility();
     };
   });
 
@@ -819,7 +819,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Проверка ачивок во время сборки бургера
   function checkAchievementsOnly() {
     if (currentBurger.length === 0) return;
     const ids = currentBurger.map(i => i.id);
@@ -830,7 +829,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Кнопка подачи заказа (🍽️)
+  // Кнопка сервировки (🍽️) — расположена слева от корзины
   const serveBtn = document.getElementById('serveBtn');
   if (serveBtn) {
     serveBtn.onclick = () => {
@@ -849,7 +848,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const isCorrect = ids.length === targetIds.length && ids.every((val, idx) => val === targetIds[idx]);
 
       if (isCorrect) {
-        // Успешный заказ
         playSound(SOUNDS.complete);
         const cost = ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0);
         const reward = Math.round(cost * 2 * 100) / 100;
@@ -860,7 +858,6 @@ document.addEventListener('DOMContentLoaded', () => {
         currentActiveOrder = null;
         localStorage.removeItem('current_active_order');
         
-        // Автоматически съедаем поданный бургер
         isEating = true; isSqueezed = false;
         if (burgerStack) burgerStack.classList.add('eating');
         setTimeout(() => {
@@ -877,7 +874,6 @@ document.addEventListener('DOMContentLoaded', () => {
           triggerRandomOrder();
         }
       } else {
-        // Неверный заказ -> штраф и сброс заказа
         playSound(SOUNDS.bin);
         let penalty = 0;
         if (currentGameMode === 'casual') {
@@ -911,7 +907,6 @@ document.addEventListener('DOMContentLoaded', () => {
           triggerRandomOrder();
         }
 
-        // Очищаем бургер при ошибке
         currentBurger = [];
         updateBurgerDisplay(false);
       }
