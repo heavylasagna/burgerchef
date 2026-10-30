@@ -472,15 +472,14 @@ body {
 .btn-squeeze { background: linear-gradient(135deg, #d97706, #b45309); color: #fff; }
 .btn-eat { background: linear-gradient(135deg, #689f38, #558b2f); color: #fff; }
 
-/* Кнопка подачи заказа (в общем стиле остальных кнопок) */
+/* Голубая кнопка подачи заказа с градиентом */
 .btn-submit-order {
-  background: var(--item-bg);
-  border: 1px solid var(--border-color);
-  color: var(--text-color);
+  background: linear-gradient(135deg, #00b0ff, #0091ea);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 .btn-submit-order:hover {
-  background: var(--modal-bg);
-  border-color: var(--accent-color);
+  background: linear-gradient(135deg, #40c4ff, #00b0ff);
 }
 
 .btn-reset { background: linear-gradient(135deg, #d32f2f, #c62828); color: #fff; }
@@ -836,6 +835,24 @@ input[type="range"]::-moz-range-thumb {
   100% { opacity: 0; transform: translateY(-15px) scale(0.95); }
 }
 
+/* Кастомные скроллбары, меняющиеся под текущую тему */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+  border: 1px solid var(--item-border);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
+
 .mobile-top-bar { display: none; }
 .toggle-ui-btn { display: none; }
 
@@ -939,25 +956,4 @@ input[type="range"]::-moz-range-thumb {
 }
 @media (min-width: 901px) {
   .sauces-group.mobile-sauces { display: none !important; }
-
-  /* Кастомный дизайн скроллбаров под общую стилистику */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 4px;
-  border: 1px solid var(--item-border);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-color);
-}
 }
