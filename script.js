@@ -101,6 +101,60 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   initOpacityToggle();
 
+  // ==========================================
+  // ДОБАВЛЕНИЕ КНОПОК-СТРЕЛОК (ПК и ТЕЛЕФОН)
+  // ==========================================
+  function initNavArrows() {
+    if (leftPanel && !document.getElementById('pcScrollUpBtn')) {
+      const upArrow = document.createElement('button');
+      upArrow.id = 'pcScrollUpBtn';
+      upArrow.className = 'nav-arrow-btn pc-arrow-left';
+      upArrow.style.top = '40%';
+      upArrow.innerHTML = '▲';
+      upArrow.title = 'Прокрутить вверх';
+      upArrow.onclick = () => {
+        if (layersList) layersList.scrollBy({ top: -100, behavior: 'smooth' });
+      };
+      leftPanel.appendChild(upArrow);
+
+      const downArrow = document.createElement('button');
+      downArrow.id = 'pcScrollDownBtn';
+      downArrow.className = 'nav-arrow-btn pc-arrow-left';
+      downArrow.style.top = '60%';
+      downArrow.innerHTML = '▼';
+      downArrow.title = 'Прокрутить вниз';
+      downArrow.onclick = () => {
+        if (layersList) layersList.scrollBy({ top: 100, behavior: 'smooth' });
+      };
+      leftPanel.appendChild(downArrow);
+    }
+
+    if (centerStage && !document.getElementById('mobileArrowsContainer')) {
+      const mobileContainer = document.createElement('div');
+      mobileContainer.id = 'mobileArrowsContainer';
+      mobileContainer.className = 'mobile-arrows-container';
+
+      const mUp = document.createElement('button');
+      mUp.className = 'nav-arrow-btn';
+      mUp.innerHTML = '▲';
+      mUp.onclick = () => {
+        if (centerStage) centerStage.scrollBy({ top: -150, behavior: 'smooth' });
+      };
+
+      const mDown = document.createElement('button');
+      mDown.className = 'nav-arrow-btn';
+      mDown.innerHTML = '▼';
+      mDown.onclick = () => {
+        if (centerStage) centerStage.scrollBy({ top: 150, behavior: 'smooth' });
+      };
+
+      mobileContainer.appendChild(mUp);
+      mobileContainer.appendChild(mDown);
+      centerStage.appendChild(mobileContainer);
+    }
+  }
+  initNavArrows();
+
   const MAX_INGREDIENTS = 30;
   let currentBurger = JSON.parse(localStorage.getItem('saved_burger_stack')) || [];
   let isEating = false;
