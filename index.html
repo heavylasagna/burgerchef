@@ -138,6 +138,8 @@
     
     <!-- ЭКРАН СБОРКИ БУРГЕРА -->
     <div class="screen active" id="assemblyScreen">
+      <button class="screen-switch-btn switch-to-grill" id="switchToGrillBtn" title="Перейти на гриль">▶</button>
+      
       <div class="center-stage" id="centerStage">
         <div class="limit-warning" id="limitWarning">Max 30 ingredients!</div>
         <div class="burger-wrapper">
@@ -146,7 +148,6 @@
       </div>
 
       <div class="panel right-panel" id="rightPanel">
-        <button class="screen-switch-btn switch-to-grill" id="switchToGrillBtn" title="Перейти на гриль">▶</button>
         <div class="panel-title" id="ingredientsTitle">Ingredients</div>
         <div class="ingredients-menu" id="ingredientsMenu"></div>
       </div>
@@ -154,6 +155,8 @@
 
     <!-- ЭКРАН ГРИЛЯ -->
     <div class="screen" id="grillScreen">
+      <button class="screen-switch-btn switch-to-assembly" id="switchToAssemblyBtn" title="Вернуться к сборке">◀</button>
+
       <div class="center-stage grill-stage" id="grillStage">
         <div class="grill-surface" id="grillSurface">
           <!-- Сюда будут добавляться жарящиеся продукты -->
@@ -161,7 +164,6 @@
       </div>
 
       <div class="panel right-panel" id="rawIngredientsPanel">
-        <button class="screen-switch-btn switch-to-assembly" id="switchToAssemblyBtn" title="Вернуться к сборке">◀</button>
         <div class="panel-title">Raw Ingredients</div>
         <div class="ingredients-menu" id="rawIngredientsMenu"></div>
       </div>
