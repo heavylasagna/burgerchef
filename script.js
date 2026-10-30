@@ -55,29 +55,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const limitWarning = document.getElementById('limitWarning');
 
   // ==========================================
-  // ПОЛУПРОЗРАЧНОСТЬ ПАНЕЛЕЙ ПО КЛИКУ (ПК)
+  // ПОЛУПРОЗРАЧНОСТЬ ТОЛЬКО ПО КЛИКУ НА ЗАГОЛОВОК (ПК)
   // ==========================================
   function initOpacityToggle() {
-    const panels = [leftPanel, rightPanel, bottomPanel];
+    // Находим все заголовки внутри боковых панелей
+    const titles = document.querySelectorAll('.panel > .panel-title, .bottom-panel > .panel-title');
 
-    panels.forEach(panel => {
-      if (!panel) return;
-      panel.addEventListener('click', (e) => {
+    titles.forEach(title => {
+      title.style.cursor = 'pointer'; // Делаем курсор указателем, показывая, что сюда можно кликнуть
+      title.addEventListener('click', (e) => {
         // На мобильных не применяем
         if (window.innerWidth <= 900) return;
 
-        // Если кликнули по кнопкам или элементам внутри — не затемняем
-        if (
-          e.target.closest('button') ||
-          e.target.closest('.ingredient-card') ||
-          e.target.closest('.layer-item') ||
-          e.target.closest('.sauce-chip') ||
-          e.target.closest('input')
-        ) {
-          return;
+        // Находим родительскую панель этого заголовка и переключаем затемнение
+        const panel = title.closest('.panel') || title.closest('.bottom-panel');
+        if (panel) {
+          panel.classList.toggle('dimmed');
         }
-
-        panel.classList.toggle('dimmed');
       });
     });
   }
