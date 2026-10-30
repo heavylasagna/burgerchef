@@ -178,6 +178,13 @@ body {
   transition: transform 0.4s ease, opacity 0.4s ease;
 }
 
+/* Класс для аккуратной обрезки PNG */
+.burger-stack.capturing-png {
+  padding: 10px 20px;
+  display: inline-flex;
+  width: max-content;
+}
+
 .burger-stack.eating {
   animation: eatAnimation 2s forwards ease-in-out;
 }
@@ -452,7 +459,7 @@ body {
   align-items: center;
 }
 
-/* Единый полый стиль для ВСЕХ кнопок панели действий (без цвета внутри, только рамка темы) */
+/* Единый полый стиль для ВСЕХ кнопок панели действий */
 .btn-action {
   padding: 0 12px;
   height: 40px;
@@ -522,9 +529,7 @@ body {
   transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-.modal-content.wide {
-  max-width: 650px;
-}
+.modal-content.wide { max-width: 650px; }
 
 .modal-header {
   display: flex;
@@ -693,13 +698,6 @@ input[type="range"]::-webkit-slider-thumb {
   background: var(--accent-color);
   cursor: pointer;
 }
-input[type="range"]::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--accent-color);
-  cursor: pointer;
-}
 
 .settings-row {
   display: flex;
@@ -715,7 +713,6 @@ input[type="range"]::-moz-range-thumb {
   font-weight: 600;
   font-size: 0.8rem;
   cursor: pointer;
-  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 .settings-row button.active {
   background: var(--accent-color);
@@ -727,12 +724,8 @@ input[type="range"]::-moz-range-thumb {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 5px;
-  transition: opacity 0.3s;
 }
-.speed-grid.disabled {
-  opacity: 0.35;
-  pointer-events: none;
-}
+.speed-grid.disabled { opacity: 0.35; pointer-events: none; }
 .speed-btn {
   padding: 6px;
   border-radius: 6px;
@@ -743,7 +736,6 @@ input[type="range"]::-moz-range-thumb {
   font-size: 0.75rem;
   cursor: pointer;
   text-align: center;
-  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 .speed-btn.active {
   background: var(--accent-color);
@@ -822,23 +814,10 @@ input[type="range"]::-moz-range-thumb {
   100% { opacity: 0; transform: translateY(-15px) scale(0.95); }
 }
 
-/* Кастомные скроллбары, меняющиеся под текущую тему */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 4px;
-  border: 1px solid var(--item-border);
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-color);
-}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; border: 1px solid var(--item-border); }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
 
 .mobile-top-bar { display: none; }
 .toggle-ui-btn { display: none; }
@@ -915,10 +894,7 @@ input[type="range"]::-moz-range-thumb {
     font-size: 0.7rem; 
   }
 
-  .pinned-recipe-widget {
-    top: 45px;
-    left: 10px;
-  }
+  .pinned-recipe-widget { top: 45px; left: 10px; }
 
   .toggle-ui-btn {
     background: var(--modal-bg);
