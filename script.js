@@ -102,8 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // ДОБАВЛЕНИЕ КНОПОК 🍳 И 🔪 (ПК и ТЕЛЕФОН)
   // ==========================================
   function initCustomActionButtons() {
-    // 1. Для ПК: создаем контейнер слева от правой панели
     const appContainer = document.querySelector('.app-container');
+    
+    // 1. Для ПК: создаем контейнер справа от панели ингредиентов
     if (appContainer && !document.getElementById('pcCustomButtonsContainer')) {
       const pcContainer = document.createElement('div');
       pcContainer.id = 'pcCustomButtonsContainer';
@@ -126,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
       appContainer.appendChild(pcContainer);
     }
 
-    // 2. Для телефона: добавляем блок с кнопками под глазом
+    // 2. Для телефона: добавляем блок с кнопками под глазом (без дублирования сверху)
     if (appContainer && !document.getElementById('mobileCustomButtonsContainer')) {
       const mobileContainer = document.createElement('div');
       mobileContainer.id = 'mobileCustomButtonsContainer';
@@ -387,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
       currentActiveOrder = null;
       localStorage.removeItem('current_active_order');
       if (speed !== 'no-orders') {
-        if (mode === 'turbo') {
+        if (speed === 'turbo-fixed') {
           currentTurboTimeLeft = 180;
           triggerRandomOrder();
         } else {
@@ -405,6 +406,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if(topWidget) topWidget.classList.add('hidden');
         currentActiveOrder = null;
         localStorage.removeItem('current_active_order');
+      } else if (speed === 'turbo-fixed') {
+        if(topWidget) topWidget.classList.remove('hidden');
+        if (!currentActiveOrder) triggerRandomOrder();
       } else {
         if(topWidget) topWidget.classList.remove('hidden');
         if (!currentActiveOrder && previousMode !== mode) {
@@ -454,6 +458,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (newSpeed === 'no-orders') {
         if (topWidget) topWidget.classList.add('hidden');
+      } else if (newSpeed === 'turbo-fixed') {
+        if (topWidget) topWidget.classList.remove('hidden');
+        currentTurboTimeLeft = 180;
+        triggerRandomOrder();
       } else {
         if (topWidget) topWidget.classList.remove('hidden');
         timeUntilNextOrder = getRandomTimeForSpeed(newSpeed);
@@ -1008,7 +1016,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       showToast(null, 'Order Complete!', `${currentActiveOrder.name} served successfully!`);
       
-      if (currentGameMode === 'turbo') {
+      if (currentGameMode === 'turbo' || getCurrentSpeed() === 'turbo-fixed') {
         triggerRandomOrder();
       } else {
         currentActiveOrder = null;
@@ -1036,7 +1044,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     const currentSpeed = getCurrentSpeed();
-    if (currentActiveOrder && currentSpeed === 'no-orders') {
+    if (currentActiveOrder && (currentSpeed === 'no-orders' || currentSpeed === 'turbo-fixed')) {
       const targetIds = currentActiveOrder.ids;
       if (ids.length === targetIds.length && ids.every((val, idx) => val === targetIds[idx])) {
         playSound(SOUNDS.complete);
@@ -1047,8 +1055,14 @@ document.addEventListener('DOMContentLoaded', () => {
           updateMoneyDisplay(reward, true);
         }
         showToast(null, 'Order Complete!', `${currentActiveOrder.name} served successfully!`);
-        currentActiveOrder = null;
-        localStorage.removeItem('current_active_order');
+        
+        if (currentSpeed === 'turbo-fixed') {
+          triggerRandomOrder();
+        } else {
+          currentActiveOrder = null;
+          localStorage.removeItem('current_active_order');
+        }
+
         updateActionButtonsVisibility();
         setTimeout(() => { if (eatBtn && eatBtn.style.display !== 'none') eatBtn.click(); else { currentBurger = []; updateBurgerDisplay(false); } }, 600);
       }
@@ -1078,14 +1092,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const chosen = allAvailable[Math.floor(Math.random() * allAvailable.length)];
     currentActiveOrder = { name: chosen.name || chosen.title, ids: chosen.ids };
     
-    if (currentGameMode === 'turbo') {
+    if (currentGameMode === 'turbo' || getCurrentSpeed() === 'turbo-fixed') {
       currentTurboTimeLeft = 180;
     }
     
     localStorage.setItem('current_active_order', JSON.stringify(currentActiveOrder));
     
     const speed = getCurrentSpeed();
-    if (speed !== 'no-orders' && currentGameMode !== 'turbo') {
+    if (speed !== 'no-orders' && speed !== 'turbo-fixed' && currentGameMode !== 'turbo') {
       timeUntilNextOrder = getRandomTimeForSpeed(speed);
       localStorage.setItem('time_until_next_order', timeUntilNextOrder);
     }
@@ -1098,7 +1112,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentSpeed = getCurrentSpeed();
     if (currentSpeed === 'no-orders') return;
 
-    if (currentGameMode === 'turbo') {
+    if (currentGameMode === 'turbo' || currentSpeed === 'turbo-fixed') {
       if (!currentActiveOrder) {
         triggerRandomOrder();
       } else {
@@ -1132,7 +1146,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 1000);
 
   if (currentActiveOrder && getCurrentSpeed() !== 'no-orders') {
-    if (currentGameMode === 'turbo') {
+    if (currentGameMode === 'turbo' || getCurrentSpeed() === 'turbo-fixed') {
       updateOrderWidgetsText(currentActiveOrder.name, formatTime(currentTurboTimeLeft));
     } else {
       updateOrderWidgetsText(currentActiveOrder.name);
