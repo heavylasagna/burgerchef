@@ -69,11 +69,11 @@ body {
   pointer-events: auto;
 }
 
-/* Пустые кнопки-стрелочки, вынесенные за пределы правой панели */
+/* Кнопка-стрелочка, поднятая чуть выше идеального центра */
 .screen-switch-btn {
   position: absolute;
-  right: 236px; /* Ровно слева от правой панели (220px ширина панели + 16px отступ) */
-  top: 50%;
+  right: 236px;
+  top: 42%;
   transform: translateY(-50%);
   width: 32px;
   height: 56px;
@@ -932,7 +932,7 @@ input[type="range"]::-webkit-slider-thumb {
   }
   .center-stage { order: 1; min-height: 350px; padding-bottom: 10px; justify-content: flex-end; }
   .right-panel { order: 2; height: 115px; }
-  .screen-switch-btn { display: none !important; } /* На мобилках переключение сделаем или оставим скрытым при необходимости */
+  .screen-switch-btn { display: none !important; }
   .ingredients-menu {
     flex-direction: row;
     overflow-x: auto;
