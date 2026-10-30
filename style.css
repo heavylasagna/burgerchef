@@ -242,12 +242,11 @@ body {
 }
 .limit-warning.show { opacity: 1; transform: translateY(0); }
 
-/* Кошелёк: смещен левее, строго над сценой, не заходит на левую панель слоев */
+/* Кошелёк: теперь расположен справа от панели слоёв (аккурат в зоне центральной сцены слева) */
 .wallet-widget {
   position: absolute;
   top: 10px;
-  left: 50%;
-  transform: translateX(-180px);
+  left: 240px; /* Сдвинут правее левой панели слоёв шириной 220px + отступы */
   background: var(--panel-bg-1);
   backdrop-filter: blur(8px);
   color: var(--text-color);
@@ -297,7 +296,7 @@ body {
 .pinned-recipe-widget {
   position: absolute;
   top: 55px;
-  left: 10px;
+  left: 240px;
   background: var(--modal-bg);
   backdrop-filter: blur(8px);
   border: 1px solid var(--border-color);
@@ -861,7 +860,6 @@ input[type="range"]::-moz-range-thumb {
 
   .top-order-widget { position: static; transform: none; max-width: 65%; font-size: 0.7rem; padding: 4px 10px; }
   
-  /* Кошелёк на мобильных */
   .wallet-widget { 
     position: fixed; 
     top: 10px; 
