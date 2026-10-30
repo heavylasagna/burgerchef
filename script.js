@@ -238,7 +238,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (squeezeBtn) squeezeBtn.style.display = (currentGameMode === 'sandbox' || isNoOrders) ? 'flex' : 'none';
     if (eatBtn) eatBtn.style.display = (currentGameMode === 'sandbox' || isNoOrders) ? 'flex' : 'none';
 
-    // Кнопка мгновенного заказа скрывается при No orders или в Turbo режиме
     if (instantOrderBtn) {
       if (currentGameMode === 'turbo' || currentGameSpeed === 'no-orders') {
         instantOrderBtn.style.display = 'none';
@@ -253,6 +252,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const modeTurboBtn = document.getElementById('modeTurboBtn');
   const speedButtonsGrid = document.getElementById('speedButtonsGrid');
 
+  function triggerRandomOrder() {
+    const unlockedSecretNames = SECRET_ACHIEVEMENTS.filter(a => unlockedAchievements[a.id]);
+    const allAvailable = [...REGULAR_RECIPES, ...unlockedSecretNames];
+    const chosen = allAvailable[Math.floor(Math.random() * allAvailable.length)];
+    currentActiveOrder = { name: chosen.name || chosen.title, ids: chosen.ids };
+    currentTurboTimeLeft = 180;
+    localStorage.setItem('current_active_order', JSON.stringify(currentActiveOrder));
+    localStorage.setItem('current_turbo_time_left', currentTurboTimeLeft);
+    playSound(SOUNDS.order);
+  }
+
   function applyGameMode(mode) {
     currentGameMode = mode;
     localStorage.setItem('burger_game_mode', mode);
@@ -266,9 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (mode === 'turbo') {
       if(speedButtonsGrid) speedButtonsGrid.classList.add('disabled');
       if(topWidget) topWidget.classList.remove('hidden');
-      if (!currentActiveOrder) {
-        triggerRandomOrder();
-      }
+      // Принудительно сбрасываем и генерируем новый заказ со свежим таймером турбо-игры
+      currentTurboTimeLeft = 180;
+      localStorage.setItem('current_turbo_time_left', currentTurboTimeLeft);
+      triggerRandomOrder();
     } else {
       if(speedButtonsGrid) speedButtonsGrid.classList.remove('disabled');
       if (currentGameSpeed === 'no-orders') {
@@ -316,7 +327,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const w1 = document.getElementById('topOrderWidget');
 
-      // При смене скорости всегда сбрасываем текущий заказ и запускаем таймер заново (кроме No orders)
       currentActiveOrder = null;
       localStorage.removeItem('current_active_order');
 
@@ -943,17 +953,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateOrderWidgetsText(text) {
     const w1 = document.getElementById('orderStatusText');
     if (w1) w1.innerHTML = text;
-  }
-
-  function triggerRandomOrder() {
-    const unlockedSecretNames = SECRET_ACHIEVEMENTS.filter(a => unlockedAchievements[a.id]);
-    const allAvailable = [...REGULAR_RECIPES, ...unlockedSecretNames];
-    const chosen = allAvailable[Math.floor(Math.random() * allAvailable.length)];
-    currentActiveOrder = { name: chosen.name || chosen.title, ids: chosen.ids };
-    currentTurboTimeLeft = 180;
-    localStorage.setItem('current_active_order', JSON.stringify(currentActiveOrder));
-    localStorage.setItem('current_turbo_time_left', currentTurboTimeLeft);
-    playSound(SOUNDS.order);
   }
 
   setInterval(() => {
