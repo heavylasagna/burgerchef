@@ -69,11 +69,11 @@ body {
   pointer-events: auto;
 }
 
-/* Кнопка-стрелочка для перехода (справа от центра, слева от правой панели) */
+/* Кнопка-стрелочка ровно по вертикальному центру экрана */
 .screen-switch-btn {
   position: absolute;
   right: 236px;
-  top: 42%;
+  top: 50%;
   transform: translateY(-50%);
   width: 32px;
   height: 56px;
@@ -93,7 +93,6 @@ body {
   transition: all 0.2s ease;
 }
 
-/* Для экрана гриля стрелочка должна быть слева по центру */
 #grillScreen .screen-switch-btn {
   right: auto;
   left: 236px;
@@ -940,7 +939,6 @@ input[type="range"]::-webkit-slider-thumb {
   .grill-stage { order: 1; min-height: 300px; padding-bottom: 5px; }
   .right-panel { order: 2; height: 110px; }
   
-  /* Аккуратные мобильные стрелочки переключения экранов */
   .screen-switch-btn {
     position: fixed;
     top: 50px;
