@@ -744,7 +744,7 @@
         { id: 'tomatonatorAch', title: 'Tomatonator', desc: 'Packed with juicy tomatoes', icon: '🍅', sound: 'tomatonator', ids: ['bottom-bun', 'beef-patty', 'tomato', 'tomato', 'tomato', 'top-bun'] },
         { id: 'lilypadAch', title: 'Lilypad', desc: 'A fresh green layer stack', icon: '🥬', sound: 'lilypad', ids: ['bottom-bun', 'lettuce', 'lettuce', 'top-bun'] },
         { id: 'saturnBurgerAch', title: 'Saturn Burger', desc: 'Out of this world creation', icon: '🪐', sound: 'saturnBurger', ids: ['bottom-bun', 'hashbrown', 'fried-egg', 'top-bun'] },
-        { id: 'bustanatorAch', title: 'Bustanator', desc: 'Heavy duty meaty tower', icon: '🔥', sound: 'bustanator', ids: ['bottom-bun', 'beef-patty', 'chicken-patty', 'bacon', 'top-bun'] },
+        { id: 'bustanatorAch', title: 'Bustanator', desc: 'Heavy duty meaty tower', icon: '🔥', sound: 'bustanator', ids: ['bottom-bun', 'beef-patty', 'chicken-patty', 'fried-bacon', 'top-bun'] },
         { id: 'mcPicklePounderAch', title: 'McPickle Pounder', desc: 'Extra pickled perfection', icon: '🥒', sound: 'mcPicklePounder', ids: ['bottom-bun', 'beef-patty', 'pickles', 'pickles', 'pickles', 'top-bun'] }
       ];
 
@@ -976,8 +976,8 @@
         { id: 'pickles', name: 'Pickles', image: 'images/pickles.png' },
         { id: 'red-onion', name: 'Red Onion', image: 'images/red-onion.png' },
         { id: 'white-onion', name: 'White Onion', image: 'images/white-onion.png' },
+        { id: 'hashbrown', name: 'Hashbrown', image: 'images/hashbrown.png' }, // Драник выше говяжьей котлеты
         { id: 'beef-patty', name: 'Beef Patty', image: 'images/beef-patty.png' },
-        { id: 'hashbrown', name: 'Hashbrown', image: 'images/hashbrown.png' },
         { id: 'chicken-patty', name: 'Chicken Patty', image: 'images/chicken-patty.png' },
         { id: 'fish-patty', name: 'Fish Patty', image: 'images/fish-patty.png' },
         { id: 'bottom-bun', name: 'Bottom Bun', image: 'images/bottom-bun.png' }
@@ -1078,7 +1078,7 @@
       function getMarginBottomForLayer(item, itemBelow, index) {
         const isSauce = ['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id);
         if (index === 0) return -10;
-        if (isSauce) return -50;
+        if (isSauce) return -50; // Высота соусов установлена на -50
         if (item.id === 'top-bun') return -38;
         if (item.id === 'cheese') return -60;
         if (item.id === 'hashbrown') return -38;
@@ -1241,6 +1241,7 @@
       }
 
       const eatBtn = document.getElementById('eatBtn');
+      if (eatBtn) eatBtn.eat = triggerEatAnimation;
       if (eatBtn) eatBtn.onclick = triggerEatAnimation;
 
       const downloadPngBtn = document.getElementById('downloadPngBtn');
