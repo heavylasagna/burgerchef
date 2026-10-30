@@ -471,6 +471,7 @@ body {
 
 .btn-squeeze { background: linear-gradient(135deg, #d97706, #b45309); color: #fff; }
 .btn-eat { background: linear-gradient(135deg, #689f38, #558b2f); color: #fff; }
+.btn-submit-order { background: linear-gradient(135deg, #0288d1, #01579b); color: #fff; }
 .btn-reset { background: linear-gradient(135deg, #d32f2f, #c62828); color: #fff; }
 .btn-shop { background: linear-gradient(135deg, #0288d1, #01579b); color: #fff; }
 .btn-achievements { background: linear-gradient(135deg, #8e24aa, #6a1b9a); color: #fff; }
