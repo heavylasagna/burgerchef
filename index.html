@@ -7,7 +7,6 @@
   
   <link rel="icon" type="image/png" href="images/icon.png">
   <link rel="stylesheet" href="style.css">
-  <!-- Подключение html2canvas для сохранения картинки бургера -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
@@ -18,12 +17,12 @@
 
   <div class="toast-container" id="toastContainer"></div>
 
-  <!-- Кошелёк (справа от панели слоёв) -->
+  <!-- Кошелёк -->
   <div class="wallet-widget" id="walletWidget" title="Click to toggle opacity">
     <span id="walletBadge">$100.00</span>
   </div>
 
-  <!-- Закреплённый рецепт: расположен СТРОГО ПОД кошельком -->
+  <!-- Закреплённый рецепт -->
   <div class="pinned-recipe-widget" id="pinnedRecipeWidget">
     <h5 id="pinnedTitle"><span>📌 Pinned</span> <button class="unpin-btn" id="unpinBtn">✕</button></h5>
     <div class="pinned-ingredients" id="pinnedIngredientsContainer"></div>
@@ -160,6 +159,7 @@
         <button class="btn-action btn-recipes" id="openRecipesBtn" title="Recipes">📋</button>
         <button class="btn-action btn-shop" id="openShopBtn" title="Shop">🏬</button>
         <button class="btn-action btn-achievements" id="openAchievementsBtn" title="Achievements">🏆</button>
+        <button class="btn-action btn-serve" id="serveBtn" title="Serve Order">🍽️</button>
         <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
         <button class="btn-action btn-eat" id="eatBtn">Eat</button>
         <button class="btn-action btn-reset" id="resetBtn" title="Bin">🗑️</button>
