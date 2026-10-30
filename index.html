@@ -384,6 +384,22 @@
     .btn-settings { background: linear-gradient(135deg, #546e7a, #37474f); color: #fff; }
     .btn-utility { background: linear-gradient(135deg, #455a64, #263238); color: #fff; }
 
+    /* Кастомная пола-кнопка Reset */
+    .btn-outline-danger {
+      background: transparent;
+      border: 2px solid #d32f2f;
+      color: #d32f2f;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-outline-danger:hover {
+      background: rgba(211, 47, 47, 0.1);
+    }
+
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -472,15 +488,33 @@
       display: flex;
       justify-content: space-between;
     }
-    .settings-group select, .settings-group input[type="range"] {
+    
+    /* Коричневый ползунок громкости */
+    input[type="range"] {
+      -webkit-appearance: none;
       width: 100%;
-      padding: 6px;
-      border-radius: 6px;
-      border: 1px solid #d7ccc8;
-      background: var(--modal-bg);
-      color: var(--text-color);
-      font-size: 0.8rem;
+      height: 6px;
+      background: #d7ccc8;
+      border-radius: 3px;
+      outline: none;
     }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #5d4037;
+      cursor: pointer;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #5d4037;
+      cursor: pointer;
+    }
+
     .settings-row {
       display: flex;
       gap: 8px;
@@ -497,6 +531,29 @@
       cursor: pointer;
     }
     .settings-row button.active {
+      background: #8d6e63;
+      color: #fff;
+      border-color: #8d6e63;
+    }
+
+    /* Сетка кнопок для выбора Order frequency */
+    .speed-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+    }
+    .speed-btn {
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #d7ccc8;
+      background: var(--modal-bg);
+      color: var(--text-color);
+      font-weight: 600;
+      font-size: 0.75rem;
+      cursor: pointer;
+      text-align: center;
+    }
+    .speed-btn.active {
       background: #8d6e63;
       color: #fff;
       border-color: #8d6e63;
@@ -682,11 +739,11 @@
     </div>
   </div>
 
-  <!-- Модальное окно настроек -->
+  <!-- Обновленное модальное окно настроек -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>⚙️ Settings</h3>
+        <h3>Settings</h3>
         <button class="close-modal" id="closeSettingsModal">✕</button>
       </div>
       <div class="modal-body">
@@ -706,18 +763,18 @@
           </div>
         </div>
 
-        <!-- 3. Скорость игры (заказы) -->
+        <!-- 3. Order frequency (кнопки вместо селекта) -->
         <div class="settings-group">
-          <label>Game Speed / Orders Frequency</label>
-          <select id="gameSpeedSelect">
-            <option value="turbo">Turbo (Constant stream)</option>
-            <option value="super-fast">Super fast (10 - 30s)</option>
-            <option value="fast">Fast (30s - 1m)</option>
-            <option value="medium" selected>Medium (2 - 5m)</option>
-            <option value="slow">Slow (5 - 10m)</option>
-            <option value="super-slow">Super slow (15 - 30m)</option>
-            <option value="no-orders">No orders</option>
-          </select>
+          <label>Order frequency</label>
+          <div class="speed-grid" id="speedButtonsGrid">
+            <button class="speed-btn" data-speed="turbo">Turbo</button>
+            <button class="speed-btn" data-speed="super-fast">Super fast</button>
+            <button class="speed-btn" data-speed="fast">Fast</button>
+            <button class="speed-btn active" data-speed="medium">Medium</button>
+            <button class="speed-btn" data-speed="slow">Slow</button>
+            <button class="speed-btn" data-speed="super-slow">Super slow</button>
+            <button class="speed-btn" data-speed="no-orders" style="grid-column: span 2;">No orders</button>
+          </div>
         </div>
 
         <!-- 4. Режим игры -->
@@ -729,10 +786,10 @@
           </div>
         </div>
 
-        <!-- 5. Сброс всех данных -->
-        <div class="settings-group" style="background: rgba(211,47,47,0.1); border-color: rgba(211,47,47,0.3);">
+        <!-- 5. Сброс всех данных (пустая красная кнопка Reset) -->
+        <div class="settings-group" style="background: transparent; border-color: rgba(211,47,47,0.3);">
           <label style="color: #d32f2f;">Danger Zone</label>
-          <button class="btn-action btn-reset" id="hardResetBtn" style="width: 100%;">Hard Reset (Wipe All Data)</button>
+          <button class="btn-outline-danger" id="hardResetBtn" style="width: 100%;">Reset</button>
         </div>
 
       </div>
@@ -766,13 +823,13 @@
     <div class="bottom-panel">
       <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
       <div class="action-group">
-        <button class="btn-action btn-settings" id="openSettingsBtn" title="Settings">⚙️</button>
-        <button class="btn-action btn-utility" id="downloadPngBtn" title="Download PNG">💾</button>
         <button class="btn-action btn-recipes" id="openRecipesBtn" title="Recipes">📋</button>
         <button class="btn-action btn-achievements" id="openAchievementsBtn" title="Achievements">🏆</button>
         <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
         <button class="btn-action btn-eat" id="eatBtn">Eat</button>
         <button class="btn-action btn-reset" id="resetBtn" title="Bin">🗑️</button>
+        <button class="btn-action btn-utility" id="downloadPngBtn" title="Download PNG">💾</button>
+        <button class="btn-action btn-settings" id="openSettingsBtn" title="Settings">⚙️</button>
       </div>
     </div>
   </div>
@@ -867,20 +924,40 @@
       const savedMode = localStorage.getItem('burger_game_mode') || 'sandbox';
       setGameMode(savedMode);
 
-      // Скорость игры (пресеты таймера)
-      const gameSpeedSelect = document.getElementById('gameSpeedSelect');
-      gameSpeedSelect.value = localStorage.getItem('burger_game_speed') || 'medium';
+      // Скорость игры (кнопки Order frequency)
+      let currentGameSpeed = localStorage.getItem('burger_game_speed') || 'medium';
+      const speedButtons = document.querySelectorAll('.speed-btn');
 
-      gameSpeedSelect.onchange = () => {
-        localStorage.setItem('burger_game_speed', gameSpeedSelect.value);
-        if (gameSpeedSelect.value === 'no-orders') {
-          currentActiveOrder = null;
-          saveOrderState();
-          document.getElementById('topOrderWidget').classList.add('hidden');
-        } else {
-          document.getElementById('topOrderWidget').classList.remove('hidden');
-        }
-      };
+      function updateSpeedButtonsUI(speed) {
+        speedButtons.forEach(btn => {
+          if (btn.getAttribute('data-speed') === speed) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+      }
+      updateSpeedButtonsUI(currentGameSpeed);
+
+      speedButtons.forEach(btn => {
+        btn.onclick = () => {
+          currentGameSpeed = btn.getAttribute('data-speed');
+          localStorage.setItem('burger_game_speed', currentGameSpeed);
+          updateSpeedButtonsUI(currentGameSpeed);
+
+          if (currentGameSpeed === 'no-orders') {
+            currentActiveOrder = null;
+            saveOrderState();
+            document.getElementById('topOrderWidget').classList.add('hidden');
+          } else {
+            document.getElementById('topOrderWidget').classList.remove('hidden');
+          }
+        };
+      });
+
+      if (currentGameSpeed === 'no-orders') {
+        document.getElementById('topOrderWidget').classList.add('hidden');
+      }
 
       function getRandomTimeForSpeed(speed) {
         switch(speed) {
@@ -894,9 +971,17 @@
         }
       }
 
-      // Хард-ресет всех данных
+      // Хард-ресет с подробным предупреждением
       document.getElementById('hardResetBtn').onclick = () => {
-        if (confirm('Are you sure you want to wipe all game data? This cannot be undone!')) {
+        const confirmWipe = confirm(
+          "⚠️ WARNING: Are you sure you want to reset all game data?\n\n" +
+          "This will reset and wipe:\n" +
+          "• Achievements & Secret Recipes\n" +
+          "• Custom orders & progress\n" +
+          "• Money, Upgrades, and Shop items\n\n" +
+          "This action cannot be undone!"
+        );
+        if (confirmWipe) {
           localStorage.clear();
           location.reload();
         }
@@ -959,7 +1044,7 @@
       let currentActiveOrder = JSON.parse(localStorage.getItem('current_active_order')) || null;
       let timeUntilNextOrder = parseInt(localStorage.getItem('time_until_next_order'), 10);
       if (isNaN(timeUntilNextOrder)) {
-        timeUntilNextOrder = getRandomTimeForSpeed(gameSpeedSelect.value);
+        timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
       }
 
       function saveOrderState() {
@@ -1163,7 +1248,7 @@
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
       }
 
-      if (gameSpeedSelect.value === 'no-orders') {
+      if (currentGameSpeed === 'no-orders') {
         topOrderWidget.classList.add('hidden');
       } else if (currentActiveOrder) {
         const statusText = document.getElementById('orderStatusText');
@@ -1171,10 +1256,9 @@
       }
 
       setInterval(() => {
-        const speed = gameSpeedSelect.value;
-        if (speed === 'no-orders') return;
+        if (currentGameSpeed === 'no-orders') return;
 
-        if (speed === 'turbo') {
+        if (currentGameSpeed === 'turbo') {
           if (!currentActiveOrder) {
             triggerRandomOrder();
           }
@@ -1201,7 +1285,7 @@
         const chosen = allAvailable[Math.floor(Math.random() * allAvailable.length)];
         
         currentActiveOrder = { name: chosen.name || chosen.title, ids: chosen.ids };
-        timeUntilNextOrder = getRandomTimeForSpeed(gameSpeedSelect.value);
+        timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
         saveOrderState();
         const statusText = document.getElementById('orderStatusText');
         if (statusText) statusText.innerHTML = `🔔 Order: <span>${currentActiveOrder.name}</span>`;
@@ -1297,7 +1381,7 @@
           setTimeout(() => toast.remove(), 4000);
 
           currentActiveOrder = null;
-          timeUntilNextOrder = getRandomTimeForSpeed(gameSpeedSelect.value);
+          timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
           saveOrderState();
 
           setTimeout(() => {
