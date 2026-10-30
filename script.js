@@ -94,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   initOpacityToggle();
 
-  // Создаем кнопки 🍳 и 🔪 СТРОГО для ПК. На мобилках они зашиты в верстку под глазом.
   function initCustomActionButtons() {
     const appContainer = document.querySelector('.app-container');
     const existingPcContainer = document.getElementById('pcCustomButtonsContainer');
