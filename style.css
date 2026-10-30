@@ -446,6 +446,7 @@ body {
 .btn-recipes { background: linear-gradient(135deg, #fbc02d, #f57f17); }
 .btn-shop { background: linear-gradient(135deg, #0288d1, #01579b); }
 .btn-achievements { background: linear-gradient(135deg, #8e24aa, #6a1b9a); }
+.btn-instant-order { background: linear-gradient(135deg, #ab47bc, #7b1fa2); }
 .btn-serve { background: linear-gradient(135deg, #00897b, #004d40); }
 .btn-squeeze { background: linear-gradient(135deg, #d97706, #b45309); }
 .btn-eat { background: linear-gradient(135deg, #689f38, #558b2f); }
