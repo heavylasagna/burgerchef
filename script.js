@@ -54,11 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const centerStage = document.getElementById('centerStage');
   const limitWarning = document.getElementById('limitWarning');
 
-  // ==========================================
-  // НАСТРОЙКА ПОЛУПРОЗРАЧНОСТИ
-  // ==========================================
   function initOpacityToggle() {
-    // 1. Левая и правая панели — только по клику на их заголовки (ПК)
     const sideTitles = document.querySelectorAll('.panel:not(.bottom-panel) .panel-title');
     sideTitles.forEach(title => {
       title.style.cursor = 'pointer';
@@ -69,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // 2. Нижнее меню — по клику на пустое пространство (ПК)
     if (bottomPanel) {
       bottomPanel.addEventListener('click', (e) => {
         if (window.innerWidth <= 900) return;
@@ -84,7 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // 3. Таймер/Заказ и Кошелёк — по клику на них самих (ПК и телефоны)
     const topOrderWidget = document.getElementById('topOrderWidget');
     if (topOrderWidget) {
       topOrderWidget.addEventListener('click', () => {
@@ -142,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentTurboTimeLeft = 180;
 
   function getCurrentSpeed() {
-    if (currentGameMode === 'turbo') return 'turbo-fixed';
+    if (currentGameMode === 'turbo') return 'turbo';
     return modeSpeeds[currentGameMode] || 'no-orders';
   }
 
@@ -339,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
       currentActiveOrder = null;
       localStorage.removeItem('current_active_order');
       if (speed !== 'no-orders') {
-        if (mode === 'turbo') {
+        if (speed === 'turbo') {
           currentTurboTimeLeft = 180;
           triggerRandomOrder();
         } else {
@@ -357,6 +351,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if(topWidget) topWidget.classList.add('hidden');
         currentActiveOrder = null;
         localStorage.removeItem('current_active_order');
+      } else if (speed === 'turbo') {
+        if(topWidget) topWidget.classList.remove('hidden');
+        currentTurboTimeLeft = 180;
+        if (!currentActiveOrder) triggerRandomOrder();
       } else {
         if(topWidget) topWidget.classList.remove('hidden');
         if (!currentActiveOrder && previousMode !== mode) {
@@ -406,6 +404,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (newSpeed === 'no-orders') {
         if (topWidget) topWidget.classList.add('hidden');
+      } else if (newSpeed === 'turbo') {
+        if (topWidget) topWidget.classList.remove('hidden');
+        currentTurboTimeLeft = 180;
+        triggerRandomOrder();
       } else {
         if (topWidget) topWidget.classList.remove('hidden');
         timeUntilNextOrder = getRandomTimeForSpeed(newSpeed);
@@ -417,7 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function getRandomTimeForSpeed(speed) {
     switch(speed) {
-      case 'turbo-fixed': return 0;
+      case 'turbo': return 0;
       case 'super-fast': return Math.floor(Math.random() * 20) + 10;
       case 'fast': return Math.floor(Math.random() * 30) + 30;
       case 'medium': return Math.floor(Math.random() * 180) + 120;
@@ -551,7 +553,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('pinnedIngredientsContainer');
     if (!widget || !container) return;
     if (pinnedBurger) {
-      document.getElementById('pinnedTitle').innerHTML = `<span>📌 ${pinnedBurger.name}</span> <button class="unpin-btn" id="unpinBtn">✕</button>`;
       container.innerHTML = '';
       pinnedBurger.ids.forEach(id => {
         if (ITEM_IMAGES[id]) {
@@ -561,12 +562,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
       widget.classList.add('active');
-      document.getElementById('unpinBtn').onclick = () => {
-        pinnedBurger = null;
-        localStorage.removeItem('pinned_burger');
-        updatePinnedWidget();
-        renderRecipesModal();
-      };
+      const unpinBtn = document.getElementById('unpinBtn');
+      if (unpinBtn) {
+        unpinBtn.onclick = () => {
+          pinnedBurger = null;
+          localStorage.removeItem('pinned_burger');
+          updatePinnedWidget();
+          renderRecipesModal();
+        };
+      }
     } else {
       widget.classList.remove('active');
     }
@@ -960,7 +964,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       showToast(null, 'Order Complete!', `${currentActiveOrder.name} served successfully!`);
       
-      if (currentGameMode === 'turbo') {
+      if (currentGameMode === 'turbo' || getCurrentSpeed() === 'turbo') {
         triggerRandomOrder();
       } else {
         currentActiveOrder = null;
@@ -988,7 +992,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     const currentSpeed = getCurrentSpeed();
-    if (currentActiveOrder && currentSpeed === 'no-orders') {
+    if (currentActiveOrder && (currentSpeed === 'no-orders' || currentSpeed === 'turbo')) {
       const targetIds = currentActiveOrder.ids;
       if (ids.length === targetIds.length && ids.every((val, idx) => val === targetIds[idx])) {
         playSound(SOUNDS.complete);
@@ -999,8 +1003,14 @@ document.addEventListener('DOMContentLoaded', () => {
           updateMoneyDisplay(reward, true);
         }
         showToast(null, 'Order Complete!', `${currentActiveOrder.name} served successfully!`);
-        currentActiveOrder = null;
-        localStorage.removeItem('current_active_order');
+        
+        if (currentSpeed === 'turbo') {
+          triggerRandomOrder();
+        } else {
+          currentActiveOrder = null;
+          localStorage.removeItem('current_active_order');
+        }
+
         updateActionButtonsVisibility();
         setTimeout(() => { if (eatBtn && eatBtn.style.display !== 'none') eatBtn.click(); else { currentBurger = []; updateBurgerDisplay(false); } }, 600);
       }
@@ -1030,14 +1040,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const chosen = allAvailable[Math.floor(Math.random() * allAvailable.length)];
     currentActiveOrder = { name: chosen.name || chosen.title, ids: chosen.ids };
     
-    if (currentGameMode === 'turbo') {
+    if (currentGameMode === 'turbo' || getCurrentSpeed() === 'turbo') {
       currentTurboTimeLeft = 180;
     }
     
     localStorage.setItem('current_active_order', JSON.stringify(currentActiveOrder));
     
     const speed = getCurrentSpeed();
-    if (speed !== 'no-orders' && currentGameMode !== 'turbo') {
+    if (speed !== 'no-orders' && speed !== 'turbo' && currentGameMode !== 'turbo') {
       timeUntilNextOrder = getRandomTimeForSpeed(speed);
       localStorage.setItem('time_until_next_order', timeUntilNextOrder);
     }
@@ -1050,7 +1060,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentSpeed = getCurrentSpeed();
     if (currentSpeed === 'no-orders') return;
 
-    if (currentGameMode === 'turbo') {
+    if (currentGameMode === 'turbo' || currentSpeed === 'turbo') {
       if (!currentActiveOrder) {
         triggerRandomOrder();
       } else {
@@ -1084,7 +1094,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 1000);
 
   if (currentActiveOrder && getCurrentSpeed() !== 'no-orders') {
-    if (currentGameMode === 'turbo') {
+    if (currentGameMode === 'turbo' || getCurrentSpeed() === 'turbo') {
       updateOrderWidgetsText(currentActiveOrder.name, formatTime(currentTurboTimeLeft));
     } else {
       updateOrderWidgetsText(currentActiveOrder.name);
