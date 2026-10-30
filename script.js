@@ -218,6 +218,16 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
+  function playSound(sound) {
+    if (sound && volumeLevel > 0) {
+      try { 
+        sound.currentTime = 0; 
+        sound.volume = volumeLevel; 
+        sound.play().catch(() => {}); 
+      } catch(e){}
+    }
+  }
+
   window.setTheme = function(theme) {
     const darkBtn = document.getElementById('themeDarkBtn');
     const lightBtn = document.getElementById('themeLightBtn');
@@ -247,6 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const isSandboxOrCasual = currentGameMode === 'sandbox' || currentGameMode === 'casual';
 
     if (eatBtn) {
+      // В турбо-режиме кнопка Eat скрыта всегда
       if (currentGameMode === 'turbo') {
         eatBtn.style.display = 'none';
       } else if (isSandboxOrCasual) {
@@ -944,15 +955,9 @@ document.addEventListener('DOMContentLoaded', () => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }
 
-  function updateOrderWidgetsText(orderName, timerText = '') {
+  function updateOrderWidgetsText(text) {
     const w1 = document.getElementById('orderStatusText');
-    if (!w1) return;
-    
-    if (timerText) {
-      w1.innerHTML = `<div>🔔 Order: <span>${orderName}</span></div><div class="order-timer-badge">⏱️ ${timerText}</div>`;
-    } else {
-      w1.innerHTML = `🔔 Order: <span>${orderName}</span>`;
-    }
+    if (w1) w1.innerHTML = text;
   }
 
   function triggerRandomOrder() {
@@ -987,7 +992,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         if (currentTurboTimeLeft > 0) {
           currentTurboTimeLeft--;
-          updateOrderWidgetsText(currentActiveOrder.name, formatTime(currentTurboTimeLeft));
+          updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span> <span class="order-timer-badge">⏱️ ${formatTime(currentTurboTimeLeft)}</span>`);
         } else {
           currentTurboTimeLeft = 180;
           playSound(SOUNDS.wrongOrder);
@@ -1004,21 +1009,20 @@ document.addEventListener('DOMContentLoaded', () => {
       if (timeUntilNextOrder > 0) {
         timeUntilNextOrder--;
         localStorage.setItem('time_until_next_order', timeUntilNextOrder);
-        const w1 = document.getElementById('orderStatusText');
-        if (w1) w1.innerHTML = `Next order in: <span>${formatTime(timeUntilNextOrder)}</span>`;
+        updateOrderWidgetsText(`Next order in: <span>${formatTime(timeUntilNextOrder)}</span>`);
       } else {
         triggerRandomOrder();
       }
     } else {
-      updateOrderWidgetsText(currentActiveOrder.name);
+      updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span>`);
     }
   }, 1000);
 
   if (currentActiveOrder && getCurrentSpeed() !== 'no-orders') {
     if (currentGameMode === 'turbo') {
-      updateOrderWidgetsText(currentActiveOrder.name, formatTime(currentTurboTimeLeft));
+      updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span> <span class="order-timer-badge">⏱️ ${formatTime(currentTurboTimeLeft)}</span>`);
     } else {
-      updateOrderWidgetsText(currentActiveOrder.name);
+      updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span>`);
     }
   }
 
