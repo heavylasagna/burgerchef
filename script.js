@@ -95,6 +95,43 @@ document.addEventListener('DOMContentLoaded', () => {
   const savedTheme = localStorage.getItem('burger_theme') || 'dark';
   setTheme(savedTheme);
 
+  // Кошелек и экономика
+  let playerMoney = parseFloat(localStorage.getItem('burger_money'));
+  if (isNaN(playerMoney)) playerMoney = 100.00;
+
+  function updateMoneyDisplay() {
+    const badge1 = document.getElementById('walletBadge');
+    const badge2 = document.getElementById('walletBadgeMobile');
+    const mode = localStorage.getItem('burger_game_mode') || 'sandbox';
+
+    const text = mode === 'sandbox' ? 'Sandbox' : `$${playerMoney.toFixed(2)}`;
+    if (badge1) badge1.innerText = text;
+    if (badge2) badge2.innerText = text;
+    localStorage.setItem('burger_money', playerMoney);
+  }
+
+  // Цены за 1 единицу
+  const ITEM_PRICES = {
+    'bottom-bun': 2, 'top-bun': 2,
+    'beef-patty': 5, 'chicken-patty': 4, 'fish-patty': 4, 'fried-bacon': 3, 'fried-egg': 2,
+    'cheese': 3, 'hashbrown': 3, 'champignons': 3,
+    'lettuce': 1, 'tomato': 1, 'pickles': 1, 'red-onion': 1, 'white-onion': 1,
+    'mayo': 2, 'ketchup': 2, 'mustard': 2, 'spicy': 2, 'bbq': 2 // цена пачки из 10 шт соуса
+  };
+
+  // Склады ингредиентов
+  let ingredientStock = JSON.parse(localStorage.getItem('burger_ingredient_stock')) || {
+    'bottom-bun': 20, 'top-bun': 20,
+    'beef-patty': 15, 'chicken-patty': 15, 'fish-patty': 15, 'fried-bacon': 10, 'fried-egg': 10,
+    'cheese': 15, 'hashbrown': 10, 'champignons': 10,
+    'lettuce': 20, 'tomato': 20, 'pickles': 20, 'red-onion': 15, 'white-onion': 15,
+    'mayo': 30, 'ketchup': 30, 'mustard': 30, 'spicy': 30, 'bbq': 30
+  };
+
+  function saveStock() {
+    localStorage.setItem('burger_ingredient_stock', JSON.stringify(ingredientStock));
+  }
+
   const squeezeBtn = document.getElementById('squeezeBtn');
   const eatBtn = document.getElementById('eatBtn');
 
@@ -149,6 +186,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     updateActionButtonsVisibility(mode);
+    updateMoneyDisplay();
+    renderIngredientsMenu();
+    renderSauces();
   }
 
   modeSandboxBtn.onclick = () => applyGameMode('sandbox');
@@ -217,8 +257,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmWipe = confirm(
       "⚠️ WARNING: Are you sure you want to reset all game data?\n\n" +
       "This will reset and wipe:\n" +
-      "• Achievements & Secret Recipes\n" +
-      "• Custom orders & progress\n\n" +
+      "• Money & Ingredients Stock\n" +
+      "• Achievements & Secret Recipes\n\n" +
       "This action cannot be undone!"
     );
     if (confirmWipe) {
@@ -304,14 +344,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function showToast(ach) {
+  function showToast(ach, customTitle, customDesc) {
     const container = document.getElementById('toastContainer');
     if (!container) return;
     const toast = document.createElement('div');
     toast.className = 'achievement-toast';
     toast.innerHTML = `
-      <h4 style="font-size:0.9rem; margin:0;">${ach.title}</h4>
-      <p style="font-size:0.75rem; opacity:0.8; margin:0;">Secret recipe unlocked!</p>
+      <h4 style="font-size:0.9rem; margin:0;">${customTitle || ach.title}</h4>
+      <p style="font-size:0.75rem; opacity:0.8; margin:0;">${customDesc || 'Secret recipe unlocked!'}</p>
     `;
     container.appendChild(toast);
     setTimeout(() => toast.remove(), 3500);
@@ -449,6 +489,103 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // МАГАЗИН 🏬 ЛОГИКА
+  const SHOP_ITEMS = [
+    { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
+    { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
+    { id: 'beef-patty', name: 'Beef Patty', category: 'patty', image: 'images/beef-patty.png' },
+    { id: 'chicken-patty', name: 'Chicken Patty', category: 'patty', image: 'images/chicken-patty.png' },
+    { id: 'fish-patty', name: 'Fish Patty', category: 'patty', image: 'images/fish-patty.png' },
+    { id: 'hashbrown', name: 'Hashbrown (Драник)', category: 'patty', image: 'images/hashbrown.png' },
+    { id: 'fried-bacon', name: 'Fried Bacon', category: 'protein', image: 'images/fried-bacon.png' },
+    { id: 'fried-egg', name: 'Fried Egg', category: 'protein', image: 'images/fried-egg.png' },
+    { id: 'cheese', name: 'Cheese', category: 'protein', image: 'images/cheese.png' },
+    { id: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/champignons.png' },
+    { id: 'lettuce', name: 'Lettuce', category: 'vegetables', image: 'images/lettuce.png' },
+    { id: 'tomato', name: 'Tomato', category: 'vegetables', image: 'images/tomato.png' },
+    { id: 'pickles', name: 'Pickles', category: 'vegetables', image: 'images/pickles.png' },
+    { id: 'red-onion', name: 'Red Onion', category: 'vegetables', image: 'images/red-onion.png' },
+    { id: 'white-onion', name: 'White Onion', category: 'vegetables', image: 'images/white-onion.png' },
+    { id: 'mayo', name: 'Mayo', category: 'sauce', image: 'images/sauce-mayo.png', isSauce: true },
+    { id: 'ketchup', name: 'Ketchup', category: 'sauce', image: 'images/sauce-ketchup.png', isSauce: true },
+    { id: 'mustard', name: 'Mustard', category: 'sauce', image: 'images/sauce-mustard.png', isSauce: true },
+    { id: 'spicy', name: 'Spicy', category: 'sauce', image: 'images/sauce-spicy.png', isSauce: true },
+    { id: 'bbq', name: 'BBQ', category: 'sauce', image: 'images/sauce-bbq.png', isSauce: true }
+  ];
+
+  let activeShopTab = 'all';
+  window.switchShopTab = function(tab) {
+    activeShopTab = tab;
+    const tabs = document.querySelectorAll('#shopTabs .recipe-tab');
+    tabs.forEach(t => {
+      if (t.innerText.toLowerCase() === tab) t.classList.add('active');
+      else t.classList.remove('active');
+    });
+    renderShopModal();
+  }
+
+  function renderShopModal() {
+    const body = document.getElementById('shopModalBody');
+    if (!body) return;
+    body.innerHTML = '';
+
+    const filtered = activeShopTab === 'all' 
+      ? SHOP_ITEMS 
+      : SHOP_ITEMS.filter(i => i.category === activeShopTab);
+
+    filtered.forEach(item => {
+      const unitPrice = ITEM_PRICES[item.id] || 1;
+      const card = document.createElement('div');
+      card.className = 'shop-item-card';
+
+      card.innerHTML = `
+        <div class="shop-item-info">
+          <img src="${item.image}" alt="${item.name}">
+          <div class="shop-item-details">
+            <h4>${item.name} ${item.isSauce ? '<span style="color:#ffb300; font-size:0.7rem;">x10</span>' : ''}</h4>
+            <p>$${unitPrice.toFixed(2)} ${item.isSauce ? 'per pack' : 'each'} | Stock: ${ingredientStock[item.id] ?? 0}</p>
+          </div>
+        </div>
+        <div class="shop-buy-group">
+          <input type="number" min="1" max="100" value="5" id="qty-${item.id}">
+          <button class="btn-buy" onclick="buyItem('${item.id}')">Buy</button>
+        </div>
+      `;
+      body.appendChild(card);
+    });
+  }
+
+  window.buyItem = function(id) {
+    const input = document.getElementById(`qty-${id}`);
+    const qty = parseInt(input.value) || 1;
+    const unitPrice = ITEM_PRICES[id] || 1;
+    const totalCost = unitPrice * qty;
+
+    if (currentGameMode === 'sandbox') {
+      alert("Sandbox mode has infinite resources and no money needed!");
+      return;
+    }
+
+    if (playerMoney < totalCost) {
+      alert("Not enough money in your wallet!");
+      return;
+    }
+
+    playerMoney -= totalCost;
+    ingredientStock[id] = (ingredientStock[id] ?? 0) + qty;
+    saveStock();
+    updateMoneyDisplay();
+    renderIngredientsMenu();
+    renderSauces();
+    renderShopModal();
+    playSound(SOUNDS.buttons);
+  }
+
+  const shopModal = document.getElementById('shopModal');
+  document.getElementById('openShopBtn').onclick = () => { playSound(SOUNDS.buttons); renderShopModal(); shopModal.classList.add('open'); };
+  document.getElementById('closeShopModal').onclick = () => { playSound(SOUNDS.buttons); shopModal.classList.remove('open'); };
+  shopModal.onclick = (e) => { if (e.target === shopModal) shopModal.classList.remove('open'); };
+
   const recipesModal = document.getElementById('recipesModal');
   document.getElementById('openRecipesBtn').onclick = () => { playSound(SOUNDS.buttons); renderRecipesModal(); recipesModal.classList.add('open'); };
   document.getElementById('closeRecipesModal').onclick = () => { playSound(SOUNDS.buttons); recipesModal.classList.remove('open'); };
@@ -521,6 +658,9 @@ document.addEventListener('DOMContentLoaded', () => {
           updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span> <span class="order-timer-badge">⏱️ ${formatTime(currentTurboTimeLeft)}</span>`);
         } else {
           currentTurboTimeLeft = 180;
+          playerMoney = Math.max(0, playerMoney - 5);
+          updateMoneyDisplay();
+          showToast({title: 'Time Out! -$5'}, 'Order Failed', 'You ran out of time!');
           triggerRandomOrder();
         }
       }
@@ -605,10 +745,19 @@ document.addEventListener('DOMContentLoaded', () => {
     ingredientsMenu.innerHTML = '';
     INGREDIENTS.forEach(item => {
       const card = document.createElement('div');
-      card.className = 'ingredient-card';
-      if (currentBurger.length >= MAX_INGREDIENTS || isEating) card.classList.add('disabled');
-      card.innerHTML = `<img src="${item.image}" alt="${item.name}">`;
-      card.onclick = () => { if (!isEating) addIngredient(item); };
+      const stock = ingredientStock[item.id] ?? 0;
+      const isOut = currentGameMode !== 'sandbox' && stock <= 0;
+
+      card.className = `ingredient-card ${currentBurger.length >= MAX_INGREDIENTS || isEating || isOut ? 'disabled' : ''}`;
+      
+      let countHtml = currentGameMode === 'sandbox' ? '' : `<span class="ingredient-stock-count">${stock}</span>`;
+      card.innerHTML = `<img src="${item.image}" alt="${item.name}">${countHtml}`;
+      
+      card.onclick = () => {
+        if (isEating) return;
+        if (isOut) { alert(`Out of ${item.name}! Buy more in the shop 🏬.`); return; }
+        addIngredient(item);
+      };
       ingredientsMenu.appendChild(card);
     });
   }
@@ -620,12 +769,36 @@ document.addEventListener('DOMContentLoaded', () => {
       [desktopSaucesGroup, mobileSaucesGroup].forEach(container => {
         if (!container) return;
         const chip = document.createElement('div');
-        chip.className = 'sauce-chip';
-        chip.innerText = sauce.name;
-        chip.onclick = () => { if (!isEating) addSauce(sauce); };
+        const stock = ingredientStock[sauce.id] ?? 0;
+        const isOut = currentGameMode !== 'sandbox' && stock <= 0;
+
+        chip.className = `sauce-chip ${isOut ? 'disabled' : ''}`;
+        chip.innerText = `${sauce.name}${currentGameMode === 'sandbox' ? '' : ' (' + stock + ')'}`;
+        
+        chip.onclick = () => {
+          if (isEating) return;
+          if (isOut) { alert(`Out of ${sauce.name}! Buy more in the shop 🏬.`); return; }
+          addSauce(sauce);
+        };
         container.appendChild(chip);
       });
     });
+  }
+
+  function calculateBurgerCost(ids) {
+    return ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0);
+  }
+
+  function getSpeedMultiplier(speed) {
+    switch(speed) {
+      case 'turbo': return 1.3;
+      case 'super-fast': return 1.5;
+      case 'fast': return 1.7;
+      case 'medium': return 2.0;
+      case 'slow': return 2.5;
+      case 'super-slow': return 3.0;
+      default: return 2.0;
+    }
   }
 
   function checkOrderCompletion(ids) {
@@ -634,17 +807,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (ids.length === targetIds.length && ids.every((val, idx) => val === targetIds[idx])) {
       playSound(SOUNDS.complete);
       
-      const container = document.getElementById('toastContainer');
-      if (container) {
-        const toast = document.createElement('div');
-        toast.className = 'achievement-toast';
-        toast.innerHTML = `
-          <h4 style="font-size:0.9rem; margin:0;">Order Complete!</h4>
-          <p style="font-size:0.75rem; opacity:0.8; margin:0;">${currentActiveOrder.name} served successfully</p>
-        `;
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 4000);
+      let earnedText = '';
+      if (currentGameMode !== 'sandbox') {
+        const cost = calculateBurgerCost(ids);
+        const mult = getSpeedMultiplier(currentGameSpeed);
+        const reward = Math.round(cost * mult * 100) / 100;
+        playerMoney = (isNaN(playerMoney) ? 100 : playerMoney) + reward;
+        updateMoneyDisplay();
+        earnedText = `+$${reward.toFixed(2)}`;
       }
+
+      showToast(null, 'Order Complete!', `${currentActiveOrder.name} served successfully! ${earnedText}`);
 
       currentActiveOrder = null;
       currentTurboTimeLeft = 180;
@@ -733,6 +906,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
     renderIngredientsMenu();
+    renderSauces();
     if (centerStage) {
       setTimeout(() => { centerStage.scrollTop = centerStage.scrollHeight; }, 50);
     }
@@ -747,6 +921,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function addIngredient(item) {
     if (currentBurger.length >= MAX_INGREDIENTS) { showLimitWarning(); return; }
+    
+    if (currentGameMode !== 'sandbox') {
+      if ((ingredientStock[item.id] ?? 0) <= 0) return;
+      ingredientStock[item.id]--;
+      saveStock();
+    }
+
     playSound(SOUNDS.ingridients);
     currentBurger.push({ ...item });
     checkSpecialCombos();
@@ -755,6 +936,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function addSauce(sauce) {
     if (currentBurger.length >= MAX_INGREDIENTS) { showLimitWarning(); return; }
+    
+    if (currentGameMode !== 'sandbox') {
+      if ((ingredientStock[sauce.id] ?? 0) <= 0) return;
+      ingredientStock[sauce.id]--;
+      saveStock();
+    }
+
     playSound(SOUNDS.sauce);
     currentBurger.push({ ...sauce });
     checkSpecialCombos();
@@ -763,6 +951,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.removeLayer = function(index) {
     if (isEating) return;
+    const removed = currentBurger[index];
+    
+    if (currentGameMode !== 'sandbox' && removed) {
+      ingredientStock[removed.id] = (ingredientStock[removed.id] ?? 0) + 1;
+      saveStock();
+    }
+
     playSound(SOUNDS.buttons);
     currentBurger.splice(index, 1);
     checkSpecialCombos();
@@ -794,6 +989,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const resetBtn = document.getElementById('resetBtn');
   if (resetBtn) {
     resetBtn.onclick = () => {
+      if (currentGameMode !== 'sandbox' && currentBurger.length > 0) {
+        currentBurger.forEach(item => {
+          ingredientStock[item.id] = (ingredientStock[item.id] ?? 0) + 1;
+        });
+        saveStock();
+      }
+
       playSound(SOUNDS.bin);
       isEating = false; isSqueezed = false;
       if (burgerStack) burgerStack.classList.remove('eating');
@@ -887,4 +1089,5 @@ document.addEventListener('DOMContentLoaded', () => {
   renderIngredientsMenu();
   updateBurgerDisplay(false);
   updatePinnedWidget();
+  updateMoneyDisplay();
 });
