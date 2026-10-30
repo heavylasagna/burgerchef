@@ -51,57 +51,6 @@ body {
   width: 100vw;
   gap: 12px;
   padding: 12px;
-  position: relative;
-  overflow: hidden;
-}
-
-.screen {
-  display: contents;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-  pointer-events: none;
-}
-
-.screen.active {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-}
-
-/* Кнопка-стрелочка ровно по вертикальному центру экрана */
-.screen-switch-btn {
-  position: absolute;
-  right: 236px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 32px;
-  height: 56px;
-  background: linear-gradient(145deg, var(--panel-bg-1), var(--panel-bg-2));
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--border-color);
-  color: var(--accent-color);
-  border-radius: 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  font-weight: bold;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  z-index: 150;
-  transition: all 0.2s ease;
-}
-
-#grillScreen .screen-switch-btn {
-  right: auto;
-  left: 236px;
-}
-
-.screen-switch-btn:hover {
-  background: var(--modal-bg);
-  border-color: var(--accent-color);
-  transform: translateY(-50%) scale(1.05);
 }
 
 .panel {
@@ -115,8 +64,6 @@ body {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  position: relative;
-  cursor: pointer;
   transition: opacity 0.3s ease, background 0.3s ease, border-color 0.3s ease;
 }
 .panel.dimmed { opacity: 0.35; }
@@ -213,38 +160,6 @@ body {
   height: 100%;
 }
 
-.grill-stage {
-  grid-column: 2;
-  grid-row: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  height: 100%;
-  padding: 0;
-}
-
-.grill-surface {
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at 50% 30%, #2a2a2a, #111);
-  border-radius: 16px;
-  border: 1px solid var(--border-color);
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-wrap: wrap;
-  padding: 20px;
-  gap: 15px;
-  align-content: flex-start;
-  box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
-}
-
-body.light-theme .grill-surface {
-  background: radial-gradient(circle at 50% 30%, #b0bec5, #78909c);
-}
-
 .burger-wrapper {
   display: flex;
   flex-direction: column;
@@ -263,6 +178,7 @@ body.light-theme .grill-surface {
   transition: transform 0.4s ease, opacity 0.4s ease;
 }
 
+/* Класс для аккуратной обрезки PNG */
 .burger-stack.capturing-png {
   padding: 10px 20px;
   display: inline-flex;
@@ -320,6 +236,7 @@ body.light-theme .grill-surface {
 }
 .limit-warning.show { opacity: 1; transform: translateY(0); }
 
+/* Кошелёк: справа от панели слоёв */
 .wallet-widget {
   position: absolute;
   top: 10px;
@@ -343,6 +260,7 @@ body.light-theme .grill-surface {
 .wallet-widget.hidden { display: none !important; }
 #walletBadge { color: #81c784; font-weight: bold; }
 
+/* Всплывающие уведомления об изменении денег рядом с кошельком */
 .money-popup-container {
   position: absolute;
   top: 10px;
@@ -383,6 +301,7 @@ body.light-theme .grill-surface {
   100% { opacity: 0; transform: translateY(-15px) scale(0.95); }
 }
 
+/* Закрепленный рецепт: строго ПОД кошельком */
 .pinned-recipe-widget {
   position: absolute;
   top: 52px;
@@ -433,11 +352,6 @@ body.light-theme .grill-surface {
 .order-timer-badge { color: #e57373; font-weight: bold; font-family: monospace; }
 
 .right-panel {
-  grid-column: 3;
-  grid-row: 1;
-}
-
-#rawIngredientsPanel {
   grid-column: 3;
   grid-row: 1;
 }
@@ -514,28 +428,9 @@ body.light-theme .grill-surface {
   box-shadow: 0 8px 20px rgba(0,0,0,0.2);
   border: 1px solid var(--border-color);
   z-index: 100;
-  cursor: pointer;
   transition: opacity 0.3s ease, background 0.3s ease;
 }
 .bottom-panel.dimmed { opacity: 0.35; }
-
-.grill-trash-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.btn-confirm-trash {
-  background: rgba(104, 159, 56, 0.85);
-  color: #fff;
-  border: 1px solid #81c784;
-}
-
-.btn-cancel-trash {
-  background: rgba(211, 47, 47, 0.85);
-  color: #fff;
-  border: 1px solid #e57373;
-}
 
 .sauces-group {
   display: flex;
@@ -564,6 +459,7 @@ body.light-theme .grill-surface {
   align-items: center;
 }
 
+/* Единый полый стиль для ВСЕХ кнопок панели действий */
 .btn-action {
   padding: 0 12px;
   height: 40px;
@@ -937,27 +833,8 @@ input[type="range"]::-webkit-slider-thumb {
     gap: 8px;
     padding-bottom: 75px;
   }
-  .center-stage { order: 1; min-height: 300px; padding-bottom: 5px; justify-content: flex-end; }
-  .grill-stage { order: 1; min-height: 300px; padding-bottom: 5px; }
-  .right-panel { order: 2; height: 110px; }
-  
-  /* Мобильная стрелочка переключения (справа и слева по центру вертикали экрана) */
-  .screen-switch-btn {
-    position: fixed;
-    top: 50%;
-    transform: translateY(-50%);
-    right: 12px;
-    left: auto;
-    width: 32px;
-    height: 48px;
-    border-radius: 8px;
-    z-index: 1200;
-  }
-  #grillScreen .screen-switch-btn {
-    left: 12px;
-    right: auto;
-  }
-
+  .center-stage { order: 1; min-height: 350px; padding-bottom: 10px; justify-content: flex-end; }
+  .right-panel { order: 2; height: 115px; }
   .ingredients-menu {
     flex-direction: row;
     overflow-x: auto;
@@ -981,9 +858,8 @@ input[type="range"]::-webkit-slider-thumb {
     gap: 6px;
     overflow-x: auto;
     border: 1px solid var(--border-color);
-    margin: 0;
   }
-  .left-panel { order: 4; height: 130px; }
+  .left-panel { order: 4; height: 150px; }
   .bottom-panel {
     position: fixed;
     bottom: 0; left: 0; right: 0;
@@ -991,7 +867,6 @@ input[type="range"]::-webkit-slider-thumb {
     justify-content: center;
     border-radius: 12px 12px 0 0;
     z-index: 1000;
-    margin: 0;
   }
   .action-group { width: 100%; justify-content: space-between; }
   .btn-action { flex: 1; padding: 8px 2px; font-size: 0.75rem; text-align: center; }
@@ -1039,8 +914,7 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .sauces-group.mobile-sauces,
   body.ui-hidden .top-order-widget,
   body.ui-hidden .wallet-widget,
-  body.ui-hidden .pinned-recipe-widget,
-  body.ui-hidden .screen-switch-btn { display: none !important; }
+  body.ui-hidden .pinned-recipe-widget { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
 }
 @media (min-width: 901px) {
