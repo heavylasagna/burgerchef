@@ -739,7 +739,7 @@
   <div class="modal-overlay" id="recipesModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>📋 Burger Recipes</h3>
+        <h3>Burger Recipes</h3>
         <button class="close-modal" id="closeRecipesModal">✕</button>
       </div>
       <div class="recipe-tabs">
@@ -932,7 +932,6 @@
         }
       }
 
-      // Управление темами с сохранением и дефолтной темной
       window.setTheme = function(theme) {
         const darkBtn = document.getElementById('themeDarkBtn');
         const lightBtn = document.getElementById('themeLightBtn');
@@ -992,6 +991,8 @@
             document.getElementById('topOrderWidget').classList.add('hidden');
           } else {
             document.getElementById('topOrderWidget').classList.remove('hidden');
+            timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
+            saveOrderState();
           }
         };
       });
