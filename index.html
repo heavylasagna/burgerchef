@@ -277,6 +277,7 @@
     .top-order-widget.dimmed { opacity: 0.35; }
     .top-order-widget.hidden { display: none !important; }
     .top-order-widget span { color: var(--accent-color); font-weight: bold; }
+    .order-timer-badge { color: #e57373; font-weight: bold; font-family: monospace; }
 
     .pinned-recipe-widget {
       position: absolute;
@@ -563,6 +564,11 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 5px;
+      transition: opacity 0.3s;
+    }
+    .speed-grid.disabled {
+      opacity: 0.35;
+      pointer-events: none;
     }
     .speed-btn {
       padding: 6px;
@@ -653,10 +659,7 @@
       100% { opacity: 0; transform: translateY(-15px) scale(0.95); }
     }
 
-    .mobile-top-bar {
-      display: none;
-    }
-
+    .mobile-top-bar { display: none; }
     .toggle-ui-btn { display: none; }
 
     @media (max-width: 900px) {
@@ -806,6 +809,15 @@
         </div>
 
         <div class="settings-group">
+          <label>Game Mode</label>
+          <div class="settings-row" id="gameModeButtonsRow">
+            <button id="modeSandboxBtn" class="active" data-mode="sandbox">Sandbox</button>
+            <button id="modeCasualBtn" data-mode="casual">Casual</button>
+            <button id="modeTurboBtn" data-mode="turbo">Turbo</button>
+          </div>
+        </div>
+
+        <div class="settings-group" id="speedGroupContainer">
           <label>Order frequency</label>
           <div class="speed-grid" id="speedButtonsGrid">
             <button class="speed-btn" data-speed="turbo">Turbo</button>
@@ -815,14 +827,6 @@
             <button class="speed-btn" data-speed="slow">Slow</button>
             <button class="speed-btn" data-speed="super-slow">Super slow</button>
             <button class="speed-btn" data-speed="no-orders" style="grid-column: span 2;">No orders</button>
-          </div>
-        </div>
-
-        <div class="settings-group">
-          <label>Game Mode</label>
-          <div class="settings-row">
-            <button id="modeSandboxBtn" class="active" onclick="setGameMode('sandbox')">Sandbox</button>
-            <button id="modeCasualBtn" onclick="setGameMode('casual')">Casual</button>
           </div>
         </div>
 
@@ -971,22 +975,70 @@
       const savedTheme = localStorage.getItem('burger_theme') || 'dark';
       setTheme(savedTheme);
 
-      window.setGameMode = function(mode) {
-        const sandboxBtn = document.getElementById('modeSandboxBtn');
-        const casualBtn = document.getElementById('modeCasualBtn');
-        if (mode === 'casual') {
-          sandboxBtn.classList.remove('active');
-          casualBtn.classList.add('active');
-        } else {
-          casualBtn.classList.remove('active');
-          sandboxBtn.classList.add('active');
-        }
-        localStorage.setItem('burger_game_mode', mode);
-      }
-      const savedMode = localStorage.getItem('burger_game_mode') || 'sandbox';
-      setGameMode(savedMode);
+      // Управление кнопками и видимостью Squeeze / Eat в зависимости от режима
+      const squeezeBtn = document.getElementById('squeezeBtn');
+      const eatBtn = document.getElementById('eatBtn');
 
+      function updateActionButtonsVisibility(mode) {
+        if (mode === 'sandbox') {
+          if (squeezeBtn) squeezeBtn.style.display = 'flex';
+          if (eatBtn) eatBtn.style.display = 'flex';
+        } else {
+          if (squeezeBtn) squeezeBtn.style.display = 'none';
+          if (eatBtn) eatBtn.style.display = 'none';
+        }
+      }
+
+      let currentGameMode = localStorage.getItem('burger_game_mode') || 'sandbox';
       let currentGameSpeed = localStorage.getItem('burger_game_speed') || 'medium';
+
+      const modeSandboxBtn = document.getElementById('modeSandboxBtn');
+      const modeCasualBtn = document.getElementById('modeCasualBtn');
+      const modeTurboBtn = document.getElementById('modeTurboBtn');
+      const speedButtonsGrid = document.getElementById('speedButtonsGrid');
+
+      function applyGameMode(mode) {
+        currentGameMode = mode;
+        localStorage.setItem('burger_game_mode', mode);
+
+        modeSandboxBtn.classList.toggle('active', mode === 'sandbox');
+        modeCasualBtn.classList.toggle('active', mode === 'casual');
+        modeTurboBtn.classList.toggle('active', mode === 'turbo');
+
+        const topWidget = document.getElementById('topOrderWidget');
+        const topWidgetMob = document.getElementById('topOrderWidgetMobile');
+
+        if (mode === 'sandbox') {
+          speedButtonsGrid.classList.remove('disabled');
+          if (currentGameSpeed === 'no-orders') {
+            topWidget.classList.add('hidden');
+            topWidgetMob.classList.add('hidden');
+          } else {
+            topWidget.classList.remove('hidden');
+            topWidgetMob.classList.remove('hidden');
+          }
+        } else if (mode === 'casual') {
+          speedButtonsGrid.classList.remove('disabled');
+          topWidget.classList.remove('hidden');
+          topWidgetMob.classList.remove('hidden');
+        } else if (mode === 'turbo') {
+          // В Турбо заказы постоянные, блокируем выбор частоты заказов
+          speedButtonsGrid.classList.add('disabled');
+          topWidget.classList.remove('hidden');
+          topWidgetMob.classList.remove('hidden');
+          currentTurboTimeLeft = 180; // 3 минуты
+          if (!currentActiveOrder) triggerRandomOrder();
+        }
+
+        updateActionButtonsVisibility(mode);
+      }
+
+      modeSandboxBtn.onclick = () => applyGameMode('sandbox');
+      modeCasualBtn.onclick = () => applyGameMode('casual');
+      modeTurboBtn.onclick = () => applyGameMode('turbo');
+
+      applyGameMode(currentGameMode);
+
       const speedButtons = document.querySelectorAll('.speed-btn');
 
       function updateSpeedButtonsUI(speed) {
@@ -1002,6 +1054,7 @@
 
       speedButtons.forEach(btn => {
         btn.onclick = () => {
+          if (currentGameMode === 'turbo') return; // Заблокировано в турбо
           currentGameSpeed = btn.getAttribute('data-speed');
           localStorage.setItem('burger_game_speed', currentGameSpeed);
           updateSpeedButtonsUI(currentGameSpeed);
@@ -1009,7 +1062,7 @@
           const w1 = document.getElementById('topOrderWidget');
           const w2 = document.getElementById('topOrderWidgetMobile');
 
-          if (currentGameSpeed === 'no-orders') {
+          if (currentGameSpeed === 'no-orders' && currentGameMode === 'sandbox') {
             currentActiveOrder = null;
             saveOrderState();
             if (w1) w1.classList.add('hidden');
@@ -1023,7 +1076,7 @@
         };
       });
 
-      if (currentGameSpeed === 'no-orders') {
+      if (currentGameSpeed === 'no-orders' && currentGameMode === 'sandbox') {
         const w1 = document.getElementById('topOrderWidget');
         const w2 = document.getElementById('topOrderWidgetMobile');
         if (w1) w1.classList.add('hidden');
@@ -1117,6 +1170,7 @@
       if (isNaN(timeUntilNextOrder)) {
         timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
       }
+      let currentTurboTimeLeft = 180; // 3 минуты для турбо режима
 
       function saveOrderState() {
         localStorage.setItem('current_active_order', JSON.stringify(currentActiveOrder));
@@ -1325,24 +1379,38 @@
         if (w2) w2.innerHTML = text;
       }
 
-      if (currentGameSpeed === 'no-orders') {
+      if (currentGameMode === 'sandbox' && currentGameSpeed === 'no-orders') {
         document.getElementById('topOrderWidget').classList.add('hidden');
         const mobileWidget = document.getElementById('topOrderWidgetMobile');
         if (mobileWidget) mobileWidget.classList.add('hidden');
       } else if (currentActiveOrder) {
-        updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span>`);
+        if (currentGameMode === 'turbo') {
+          updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span> <span class="order-timer-badge">⏱️ ${formatTime(currentTurboTimeLeft)}</span>`);
+        } else {
+          updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span>`);
+        }
       }
 
       setInterval(() => {
-        if (currentGameSpeed === 'no-orders') return;
+        if (currentGameMode === 'sandbox' && currentGameSpeed === 'no-orders') return;
 
-        if (currentGameSpeed === 'turbo') {
+        if (currentGameMode === 'turbo') {
           if (!currentActiveOrder) {
             triggerRandomOrder();
+          } else {
+            if (currentTurboTimeLeft > 0) {
+              currentTurboTimeLeft--;
+              updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span> <span class="order-timer-badge">⏱️ ${formatTime(currentTurboTimeLeft)}</span>`);
+            } else {
+              // Время вышло в турбо
+              currentTurboTimeLeft = 180;
+              triggerRandomOrder();
+            }
           }
           return;
         }
 
+        // Обычные режимы
         if (!currentActiveOrder) {
           if (timeUntilNextOrder > 0) {
             timeUntilNextOrder--;
@@ -1360,9 +1428,15 @@
         const chosen = allAvailable[Math.floor(Math.random() * allAvailable.length)];
         
         currentActiveOrder = { name: chosen.name || chosen.title, ids: chosen.ids };
+        currentTurboTimeLeft = 180;
         timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
         saveOrderState();
-        updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span>`);
+
+        if (currentGameMode === 'turbo') {
+          updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span> <span class="order-timer-badge">⏱️ 03:00</span>`);
+        } else {
+          updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span>`);
+        }
         playSound(SOUNDS.order);
       }
 
@@ -1457,6 +1531,7 @@
           }
 
           currentActiveOrder = null;
+          currentTurboTimeLeft = 180;
           timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
           saveOrderState();
 
@@ -1591,7 +1666,6 @@
         }
       };
 
-      const squeezeBtn = document.getElementById('squeezeBtn');
       if (squeezeBtn) {
         squeezeBtn.onclick = () => {
           if (currentBurger.length <= 1 || isEating) return;
@@ -1648,7 +1722,6 @@
         }, 2000);
       }
 
-      const eatBtn = document.getElementById('eatBtn');
       if (eatBtn) eatBtn.onclick = triggerEatAnimation;
 
       const downloadPngBtn = document.getElementById('downloadPngBtn');
