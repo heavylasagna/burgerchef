@@ -490,8 +490,8 @@
       box-shadow: 0 6px 20px rgba(0,0,0,0.4);
       border: 2px solid #81c784;
       display: flex;
-      align-items: center;
-      gap: 12px;
+      flex-direction: column;
+      gap: 2px;
       animation: toastAnim 3.5s forwards ease-in-out;
     }
     @keyframes toastAnim {
@@ -751,8 +751,17 @@
       let unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements')) || {};
       let pinnedBurger = JSON.parse(localStorage.getItem('pinned_burger')) || null;
 
-      let currentActiveOrder = null; 
-      let timeUntilNextOrder = Math.floor(Math.random() * 240) + 60;
+      // Восстанавливаем сохраненный заказ и таймер из localStorage
+      let currentActiveOrder = JSON.parse(localStorage.getItem('current_active_order')) || null;
+      let timeUntilNextOrder = parseInt(localStorage.getItem('time_until_next_order'), 10);
+      if (isNaN(timeUntilNextOrder)) {
+        timeUntilNextOrder = Math.floor(Math.random() * 240) + 60;
+      }
+
+      function saveOrderState() {
+        localStorage.setItem('current_active_order', JSON.stringify(currentActiveOrder));
+        localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+      }
 
       function unlockAchievement(ach) {
         if (!unlockedAchievements[ach.id]) {
@@ -769,10 +778,11 @@
         const toast = document.createElement('div');
         toast.className = 'achievement-toast';
         
-        // Проверяем, есть ли иконка, чтобы не выводить undefined
-        const iconHtml = ach.icon ? `<span style="font-size: 1.8rem;">${ach.icon}</span>` : '';
-        
-        toast.innerHTML = `${iconHtml}<div><h4 style="font-size:0.85rem">Achievement Unlocked!</h4><p style="font-size:0.75rem">${ach.title}</p></div>`;
+        // Заголовок — название ачивки, меньший текст — "Secret recipe unlocked!"
+        toast.innerHTML = `
+          <h4 style="font-size:0.9rem; color:#fdfbf7; margin:0;">${ach.title}</h4>
+          <p style="font-size:0.75rem; color:#d7ccc8; margin:0;">Secret recipe unlocked!</p>
+        `;
         container.appendChild(toast);
         setTimeout(() => toast.remove(), 3500);
       }
@@ -945,12 +955,21 @@
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
       }
 
+      // Если при загрузке уже есть активный заказ, сразу отобразим его в виджете
+      if (currentActiveOrder) {
+        const statusText = document.getElementById('orderStatusText');
+        if (statusText) statusText.innerHTML = `🔔 Order: <span>${currentActiveOrder.name}</span>`;
+      }
+
       setInterval(() => {
         const statusText = document.getElementById('orderStatusText');
-        if (!currentActiveOrder && statusText) {
+        if (!currentActiveOrder) {
           if (timeUntilNextOrder > 0) {
             timeUntilNextOrder--;
-            statusText.innerHTML = `Next order in: <span>${formatTime(timeUntilNextOrder)}</span>`;
+            saveOrderState();
+            if (statusText) {
+              statusText.innerHTML = `Next order in: <span>${formatTime(timeUntilNextOrder)}</span>`;
+            }
           } else {
             triggerRandomOrder();
           }
@@ -963,6 +982,7 @@
         const chosen = allAvailable[Math.floor(Math.random() * allAvailable.length)];
         
         currentActiveOrder = { name: chosen.name || chosen.title, ids: chosen.ids };
+        saveOrderState();
         const statusText = document.getElementById('orderStatusText');
         if (statusText) statusText.innerHTML = `🔔 Order: <span>${currentActiveOrder.name}</span>`;
         playSound(SOUNDS.order);
@@ -1048,13 +1068,17 @@
           
           const toast = document.createElement('div');
           toast.className = 'achievement-toast';
-          toast.innerHTML = `<span style="font-size: 1.8rem;">🎉</span><div><h4 style="font-size:0.9rem">The order is complete!</h4><p style="font-size:0.75rem">${currentActiveOrder.name} served successfully</p></div>`;
+          toast.innerHTML = `
+            <h4 style="font-size:0.9rem; color:#fdfbf7; margin:0;">Order Complete!</h4>
+            <p style="font-size:0.75rem; color:#d7ccc8; margin:0;">${currentActiveOrder.name} served successfully</p>
+          `;
           const container = document.getElementById('toastContainer');
           if (container) container.appendChild(toast);
           setTimeout(() => toast.remove(), 4000);
 
           currentActiveOrder = null;
           timeUntilNextOrder = Math.floor(Math.random() * 240) + 60;
+          saveOrderState();
 
           setTimeout(() => {
             triggerEatAnimation();
