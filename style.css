@@ -297,7 +297,7 @@ body {
   100% { opacity: 0; transform: translateY(-15px) scale(0.95); }
 }
 
-/* Закрепленный рецепт: минимальное расстояние между ингредиентами за счет отрицательного маржина */
+/* Закрепленный рецепт (ПК): компактные отступы снизу вверх */
 .pinned-recipe-widget {
   position: absolute;
   top: 52px;
@@ -323,7 +323,7 @@ body {
 .pinned-recipe-widget .unpin-btn { background: none; border: none; cursor: pointer; font-size: 0.75rem; color: var(--text-color); padding: 0 2px; }
 .pinned-ingredients { 
   display: flex; 
-  flex-direction: column-reverse; 
+  flex-direction: column; /* Сверху вниз, чтобы нижняя булочка была внизу без лишних зазоров */
   gap: 0px; 
   align-items: center; 
 }
@@ -331,10 +331,10 @@ body {
   width: 48px; 
   height: 48px; 
   object-fit: contain; 
-  margin-top: -12px; /* Убираем пустые отступы между картинками */
+  margin-bottom: -12px; /* Компактное наложение для минимального расстояния */
 }
-.pinned-ingredients img:first-child {
-  margin-top: 0;
+.pinned-ingredients img:last-child {
+  margin-bottom: 0;
 }
 
 .top-order-widget {
@@ -884,38 +884,45 @@ input[type="range"]::-webkit-slider-thumb {
   .action-group { width: 100%; justify-content: space-between; }
   .btn-action { flex: 1; padding: 8px 2px; font-size: 0.75rem; text-align: center; }
 
-  /* Убрана фиксация, элементы компактные и выровнены слева */
+  /* Фиксация элементов слева сверху для мобильных устройств */
   .mobile-top-bar {
-    position: static !important;
+    position: fixed !important;
+    top: 10px !important; 
+    right: 10px !important;
     display: flex !important;
     justify-content: flex-end !important;
     align-items: center !important;
-    margin-bottom: 6px;
-    pointer-events: auto;
+    z-index: 1000 !important;
+    pointer-events: none;
   }
+  .mobile-top-bar > * { pointer-events: auto; }
   
   .wallet-widget { 
-    position: static !important; 
+    position: fixed !important; 
+    top: 10px !important; 
+    left: 10px !important; 
     transform: none !important; 
     width: max-content !important;
-    margin-bottom: 6px;
+    z-index: 1000 !important;
     padding: 6px 12px; 
     font-size: 0.75rem; 
   }
 
   .pinned-recipe-widget { 
-    position: static !important; 
+    position: fixed !important; 
+    top: 52px !important; 
+    left: 10px !important; 
     width: max-content !important;
-    margin-bottom: 6px;
+    z-index: 1000 !important;
     padding: 6px !important;
   }
   .pinned-ingredients img { 
     width: 36px !important; 
     height: 36px !important; 
-    margin-top: -8px !important;
+    margin-bottom: -8px !important;
   }
-  .pinned-ingredients img:first-child {
-    margin-top: 0 !important;
+  .pinned-ingredients img:last-child {
+    margin-bottom: 0 !important;
   }
 
   .toggle-ui-btn {
