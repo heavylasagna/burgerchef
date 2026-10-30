@@ -456,9 +456,10 @@ body {
   align-items: center;
 }
 
+/* Единый размер и фиксированная высота для абсолютно всех кнопок панели действий */
 .btn-action {
-  padding: 8px 14px;
-  height: 38px;
+  padding: 0 12px;
+  height: 40px;
   border: none;
   border-radius: 8px;
   font-weight: 700;
