@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     mcPicklePounder: safeAudio('audio/mc-pickle-pounder.mp3')
   };
 
-  // --- 1. СНАЧАЛА ОБЪЯВЛЯЕМ ВСЕ ПЕРЕМЕННЫЕ И СОСТОЯНИЕ ---
+  // DOM Элементы
   const leftPanel = document.getElementById('leftPanel');
   const rightPanel = document.getElementById('rightPanel');
   const bottomPanel = document.getElementById('bottomPanel');
@@ -73,7 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (isNaN(timeUntilNextOrder)) timeUntilNextOrder = 120;
   let currentTurboTimeLeft = 180;
 
-  // --- 2. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ РЕНДЕРИНГА ---
   function saveStock() {
     localStorage.setItem('burger_ingredient_stock', JSON.stringify(ingredientStock));
   }
@@ -83,11 +82,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateMoneyDisplay() {
-    const badge1 = document.getElementById('walletBadge');
-    const badge2 = document.getElementById('walletBadgeMobile');
+    const badge = document.getElementById('walletBadge');
     const text = currentGameMode === 'sandbox' ? 'Sandbox' : `$${playerMoney.toFixed(2)}`;
-    if (badge1) badge1.innerText = text;
-    if (badge2) badge2.innerText = text;
+    if (badge) badge.innerText = text;
     localStorage.setItem('burger_money', playerMoney);
   }
 
@@ -126,8 +123,16 @@ document.addEventListener('DOMContentLoaded', () => {
       const isOut = currentGameMode !== 'sandbox' && stock <= 0;
 
       card.className = `ingredient-card ${currentBurger.length >= MAX_INGREDIENTS || isEating || isOut ? 'disabled' : ''}`;
-      let countHtml = currentGameMode === 'sandbox' ? '' : `<span class="ingredient-stock-count">${stock}</span>`;
-      card.innerHTML = `<img src="${item.image}" alt="${item.name}">${countHtml}`;
+      
+      let infoHtml = `<img src="${item.image}" alt="${item.name}">`;
+      if (currentGameMode !== 'sandbox') {
+        infoHtml += `
+          <div class="ingredient-info-row">
+            <span class="ingredient-name" title="${item.name}">${item.name}</span>
+            <span class="ingredient-stock-count">x${stock}</span>
+          </div>`;
+      }
+      card.innerHTML = infoHtml;
       
       card.onclick = () => {
         if (isEating) return;
@@ -149,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isOut = currentGameMode !== 'sandbox' && stock <= 0;
 
         chip.className = `sauce-chip ${isOut ? 'disabled' : ''}`;
-        chip.innerText = `${sauce.name}${currentGameMode === 'sandbox' ? '' : ' (' + stock + ')'}`;
+        chip.innerText = sauce.name; // Без количества
         
         chip.onclick = () => {
           if (isEating) return;
@@ -161,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- 3. ИНИЦИАЛИЗАЦИЯ ИНТЕРФЕЙСА И СОБЫТИЙ ---
+  // UI События панелей и виджетов
   document.getElementById('layersTitle').onclick = (e) => {
     if (window.innerWidth > 900) { e.stopPropagation(); leftPanel.classList.toggle('dimmed'); }
   };
@@ -173,6 +178,15 @@ document.addEventListener('DOMContentLoaded', () => {
       bottomPanel.classList.toggle('dimmed');
     }
   };
+
+  const walletWidget = document.getElementById('walletWidget');
+  if (walletWidget) walletWidget.onclick = () => { walletWidget.classList.toggle('dimmed'); };
+
+  const topOrderWidget = document.getElementById('topOrderWidget');
+  if (topOrderWidget) topOrderWidget.onclick = () => { topOrderWidget.classList.toggle('dimmed'); };
+
+  const topOrderWidgetMobile = document.getElementById('topOrderWidgetMobile');
+  if (topOrderWidgetMobile) topOrderWidgetMobile.onclick = () => { topOrderWidgetMobile.classList.toggle('dimmed'); };
 
   let volumeLevel = parseFloat(localStorage.getItem('burger_volume')) ?? 1.0;
   const volumeRange = document.getElementById('volumeRange');
@@ -243,12 +257,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if(topWidget) topWidget.classList.remove('hidden');
         if(topWidgetMob) topWidgetMob.classList.remove('hidden');
       }
-    } else {
-      if(speedButtonsGrid && mode === 'turbo') speedButtonsGrid.classList.add('disabled');
-      if(speedButtonsGrid && mode === 'casual') speedButtonsGrid.classList.remove('disabled');
+    } else if (mode === 'casual') {
+      if(speedButtonsGrid) speedButtonsGrid.classList.remove('disabled');
       if(topWidget) topWidget.classList.remove('hidden');
       if(topWidgetMob) topWidgetMob.classList.remove('hidden');
-      if(mode === 'turbo' && !currentActiveOrder) triggerRandomOrder();
+    } else if (mode === 'turbo') {
+      if(speedButtonsGrid) speedButtonsGrid.classList.add('disabled');
+      if(topWidget) topWidget.classList.remove('hidden');
+      if(topWidgetMob) topWidgetMob.classList.remove('hidden');
+      currentTurboTimeLeft = 180;
+      if (!currentActiveOrder) triggerRandomOrder();
     }
 
     updateActionButtonsVisibility(mode);
@@ -263,7 +281,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
   applyGameMode(currentGameMode);
 
-  // --- 4. РЕЦЕПТЫ И МАГАЗИН ---
+  // Настройка кнопок скорости
+  const speedButtons = document.querySelectorAll('.speed-btn');
+  function updateSpeedButtonsUI(speed) {
+    speedButtons.forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-speed') === speed);
+    });
+  }
+  updateSpeedButtonsUI(currentGameSpeed);
+
+  speedButtons.forEach(btn => {
+    btn.onclick = () => {
+      if (currentGameMode === 'turbo') return;
+      currentGameSpeed = btn.getAttribute('data-speed');
+      localStorage.setItem('burger_game_speed', currentGameSpeed);
+      updateSpeedButtonsUI(currentGameSpeed);
+
+      const w1 = document.getElementById('topOrderWidget');
+      const w2 = document.getElementById('topOrderWidgetMobile');
+
+      if (currentGameSpeed === 'no-orders' && currentGameMode === 'sandbox') {
+        currentActiveOrder = null;
+        localStorage.removeItem('current_active_order');
+        if (w1) w1.classList.add('hidden');
+        if (w2) w2.classList.add('hidden');
+      } else {
+        if (w1) w1.classList.remove('hidden');
+        if (w2) w2.classList.remove('hidden');
+        timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
+        localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+      }
+    };
+  });
+
+  function getRandomTimeForSpeed(speed) {
+    switch(speed) {
+      case 'turbo': return 0;
+      case 'super-fast': return Math.floor(Math.random() * 20) + 10;
+      case 'fast': return Math.floor(Math.random() * 30) + 30;
+      case 'medium': return Math.floor(Math.random() * 180) + 120;
+      case 'slow': return Math.floor(Math.random() * 300) + 300;
+      case 'super-slow': return Math.floor(Math.random() * 900) + 900;
+      default: return 300;
+    }
+  }
+
+  // Рецепты и Магазин
   const ITEM_IMAGES = {
     'bottom-bun': 'images/bottom-bun.png', 'top-bun': 'images/top-bun.png',
     'beef-patty': 'images/beef-patty.png', 'cheese': 'images/cheese.png',
@@ -521,7 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // --- 5. ЛОГИКА БУРГЕРА И ЗАКАЗОВ ---
+  // --- Логика бургера и заказов ---
   function updateBurgerDisplay(isNewAdded = false) {
     saveBurgerState();
     if (layersTitle) layersTitle.innerText = `Layers (${currentBurger.length}/${MAX_INGREDIENTS})`;
@@ -703,7 +766,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Заказы таймер
+  // Главный игровой цикл (таймеры заказов)
+  function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
+
   function updateOrderWidgetsText(text) {
     const w1 = document.getElementById('orderStatusText');
     const w2 = document.getElementById('orderStatusTextMobile');
@@ -716,13 +785,54 @@ document.addEventListener('DOMContentLoaded', () => {
     const allAvailable = [...REGULAR_RECIPES, ...unlockedSecretNames];
     const chosen = allAvailable[Math.floor(Math.random() * allAvailable.length)];
     currentActiveOrder = { name: chosen.name || chosen.title, ids: chosen.ids };
+    currentTurboTimeLeft = 180;
     localStorage.setItem('current_active_order', JSON.stringify(currentActiveOrder));
-    updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span>`);
+    timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
+    localStorage.setItem('time_until_next_order', timeUntilNextOrder);
     playSound(SOUNDS.order);
   }
 
+  // Интервал тиков игры (заказы и таймер в турбо режиме)
+  setInterval(() => {
+    if (currentGameMode === 'sandbox' && currentGameSpeed === 'no-orders') return;
+
+    if (currentGameMode === 'turbo') {
+      if (!currentActiveOrder) {
+        triggerRandomOrder();
+      } else {
+        if (currentTurboTimeLeft > 0) {
+          currentTurboTimeLeft--;
+          updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span> <span class="order-timer-badge">⏱️ ${formatTime(currentTurboTimeLeft)}</span>`);
+        } else {
+          currentTurboTimeLeft = 180;
+          playerMoney = Math.max(0, playerMoney - 5);
+          updateMoneyDisplay();
+          showToast({title: 'Time Out! -$5'}, 'Order Failed', 'You ran out of time!');
+          triggerRandomOrder();
+        }
+      }
+      return;
+    }
+
+    if (!currentActiveOrder) {
+      if (timeUntilNextOrder > 0) {
+        timeUntilNextOrder--;
+        localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+        updateOrderWidgetsText(`Next order in: <span>${formatTime(timeUntilNextOrder)}</span>`);
+      } else {
+        triggerRandomOrder();
+      }
+    } else {
+      updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span>`);
+    }
+  }, 1000);
+
   if (currentActiveOrder) {
-    updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span>`);
+    if (currentGameMode === 'turbo') {
+      updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span> <span class="order-timer-badge">⏱️ ${formatTime(currentTurboTimeLeft)}</span>`);
+    } else {
+      updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span>`);
+    }
   }
 
   // Финальный запуск отрисовки
