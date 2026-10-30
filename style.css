@@ -242,11 +242,11 @@ body {
 }
 .limit-warning.show { opacity: 1; transform: translateY(0); }
 
-/* Кошелёк: теперь расположен справа от панели слоёв (аккурат в зоне центральной сцены слева) */
+/* Кошелёк: справа от слоёв бургера */
 .wallet-widget {
   position: absolute;
   top: 10px;
-  left: 240px; /* Сдвинут правее левой панели слоёв шириной 220px + отступы */
+  left: 240px; 
   background: var(--panel-bg-1);
   backdrop-filter: blur(8px);
   color: var(--text-color);
@@ -265,6 +265,29 @@ body {
 .wallet-widget.dimmed { opacity: 0.35; }
 .wallet-widget.hidden { display: none !important; }
 #walletBadge { color: #81c784; font-weight: bold; }
+
+/* Закрепленный рецепт: строго под кошельком */
+.pinned-recipe-widget {
+  position: absolute;
+  top: 52px;
+  left: 240px;
+  background: var(--modal-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  max-width: 200px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  z-index: 50;
+  display: none;
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+.pinned-recipe-widget.active { display: block; }
+.pinned-recipe-widget h5 { color: var(--text-color); margin-bottom: 4px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; }
+.pinned-recipe-widget .unpin-btn { background: none; border: none; cursor: pointer; font-size: 0.8rem; color: var(--text-color); }
+.pinned-ingredients { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
+.pinned-ingredients img { width: 22px; height: 22px; object-fit: contain; }
 
 .top-order-widget {
   position: absolute;
@@ -292,28 +315,6 @@ body {
 .top-order-widget.hidden { display: none !important; }
 .top-order-widget span { color: var(--accent-color); font-weight: bold; }
 .order-timer-badge { color: #e57373; font-weight: bold; font-family: monospace; }
-
-.pinned-recipe-widget {
-  position: absolute;
-  top: 55px;
-  left: 240px;
-  background: var(--modal-bg);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 8px 12px;
-  font-size: 0.75rem;
-  max-width: 200px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  z-index: 50;
-  display: none;
-  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-}
-.pinned-recipe-widget.active { display: block; }
-.pinned-recipe-widget h5 { color: var(--text-color); margin-bottom: 4px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; }
-.pinned-recipe-widget .unpin-btn { background: none; border: none; cursor: pointer; font-size: 0.8rem; color: var(--text-color); }
-.pinned-ingredients { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
-.pinned-ingredients img { width: 22px; height: 22px; object-fit: contain; }
 
 .right-panel {
   grid-column: 3;
@@ -870,6 +871,11 @@ input[type="range"]::-moz-range-thumb {
     font-size: 0.7rem; 
   }
 
+  .pinned-recipe-widget {
+    top: 45px;
+    left: 10px;
+  }
+
   .toggle-ui-btn {
     background: var(--modal-bg);
     border: 1px solid var(--border-color);
@@ -887,7 +893,8 @@ input[type="range"]::-moz-range-thumb {
   body.ui-hidden .right-panel,
   body.ui-hidden .sauces-group.mobile-sauces,
   body.ui-hidden .top-order-widget,
-  body.ui-hidden .wallet-widget { display: none !important; }
+  body.ui-hidden .wallet-widget,
+  body.ui-hidden .pinned-recipe-widget { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
 }
 @media (min-width: 901px) {
