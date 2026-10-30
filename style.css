@@ -39,7 +39,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
+  overflow: hidden;
   transition: background 0.3s ease, color 0.3s ease;
 }
 
@@ -51,7 +51,6 @@ body {
   width: 100vw;
   gap: 12px;
   padding: 12px;
-  position: relative;
 }
 
 .panel {
@@ -235,7 +234,6 @@ body {
 }
 .limit-warning.show { opacity: 1; transform: translateY(0); }
 
-/* Кошелек: обычный абсолютный */
 .wallet-widget {
   position: absolute;
   top: 10px;
@@ -299,28 +297,27 @@ body {
   100% { opacity: 0; transform: translateY(-15px) scale(0.95); }
 }
 
-/* Закрепленный рецепт */
 .pinned-recipe-widget {
   position: absolute;
-  top: 54px;
+  top: 52px;
   left: 240px;
   background: var(--modal-bg);
   backdrop-filter: blur(8px);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: 6px 8px;
-  font-size: 0.85rem;
-  width: 76px;
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  max-width: 200px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   z-index: 50;
   display: none;
   transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 .pinned-recipe-widget.active { display: block; }
-.pinned-recipe-widget h5 { color: var(--text-color); margin-bottom: 2px; font-size: 0.85rem; display: flex; justify-content: flex-end; align-items: center; }
-.pinned-recipe-widget .unpin-btn { background: none; border: none; cursor: pointer; font-size: 0.85rem; color: var(--text-color); }
-.pinned-ingredients { display: flex; flex-direction: column; gap: 2px; align-items: center; }
-.pinned-ingredients img { width: 36px; height: 36px; object-fit: contain; }
+.pinned-recipe-widget h5 { color: var(--text-color); margin-bottom: 4px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; }
+.pinned-recipe-widget .unpin-btn { background: none; border: none; cursor: pointer; font-size: 0.8rem; color: var(--text-color); }
+.pinned-ingredients { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
+.pinned-ingredients img { width: 22px; height: 22px; object-fit: contain; }
 
 .top-order-widget {
   position: absolute;
@@ -353,7 +350,6 @@ body {
 .right-panel {
   grid-column: 3;
   grid-row: 1;
-  position: relative !important;
 }
 
 .ingredients-menu {
@@ -415,7 +411,6 @@ body {
   opacity: 0.85;
 }
 
-/* Единственное меню, зафиксированное снизу */
 .bottom-panel {
   grid-column: 1 / -1;
   grid-row: 2;
@@ -496,33 +491,6 @@ body {
 }
 .btn-outline-danger:hover {
   background: rgba(211, 47, 47, 0.2);
-}
-
-.nav-arrow-btn {
-  background: var(--modal-bg);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  z-index: 120;
-  transition: transform 0.2s, background 0.2s;
-}
-
-.nav-arrow-btn:hover {
-  background: var(--accent-color);
-  color: #fff;
-  transform: scale(1.05);
-}
-
-.pc-custom-buttons-container {
-  display: none;
 }
 
 .modal-overlay {
@@ -664,16 +632,6 @@ body {
   background: var(--accent-color);
   color: #fff;
 }
-
-.shop-buy-group input[type="number"]::-webkit-inner-spin-button,
-.shop-buy-group input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-.shop-buy-group input[type="number"] {
-  -moz-appearance: textfield;
-}
-
 .shop-buy-group input {
   background: var(--modal-bg);
   color: var(--text-color);
@@ -696,6 +654,7 @@ body {
   font-size: 0.75rem;
   cursor: pointer;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  transition: transform 0.1s;
 }
 .btn-buy:hover { transform: scale(1.03); background: linear-gradient(135deg, #7cb342, #689f38); }
 
@@ -857,21 +816,6 @@ input[type="range"]::-webkit-slider-thumb {
 
 .mobile-top-bar { display: none; }
 .toggle-ui-btn { display: none; }
-.mobile-custom-buttons-container { display: none; }
-
-/* Десктопные кастомные кнопки */
-@media (min-width: 901px) {
-  .pc-custom-buttons-container {
-    position: absolute;
-    right: calc(220px + 22px);
-    top: 10px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-    z-index: 120;
-  }
-}
 
 @media (max-width: 900px) {
   body { overflow: auto; }
@@ -911,8 +855,6 @@ input[type="range"]::-webkit-slider-thumb {
     border: 1px solid var(--border-color);
   }
   .left-panel { order: 4; height: 150px; }
-  
-  /* Нижняя панель — единственная зафиксированная */
   .bottom-panel {
     position: fixed;
     bottom: 0; left: 0; right: 0;
@@ -924,29 +866,33 @@ input[type="range"]::-webkit-slider-thumb {
   .action-group { width: 100%; justify-content: space-between; }
   .btn-action { flex: 1; padding: 8px 2px; font-size: 0.75rem; text-align: center; }
 
-  /* Элементы НЕ зафиксированы на экране (прокручиваются вместе со страницей) */
   .mobile-top-bar {
-    position: static !important;
-    display: flex !important;
-    justify-content: flex-end !important;
-    align-items: center !important;
-    margin-bottom: 6px;
+    position: fixed;
+    top: 10px; left: 10px; right: 10px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    z-index: 1000;
+    pointer-events: none;
   }
+  .mobile-top-bar > * { pointer-events: auto; }
 
   .top-order-widget { 
-    position: static !important; 
-    transform: none !important; 
-    width: 100% !important; 
-    max-width: 100% !important; 
-    font-size: 0.75rem !important; 
-    padding: 6px 10px !important; 
+    position: fixed !important; 
+    top: 10px !important; 
+    left: 50% !important; 
+    transform: translateX(-50%) !important; 
+    width: max-content !important; 
+    max-width: 65% !important; 
+    font-size: 0.7rem !important; 
+    padding: 4px 10px !important; 
     display: flex !important; 
     flex-direction: column !important; 
     align-items: center !important; 
     justify-content: center !important; 
     text-align: center !important; 
     gap: 2px !important; 
-    margin-bottom: 6px;
+    z-index: 1000 !important; 
   }
 
   .top-order-widget .order-timer-badge {
@@ -955,30 +901,16 @@ input[type="range"]::-webkit-slider-thumb {
   }
   
   .wallet-widget { 
-    position: static !important; 
-    transform: none !important; 
-    padding: 6px 10px !important; 
-    font-size: 0.75rem !important; 
-    margin-bottom: 6px;
-    width: 100%;
+    position: fixed; 
+    top: 10px; 
+    left: 10px; 
+    transform: none; 
+    z-index: 1000; 
+    padding: 4px 10px; 
+    font-size: 0.7rem; 
   }
 
-  .pinned-recipe-widget { 
-    position: static !important;
-    width: 100% !important;
-    padding: 8px !important;
-    margin-bottom: 6px;
-  }
-  .pinned-recipe-widget h5 { margin-bottom: 4px; font-size: 0.8rem; display: flex; justify-content: flex-end; align-items: center; }
-  .pinned-recipe-widget .unpin-btn { font-size: 0.8rem; }
-  .pinned-ingredients { 
-    display: flex !important;
-    flex-direction: row !important; 
-    gap: 6px !important; 
-    align-items: center !important;
-    overflow-x: auto;
-  }
-  .pinned-ingredients img { width: 32px !important; height: 32px !important; object-fit: contain; }
+  .pinned-recipe-widget { top: 45px; left: 10px; }
 
   .toggle-ui-btn {
     background: var(--modal-bg);
@@ -994,22 +926,14 @@ input[type="range"]::-webkit-slider-thumb {
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
   }
 
-  /* Кнопки гриля и доски ПОД глазом на мобилке (внутри потока, прокручиваются) */
-  .mobile-custom-buttons-container {
-    display: flex !important;
-    position: static !important;
-    flex-direction: row !important;
-    gap: 8px !important;
-    align-items: center !important;
-    margin-right: 8px !important;
-  }
-
   body.ui-hidden .left-panel,
   body.ui-hidden .right-panel,
   body.ui-hidden .sauces-group.mobile-sauces,
   body.ui-hidden .top-order-widget,
   body.ui-hidden .wallet-widget,
-  body.ui-hidden .pinned-recipe-widget,
-  body.ui-hidden .mobile-custom-buttons-container { display: none !important; }
+  body.ui-hidden .pinned-recipe-widget { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
+}
+@media (min-width: 901px) {
+  .sauces-group.mobile-sauces { display: none !important; }
 }
