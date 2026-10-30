@@ -94,29 +94,37 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   initOpacityToggle();
 
-  // Создаем кнопки 🍳 и 🔪 ТОЛЬКО для ПК. На мобилках они уже есть в HTML под глазом.
+  // Чисто ПК-шные кнопки 🍳 и 🔪 (никакого кода для мобилок здесь нет)
   function initCustomActionButtons() {
     const appContainer = document.querySelector('.app-container');
-    if (appContainer && window.innerWidth > 900 && !document.getElementById('pcCustomButtonsContainer')) {
-      const pcContainer = document.createElement('div');
-      pcContainer.id = 'pcCustomButtonsContainer';
-      pcContainer.className = 'pc-custom-buttons-container';
+    const existingPcContainer = document.getElementById('pcCustomButtonsContainer');
 
-      const eggBtn = document.createElement('button');
-      eggBtn.className = 'nav-arrow-btn';
-      eggBtn.innerHTML = '🍳';
-      eggBtn.title = 'Действие 🍳';
-      eggBtn.onclick = () => { playSound(SOUNDS.buttons); };
+    if (window.innerWidth > 900) {
+      if (appContainer && !existingPcContainer) {
+        const pcContainer = document.createElement('div');
+        pcContainer.id = 'pcCustomButtonsContainer';
+        pcContainer.className = 'pc-custom-buttons-container';
 
-      const knifeBtn = document.createElement('button');
-      knifeBtn.className = 'nav-arrow-btn';
-      knifeBtn.innerHTML = '🔪';
-      knifeBtn.title = 'Действие 🔪';
-      knifeBtn.onclick = () => { playSound(SOUNDS.buttons); };
+        const eggBtn = document.createElement('button');
+        eggBtn.className = 'nav-arrow-btn';
+        eggBtn.innerHTML = '🍳';
+        eggBtn.title = 'Действие 🍳';
+        eggBtn.onclick = () => { playSound(SOUNDS.buttons); };
 
-      pcContainer.appendChild(eggBtn);
-      pcContainer.appendChild(knifeBtn);
-      appContainer.appendChild(pcContainer);
+        const knifeBtn = document.createElement('button');
+        knifeBtn.className = 'nav-arrow-btn';
+        knifeBtn.innerHTML = '🔪';
+        knifeBtn.title = 'Действие 🔪';
+        knifeBtn.onclick = () => { playSound(SOUNDS.buttons); };
+
+        pcContainer.appendChild(eggBtn);
+        pcContainer.appendChild(knifeBtn);
+        appContainer.appendChild(pcContainer);
+      }
+    } else {
+      if (existingPcContainer) {
+        existingPcContainer.remove();
+      }
     }
   }
   initCustomActionButtons();
@@ -582,7 +590,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('pinnedTitle').innerHTML = `<button class="unpin-btn" id="unpinBtn" style="margin-left:auto; display:block;">✕</button>`;
       container.innerHTML = '';
       
-      // Снизу вверх для всех (и ПК, и мобилки)
       const listToRender = [...pinnedBurger.ids].reverse();
 
       listToRender.forEach(id => {
