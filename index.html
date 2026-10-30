@@ -259,7 +259,6 @@
     }
     .limit-warning.show { opacity: 1; transform: translateY(0); }
 
-    /* Расположение кошелька вверху центральной сцены */
     .wallet-widget {
       position: absolute;
       top: 10px;
@@ -782,7 +781,6 @@
 
   <div class="app-container">
     <div class="center-stage" id="centerStage">
-      <!-- Кошелек аккуратно внутри сцены сборки -->
       <div class="wallet-widget" id="walletWidget">
         <span>💵</span> <span id="walletBalance">$0</span>
       </div>
@@ -824,9 +822,9 @@
   </div>
 
   <script>
-    // Объявляем функции переключения в window, чтобы к ним не было ошибок доступа
+    // Глобальные хелперы
     window.setTheme = function(theme) {
-      localStorage.setItem('burger_theme', theme);
+      try { localStorage.setItem('burger_theme', theme); } catch(e){}
       const darkBtn = document.getElementById('themeDarkBtn');
       const lightBtn = document.getElementById('themeLightBtn');
 
@@ -842,7 +840,7 @@
     };
 
     window.setOrderMode = function(mode) {
-      localStorage.setItem('burger_order_mode', mode);
+      try { localStorage.setItem('burger_order_mode', mode); } catch(e){}
       document.querySelectorAll('#orderModeGrid .option-btn').forEach(btn => {
         if (btn.dataset.mode === mode) btn.classList.add('active');
         else btn.classList.remove('active');
@@ -851,19 +849,39 @@
     };
 
     document.addEventListener('DOMContentLoaded', () => {
+      // Безопасное сопоставление звуков без падающего JS
+      function createAudio(path) {
+        try {
+          const a = new Audio(path);
+          a.onerror = () => {};
+          return a;
+        } catch(e) {
+          return null;
+        }
+      }
+
       const SOUNDS = {
-        eating: new Audio('audio/eating.mp3'),
-        sauce: new Audio('audio/sauce.mp3'),
-        ingridients: new Audio('audio/ingridients.mp3'),
-        buttons: new Audio('audio/buttons.mp3'),
-        squeeze: new Audio('audio/squeeze.mp3'),
-        achievement: new Audio('audio/achievement.mp3'),
-        order: new Audio('audio/order.mp3'),
-        complete: new Audio('audio/complete.mp3')
+        eating: createAudio('audio/eating.mp3'),
+        sauce: createAudio('audio/sauce.mp3'),
+        ingridients: createAudio('audio/ingridients.mp3'),
+        buttons: createAudio('audio/buttons.mp3'),
+        squeeze: createAudio('audio/squeeze.mp3'),
+        achievement: createAudio('audio/achievement.mp3'),
+        order: createAudio('audio/order.mp3'),
+        complete: createAudio('audio/complete.mp3')
       };
 
-      // Громкость
-      let currentVolume = JSON.parse(localStorage.getItem('burger_volume')) ?? 50;
+      // Безопасное чтение localStorage
+      function getStorage(key, fallback) {
+        try {
+          const val = localStorage.getItem(key);
+          return val !== null ? JSON.parse(val) : fallback;
+        } catch(e) {
+          return fallback;
+        }
+      }
+
+      let currentVolume = getStorage('burger_volume', 50);
       const volumeSlider = document.getElementById('volumeSlider');
       const volumeValue = document.getElementById('volumeValue');
       
@@ -881,20 +899,22 @@
       if (volumeSlider) {
         volumeSlider.oninput = (e) => {
           currentVolume = parseInt(e.target.value);
-          volumeValue.innerText = `${currentVolume}%`;
-          localStorage.setItem('burger_volume', JSON.stringify(currentVolume));
+          if (volumeValue) volumeValue.innerText = `${currentVolume}%`;
+          try { localStorage.setItem('burger_volume', JSON.stringify(currentVolume)); } catch(e){}
           applyVolume();
         };
       }
 
       function playSound(sound) {
         if (currentVolume > 0 && sound) {
-          sound.currentTime = 0;
-          sound.play().catch(() => {});
+          try {
+            sound.currentTime = 0;
+            sound.play().catch(() => {});
+          } catch(e){}
         }
       }
 
-      // Темы
+      // Настройка темы
       let currentTheme = localStorage.getItem('burger_theme') || 'dark';
       window.setTheme(currentTheme);
 
@@ -903,8 +923,8 @@
       if (themeDarkBtn) themeDarkBtn.onclick = () => window.setTheme('dark');
       if (themeLightBtn) themeLightBtn.onclick = () => window.setTheme('light');
 
-      // Скрытие таймера и заказов
-      let isOrdersHidden = JSON.parse(localStorage.getItem('burger_hide_orders')) || false;
+      // Настройки заказов
+      let isOrdersHidden = getStorage('burger_hide_orders', false);
       const hideOrdersCheckbox = document.getElementById('hideOrdersCheckbox');
       const topOrderWidget = document.getElementById('topOrderWidget');
 
@@ -914,7 +934,7 @@
       if (hideOrdersCheckbox) {
         hideOrdersCheckbox.onchange = (e) => {
           isOrdersHidden = e.target.checked;
-          localStorage.setItem('burger_hide_orders', JSON.stringify(isOrdersHidden));
+          try { localStorage.setItem('burger_hide_orders', JSON.stringify(isOrdersHidden)); } catch(err){}
           if (topOrderWidget) {
             if (isOrdersHidden) topOrderWidget.classList.add('hidden');
             else topOrderWidget.classList.remove('hidden');
@@ -922,7 +942,6 @@
         };
       }
 
-      // Режим заказов
       let orderMode = localStorage.getItem('burger_order_mode') || 'medium';
 
       document.querySelectorAll('#orderModeGrid .option-btn').forEach(btn => {
@@ -1003,15 +1022,14 @@
         { id: 'secretMaster', title: 'Master Chef', desc: 'Cooked special stacked creation', icon: '🌟', ids: ['bottom-bun', 'beef-patty', 'cheese', 'hashbrown', 'top-bun'] }
       ];
 
-      let unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements')) || {};
-      let pinnedBurger = JSON.parse(localStorage.getItem('pinned_burger')) || null;
-
+      let unlockedAchievements = getStorage('unlocked_achievements', {});
+      let pinnedBurger = getStorage('pinned_burger', null);
       let currentActiveOrder = null; 
 
       function unlockAchievement(id) {
         if (!unlockedAchievements[id]) {
           unlockedAchievements[id] = true;
-          localStorage.setItem('unlocked_achievements', JSON.stringify(unlockedAchievements));
+          try { localStorage.setItem('unlocked_achievements', JSON.stringify(unlockedAchievements)); } catch(e){}
           const ach = SECRET_ACHIEVEMENTS.find(a => a.id === id);
           if (ach) {
             playSound(SOUNDS.achievement);
@@ -1112,10 +1130,10 @@
       function togglePin(name, ids) {
         if (pinnedBurger && pinnedBurger.name === name) {
           pinnedBurger = null;
-          localStorage.removeItem('pinned_burger');
+          try { localStorage.removeItem('pinned_burger'); } catch(e){}
         } else {
           pinnedBurger = { name, ids };
-          localStorage.setItem('pinned_burger', JSON.stringify(pinnedBurger));
+          try { localStorage.setItem('pinned_burger', JSON.stringify(pinnedBurger)); } catch(e){}
         }
         renderRecipesModal();
         updatePinnedWidget();
@@ -1141,7 +1159,7 @@
           if (unpin) {
             unpin.onclick = () => {
               pinnedBurger = null;
-              localStorage.removeItem('pinned_burger');
+              try { localStorage.removeItem('pinned_burger'); } catch(e){}
               updatePinnedWidget();
               renderRecipesModal();
             };
@@ -1190,7 +1208,7 @@
         resetAchievementsBtn.onclick = () => {
           if(confirm('Reset achievements?')) {
             unlockedAchievements = {};
-            localStorage.removeItem('unlocked_achievements');
+            try { localStorage.removeItem('unlocked_achievements'); } catch(e){}
             renderAchievementsModal();
             renderRecipesModal();
           }
@@ -1272,12 +1290,12 @@
         { id: 'bbq', name: '🟤 BBQ', image: 'images/sauce-bbq.png' }
       ];
 
-      let currentBurger = JSON.parse(localStorage.getItem('saved_burger_stack')) || [];
+      let currentBurger = getStorage('saved_burger_stack', []);
       let isEating = false;
       let isSqueezed = false;
 
       function saveBurgerState() {
-        localStorage.setItem('saved_burger_stack', JSON.stringify(currentBurger));
+        try { localStorage.setItem('saved_burger_stack', JSON.stringify(currentBurger)); } catch(e){}
       }
 
       const burgerStack = document.getElementById('burgerStack');
@@ -1571,6 +1589,7 @@
         };
       }
 
+      // Принудительный первичный рендеринг без зависимостей
       renderSauces();
       renderIngredientsMenu();
       updateBurgerDisplay(false);
