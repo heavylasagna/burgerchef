@@ -105,31 +105,37 @@ document.addEventListener('DOMContentLoaded', () => {
   // ДОБАВЛЕНИЕ КНОПОК-СТРЕЛОК (ПК и ТЕЛЕФОН)
   // ==========================================
   function initNavArrows() {
-    if (leftPanel && !document.getElementById('pcScrollUpBtn')) {
+    // 1. Для ПК: добавляем стрелки слева от правой панели (меню ингредиентов)
+    const targetRightPanel = document.querySelector('.right-panel');
+    if (targetRightPanel && !document.getElementById('pcScrollUpBtn')) {
       const upArrow = document.createElement('button');
       upArrow.id = 'pcScrollUpBtn';
-      upArrow.className = 'nav-arrow-btn pc-arrow-left';
+      upArrow.className = 'nav-arrow-btn pc-arrow-right-side';
       upArrow.style.top = '40%';
       upArrow.innerHTML = '▲';
       upArrow.title = 'Прокрутить вверх';
       upArrow.onclick = () => {
-        if (layersList) layersList.scrollBy({ top: -100, behavior: 'smooth' });
+        const ingredientsMenu = document.getElementById('ingredientsMenu');
+        if (ingredientsMenu) ingredientsMenu.scrollBy({ top: -100, behavior: 'smooth' });
       };
-      leftPanel.appendChild(upArrow);
+      targetRightPanel.appendChild(upArrow);
 
       const downArrow = document.createElement('button');
       downArrow.id = 'pcScrollDownBtn';
-      downArrow.className = 'nav-arrow-btn pc-arrow-left';
+      downArrow.className = 'nav-arrow-btn pc-arrow-right-side';
       downArrow.style.top = '60%';
       downArrow.innerHTML = '▼';
       downArrow.title = 'Прокрутить вниз';
       downArrow.onclick = () => {
-        if (layersList) layersList.scrollBy({ top: 100, behavior: 'smooth' });
+        const ingredientsMenu = document.getElementById('ingredientsMenu');
+        if (ingredientsMenu) ingredientsMenu.scrollBy({ top: 100, behavior: 'smooth' });
       };
-      leftPanel.appendChild(downArrow);
+      targetRightPanel.appendChild(downArrow);
     }
 
-    if (centerStage && !document.getElementById('mobileArrowsContainer')) {
+    // 2. Для телефона: добавляем блок со стрелками справа на экраны
+    const appContainer = document.querySelector('.app-container');
+    if (appContainer && !document.getElementById('mobileArrowsContainer')) {
       const mobileContainer = document.createElement('div');
       mobileContainer.id = 'mobileArrowsContainer';
       mobileContainer.className = 'mobile-arrows-container';
@@ -138,6 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
       mUp.className = 'nav-arrow-btn';
       mUp.innerHTML = '▲';
       mUp.onclick = () => {
+        const centerStage = document.getElementById('centerStage');
         if (centerStage) centerStage.scrollBy({ top: -150, behavior: 'smooth' });
       };
 
@@ -145,12 +152,13 @@ document.addEventListener('DOMContentLoaded', () => {
       mDown.className = 'nav-arrow-btn';
       mDown.innerHTML = '▼';
       mDown.onclick = () => {
+        const centerStage = document.getElementById('centerStage');
         if (centerStage) centerStage.scrollBy({ top: 150, behavior: 'smooth' });
       };
 
       mobileContainer.appendChild(mUp);
       mobileContainer.appendChild(mDown);
-      centerStage.appendChild(mobileContainer);
+      document.body.appendChild(mobileContainer);
     }
   }
   initNavArrows();
