@@ -64,6 +64,7 @@ body {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  cursor: pointer;
   transition: opacity 0.3s ease, background 0.3s ease, border-color 0.3s ease;
 }
 .panel.dimmed { opacity: 0.35; }
@@ -178,7 +179,6 @@ body {
   transition: transform 0.4s ease, opacity 0.4s ease;
 }
 
-/* Класс для аккуратной обрезки PNG */
 .burger-stack.capturing-png {
   padding: 10px 20px;
   display: inline-flex;
@@ -236,7 +236,6 @@ body {
 }
 .limit-warning.show { opacity: 1; transform: translateY(0); }
 
-/* Кошелёк: справа от панели слоёв */
 .wallet-widget {
   position: absolute;
   top: 10px;
@@ -260,7 +259,6 @@ body {
 .wallet-widget.hidden { display: none !important; }
 #walletBadge { color: #81c784; font-weight: bold; }
 
-/* Всплывающие уведомления об изменении денег рядом с кошельком */
 .money-popup-container {
   position: absolute;
   top: 10px;
@@ -301,7 +299,6 @@ body {
   100% { opacity: 0; transform: translateY(-15px) scale(0.95); }
 }
 
-/* Закрепленный рецепт: строго ПОД кошельком */
 .pinned-recipe-widget {
   position: absolute;
   top: 52px;
@@ -428,6 +425,7 @@ body {
   box-shadow: 0 8px 20px rgba(0,0,0,0.2);
   border: 1px solid var(--border-color);
   z-index: 100;
+  cursor: pointer;
   transition: opacity 0.3s ease, background 0.3s ease;
 }
 .bottom-panel.dimmed { opacity: 0.35; }
@@ -459,7 +457,6 @@ body {
   align-items: center;
 }
 
-/* Единый полый стиль для ВСЕХ кнопок панели действий */
 .btn-action {
   padding: 0 12px;
   height: 40px;
@@ -882,7 +879,30 @@ input[type="range"]::-webkit-slider-thumb {
   }
   .mobile-top-bar > * { pointer-events: auto; }
 
-  .top-order-widget { position: static; transform: none; max-width: 65%; font-size: 0.7rem; padding: 4px 10px; }
+  /* Виджет заказа: ровно по центру, сжат по длинне текста */
+  .top-order-widget { 
+    position: fixed; 
+    top: 10px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    width: fit-content; 
+    max-width: 60%; 
+    font-size: 0.7rem; 
+    padding: 4px 10px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    text-align: center; 
+    gap: 2px; 
+    z-index: 1000; 
+  }
+
+  /* Перенос таймера под текст заказа в мобильной версии */
+  .top-order-widget .order-timer-badge {
+    display: block;
+    margin-top: 2px;
+  }
   
   .wallet-widget { 
     position: fixed; 
