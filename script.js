@@ -28,7 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
     mcPicklePounder: safeAudio('audio/mc-pickle-pounder.mp3')
   };
 
-  // DOM Элементы
   const leftPanel = document.getElementById('leftPanel');
   const rightPanel = document.getElementById('rightPanel');
   const bottomPanel = document.getElementById('bottomPanel');
@@ -45,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentBurger = JSON.parse(localStorage.getItem('saved_burger_stack')) || [];
   let isEating = false;
   let isSqueezed = false;
-  let isAddingInProgress = false; // Защита от дублирования слоев
+  let isAddingInProgress = false;
 
   let playerMoney = parseFloat(localStorage.getItem('burger_money'));
   if (isNaN(playerMoney)) playerMoney = 100.00;
@@ -254,6 +253,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if(speedButtonsGrid) speedButtonsGrid.classList.remove('disabled');
       if (currentGameSpeed === 'no-orders') {
         if(topWidget) topWidget.classList.add('hidden');
+        currentActiveOrder = null;
+        localStorage.removeItem('current_active_order');
       } else {
         if(topWidget) topWidget.classList.remove('hidden');
       }
@@ -265,6 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('current_active_order');
       } else {
         if(topWidget) topWidget.classList.remove('hidden');
+        if (!currentActiveOrder) timeUntilNextOrder = 5;
       }
     } else if (mode === 'turbo') {
       if(speedButtonsGrid) speedButtonsGrid.classList.add('disabled');
@@ -310,6 +312,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (w1) w1.classList.remove('hidden');
         timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
         localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+        if (!currentActiveOrder && currentGameMode !== 'sandbox') {
+          triggerRandomOrder();
+        }
       }
     };
   });
@@ -618,7 +623,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Обработчик кнопки сохранения бургера в PNG
   const downloadPngBtn = document.getElementById('downloadPngBtn');
   if (downloadPngBtn) {
     downloadPngBtn.onclick = () => {
@@ -722,7 +726,7 @@ document.addEventListener('DOMContentLoaded', () => {
     isAddingInProgress = true;
     playSound(SOUNDS.ingridients);
     currentBurger.push({ ...item });
-    checkSpecialCombos();
+    checkAchievementsOnly();
     updateBurgerDisplay(true);
 
     setTimeout(() => {
@@ -742,7 +746,7 @@ document.addEventListener('DOMContentLoaded', () => {
     isAddingInProgress = true;
     playSound(SOUNDS.sauce);
     currentBurger.push({ ...sauce });
-    checkSpecialCombos();
+    checkAchievementsOnly();
     updateBurgerDisplay(true);
 
     setTimeout(() => {
@@ -759,7 +763,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     playSound(SOUNDS.buttons);
     currentBurger.splice(index, 1);
-    checkSpecialCombos();
+    checkAchievementsOnly();
     updateBurgerDisplay(false);
   };
 
@@ -771,7 +775,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const temp = currentBurger[index];
       currentBurger[index] = currentBurger[targetIndex];
       currentBurger[targetIndex] = temp;
-      checkSpecialCombos();
+      checkAchievementsOnly();
       updateBurgerDisplay(false);
     }
   };
@@ -815,7 +819,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  function checkSpecialCombos() {
+  // Проверка ачивок во время сборки бургера
+  function checkAchievementsOnly() {
     if (currentBurger.length === 0) return;
     const ids = currentBurger.map(i => i.id);
     SECRET_ACHIEVEMENTS.forEach(ach => {
@@ -823,22 +828,94 @@ document.addEventListener('DOMContentLoaded', () => {
         unlockAchievement(ach);
       }
     });
-    if (currentActiveOrder) {
+  }
+
+  // Кнопка подачи заказа (🍽️)
+  const serveBtn = document.getElementById('serveBtn');
+  if (serveBtn) {
+    serveBtn.onclick = () => {
+      if (currentGameMode === 'sandbox' || currentGameSpeed === 'no-orders') {
+        alert("No active orders to serve in this mode!");
+        return;
+      }
+      if (!currentActiveOrder) {
+        alert("No active order right now!");
+        return;
+      }
+      if (isEating) return;
+
+      const ids = currentBurger.map(i => i.id);
       const targetIds = currentActiveOrder.ids;
-      if (ids.length === targetIds.length && ids.every((val, idx) => val === targetIds[idx])) {
+      const isCorrect = ids.length === targetIds.length && ids.every((val, idx) => val === targetIds[idx]);
+
+      if (isCorrect) {
+        // Успешный заказ
         playSound(SOUNDS.complete);
-        if (currentGameMode !== 'sandbox') {
-          const cost = ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0);
-          const reward = Math.round(cost * 2 * 100) / 100;
-          playerMoney += reward;
-          updateMoneyDisplay();
-        }
+        const cost = ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0);
+        const reward = Math.round(cost * 2 * 100) / 100;
+        playerMoney += reward;
+        updateMoneyDisplay();
         showToast(null, 'Order Complete!', `${currentActiveOrder.name} served successfully!`);
+        
         currentActiveOrder = null;
         localStorage.removeItem('current_active_order');
-        setTimeout(() => { if (eatBtn) eatBtn.click(); }, 600);
+        
+        // Автоматически съедаем поданный бургер
+        isEating = true; isSqueezed = false;
+        if (burgerStack) burgerStack.classList.add('eating');
+        setTimeout(() => {
+          currentBurger = [];
+          if (burgerStack) burgerStack.classList.remove('eating');
+          isEating = false;
+          updateBurgerDisplay(false);
+        }, 2000);
+
+        if (currentGameMode === 'casual') {
+          timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
+          localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+        } else if (currentGameMode === 'turbo') {
+          triggerRandomOrder();
+        }
+      } else {
+        // Неверный заказ -> штраф и сброс заказа
+        playSound(SOUNDS.bin);
+        let penalty = 0;
+        if (currentGameMode === 'casual') {
+          switch(currentGameSpeed) {
+            case 'super-fast': penalty = 15; break;
+            case 'fast': penalty = 10; break;
+            case 'medium': penalty = 5; break;
+            case 'slow': penalty = 3; break;
+            case 'super-slow': penalty = 2; break;
+            default: penalty = 5;
+          }
+          playerMoney = Math.max(0, playerMoney - penalty);
+          updateMoneyDisplay();
+          showToast({title: `Wrong Order! -$${penalty}`}, 'Failed', `Expected: ${currentActiveOrder.name}`);
+        } else if (currentGameMode === 'turbo') {
+          penalty = 25;
+          playerMoney = Math.max(0, playerMoney - penalty);
+          updateMoneyDisplay();
+          showToast({title: `Wrong Order! -$${penalty}`}, 'Turbo Failed', `Expected: ${currentActiveOrder.name}`);
+        } else {
+          showToast({title: 'Wrong Order!'}, 'Sandbox', `Expected: ${currentActiveOrder.name}`);
+        }
+
+        currentActiveOrder = null;
+        localStorage.removeItem('current_active_order');
+        
+        if (currentGameMode === 'casual') {
+          timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
+          localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+        } else if (currentGameMode === 'turbo') {
+          triggerRandomOrder();
+        }
+
+        // Очищаем бургер при ошибке
+        currentBurger = [];
+        updateBurgerDisplay(false);
       }
-    }
+    };
   }
 
   function formatTime(seconds) {
@@ -865,7 +942,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   setInterval(() => {
-    if (currentGameSpeed === 'no-orders') return;
+    if (currentGameSpeed === 'no-orders' || currentGameMode === 'sandbox') return;
 
     if (currentGameMode === 'turbo') {
       if (!currentActiveOrder) {
@@ -876,29 +953,31 @@ document.addEventListener('DOMContentLoaded', () => {
           updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span> <span class="order-timer-badge">⏱️ ${formatTime(currentTurboTimeLeft)}</span>`);
         } else {
           currentTurboTimeLeft = 180;
-          playerMoney = Math.max(0, playerMoney - 5);
+          playerMoney = Math.max(0, playerMoney - 20);
           updateMoneyDisplay();
-          showToast({title: 'Time Out! -$5'}, 'Order Failed', 'You ran out of time!');
+          showToast({title: 'Time Out! -$20'}, 'Order Failed', 'You ran out of time!');
           triggerRandomOrder();
         }
       }
       return;
     }
 
-    if (!currentActiveOrder) {
-      if (timeUntilNextOrder > 0) {
-        timeUntilNextOrder--;
-        localStorage.setItem('time_until_next_order', timeUntilNextOrder);
-        updateOrderWidgetsText(`Next order in: <span>${formatTime(timeUntilNextOrder)}</span>`);
+    if (currentGameMode === 'casual') {
+      if (!currentActiveOrder) {
+        if (timeUntilNextOrder > 0) {
+          timeUntilNextOrder--;
+          localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+          updateOrderWidgetsText(`Next order in: <span>${formatTime(timeUntilNextOrder)}</span>`);
+        } else {
+          triggerRandomOrder();
+        }
       } else {
-        triggerRandomOrder();
+        updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span>`);
       }
-    } else {
-      updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span>`);
     }
   }, 1000);
 
-  if (currentActiveOrder && currentGameSpeed !== 'no-orders') {
+  if (currentActiveOrder && currentGameSpeed !== 'no-orders' && currentGameMode !== 'sandbox') {
     if (currentGameMode === 'turbo') {
       updateOrderWidgetsText(`🔔 Order: <span>${currentActiveOrder.name}</span> <span class="order-timer-badge">⏱️ ${formatTime(currentTurboTimeLeft)}</span>`);
     } else {
