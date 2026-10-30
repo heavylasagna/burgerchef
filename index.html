@@ -349,7 +349,7 @@
     .btn-recipes { background: linear-gradient(135deg, #0288d1, #01579b); color: #fff; }
     .btn-utility { background: linear-gradient(135deg, #455a64, #263238); color: #fff; }
 
-    /* Модальные окна */
+    /* Модальное окно рецептов */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -397,62 +397,6 @@
       gap: 14px;
       padding-right: 2px;
       margin-bottom: 12px;
-    }
-
-    .setting-section {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .setting-label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: #5d4037;
-      letter-spacing: 0.5px;
-    }
-
-    .setting-row {
-      display: flex;
-      gap: 8px;
-    }
-
-    .setting-btn {
-      flex: 1;
-      padding: 8px;
-      background: var(--item-bg);
-      border: 1px solid #d7ccc8;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.78rem;
-      cursor: pointer;
-      color: #5d4037;
-      text-align: center;
-      transition: all 0.2s;
-    }
-
-    .setting-btn.active {
-      background: #8d6e63;
-      color: #fff;
-      border-color: #8d6e63;
-    }
-
-    .settings-grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-    }
-
-    .volume-control-wrap {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .volume-control-wrap input[type="range"] {
-      flex: 1;
-      accent-color: #8d6e63;
-      cursor: pointer;
     }
 
     .recipe-card {
@@ -558,6 +502,7 @@
 <body>
 
   <button class="toggle-ui-btn" id="toggleUiBtn" title="Скрыть/показать окна">👁️</button>
+  <div class="toast-container" id="toastContainer"></div>
 
   <div class="top-order-widget" id="topOrderWidget" title="Click to toggle opacity">
     <span id="orderStatusText">Next order in: 05:00</span>
@@ -571,59 +516,6 @@
         <button class="close-modal" id="closeRecipesModal">✕</button>
       </div>
       <div class="modal-body" id="recipesModalBody"></div>
-    </div>
-  </div>
-
-  <!-- Окно настроек -->
-  <div class="modal-overlay" id="settingsModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>Settings</h3>
-        <button class="close-modal" id="closeSettingsModal">✕</button>
-      </div>
-      <div class="modal-body">
-        
-        <!-- Громкость -->
-        <div class="setting-section">
-          <div class="setting-label">Volume</div>
-          <div class="volume-control-wrap">
-            <input type="range" id="volumeRange" min="0" max="100" value="50">
-            <span id="volumeValueLabel" style="font-size: 0.8rem; font-weight: bold; width: 35px; text-align: right;">50%</span>
-          </div>
-        </div>
-
-        <!-- Тема -->
-        <div class="setting-section">
-          <div class="setting-label">Theme</div>
-          <div class="setting-row" id="themeGroup">
-            <button class="setting-btn" data-theme="dark">Dark</button>
-            <button class="setting-btn" data-theme="light">Light</button>
-          </div>
-        </div>
-
-        <!-- Режим игры -->
-        <div class="setting-section">
-          <div class="setting-label">Game Mode</div>
-          <div class="setting-row" id="gameModeGroup">
-            <button class="setting-btn" data-mode="sandbox">Sandbox</button>
-            <button class="setting-btn" data-mode="casual">Casual</button>
-          </div>
-        </div>
-
-        <!-- Скорость игры -->
-        <div class="setting-section">
-          <div class="setting-label">Order Speed</div>
-          <div class="settings-grid-3" id="speedGroup">
-            <button class="setting-btn" data-speed="turbo">Turbo</button>
-            <button class="setting-btn" data-speed="super-fast">Super fast</button>
-            <button class="setting-btn" data-speed="fast">Fast</button>
-            <button class="setting-btn" data-speed="medium">Medium</button>
-            <button class="setting-btn" data-speed="slow">Slow</button>
-            <button class="setting-btn" data-speed="super-slow">Super slow</button>
-          </div>
-        </div>
-
-      </div>
     </div>
   </div>
 
@@ -650,7 +542,6 @@
     <div class="bottom-panel">
       <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
       <div class="action-group">
-        <button class="btn-action btn-utility" id="openSettingsBtn" title="Settings">⚙️</button>
         <button class="btn-action btn-utility" id="downloadPngBtn" title="Download PNG">💾</button>
         <button class="btn-action btn-recipes" id="openRecipesBtn" title="Recipes">📋</button>
         <button class="btn-action btn-squeeze" id="squeezeBtn">Squeeze</button>
@@ -682,37 +573,10 @@
         complete: safeAudio('audio/complete.mp3')
       };
 
-      let settings = {
-        volume: JSON.parse(localStorage.getItem('burger_volume')) ?? 50,
-        theme: localStorage.getItem('burger_theme') || 'dark',
-        gameMode: localStorage.getItem('burger_game_mode') || 'casual',
-        speed: localStorage.getItem('burger_speed') || 'medium'
-      };
-
-      const volumeRange = document.getElementById('volumeRange');
-      const volumeValueLabel = document.getElementById('volumeValueLabel');
-      
-      function applyVolume(val) {
-        if (volumeRange) volumeRange.value = val;
-        if (volumeValueLabel) volumeValueLabel.innerText = `${val}%`;
-        const volFloat = val / 100;
-        Object.values(SOUNDS).forEach(sound => {
-          if (sound) sound.volume = volFloat;
-        });
-      }
-      applyVolume(settings.volume);
-
-      if (volumeRange) {
-        volumeRange.oninput = (e) => {
-          const val = parseInt(e.target.value);
-          settings.volume = val;
-          localStorage.setItem('burger_volume', JSON.stringify(val));
-          applyVolume(val);
-        };
-      }
+      let volume = 50;
 
       function playSound(sound) {
-        if (settings.volume > 0 && sound) {
+        if (volume > 0 && sound) {
           try {
             sound.currentTime = 0;
             sound.play().catch(() => {});
@@ -720,74 +584,12 @@
         }
       }
 
-      function applyTheme(theme) {
-        settings.theme = theme;
-        localStorage.setItem('burger_theme', theme);
-        document.querySelectorAll('#themeGroup .setting-btn').forEach(btn => {
-          if (btn.dataset.theme === theme) btn.classList.add('active');
-          else btn.classList.remove('active');
-        });
-      }
-      applyTheme(settings.theme);
-
-      document.querySelectorAll('#themeGroup .setting-btn').forEach(btn => {
-        btn.onclick = () => {
-          playSound(SOUNDS.buttons);
-          applyTheme(btn.dataset.theme);
-        };
-      });
-
-      function applyGameMode(mode) {
-        settings.gameMode = mode;
-        localStorage.setItem('burger_game_mode', mode);
-        document.querySelectorAll('#gameModeGroup .setting-btn').forEach(btn => {
-          if (btn.dataset.mode === mode) btn.classList.add('active');
-          else btn.classList.remove('active');
-        });
-      }
-      applyGameMode(settings.gameMode);
-
-      document.querySelectorAll('#gameModeGroup .setting-btn').forEach(btn => {
-        btn.onclick = () => {
-          playSound(SOUNDS.buttons);
-          applyGameMode(btn.dataset.mode);
-        };
-      });
-
-      function applySpeed(speed) {
-        settings.speed = speed;
-        localStorage.setItem('burger_speed', speed);
-        document.querySelectorAll('#speedGroup .setting-btn').forEach(btn => {
-          if (btn.dataset.speed === speed) btn.classList.add('active');
-          else btn.classList.remove('active');
-        });
-      }
-      applySpeed(settings.speed);
-
-      document.querySelectorAll('#speedGroup .setting-btn').forEach(btn => {
-        btn.onclick = () => {
-          playSound(SOUNDS.buttons);
-          applySpeed(btn.dataset.speed);
-        };
-      });
-
-      const settingsModal = document.getElementById('settingsModal');
-      document.getElementById('openSettingsBtn').onclick = () => {
-        playSound(SOUNDS.buttons);
-        settingsModal.classList.add('open');
-      };
-      document.getElementById('closeSettingsModal').onclick = () => {
-        playSound(SOUNDS.buttons);
-        settingsModal.classList.remove('open');
-      };
-      settingsModal.onclick = (e) => {
-        if (e.target === settingsModal) settingsModal.classList.remove('open');
-      };
-
       const topOrderWidget = document.getElementById('topOrderWidget');
-      topOrderWidget.onclick = () => {
-        topOrderWidget.classList.toggle('dimmed');
-      };
+      if (topOrderWidget) {
+        topOrderWidget.onclick = () => {
+          topOrderWidget.classList.toggle('dimmed');
+        };
+      }
 
       const ITEM_IMAGES = {
         'bottom-bun': 'images/bottom-bun.png',
@@ -826,7 +628,7 @@
       ];
 
       let currentActiveOrder = null; 
-      let timeUntilNextOrder = Math.floor(Math.random() * 240) + 60;
+      let timeUntilNextOrder = 180;
 
       function renderRecipesModal() {
         const body = document.getElementById('recipesModalBody');
@@ -852,9 +654,18 @@
       }
 
       const recipesModal = document.getElementById('recipesModal');
-      document.getElementById('openRecipesBtn').onclick = () => { playSound(SOUNDS.buttons); renderRecipesModal(); recipesModal.classList.add('open'); };
-      document.getElementById('closeRecipesModal').onclick = () => { playSound(SOUNDS.buttons); recipesModal.classList.remove('open'); };
-      recipesModal.onclick = (e) => { if (e.target === recipesModal) recipesModal.classList.remove('open'); };
+      const openRecipesBtn = document.getElementById('openRecipesBtn');
+      const closeRecipesModal = document.getElementById('closeRecipesModal');
+
+      if (openRecipesBtn) {
+        openRecipesBtn.onclick = () => { playSound(SOUNDS.buttons); renderRecipesModal(); recipesModal.classList.add('open'); };
+      }
+      if (closeRecipesModal) {
+        closeRecipesModal.onclick = () => { playSound(SOUNDS.buttons); recipesModal.classList.remove('open'); };
+      }
+      if (recipesModal) {
+        recipesModal.onclick = (e) => { if (e.target === recipesModal) recipesModal.classList.remove('open'); };
+      }
 
       const toggleUiBtn = document.getElementById('toggleUiBtn');
       if (toggleUiBtn) {
@@ -870,27 +681,10 @@
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
       }
 
-      function getOrderInterval() {
-        const speed = settings.speed;
-        switch(speed) {
-          case 'turbo': return 0;
-          case 'super-fast': return Math.floor(Math.random() * 21) + 10;
-          case 'fast': return Math.floor(Math.random() * 31) + 30;
-          case 'medium': return Math.floor(Math.random() * 181) + 120;
-          case 'slow': return Math.floor(Math.random() * 301) + 300;
-          case 'super-slow': return Math.floor(Math.random() * 901) + 900;
-          default: return 180;
-        }
-      }
-
-      let timeUntilNextOrder = getOrderInterval();
-
       setInterval(() => {
         const statusText = document.getElementById('orderStatusText');
         if (!currentActiveOrder && statusText) {
-          if (settings.speed === 'turbo') {
-            triggerRandomOrder();
-          } else if (timeUntilNextOrder > 0) {
+          if (timeUntilNextOrder > 0) {
             timeUntilNextOrder--;
             statusText.innerHTML = `Next order in: <span>${formatTime(timeUntilNextOrder)}</span>`;
           } else {
@@ -993,7 +787,7 @@
           setTimeout(() => toast.remove(), 4000);
 
           currentActiveOrder = null;
-          timeUntilNextOrder = getOrderInterval();
+          timeUntilNextOrder = 180;
 
           setTimeout(() => {
             triggerEatAnimation();
