@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentBurger = JSON.parse(localStorage.getItem('saved_burger_stack')) || [];
   let isEating = false;
   let isSqueezed = false;
+  let isAddingInProgress = false; // Защита от двойного клика / дублирования булочек
 
   let playerMoney = parseFloat(localStorage.getItem('burger_money'));
   if (isNaN(playerMoney)) playerMoney = 100.00;
@@ -140,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
       card.innerHTML = infoHtml;
       
       card.onclick = () => {
-        if (isEating) return;
+        if (isEating || isAddingInProgress) return;
         if (isOut) { alert(`Out of ${item.name}! Buy more in the shop.`); return; }
         addIngredient(item);
       };
@@ -162,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chip.innerText = sauce.name;
         
         chip.onclick = () => {
-          if (isEating) return;
+          if (isEating || isAddingInProgress) return;
           if (isOut) { alert(`Out of ${sauce.name}! Buy more in the shop.`); return; }
           addSauce(sauce);
         };
@@ -359,6 +360,15 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'bustanatorAch', title: 'Bustanator', desc: 'I know you like this one', sound: 'bustanator', ids: ['bottom-bun', 'beef-patty', 'mayo', 'mayo', 'mayo', 'top-bun'] },
     { id: 'mcPicklePounderAch', title: 'McPickle Pounder', desc: 'You\'re probably the kind of people who would eat a pickle tiramisu', sound: 'mcPicklePounder', ids: ['bottom-bun', 'beef-patty', 'cheese', 'pickles', 'pickles', 'pickles', 'top-bun'] }
   ];
+
+  function unlockAchievement(ach) {
+    if (!unlockedAchievements[ach.id]) {
+      unlockedAchievements[ach.id] = true;
+      localStorage.setItem('unlocked_achievements', JSON.stringify(unlockedAchievements));
+      showToast(ach);
+      playSound(SOUNDS.achievement);
+    }
+  }
 
   function showToast(ach, customTitle, customDesc) {
     const container = document.getElementById('toastContainer');
@@ -655,6 +665,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function addIngredient(item) {
+    if (isEating || isAddingInProgress) return;
     if (currentBurger.length >= MAX_INGREDIENTS) {
       if (limitWarning) { limitWarning.classList.add('show'); setTimeout(() => limitWarning.classList.remove('show'), 2000); }
       return;
@@ -664,23 +675,36 @@ document.addEventListener('DOMContentLoaded', () => {
       ingredientStock[item.id]--;
       saveStock();
     }
+
+    isAddingInProgress = true;
     playSound(SOUNDS.ingridients);
     currentBurger.push({ ...item });
     checkSpecialCombos();
     updateBurgerDisplay(true);
+
+    setTimeout(() => {
+      isAddingInProgress = false;
+    }, 150);
   }
 
   function addSauce(sauce) {
+    if (isEating || isAddingInProgress) return;
     if (currentBurger.length >= MAX_INGREDIENTS) return;
     if (currentGameMode !== 'sandbox') {
       if ((ingredientStock[sauce.id] ?? 0) <= 0) return;
       ingredientStock[sauce.id]--;
       saveStock();
     }
+
+    isAddingInProgress = true;
     playSound(SOUNDS.sauce);
     currentBurger.push({ ...sauce });
     checkSpecialCombos();
     updateBurgerDisplay(true);
+
+    setTimeout(() => {
+      isAddingInProgress = false;
+    }, 150);
   }
 
   window.removeLayer = function(index) {
