@@ -259,6 +259,7 @@
     }
     .limit-warning.show { opacity: 1; transform: translateY(0); }
 
+    /* Расположение кошелька вверху центральной сцены */
     .wallet-widget {
       position: absolute;
       top: 10px;
@@ -298,12 +299,8 @@
       cursor: pointer;
       transition: opacity 0.3s ease, background 0.3s ease, color 0.3s ease;
     }
-    .top-order-widget.dimmed {
-      opacity: 0.35;
-    }
-    .top-order-widget.hidden {
-      display: none !important;
-    }
+    .top-order-widget.dimmed { opacity: 0.35; }
+    .top-order-widget.hidden { display: none !important; }
     .top-order-widget span { color: #d97706; font-weight: bold; }
     body:not(.light-theme) .top-order-widget span { color: #ffb300; }
 
@@ -585,9 +582,7 @@
       text-align: center;
       transition: all 0.2s;
     }
-    .option-btn:hover {
-      background: var(--item-hover);
-    }
+    .option-btn:hover { background: var(--item-hover); }
     .option-btn.active {
       background: #8d6e63;
       color: #fff;
@@ -704,10 +699,6 @@
   <button class="toggle-ui-btn" id="toggleUiBtn" title="Скрыть/показать окна">👁️</button>
   <div class="toast-container" id="toastContainer"></div>
 
-  <div class="wallet-widget" id="walletWidget">
-    <span>💵</span> <span id="walletBalance">$0</span>
-  </div>
-
   <div class="top-order-widget" id="topOrderWidget" title="Click to toggle opacity">
     <span id="orderStatusText">Next order in: 05:00</span>
   </div>
@@ -791,6 +782,11 @@
 
   <div class="app-container">
     <div class="center-stage" id="centerStage">
+      <!-- Кошелек аккуратно внутри сцены сборки -->
+      <div class="wallet-widget" id="walletWidget">
+        <span>💵</span> <span id="walletBalance">$0</span>
+      </div>
+
       <div class="pinned-recipe-widget" id="pinnedRecipeWidget">
         <h5 id="pinnedTitle"><span>📌 Pinned</span> <button class="unpin-btn" id="unpinBtn">✕</button></h5>
         <div class="pinned-ingredients" id="pinnedIngredientsContainer"></div>
@@ -828,6 +824,32 @@
   </div>
 
   <script>
+    // Объявляем функции переключения в window, чтобы к ним не было ошибок доступа
+    window.setTheme = function(theme) {
+      localStorage.setItem('burger_theme', theme);
+      const darkBtn = document.getElementById('themeDarkBtn');
+      const lightBtn = document.getElementById('themeLightBtn');
+
+      if (theme === 'light') {
+        document.body.classList.add('light-theme');
+        if (lightBtn) lightBtn.classList.add('active');
+        if (darkBtn) darkBtn.classList.remove('active');
+      } else {
+        document.body.classList.remove('light-theme');
+        if (darkBtn) darkBtn.classList.add('active');
+        if (lightBtn) lightBtn.classList.remove('active');
+      }
+    };
+
+    window.setOrderMode = function(mode) {
+      localStorage.setItem('burger_order_mode', mode);
+      document.querySelectorAll('#orderModeGrid .option-btn').forEach(btn => {
+        if (btn.dataset.mode === mode) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
+      if (window.resetOrderTimer) window.resetOrderTimer();
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
       const SOUNDS = {
         eating: new Audio('audio/eating.mp3'),
@@ -874,28 +896,12 @@
 
       // Темы
       let currentTheme = localStorage.getItem('burger_theme') || 'dark';
-      function setTheme(theme) {
-        currentTheme = theme;
-        localStorage.setItem('burger_theme', theme);
-        const darkBtn = document.getElementById('themeDarkBtn');
-        const lightBtn = document.getElementById('themeLightBtn');
+      window.setTheme(currentTheme);
 
-        if (theme === 'light') {
-          document.body.classList.add('light-theme');
-          if (lightBtn) lightBtn.classList.add('active');
-          if (darkBtn) darkBtn.classList.remove('active');
-        } else {
-          document.body.classList.remove('light-theme');
-          if (darkBtn) darkBtn.classList.add('active');
-          if (lightBtn) lightBtn.classList.remove('active');
-        }
-      }
-      
       const themeDarkBtn = document.getElementById('themeDarkBtn');
       const themeLightBtn = document.getElementById('themeLightBtn');
-      if (themeDarkBtn) themeDarkBtn.onclick = () => setTheme('dark');
-      if (themeLightBtn) themeLightBtn.onclick = () => setTheme('light');
-      setTheme(currentTheme);
+      if (themeDarkBtn) themeDarkBtn.onclick = () => window.setTheme('dark');
+      if (themeLightBtn) themeLightBtn.onclick = () => window.setTheme('light');
 
       // Скрытие таймера и заказов
       let isOrdersHidden = JSON.parse(localStorage.getItem('burger_hide_orders')) || false;
@@ -919,28 +925,13 @@
       // Режим заказов
       let orderMode = localStorage.getItem('burger_order_mode') || 'medium';
 
-      function setOrderMode(mode) {
-        orderMode = mode;
-        localStorage.setItem('burger_order_mode', mode);
-        
-        document.querySelectorAll('#orderModeGrid .option-btn').forEach(btn => {
-          if (btn.dataset.mode === mode) {
-            btn.classList.add('active');
-          } else {
-            btn.classList.remove('active');
-          }
-        });
-
-        resetOrderTimer();
-      }
-
       document.querySelectorAll('#orderModeGrid .option-btn').forEach(btn => {
-        btn.onclick = () => setOrderMode(btn.dataset.mode);
+        btn.onclick = () => window.setOrderMode(btn.dataset.mode);
       });
-      setOrderMode(orderMode);
 
       function getNextOrderTimeInterval() {
-        switch (orderMode) {
+        const mode = localStorage.getItem('burger_order_mode') || 'medium';
+        switch (mode) {
           case 'turbo': return 0;
           case 'super-fast': return Math.floor(Math.random() * 11) + 10;
           case 'fast': return Math.floor(Math.random() * 31) + 30;
@@ -953,14 +944,17 @@
 
       let timeUntilNextOrder = getNextOrderTimeInterval();
 
-      function resetOrderTimer() {
+      window.resetOrderTimer = function() {
         if (!currentActiveOrder) {
           timeUntilNextOrder = getNextOrderTimeInterval();
-          if (orderMode === 'turbo') {
+          const mode = localStorage.getItem('burger_order_mode') || 'medium';
+          if (mode === 'turbo') {
             triggerRandomOrder();
           }
         }
-      }
+      };
+
+      window.setOrderMode(orderMode);
 
       if (topOrderWidget) {
         topOrderWidget.onclick = () => {
@@ -1227,8 +1221,9 @@
 
       setInterval(() => {
         const statusText = document.getElementById('orderStatusText');
+        const mode = localStorage.getItem('burger_order_mode') || 'medium';
         if (!currentActiveOrder) {
-          if (orderMode === 'turbo') {
+          if (mode === 'turbo') {
             triggerRandomOrder();
           } else if (timeUntilNextOrder > 0) {
             timeUntilNextOrder--;
