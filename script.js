@@ -65,15 +65,15 @@ document.addEventListener('DOMContentLoaded', () => {
     'mayo': 30, 'ketchup': 30, 'mustard': 30, 'spicy': 30, 'bbq': 30
   };
 
-  // По умолчанию: Casual режим игры и Medium скорость вместо No orders
+  // 1) Старт по умолчанию: Casual режим и скорость No orders
   let currentGameMode = localStorage.getItem('burger_game_mode') || 'casual';
-  let currentGameSpeed = localStorage.getItem('burger_game_speed') || 'medium';
+  let currentGameSpeed = localStorage.getItem('burger_game_speed') || 'no-orders';
   
   let unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements')) || {};
   let pinnedBurger = JSON.parse(localStorage.getItem('pinned_burger')) || null;
   let currentActiveOrder = JSON.parse(localStorage.getItem('current_active_order')) || null;
   let timeUntilNextOrder = parseInt(localStorage.getItem('time_until_next_order'), 10);
-  if (isNaN(timeUntilNextOrder)) timeUntilNextOrder = 180;
+  if (isNaN(timeUntilNextOrder)) timeUntilNextOrder = 300;
   let currentTurboTimeLeft = parseInt(localStorage.getItem('current_turbo_time_left'), 10);
   if (isNaN(currentTurboTimeLeft)) currentTurboTimeLeft = 180;
 
@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const speedButtonsGrid = document.getElementById('speedButtonsGrid');
   const speedButtons = document.querySelectorAll('.speed-btn');
 
-  // --- УПРАВЛЕНИЕ СКОРОСТЯМИ И ТАЙМЕРАМИ ---
+  // --- ЛОГИКА СКОРОСТЕЙ И ТАЙМЕРА ---
 
   function getRandomTimeForSpeed(speed) {
     switch(speed) {
@@ -263,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'medium': return Math.floor(Math.random() * 180) + 120;
       case 'slow': return Math.floor(Math.random() * 300) + 300;
       case 'super-slow': return Math.floor(Math.random() * 900) + 900;
-      default: return 180;
+      default: return 300;
     }
   }
 
@@ -313,10 +313,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const topWidget = document.getElementById('topOrderWidget');
 
-    // Полный сброс перед переключением режима
+    // 2) При смене режима сбрасываем старый заказ
     clearActiveOrderState();
 
     if (mode === 'turbo') {
+      // 3) В Турбо блокируем выбор скоростей и запускаем чистый независимый заказ
       if (speedButtonsGrid) speedButtonsGrid.classList.add('disabled');
       if (topWidget) topWidget.classList.remove('hidden');
       
@@ -357,7 +358,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const topWidget = document.getElementById('topOrderWidget');
 
-      // Полный сброс перед сменой скорости
       clearActiveOrderState();
 
       if (currentGameSpeed === 'no-orders') {
@@ -883,7 +883,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Кнопка мгновенного вызова заказа (🔔)
   if (instantOrderBtn) {
     instantOrderBtn.onclick = () => {
       if (currentGameMode === 'turbo' || currentGameSpeed === 'no-orders') return;
@@ -892,7 +891,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Кнопка сервировки (🍽️)
   const serveBtn = document.getElementById('serveBtn');
   if (serveBtn) {
     serveBtn.onclick = () => {
@@ -918,8 +916,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateMoneyDisplay();
         showToast(null, 'Order Complete!', `${currentActiveOrder.name} served successfully!`);
         
-        currentActiveOrder = null;
-        localStorage.removeItem('current_active_order');
+        clearActiveOrderState();
         
         isEating = true; isSqueezed = false;
         if (burgerStack) burgerStack.classList.add('eating');
@@ -960,8 +957,7 @@ document.addEventListener('DOMContentLoaded', () => {
           showToast({title: 'Wrong Order!'}, 'Sandbox', `Expected: ${currentActiveOrder.name}`);
         }
 
-        currentActiveOrder = null;
-        localStorage.removeItem('current_active_order');
+        clearActiveOrderState();
         
         if (currentGameMode === 'casual') {
           timeUntilNextOrder = getRandomTimeForSpeed(currentGameSpeed);
