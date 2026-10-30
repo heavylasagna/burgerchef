@@ -235,7 +235,7 @@ body {
 }
 .limit-warning.show { opacity: 1; transform: translateY(0); }
 
-/* Кошелек: обычный абсолютный, прокручивается вместе со страницей */
+/* Кошелек: обычный абсолютный */
 .wallet-widget {
   position: absolute;
   top: 10px;
@@ -299,7 +299,7 @@ body {
   100% { opacity: 0; transform: translateY(-15px) scale(0.95); }
 }
 
-/* Закрепленный рецепт: абсолютный, прокручивается со страницей */
+/* Закрепленный рецепт */
 .pinned-recipe-widget {
   position: absolute;
   top: 54px;
@@ -415,7 +415,7 @@ body {
   opacity: 0.85;
 }
 
-/* Единственное меню, которое остается зафиксированным снизу */
+/* Единственное меню, зафиксированное снизу */
 .bottom-panel {
   grid-column: 1 / -1;
   grid-row: 2;
@@ -522,14 +522,7 @@ body {
 }
 
 .pc-custom-buttons-container {
-  position: absolute;
-  right: calc(220px + 22px);
-  top: 10px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  z-index: 120;
+  display: none;
 }
 
 .modal-overlay {
@@ -866,6 +859,20 @@ input[type="range"]::-webkit-slider-thumb {
 .toggle-ui-btn { display: none; }
 .mobile-custom-buttons-container { display: none; }
 
+/* Десктопные кастомные кнопки */
+@media (min-width: 901px) {
+  .pc-custom-buttons-container {
+    position: absolute;
+    right: calc(220px + 22px);
+    top: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    z-index: 120;
+  }
+}
+
 @media (max-width: 900px) {
   body { overflow: auto; }
   .app-container {
@@ -905,7 +912,7 @@ input[type="range"]::-webkit-slider-thumb {
   }
   .left-panel { order: 4; height: 150px; }
   
-  /* Нижняя панель единственная зафиксирована снизу */
+  /* Нижняя панель — единственная зафиксированная */
   .bottom-panel {
     position: fixed;
     bottom: 0; left: 0; right: 0;
@@ -917,11 +924,11 @@ input[type="range"]::-webkit-slider-thumb {
   .action-group { width: 100%; justify-content: space-between; }
   .btn-action { flex: 1; padding: 8px 2px; font-size: 0.75rem; text-align: center; }
 
-  /* На мобилке элементы НЕ фиксированные (прокручиваются вместе со страницей) */
+  /* Элементы НЕ зафиксированы на экране (прокручиваются вместе со страницей) */
   .mobile-top-bar {
     position: static !important;
     display: flex !important;
-    justify-content: space-between !important;
+    justify-content: flex-end !important;
     align-items: center !important;
     margin-bottom: 6px;
   }
@@ -953,6 +960,7 @@ input[type="range"]::-webkit-slider-thumb {
     padding: 6px 10px !important; 
     font-size: 0.75rem !important; 
     margin-bottom: 6px;
+    width: 100%;
   }
 
   .pinned-recipe-widget { 
@@ -986,15 +994,14 @@ input[type="range"]::-webkit-slider-thumb {
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
   }
 
-  /* Кнопки гриля и доски ПОД глазом на мобилке (внутри потока страницы, прокручиваются) */
+  /* Кнопки гриля и доски ПОД глазом на мобилке (внутри потока, прокручиваются) */
   .mobile-custom-buttons-container {
     display: flex !important;
     position: static !important;
     flex-direction: row !important;
     gap: 8px !important;
     align-items: center !important;
-    justify-content: center !important;
-    margin-bottom: 8px !important;
+    margin-right: 8px !important;
   }
 
   body.ui-hidden .left-panel,
@@ -1005,9 +1012,4 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .pinned-recipe-widget,
   body.ui-hidden .mobile-custom-buttons-container { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
-}
-
-@media (min-width: 901px) {
-  .sauces-group.mobile-sauces { display: none !important; }
-  .mobile-custom-buttons-container { display: none !important; }
 }
