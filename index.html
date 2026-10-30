@@ -18,14 +18,16 @@
 
   <div class="toast-container" id="toastContainer"></div>
 
-  <!-- Кошелёк (справа от панели слоёв) -->
+  <!-- Кошелёк -->
   <div class="wallet-widget" id="walletWidget" title="Click to toggle opacity">
     <span id="walletBadge">$100.00</span>
   </div>
 
-  <!-- Закреплённый рецепт: расположен СТРОГО ПОД кошельком -->
+  <!-- Закреплённый рецепт: вертикальный, без названия, только ингредиенты -->
   <div class="pinned-recipe-widget" id="pinnedRecipeWidget">
-    <h5 id="pinnedTitle"><span>📌 Pinned</span> <button class="unpin-btn" id="unpinBtn">✕</button></h5>
+    <div class="pinned-header">
+      <button class="unpin-btn" id="unpinBtn" title="Unpin">✕</button>
+    </div>
     <div class="pinned-ingredients" id="pinnedIngredientsContainer"></div>
   </div>
 
