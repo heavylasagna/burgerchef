@@ -584,17 +584,36 @@ body {
 .shop-buy-group {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+}
+.shop-qty-btn {
+  background: var(--item-bg);
+  border: 1px solid var(--item-border);
+  color: var(--text-color);
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.shop-qty-btn:hover {
+  background: var(--accent-color);
+  color: #fff;
 }
 .shop-buy-group input {
   background: var(--modal-bg);
   color: var(--text-color);
   border: 1px solid var(--item-border);
   border-radius: 6px;
-  padding: 5px 8px;
+  padding: 4px 6px;
   font-size: 0.8rem;
   outline: none;
-  width: 55px;
+  width: 45px;
   text-align: center;
   font-weight: bold;
 }
@@ -602,7 +621,7 @@ body {
   background: linear-gradient(135deg, #689f38, #558b2f);
   color: #fff;
   border: none;
-  padding: 6px 14px;
+  padding: 6px 12px;
   border-radius: 6px;
   font-weight: bold;
   font-size: 0.75rem;
