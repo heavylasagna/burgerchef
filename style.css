@@ -51,6 +51,23 @@ body {
   width: 100vw;
   gap: 12px;
   padding: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Стили для экранов с плавным переходом */
+.screen {
+  display: contents; /* Позволяет дочерним элементам участвовать в сетке app-container */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  pointer-events: none;
+}
+
+.screen.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .panel {
@@ -178,7 +195,6 @@ body {
   transition: transform 0.4s ease, opacity 0.4s ease;
 }
 
-/* Класс для аккуратной обрезки PNG */
 .burger-stack.capturing-png {
   padding: 10px 20px;
   display: inline-flex;
@@ -236,7 +252,6 @@ body {
 }
 .limit-warning.show { opacity: 1; transform: translateY(0); }
 
-/* Кошелёк: справа от панели слоёв */
 .wallet-widget {
   position: absolute;
   top: 10px;
@@ -260,7 +275,6 @@ body {
 .wallet-widget.hidden { display: none !important; }
 #walletBadge { color: #81c784; font-weight: bold; }
 
-/* Всплывающие уведомления об изменении денег рядом с кошельком */
 .money-popup-container {
   position: absolute;
   top: 10px;
@@ -301,7 +315,6 @@ body {
   100% { opacity: 0; transform: translateY(-15px) scale(0.95); }
 }
 
-/* Закрепленный рецепт: строго ПОД кошельком */
 .pinned-recipe-widget {
   position: absolute;
   top: 52px;
@@ -459,7 +472,6 @@ body {
   align-items: center;
 }
 
-/* Единый полый стиль для ВСЕХ кнопок панели действий */
 .btn-action {
   padding: 0 12px;
   height: 40px;
