@@ -774,25 +774,33 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Инициализация звуков (включая звуки достижений)
+      // Безопасная функция инициализации аудио без риска зависания
+      function safeAudio(path) {
+        try {
+          const a = new Audio(path);
+          a.onerror = () => {};
+          return a;
+        } catch(e) {
+          return null;
+        }
+      }
+
       const SOUNDS = {
-        eating: new Audio('audio/eating.mp3'),
-        sauce: new Audio('audio/sauce.mp3'),
-        ingridients: new Audio('audio/ingridients.mp3'),
-        buttons: new Audio('audio/buttons.mp3'),
-        squeeze: new Audio('audio/squeeze.mp3'),
-        order: new Audio('audio/order.mp3'),
-        complete: new Audio('audio/complete.mp3'),
-        // Новые звуки достижений
-        cheezeburger: new Audio('audio/cheezeburger.mp3'),
-        tomatonator: new Audio('audio/tomatonator.mp3'),
-        lilypad: new Audio('audio/lilypad.mp3'),
-        'saturn-burger': new Audio('audio/saturn-burger.mp3'),
-        bustanator: new Audio('audio/bustanator.mp3'),
-        'mc-pickle-pounder': new Audio('audio/mc-pickle-pounder.mp3')
+        eating: safeAudio('audio/eating.mp3'),
+        sauce: safeAudio('audio/sauce.mp3'),
+        ingridients: safeAudio('audio/ingridients.mp3'),
+        buttons: safeAudio('audio/buttons.mp3'),
+        squeeze: safeAudio('audio/squeeze.mp3'),
+        order: safeAudio('audio/order.mp3'),
+        complete: safeAudio('audio/complete.mp3'),
+        cheezeburger: safeAudio('audio/cheezeburger.mp3'),
+        tomatonator: safeAudio('audio/tomatonator.mp3'),
+        lilypad: safeAudio('audio/lilypad.mp3'),
+        'saturn-burger': safeAudio('audio/saturn-burger.mp3'),
+        bustanator: safeAudio('audio/bustanator.mp3'),
+        'mc-pickle-pounder': safeAudio('audio/mc-pickle-pounder.mp3')
       };
 
-      // Работа с настройками и localStorage
       let settings = {
         volume: JSON.parse(localStorage.getItem('burger_volume')) ?? 50,
         theme: localStorage.getItem('burger_theme') || 'dark',
@@ -800,13 +808,12 @@
         speed: localStorage.getItem('burger_speed') || 'medium'
       };
 
-      // Применение громкости
       const volumeRange = document.getElementById('volumeRange');
       const volumeValueLabel = document.getElementById('volumeValueLabel');
       
       function applyVolume(val) {
-        volumeRange.value = val;
-        volumeValueLabel.innerText = `${val}%`;
+        if (volumeRange) volumeRange.value = val;
+        if (volumeValueLabel) volumeValueLabel.innerText = `${val}%`;
         const volFloat = val / 100;
         Object.values(SOUNDS).forEach(sound => {
           if (sound) sound.volume = volFloat;
@@ -814,25 +821,27 @@
       }
       applyVolume(settings.volume);
 
-      volumeRange.oninput = (e) => {
-        const val = parseInt(e.target.value);
-        settings.volume = val;
-        localStorage.setItem('burger_volume', JSON.stringify(val));
-        applyVolume(val);
-      };
+      if (volumeRange) {
+        volumeRange.oninput = (e) => {
+          const val = parseInt(e.target.value);
+          settings.volume = val;
+          localStorage.setItem('burger_volume', JSON.stringify(val));
+          applyVolume(val);
+        };
+      }
 
       function playSound(sound) {
         if (settings.volume > 0 && sound) {
-          sound.currentTime = 0;
-          sound.play().catch(() => {});
+          try {
+            sound.currentTime = 0;
+            sound.play().catch(() => {});
+          } catch(e){}
         }
       }
 
-      // Применение темы (каркас)
       function applyTheme(theme) {
         settings.theme = theme;
         localStorage.setItem('burger_theme', theme);
-        
         document.querySelectorAll('#themeGroup .setting-btn').forEach(btn => {
           if (btn.dataset.theme === theme) btn.classList.add('active');
           else btn.classList.remove('active');
@@ -847,11 +856,9 @@
         };
       });
 
-      // Применение режима игры (каркас)
       function applyGameMode(mode) {
         settings.gameMode = mode;
         localStorage.setItem('burger_game_mode', mode);
-
         document.querySelectorAll('#gameModeGroup .setting-btn').forEach(btn => {
           if (btn.dataset.mode === mode) btn.classList.add('active');
           else btn.classList.remove('active');
@@ -866,11 +873,9 @@
         };
       });
 
-      // Применение скорости заказов
       function applySpeed(speed) {
         settings.speed = speed;
         localStorage.setItem('burger_speed', speed);
-
         document.querySelectorAll('#speedGroup .setting-btn').forEach(btn => {
           if (btn.dataset.speed === speed) btn.classList.add('active');
           else btn.classList.remove('active');
@@ -885,7 +890,6 @@
         };
       });
 
-      // Управление модальным окном настроек
       const settingsModal = document.getElementById('settingsModal');
       document.getElementById('openSettingsBtn').onclick = () => {
         playSound(SOUNDS.buttons);
@@ -940,56 +944,13 @@
         { name: 'Fish Burger', ids: ['bottom-bun', 'fish-patty', 'mayo', 'pickles', 'lettuce', 'top-bun'] }
       ];
 
-      // Новые достижения и секретные рецепты
       const SECRET_ACHIEVEMENTS = [
-        { 
-          id: 'cheezeburger', 
-          title: 'Cheezburger', 
-          desc: 'Classic cheese stack creation', 
-          icon: '🧀', 
-          ids: ['bottom-bun', 'beef-patty', 'cheese', 'top-bun'],
-          sound: 'cheezeburger'
-        },
-        { 
-          id: 'tomatonator', 
-          title: 'Tomatonator', 
-          desc: 'Loaded with triple tomatoes', 
-          icon: '🍅', 
-          ids: ['bottom-bun', 'beef-patty', 'cheese', 'tomato', 'tomato', 'tomato', 'top-bun'],
-          sound: 'tomatonator'
-        },
-        { 
-          id: 'lilypad', 
-          title: 'Lilypad', 
-          desc: 'Fresh green leaf composition', 
-          icon: '🥬', 
-          ids: ['bottom-bun', 'beef-patty', 'cheese', 'lettuce', 'top-bun'],
-          sound: 'lilypad'
-        },
-        { 
-          id: 'saturn-burger', 
-          title: 'Saturn Burger', 
-          desc: 'Rings of white onion orbit', 
-          icon: '🪐', 
-          ids: ['bottom-bun', 'beef-patty', 'white-onion', 'top-bun'],
-          sound: 'saturn-burger'
-        },
-        { 
-          id: 'bustanator', 
-          title: 'Bustanator', 
-          desc: 'Overflown with triple mayo', 
-          icon: '⚪', 
-          ids: ['bottom-bun', 'beef-patty', 'mayo', 'mayo', 'mayo', 'top-bun'],
-          sound: 'bustanator'
-        },
-        { 
-          id: 'mc-pickle-pounder', 
-          title: 'McPickle Pounder', 
-          desc: 'Triple pickles powerhouse', 
-          icon: '🥒', 
-          ids: ['bottom-bun', 'beef-patty', 'cheese', 'pickles', 'pickles', 'pickles', 'top-bun'],
-          sound: 'mc-pickle-pounder'
-        }
+        { id: 'cheezeburger', title: 'Cheezburger', desc: 'Classic cheese stack creation', icon: '🧀', ids: ['bottom-bun', 'beef-patty', 'cheese', 'top-bun'], sound: 'cheezeburger' },
+        { id: 'tomatonator', title: 'Tomatonator', desc: 'Loaded with triple tomatoes', icon: '🍅', ids: ['bottom-bun', 'beef-patty', 'cheese', 'tomato', 'tomato', 'tomato', 'top-bun'], sound: 'tomatonator' },
+        { id: 'lilypad', title: 'Lilypad', desc: 'Fresh green leaf composition', icon: '🥬', ids: ['bottom-bun', 'beef-patty', 'cheese', 'lettuce', 'top-bun'], sound: 'lilypad' },
+        { id: 'saturn-burger', title: 'Saturn Burger', desc: 'Rings of white onion orbit', icon: '🪐', ids: ['bottom-bun', 'beef-patty', 'white-onion', 'top-bun'], sound: 'saturn-burger' },
+        { id: 'bustanator', title: 'Bustanator', desc: 'Overflown with triple mayo', icon: '⚪', ids: ['bottom-bun', 'beef-patty', 'mayo', 'mayo', 'mayo', 'top-bun'], sound: 'bustanator' },
+        { id: 'mc-pickle-pounder', title: 'McPickle Pounder', desc: 'Triple pickles powerhouse', icon: '🥒', ids: ['bottom-bun', 'beef-patty', 'cheese', 'pickles', 'pickles', 'pickles', 'top-bun'], sound: 'mc-pickle-pounder' }
       ];
 
       let unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements')) || {};
@@ -1012,6 +973,7 @@
 
       function showToast(ach) {
         const container = document.getElementById('toastContainer');
+        if (!container) return;
         const toast = document.createElement('div');
         toast.className = 'achievement-toast';
         toast.innerHTML = `<span style="font-size: 1.8rem;">${ach.icon}</span><div><h4 style="font-size:0.85rem">Achievement Unlocked!</h4><p style="font-size:0.75rem">${ach.title}</p></div>`;
@@ -1029,6 +991,7 @@
 
       function renderRecipesModal() {
         const body = document.getElementById('recipesModalBody');
+        if (!body) return;
         body.innerHTML = '';
 
         if (activeRecipeTab === 'regular') {
@@ -1105,6 +1068,7 @@
       function updatePinnedWidget() {
         const widget = document.getElementById('pinnedRecipeWidget');
         const container = document.getElementById('pinnedIngredientsContainer');
+        if (!widget || !container) return;
         if (pinnedBurger) {
           document.getElementById('pinnedTitle').innerHTML = `<span>📌 ${pinnedBurger.name}</span> <button class="unpin-btn" id="unpinBtn">✕</button>`;
           container.innerHTML = '';
@@ -1129,6 +1093,7 @@
 
       function renderAchievementsModal() {
         const list = document.getElementById('achievementsList');
+        if (!list) return;
         list.innerHTML = '';
         SECRET_ACHIEVEMENTS.forEach(ach => {
           const isUnlocked = unlockedAchievements[ach.id];
@@ -1164,10 +1129,12 @@
       };
 
       const toggleUiBtn = document.getElementById('toggleUiBtn');
-      toggleUiBtn.onclick = () => {
-        document.body.classList.toggle('ui-hidden');
-        toggleUiBtn.innerText = document.body.classList.contains('ui-hidden') ? '👁️‍🗨️' : '👁️';
-      };
+      if (toggleUiBtn) {
+        toggleUiBtn.onclick = () => {
+          document.body.classList.toggle('ui-hidden');
+          toggleUiBtn.innerText = document.body.classList.contains('ui-hidden') ? '👁️‍🗨️' : '👁️';
+        };
+      }
 
       function formatTime(seconds) {
         const mins = Math.floor(seconds / 60);
@@ -1175,16 +1142,15 @@
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
       }
 
-      // Функция вычисления интервала в зависимости от выбранной скорости в настройках
       function getOrderInterval() {
         const speed = settings.speed;
         switch(speed) {
           case 'turbo': return 0;
-          case 'super-fast': return Math.floor(Math.random() * 21) + 10; // 10-30 сек
-          case 'fast': return Math.floor(Math.random() * 31) + 30; // 30-60 сек
-          case 'medium': return Math.floor(Math.random() * 181) + 120; // 2-5 мин
-          case 'slow': return Math.floor(Math.random() * 301) + 300; // 5-10 мин
-          case 'super-slow': return Math.floor(Math.random() * 901) + 900; // 15-30 мин (900-1800 сек)
+          case 'super-fast': return Math.floor(Math.random() * 21) + 10;
+          case 'fast': return Math.floor(Math.random() * 31) + 30;
+          case 'medium': return Math.floor(Math.random() * 181) + 120;
+          case 'slow': return Math.floor(Math.random() * 301) + 300;
+          case 'super-slow': return Math.floor(Math.random() * 901) + 900;
           default: return 180;
         }
       }
@@ -1193,7 +1159,7 @@
 
       setInterval(() => {
         const statusText = document.getElementById('orderStatusText');
-        if (!currentActiveOrder) {
+        if (!currentActiveOrder && statusText) {
           if (settings.speed === 'turbo') {
             triggerRandomOrder();
           } else if (timeUntilNextOrder > 0) {
@@ -1212,7 +1178,7 @@
         
         currentActiveOrder = { name: chosen.name || chosen.title, ids: chosen.ids };
         const statusText = document.getElementById('orderStatusText');
-        statusText.innerHTML = `🔔 Order: <span>${currentActiveOrder.name}</span>`;
+        if (statusText) statusText.innerHTML = `🔔 Order: <span>${currentActiveOrder.name}</span>`;
         playSound(SOUNDS.order);
       }
 
@@ -1261,6 +1227,7 @@
       const limitWarning = document.getElementById('limitWarning');
 
       function renderIngredientsMenu() {
+        if (!ingredientsMenu) return;
         ingredientsMenu.innerHTML = '';
         INGREDIENTS.forEach(item => {
           const card = document.createElement('div');
@@ -1273,10 +1240,11 @@
       }
 
       function renderSauces() {
-        desktopSaucesGroup.innerHTML = '';
-        mobileSaucesGroup.innerHTML = '';
+        if (desktopSaucesGroup) desktopSaucesGroup.innerHTML = '';
+        if (mobileSaucesGroup) mobileSaucesGroup.innerHTML = '';
         SAUCES.forEach(sauce => {
           [desktopSaucesGroup, mobileSaucesGroup].forEach(container => {
+            if (!container) return;
             const chip = document.createElement('div');
             chip.className = 'sauce-chip';
             chip.innerText = sauce.name;
@@ -1295,7 +1263,8 @@
           const toast = document.createElement('div');
           toast.className = 'achievement-toast';
           toast.innerHTML = `<span style="font-size: 1.8rem;">🎉</span><div><h4 style="font-size:0.9rem">The order is complete!</h4><p style="font-size:0.75rem">${currentActiveOrder.name} served successfully</p></div>`;
-          document.getElementById('toastContainer').appendChild(toast);
+          const container = document.getElementById('toastContainer');
+          if (container) container.appendChild(toast);
           setTimeout(() => toast.remove(), 4000);
 
           currentActiveOrder = null;
@@ -1307,33 +1276,26 @@
         }
       }
 
-      // Проверка новых секретных достижений по вашим комбинациям
       function checkSpecialCombos() {
         if (currentBurger.length === 0) return;
         const ids = currentBurger.map(i => i.id);
         const matchIds = (target) => ids.length === target.length && ids.every((val, idx) => val === target[idx]);
 
-        // 1. Cheezburger
         if (matchIds(['bottom-bun', 'beef-patty', 'cheese', 'top-bun'])) {
           unlockAchievement('cheezeburger');
         }
-        // 2. Tomatonator
         if (matchIds(['bottom-bun', 'beef-patty', 'cheese', 'tomato', 'tomato', 'tomato', 'top-bun'])) {
           unlockAchievement('tomatonator');
         }
-        // 3. Lilypad
         if (matchIds(['bottom-bun', 'beef-patty', 'cheese', 'lettuce', 'top-bun'])) {
           unlockAchievement('lilypad');
         }
-        // 4. Saturn Burger
         if (matchIds(['bottom-bun', 'beef-patty', 'white-onion', 'top-bun'])) {
           unlockAchievement('saturn-burger');
         }
-        // 5. Bustanator
         if (matchIds(['bottom-bun', 'beef-patty', 'mayo', 'mayo', 'mayo', 'top-bun'])) {
           unlockAchievement('bustanator');
         }
-        // 6. McPickle Pounder
         if (matchIds(['bottom-bun', 'beef-patty', 'cheese', 'pickles', 'pickles', 'pickles', 'top-bun'])) {
           unlockAchievement('mc-pickle-pounder');
         }
@@ -1357,51 +1319,59 @@
 
       function updateBurgerDisplay(isNewAdded = false) {
         saveBurgerState();
-        layersTitle.innerText = `Layers (${currentBurger.length}/${MAX_INGREDIENTS})`;
+        if (layersTitle) layersTitle.innerText = `Layers (${currentBurger.length}/${MAX_INGREDIENTS})`;
 
-        layersList.innerHTML = '';
-        currentBurger.forEach((item, index) => {
-          const listItem = document.createElement('div');
-          listItem.className = 'layer-item';
-          listItem.innerHTML = `
-            <div class="layer-info">${item.image ? `<img src="${item.image}" class="layer-preview">` : ''}</div>
-            <div class="layer-controls">
-              <button class="btn-control" onclick="moveLayer(${index}, 1)" ${index === currentBurger.length - 1 || isEating ? 'disabled' : ''}>▲</button>
-              <button class="btn-control" onclick="moveLayer(${index}, -1)" ${index === 0 || isEating ? 'disabled' : ''}>▼</button>
-              <button class="btn-control delete" onclick="removeLayer(${index})" ${isEating ? 'disabled' : ''}>✕</button>
-            </div>
-          `;
-          layersList.appendChild(listItem);
-        });
+        if (layersList) {
+          layersList.innerHTML = '';
+          currentBurger.forEach((item, index) => {
+            const listItem = document.createElement('div');
+            listItem.className = 'layer-item';
+            listItem.innerHTML = `
+              <div class="layer-info">${item.image ? `<img src="${item.image}" class="layer-preview">` : ''}</div>
+              <div class="layer-controls">
+                <button class="btn-control" onclick="moveLayer(${index}, 1)" ${index === currentBurger.length - 1 || isEating ? 'disabled' : ''}>▲</button>
+                <button class="btn-control" onclick="moveLayer(${index}, -1)" ${index === 0 || isEating ? 'disabled' : ''}>▼</button>
+                <button class="btn-control delete" onclick="removeLayer(${index})" ${isEating ? 'disabled' : ''}>✕</button>
+              </div>
+            `;
+            layersList.appendChild(listItem);
+          });
+        }
 
-        burgerStack.innerHTML = '';
-        currentBurger.forEach((item, index) => {
-          if (item.image) {
-            const img = document.createElement('img');
-            img.src = item.image;
-            img.className = 'burger-layer-img';
-            if (isNewAdded && index === currentBurger.length - 1) {
-              img.classList.add('new-layer');
-              setTimeout(() => img.classList.remove('new-layer'), 350);
+        if (burgerStack) {
+          burgerStack.innerHTML = '';
+          currentBurger.forEach((item, index) => {
+            if (item.image) {
+              const img = document.createElement('img');
+              img.src = item.image;
+              img.className = 'burger-layer-img';
+              if (isNewAdded && index === currentBurger.length - 1) {
+                img.classList.add('new-layer');
+                setTimeout(() => img.classList.remove('new-layer'), 350);
+              }
+              const itemBelow = index > 0 ? currentBurger[index - 1] : null;
+              img.style.marginBottom = `${getMarginBottomForLayer(item, itemBelow, index)}px`;
+              img.style.zIndex = index + 1;
+
+              if (isSqueezed && index > 0) {
+                img.style.setProperty('--sq-offset', `${index * 6}px`);
+                img.classList.add('squeezed');
+              }
+              burgerStack.appendChild(img);
             }
-            const itemBelow = index > 0 ? currentBurger[index - 1] : null;
-            img.style.marginBottom = `${getMarginBottomForLayer(item, itemBelow, index)}px`;
-            img.style.zIndex = index + 1;
-
-            if (isSqueezed && index > 0) {
-              img.style.setProperty('--sq-offset', `${index * 6}px`);
-              img.classList.add('squeezed');
-            }
-            burgerStack.appendChild(img);
-          }
-        });
+          });
+        }
         renderIngredientsMenu();
-        setTimeout(() => { centerStage.scrollTop = centerStage.scrollHeight; }, 50);
+        if (centerStage) {
+          setTimeout(() => { centerStage.scrollTop = centerStage.scrollHeight; }, 50);
+        }
       }
 
       function showLimitWarning() {
-        limitWarning.classList.add('show');
-        setTimeout(() => limitWarning.classList.remove('show'), 2000);
+        if (limitWarning) {
+          limitWarning.classList.add('show');
+          setTimeout(() => limitWarning.classList.remove('show'), 2000);
+        }
       }
 
       function addIngredient(item) {
@@ -1441,22 +1411,29 @@
         }
       };
 
-      document.getElementById('squeezeBtn').onclick = () => {
-        if (currentBurger.length <= 1 || isEating) return;
-        playSound(SOUNDS.squeeze);
-        isSqueezed = !isSqueezed;
-        updateBurgerDisplay(false);
-      };
+      const squeezeBtn = document.getElementById('squeezeBtn');
+      if (squeezeBtn) {
+        squeezeBtn.onclick = () => {
+          if (currentBurger.length <= 1 || isEating) return;
+          playSound(SOUNDS.squeeze);
+          isSqueezed = !isSqueezed;
+          updateBurgerDisplay(false);
+        };
+      }
 
-      document.getElementById('resetBtn').onclick = () => {
-        playSound(SOUNDS.buttons);
-        isEating = false; isSqueezed = false;
-        burgerStack.classList.remove('eating');
-        currentBurger = [];
-        updateBurgerDisplay(false);
-      };
+      const resetBtn = document.getElementById('resetBtn');
+      if (resetBtn) {
+        resetBtn.onclick = () => {
+          playSound(SOUNDS.buttons);
+          isEating = false; isSqueezed = false;
+          if (burgerStack) burgerStack.classList.remove('eating');
+          currentBurger = [];
+          updateBurgerDisplay(false);
+        };
+      }
 
       function spawnCrumbs() {
+        if (!burgerStack) return;
         const colors = ['#e0a96d', '#8d6e63', '#d7ccc8', '#ffd54f', '#81c784'];
         const rect = burgerStack.getBoundingClientRect();
         const originX = rect.left + rect.width / 2;
@@ -1480,57 +1457,62 @@
         if (currentBurger.length === 0 || isEating) return;
         playSound(SOUNDS.eating);
         isEating = true; isSqueezed = false;
-        burgerStack.classList.add('eating');
+        if (burgerStack) burgerStack.classList.add('eating');
         spawnCrumbs();
         renderIngredientsMenu();
         setTimeout(() => {
           currentBurger = [];
-          burgerStack.classList.remove('eating');
+          if (burgerStack) burgerStack.classList.remove('eating');
           isEating = false;
           updateBurgerDisplay(false);
         }, 2000);
       }
 
-      document.getElementById('eatBtn').onclick = triggerEatAnimation;
+      const eatBtn = document.getElementById('eatBtn');
+      if (eatBtn) eatBtn.onclick = triggerEatAnimation;
 
-      document.getElementById('downloadPngBtn').onclick = async () => {
-        if (currentBurger.length === 0) { alert('Build a burger first!'); return; }
-        playSound(SOUNDS.buttons);
-        const imagesInStack = burgerStack.querySelectorAll('.burger-layer-img');
-        if (imagesInStack.length === 0) return;
+      const downloadPngBtn = document.getElementById('downloadPngBtn');
+      if (downloadPngBtn) {
+        downloadPngBtn.onclick = async () => {
+          if (currentBurger.length === 0) { alert('Build a burger first!'); return; }
+          playSound(SOUNDS.buttons);
+          if (!burgerStack) return;
+          const imagesInStack = burgerStack.querySelectorAll('.burger-layer-img');
+          if (imagesInStack.length === 0) return;
 
-        const loadedImages = await Promise.all(currentBurger.map(item => new Promise((resolve) => {
-          const img = new Image(); img.src = item.image;
-          img.onload = () => resolve(img); img.onerror = () => resolve(null);
-        })));
+          const loadedImages = await Promise.all(currentBurger.map(item => new Promise((resolve) => {
+            const img = new Image(); img.src = item.image;
+            img.onload = () => resolve(img); img.onerror = () => resolve(null);
+          })));
 
-        const layerRects = Array.from(imagesInStack).map(imgEl => imgEl.getBoundingClientRect());
-        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-        layerRects.forEach(rect => {
-          if (rect.left < minX) minX = rect.left;
-          if (rect.top < minY) minY = rect.top;
-          if (rect.right > maxX) maxX = rect.right;
-          if (rect.bottom > maxY) maxY = rect.bottom;
-        });
+          const layerRects = Array.from(imagesInStack).map(imgEl => imgEl.getBoundingClientRect());
+          let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+          layerRects.forEach(rect => {
+            if (rect.left < minX) minX = rect.left;
+            if (rect.top < minY) minY = rect.top;
+            if (rect.right > maxX) maxX = rect.right;
+            if (rect.bottom > maxY) maxY = rect.bottom;
+          });
 
-        const scale = 2, padding = 40;
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = ((maxX - minX) + padding * 2) * scale;
-        canvas.height = ((maxY - minY) + padding * 2) * scale;
-        ctx.scale(scale, scale);
+          const scale = 2, padding = 40;
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = ((maxX - minX) + padding * 2) * scale;
+          canvas.height = ((maxY - minY) + padding * 2) * scale;
+          ctx.scale(scale, scale);
 
-        loadedImages.forEach((img, index) => {
-          if (!img) return;
-          const rect = layerRects[index];
-          ctx.drawImage(img, (rect.left - minX) + padding, (rect.top - minY) + padding, rect.width, rect.height);
-        });
+          loadedImages.forEach((img, index) => {
+            if (!img) return;
+            const rect = layerRects[index];
+            ctx.drawImage(img, (rect.left - minX) + padding, (rect.top - minY) + padding, rect.width, rect.height);
+          });
 
-        const link = document.createElement('a');
-        link.download = 'my-burger.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      };
+          const link = document.createElement('a');
+          link.download = 'my-burger.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        };
+      }
 
       renderSauces();
       renderIngredientsMenu();
