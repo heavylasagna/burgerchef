@@ -82,7 +82,6 @@ body {
 .left-panel {
   grid-column: 1;
   grid-row: 1;
-  position: relative;
 }
 
 .layers-list {
@@ -351,6 +350,7 @@ body {
 .right-panel {
   grid-column: 3;
   grid-row: 1;
+  position: relative !important;
 }
 
 .ingredients-menu {
@@ -496,7 +496,6 @@ body {
 
 /* Стили для кнопок-стрелок */
 .nav-arrow-btn {
-  position: absolute;
   background: var(--modal-bg);
   color: var(--text-color);
   border: 1px solid var(--border-color);
@@ -519,9 +518,9 @@ body {
   transform: scale(1.05);
 }
 
-.pc-arrow-left {
+.pc-arrow-right-side {
   position: absolute;
-  left: -45px;
+  left: -48px;
   transform: translateY(-50%);
 }
 
@@ -961,14 +960,14 @@ input[type="range"]::-webkit-slider-thumb {
 
   /* Мобильные стрелки справа от сцены */
   .mobile-arrows-container {
-    position: absolute;
-    right: 12px;
+    position: fixed;
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
     display: flex;
     flex-direction: column;
     gap: 10px;
-    z-index: 120;
+    z-index: 2500;
   }
 
   body.ui-hidden .left-panel,
