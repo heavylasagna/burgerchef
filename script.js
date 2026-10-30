@@ -192,7 +192,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  let volumeLevel = parseFloat(localStorage.getItem('burger_volume')) ?? 1.0;
+  // Исправление звука при старте: считываем из localStorage или ставим 1.0 (100%) по умолчанию
+  let volumeLevel = parseFloat(localStorage.getItem('burger_volume'));
+  if (isNaN(volumeLevel)) volumeLevel = 1.0;
+
   const volumeRange = document.getElementById('volumeRange');
   const volumeVal = document.getElementById('volumeVal');
   if (volumeRange) {
@@ -207,7 +210,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function playSound(sound) {
     if (sound && volumeLevel > 0) {
-      try { sound.currentTime = 0; sound.volume = volumeLevel; sound.play().catch(() => {}); } catch(e){}
+      try { 
+        sound.currentTime = 0; 
+        sound.volume = volumeLevel; 
+        sound.play().catch(() => {}); 
+      } catch(e){}
     }
   }
 
@@ -232,15 +239,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const eatBtn = document.getElementById('eatBtn');
   const submitOrderBtn = document.getElementById('submitOrderBtn');
 
-  // Управление видимостью кнопок Eat, Squeeze и Submit Order
   function updateActionButtonsVisibility() {
-    // Squeeze доступен всегда во всех режимах
     if (squeezeBtn) squeezeBtn.style.display = 'flex';
 
     const isNoOrders = currentGameSpeed === 'no-orders';
     const isSandboxOrCasual = currentGameMode === 'sandbox' || currentGameMode === 'casual';
 
-    // Eat доступен в Sandbox/Casual только если No orders, либо всегда в Sandbox (если хош, но по ТЗ: "в казуальном и песочнице только когда No orders")
     if (eatBtn) {
       if (isSandboxOrCasual) {
         eatBtn.style.display = isNoOrders ? 'flex' : 'none';
@@ -249,7 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Тарелочка (submitOrderBtn) видна, когда есть активный заказ (в Casual/Turbo при активных заказах)
     if (submitOrderBtn) {
       const hasActiveOrders = currentGameSpeed !== 'no-orders' && currentActiveOrder !== null;
       submitOrderBtn.style.display = hasActiveOrders ? 'flex' : 'none';
@@ -806,7 +809,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Обработчик кнопки подачи заказа (тарелочка 🍽️)
   if (submitOrderBtn) {
     submitOrderBtn.onclick = () => {
       if (currentActiveOrder && currentBurger.length > 0) {
@@ -847,7 +849,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Логика проверки поданного заказа через тарелочку
   function checkOrderSubmission() {
     const ids = currentBurger.map(i => i.id);
     if (!currentActiveOrder) return;
@@ -887,7 +888,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     
-    // Автоматическая сдача при включенных No orders
     if (currentActiveOrder && currentGameSpeed === 'no-orders') {
       const targetIds = currentActiveOrder.ids;
       if (ids.length === targetIds.length && ids.every((val, idx) => val === targetIds[idx])) {
