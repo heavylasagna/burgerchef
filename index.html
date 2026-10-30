@@ -70,7 +70,9 @@
       flex-direction: column;
       height: 100%;
       overflow: hidden;
+      transition: opacity 0.3s ease;
     }
+    .panel.dimmed { opacity: 0.35; }
 
     .panel-title {
       font-size: 0.85rem;
@@ -81,6 +83,7 @@
       text-shadow: 0 1px 3px rgba(0,0,0,0.6);
       text-transform: uppercase;
       letter-spacing: 0.6px;
+      cursor: pointer;
     }
 
     .left-panel {
@@ -341,7 +344,9 @@
       box-shadow: 0 8px 20px rgba(0,0,0,0.4);
       border: 1px solid var(--border-color);
       z-index: 100;
+      transition: opacity 0.3s ease;
     }
+    .bottom-panel.dimmed { opacity: 0.35; }
 
     .sauces-group {
       display: flex;
@@ -393,7 +398,6 @@
     .btn-settings { background: linear-gradient(135deg, #546e7a, #37474f); color: #fff; }
     .btn-utility { background: linear-gradient(135deg, #455a64, #263238); color: #fff; }
 
-    /* Пола-кнопка Reset */
     .btn-outline-danger {
       background: transparent;
       border: 2px solid #d32f2f;
@@ -499,7 +503,6 @@
       justify-content: space-between;
     }
     
-    /* Коричневый ползунок громкости */
     input[type="range"] {
       -webkit-appearance: none;
       width: 100%;
@@ -546,7 +549,6 @@
       border-color: #ffb300;
     }
 
-    /* Сетка кнопок для выбора Order frequency */
     .speed-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -750,7 +752,6 @@
     </div>
   </div>
 
-  <!-- Модальное окно настроек -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -759,13 +760,11 @@
       </div>
       <div class="modal-body">
         
-        <!-- 1. Громкость -->
         <div class="settings-group">
           <label>Volume: <span id="volumeVal">100%</span></label>
           <input type="range" id="volumeRange" min="0" max="100" value="100">
         </div>
 
-        <!-- 2. Тема -->
         <div class="settings-group">
           <label>Theme</label>
           <div class="settings-row">
@@ -774,7 +773,6 @@
           </div>
         </div>
 
-        <!-- 3. Order frequency -->
         <div class="settings-group">
           <label>Order frequency</label>
           <div class="speed-grid" id="speedButtonsGrid">
@@ -788,7 +786,6 @@
           </div>
         </div>
 
-        <!-- 4. Режим игры -->
         <div class="settings-group">
           <label>Game Mode</label>
           <div class="settings-row">
@@ -797,7 +794,6 @@
           </div>
         </div>
 
-        <!-- 5. Сброс всех данных -->
         <div class="settings-group" style="background: transparent; border-color: rgba(211,47,47,0.3);">
           <label style="color: #d32f2f;">Danger Zone</label>
           <button class="btn-outline-danger" id="hardResetBtn" style="width: 100%;">Reset</button>
@@ -819,19 +815,22 @@
       </div>
     </div>
 
-    <div class="panel right-panel">
-      <div class="panel-title">Ingredients</div>
+    <!-- Панель Ingredients (клик по заголовку переключает полупрозрачность) -->
+    <div class="panel right-panel" id="rightPanel">
+      <div class="panel-title" id="ingredientsTitle">Ingredients</div>
       <div class="ingredients-menu" id="ingredientsMenu"></div>
     </div>
 
     <div class="sauces-group mobile-sauces" id="mobileSaucesGroup"></div>
 
-    <div class="panel left-panel">
+    <!-- Панель Layers (клик по заголовку переключает полупрозрачность) -->
+    <div class="panel left-panel" id="leftPanel">
       <div class="panel-title" id="layersTitle">Layers (0/30)</div>
       <div class="layers-list" id="layersList"></div>
     </div>
 
-    <div class="bottom-panel">
+    <!-- Нижняя панель (клик по пустой зоне переключает полупрозрачность) -->
+    <div class="bottom-panel" id="bottomPanel">
       <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
       <div class="action-group">
         <button class="btn-action btn-recipes" id="openRecipesBtn" title="Recipes">📋</button>
@@ -873,6 +872,28 @@
         saturnBurger: safeAudio('audio/saturn-burger.mp3'),
         bustanator: safeAudio('audio/bustanator.mp3'),
         mcPicklePounder: safeAudio('audio/mc-pickle-pounder.mp3')
+      };
+
+      // Логика полупрозрачности для панелей по клику на заголовки / пустые области
+      const leftPanel = document.getElementById('leftPanel');
+      const rightPanel = document.getElementById('rightPanel');
+      const bottomPanel = document.getElementById('bottomPanel');
+
+      document.getElementById('layersTitle').onclick = (e) => {
+        e.stopPropagation();
+        leftPanel.classList.toggle('dimmed');
+      };
+
+      document.getElementById('ingredientsTitle').onclick = (e) => {
+        e.stopPropagation();
+        rightPanel.classList.toggle('dimmed');
+      };
+
+      bottomPanel.onclick = (e) => {
+        // Проверяем, что кликнули именно по самой панели, а не по кнопкам или соусам внутри неё
+        if (e.target === bottomPanel || e.target.classList.contains('sauces-group')) {
+          bottomPanel.classList.toggle('dimmed');
+        }
       };
 
       let volumeLevel = parseFloat(localStorage.getItem('burger_volume')) ?? 1.0;
