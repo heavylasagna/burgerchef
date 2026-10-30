@@ -8,6 +8,17 @@
   <link rel="icon" type="image/png" href="images/icon.png">
 
   <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at 50% 30%, #3e2a1d, #1a100a);
+      --panel-bg: linear-gradient(145deg, rgba(253, 251, 247, 0.9), rgba(245, 239, 230, 0.75));
+      --text-main: #3e2723;
+      --panel-border: rgba(255, 255, 255, 0.3);
+      --item-bg: #f5efe6;
+      --item-border: #e4d8c5;
+      --item-hover: #ffffff;
+      --modal-bg: #fdfbf7;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -18,8 +29,8 @@
 
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background: radial-gradient(circle at 50% 30%, #3e2a1d, #1a100a);
-      color: #3e2723;
+      background: var(--bg-gradient);
+      color: var(--text-main);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -37,10 +48,10 @@
     }
 
     .panel {
-      background: linear-gradient(145deg, rgba(253, 251, 247, 0.9), rgba(245, 239, 230, 0.75));
+      background: var(--panel-bg);
       border-radius: 16px;
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      border: 1px solid var(--panel-border);
       padding: 12px;
       display: flex;
       flex-direction: column;
@@ -77,10 +88,10 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #f5efe6;
+      background: var(--item-bg);
       padding: 4px 8px;
       border-radius: 10px;
-      border: 1px solid #e4d8c5;
+      border: 1px solid var(--item-border);
     }
 
     .layer-preview {
@@ -241,9 +252,7 @@
       cursor: pointer;
       transition: opacity 0.3s ease;
     }
-    .top-order-widget.dimmed {
-      opacity: 0.35;
-    }
+    .top-order-widget.dimmed { opacity: 0.35; }
     .top-order-widget span { color: #ffb300; font-weight: bold; }
 
     .pinned-recipe-widget {
@@ -285,8 +294,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #f5efe6;
-      border: 1px solid #e4d8c5;
+      background: var(--item-bg);
+      border: 1px solid var(--item-border);
       border-radius: 12px;
       padding: 6px;
       width: 100%;
@@ -295,7 +304,7 @@
     }
 
     .ingredient-card:hover {
-      background: #ffffff;
+      background: var(--item-hover);
       border-color: #a1887f;
       transform: translateY(-1px);
     }
@@ -310,10 +319,10 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 15px;
-      background: linear-gradient(145deg, rgba(253, 251, 247, 0.95), rgba(245, 239, 230, 0.88));
+      background: var(--panel-bg);
       border-radius: 14px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-      border: 1px solid rgba(255, 255, 255, 0.4);
+      border: 1px solid var(--panel-border);
       z-index: 100;
     }
 
@@ -325,7 +334,7 @@
     }
 
     .sauce-chip {
-      background: #f5efe6;
+      background: var(--item-bg);
       border: 1px solid #d7ccc8;
       padding: 5px 12px;
       border-radius: 16px;
@@ -361,6 +370,7 @@
     .btn-recipes { background: linear-gradient(135deg, #0288d1, #01579b); color: #fff; }
     .btn-utility { background: linear-gradient(135deg, #455a64, #263238); color: #fff; }
 
+    /* Модальные окна */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -377,7 +387,8 @@
     .modal-overlay.open { opacity: 1; visibility: visible; }
 
     .modal-content {
-      background: #fdfbf7;
+      background: var(--modal-bg);
+      color: var(--text-main);
       width: 90%;
       max-width: 440px;
       border-radius: 16px;
@@ -386,7 +397,7 @@
       border: 1px solid #e4d8c5;
       display: flex;
       flex-direction: column;
-      max-height: 80vh;
+      max-height: 85vh;
     }
 
     .modal-header {
@@ -397,8 +408,73 @@
       border-bottom: 2px solid #f5efe6;
       padding-bottom: 8px;
     }
-    .modal-header h3 { color: #3e2723; font-size: 1rem; }
+    .modal-header h3 { color: var(--text-main); font-size: 1rem; }
     .close-modal { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: #5d4037; }
+
+    .modal-body {
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding-right: 2px;
+      margin-bottom: 12px;
+    }
+
+    .setting-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .setting-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #5d4037;
+      letter-spacing: 0.5px;
+    }
+
+    .setting-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .setting-btn {
+      flex: 1;
+      padding: 8px;
+      background: var(--item-bg);
+      border: 1px solid #d7ccc8;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.78rem;
+      cursor: pointer;
+      color: #5d4037;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .setting-btn.active {
+      background: #8d6e63;
+      color: #fff;
+      border-color: #8d6e63;
+    }
+
+    .settings-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .volume-control-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .volume-control-wrap input[type="range"] {
+      flex: 1;
+      accent-color: #8d6e63;
+      cursor: pointer;
+    }
 
     .recipe-tabs {
       display: flex;
@@ -421,15 +497,6 @@
       background: #8d6e63;
       color: #fff;
       border-color: #8d6e63;
-    }
-
-    .modal-body {
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding-right: 2px;
-      margin-bottom: 12px;
     }
 
     .recipe-card, .achievement-item {
@@ -531,12 +598,12 @@
       .sauces-group.mobile-sauces {
         display: flex !important;
         order: 3;
-        background: linear-gradient(145deg, rgba(253, 251, 247, 0.9), rgba(245, 239, 230, 0.75));
+        background: var(--panel-bg);
         border-radius: 10px;
         padding: 6px 10px;
         gap: 6px;
         overflow-x: auto;
-        border: 1px solid rgba(255, 255, 255, 0.4);
+        border: 1px solid var(--panel-border);
       }
       .left-panel { order: 4; height: 150px; }
       .bottom-panel {
@@ -553,7 +620,7 @@
       .toggle-ui-btn {
         position: fixed;
         top: 10px; right: 10px;
-        background: rgba(253, 251, 247, 0.9);
+        background: var(--panel-bg);
         border: 1px solid #d7ccc8;
         color: #5d4037;
         width: 36px; height: 36px;
@@ -585,10 +652,11 @@
     <span id="orderStatusText">Next order in: 05:00</span>
   </div>
 
+  <!-- Окно рецептов -->
   <div class="modal-overlay" id="recipesModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>📋 Burger Recipes</h3>
+        <h3>Burger Recipes</h3>
         <button class="close-modal" id="closeRecipesModal">✕</button>
       </div>
       <div class="recipe-tabs">
@@ -599,15 +667,69 @@
     </div>
   </div>
 
+  <!-- Окно достижений -->
   <div class="modal-overlay" id="achievementsModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>🏆 Achievements</h3>
+        <h3>Achievements</h3>
         <button class="close-modal" id="closeAchievementsModal">✕</button>
       </div>
       <div class="modal-body" id="achievementsList"></div>
       <div style="border-top: 1px solid #f5efe6; padding-top: 8px; display: flex; justify-content: flex-end;">
         <button class="btn-action btn-reset" style="padding: 4px 10px; font-size: 0.75rem;" id="resetAchievementsBtn">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Окно настроек -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Settings</h3>
+        <button class="close-modal" id="closeSettingsModal">✕</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Громкость -->
+        <div class="setting-section">
+          <div class="setting-label">Volume</div>
+          <div class="volume-control-wrap">
+            <input type="range" id="volumeRange" min="0" max="100" value="50">
+            <span id="volumeValueLabel" style="font-size: 0.8rem; font-weight: bold; width: 35px; text-align: right;">50%</span>
+          </div>
+        </div>
+
+        <!-- Тема -->
+        <div class="setting-section">
+          <div class="setting-label">Theme</div>
+          <div class="setting-row" id="themeGroup">
+            <button class="setting-btn" data-theme="dark">Dark</button>
+            <button class="setting-btn" data-theme="light">Light</button>
+          </div>
+        </div>
+
+        <!-- Режим игры -->
+        <div class="setting-section">
+          <div class="setting-label">Game Mode</div>
+          <div class="setting-row" id="gameModeGroup">
+            <button class="setting-btn" data-mode="sandbox">Sandbox</button>
+            <button class="setting-btn" data-mode="casual">Casual</button>
+          </div>
+        </div>
+
+        <!-- Скорость игры -->
+        <div class="setting-section">
+          <div class="setting-label">Order Speed</div>
+          <div class="settings-grid-3" id="speedGroup">
+            <button class="setting-btn" data-speed="turbo">Turbo</button>
+            <button class="setting-btn" data-speed="super-fast">Super fast</button>
+            <button class="setting-btn" data-speed="fast">Fast</button>
+            <button class="setting-btn" data-speed="medium">Medium</button>
+            <button class="setting-btn" data-speed="slow">Slow</button>
+            <button class="setting-btn" data-speed="super-slow">Super slow</button>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -639,7 +761,7 @@
     <div class="bottom-panel">
       <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
       <div class="action-group">
-        <button class="btn-action btn-utility" id="soundToggleBtn" title="Mute/Unmute">🔊</button>
+        <button class="btn-action btn-utility" id="openSettingsBtn" title="Settings">⚙️</button>
         <button class="btn-action btn-utility" id="downloadPngBtn" title="Download PNG">💾</button>
         <button class="btn-action btn-recipes" id="openRecipesBtn" title="Recipes">📋</button>
         <button class="btn-action btn-achievements" id="openAchievementsBtn" title="Achievements">🏆</button>
@@ -652,33 +774,129 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Инициализация звуков (включая звуки достижений)
       const SOUNDS = {
         eating: new Audio('audio/eating.mp3'),
         sauce: new Audio('audio/sauce.mp3'),
         ingridients: new Audio('audio/ingridients.mp3'),
         buttons: new Audio('audio/buttons.mp3'),
         squeeze: new Audio('audio/squeeze.mp3'),
-        achievement: new Audio('audio/achievement.mp3'),
         order: new Audio('audio/order.mp3'),
-        complete: new Audio('audio/complete.mp3')
+        complete: new Audio('audio/complete.mp3'),
+        // Новые звуки достижений
+        cheezeburger: new Audio('audio/cheezeburger.mp3'),
+        tomatonator: new Audio('audio/tomatonator.mp3'),
+        lilypad: new Audio('audio/lilypad.mp3'),
+        'saturn-burger': new Audio('audio/saturn-burger.mp3'),
+        bustanator: new Audio('audio/bustanator.mp3'),
+        'mc-pickle-pounder': new Audio('audio/mc-pickle-pounder.mp3')
       };
 
-      let isMuted = JSON.parse(localStorage.getItem('burger_is_muted')) || false;
-      function updateSoundBtnUI() {
-        const btn = document.getElementById('soundToggleBtn');
-        if (btn) btn.innerText = isMuted ? '🔇' : '🔊';
+      // Работа с настройками и localStorage
+      let settings = {
+        volume: JSON.parse(localStorage.getItem('burger_volume')) ?? 50,
+        theme: localStorage.getItem('burger_theme') || 'dark',
+        gameMode: localStorage.getItem('burger_game_mode') || 'casual',
+        speed: localStorage.getItem('burger_speed') || 'medium'
+      };
+
+      // Применение громкости
+      const volumeRange = document.getElementById('volumeRange');
+      const volumeValueLabel = document.getElementById('volumeValueLabel');
+      
+      function applyVolume(val) {
+        volumeRange.value = val;
+        volumeValueLabel.innerText = `${val}%`;
+        const volFloat = val / 100;
+        Object.values(SOUNDS).forEach(sound => {
+          if (sound) sound.volume = volFloat;
+        });
       }
+      applyVolume(settings.volume);
+
+      volumeRange.oninput = (e) => {
+        const val = parseInt(e.target.value);
+        settings.volume = val;
+        localStorage.setItem('burger_volume', JSON.stringify(val));
+        applyVolume(val);
+      };
+
       function playSound(sound) {
-        if (!isMuted && sound) {
+        if (settings.volume > 0 && sound) {
           sound.currentTime = 0;
           sound.play().catch(() => {});
         }
       }
-      document.getElementById('soundToggleBtn').onclick = () => {
-        isMuted = !isMuted;
-        localStorage.setItem('burger_is_muted', JSON.stringify(isMuted));
-        updateSoundBtnUI();
-        if (!isMuted) playSound(SOUNDS.buttons);
+
+      // Применение темы (каркас)
+      function applyTheme(theme) {
+        settings.theme = theme;
+        localStorage.setItem('burger_theme', theme);
+        
+        document.querySelectorAll('#themeGroup .setting-btn').forEach(btn => {
+          if (btn.dataset.theme === theme) btn.classList.add('active');
+          else btn.classList.remove('active');
+        });
+      }
+      applyTheme(settings.theme);
+
+      document.querySelectorAll('#themeGroup .setting-btn').forEach(btn => {
+        btn.onclick = () => {
+          playSound(SOUNDS.buttons);
+          applyTheme(btn.dataset.theme);
+        };
+      });
+
+      // Применение режима игры (каркас)
+      function applyGameMode(mode) {
+        settings.gameMode = mode;
+        localStorage.setItem('burger_game_mode', mode);
+
+        document.querySelectorAll('#gameModeGroup .setting-btn').forEach(btn => {
+          if (btn.dataset.mode === mode) btn.classList.add('active');
+          else btn.classList.remove('active');
+        });
+      }
+      applyGameMode(settings.gameMode);
+
+      document.querySelectorAll('#gameModeGroup .setting-btn').forEach(btn => {
+        btn.onclick = () => {
+          playSound(SOUNDS.buttons);
+          applyGameMode(btn.dataset.mode);
+        };
+      });
+
+      // Применение скорости заказов
+      function applySpeed(speed) {
+        settings.speed = speed;
+        localStorage.setItem('burger_speed', speed);
+
+        document.querySelectorAll('#speedGroup .setting-btn').forEach(btn => {
+          if (btn.dataset.speed === speed) btn.classList.add('active');
+          else btn.classList.remove('active');
+        });
+      }
+      applySpeed(settings.speed);
+
+      document.querySelectorAll('#speedGroup .setting-btn').forEach(btn => {
+        btn.onclick = () => {
+          playSound(SOUNDS.buttons);
+          applySpeed(btn.dataset.speed);
+        };
+      });
+
+      // Управление модальным окном настроек
+      const settingsModal = document.getElementById('settingsModal');
+      document.getElementById('openSettingsBtn').onclick = () => {
+        playSound(SOUNDS.buttons);
+        settingsModal.classList.add('open');
+      };
+      document.getElementById('closeSettingsModal').onclick = () => {
+        playSound(SOUNDS.buttons);
+        settingsModal.classList.remove('open');
+      };
+      settingsModal.onclick = (e) => {
+        if (e.target === settingsModal) settingsModal.classList.remove('open');
       };
 
       const topOrderWidget = document.getElementById('topOrderWidget');
@@ -711,7 +929,6 @@
 
       const REGULAR_RECIPES = [
         { name: 'Classic Burger', ids: ['bottom-bun', 'beef-patty', 'top-bun'] },
-        { name: 'Cheeseburger', ids: ['bottom-bun', 'beef-patty', 'cheese', 'top-bun'] },
         { name: 'Vegan Burger', ids: ['bottom-bun', 'hashbrown', 'lettuce', 'tomato', 'red-onion', 'top-bun'] },
         { name: 'Juicy Burger', ids: ['bottom-bun', 'mayo', 'chicken-patty', 'cheese', 'tomato', 'ketchup', 'top-bun'] },
         { name: 'Breakfast Burger', ids: ['bottom-bun', 'mayo', 'beef-patty', 'fried-egg', 'fried-bacon', 'top-bun'] },
@@ -723,8 +940,56 @@
         { name: 'Fish Burger', ids: ['bottom-bun', 'fish-patty', 'mayo', 'pickles', 'lettuce', 'top-bun'] }
       ];
 
+      // Новые достижения и секретные рецепты
       const SECRET_ACHIEVEMENTS = [
-        { id: 'secretMaster', title: 'Master Chef', desc: 'Cooked special stacked creation', icon: '🌟', ids: ['bottom-bun', 'beef-patty', 'cheese', 'hashbrown', 'top-bun'] }
+        { 
+          id: 'cheezeburger', 
+          title: 'Cheezburger', 
+          desc: 'Classic cheese stack creation', 
+          icon: '🧀', 
+          ids: ['bottom-bun', 'beef-patty', 'cheese', 'top-bun'],
+          sound: 'cheezeburger'
+        },
+        { 
+          id: 'tomatonator', 
+          title: 'Tomatonator', 
+          desc: 'Loaded with triple tomatoes', 
+          icon: '🍅', 
+          ids: ['bottom-bun', 'beef-patty', 'cheese', 'tomato', 'tomato', 'tomato', 'top-bun'],
+          sound: 'tomatonator'
+        },
+        { 
+          id: 'lilypad', 
+          title: 'Lilypad', 
+          desc: 'Fresh green leaf composition', 
+          icon: '🥬', 
+          ids: ['bottom-bun', 'beef-patty', 'cheese', 'lettuce', 'top-bun'],
+          sound: 'lilypad'
+        },
+        { 
+          id: 'saturn-burger', 
+          title: 'Saturn Burger', 
+          desc: 'Rings of white onion orbit', 
+          icon: '🪐', 
+          ids: ['bottom-bun', 'beef-patty', 'white-onion', 'top-bun'],
+          sound: 'saturn-burger'
+        },
+        { 
+          id: 'bustanator', 
+          title: 'Bustanator', 
+          desc: 'Overflown with triple mayo', 
+          icon: '⚪', 
+          ids: ['bottom-bun', 'beef-patty', 'mayo', 'mayo', 'mayo', 'top-bun'],
+          sound: 'bustanator'
+        },
+        { 
+          id: 'mc-pickle-pounder', 
+          title: 'McPickle Pounder', 
+          desc: 'Triple pickles powerhouse', 
+          icon: '🥒', 
+          ids: ['bottom-bun', 'beef-patty', 'cheese', 'pickles', 'pickles', 'pickles', 'top-bun'],
+          sound: 'mc-pickle-pounder'
+        }
       ];
 
       let unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements')) || {};
@@ -739,7 +1004,7 @@
           localStorage.setItem('unlocked_achievements', JSON.stringify(unlockedAchievements));
           const ach = SECRET_ACHIEVEMENTS.find(a => a.id === id);
           if (ach) {
-            playSound(SOUNDS.achievement);
+            playSound(SOUNDS[ach.sound]);
             showToast(ach);
           }
         }
@@ -910,10 +1175,28 @@
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
       }
 
+      // Функция вычисления интервала в зависимости от выбранной скорости в настройках
+      function getOrderInterval() {
+        const speed = settings.speed;
+        switch(speed) {
+          case 'turbo': return 0;
+          case 'super-fast': return Math.floor(Math.random() * 21) + 10; // 10-30 сек
+          case 'fast': return Math.floor(Math.random() * 31) + 30; // 30-60 сек
+          case 'medium': return Math.floor(Math.random() * 181) + 120; // 2-5 мин
+          case 'slow': return Math.floor(Math.random() * 301) + 300; // 5-10 мин
+          case 'super-slow': return Math.floor(Math.random() * 901) + 900; // 15-30 мин (900-1800 сек)
+          default: return 180;
+        }
+      }
+
+      let timeUntilNextOrder = getOrderInterval();
+
       setInterval(() => {
         const statusText = document.getElementById('orderStatusText');
         if (!currentActiveOrder) {
-          if (timeUntilNextOrder > 0) {
+          if (settings.speed === 'turbo') {
+            triggerRandomOrder();
+          } else if (timeUntilNextOrder > 0) {
             timeUntilNextOrder--;
             statusText.innerHTML = `Next order in: <span>${formatTime(timeUntilNextOrder)}</span>`;
           } else {
@@ -1016,7 +1299,7 @@
           setTimeout(() => toast.remove(), 4000);
 
           currentActiveOrder = null;
-          timeUntilNextOrder = Math.floor(Math.random() * 240) + 60;
+          timeUntilNextOrder = getOrderInterval();
 
           setTimeout(() => {
             triggerEatAnimation();
@@ -1024,12 +1307,35 @@
         }
       }
 
+      // Проверка новых секретных достижений по вашим комбинациям
       function checkSpecialCombos() {
         if (currentBurger.length === 0) return;
         const ids = currentBurger.map(i => i.id);
+        const matchIds = (target) => ids.length === target.length && ids.every((val, idx) => val === target[idx]);
 
-        if (ids.length === 5 && ids[0] === 'bottom-bun' && ids[1] === 'beef-patty' && ids[2] === 'cheese' && ids[3] === 'hashbrown' && ids[4] === 'top-bun') {
-          unlockAchievement('secretMaster');
+        // 1. Cheezburger
+        if (matchIds(['bottom-bun', 'beef-patty', 'cheese', 'top-bun'])) {
+          unlockAchievement('cheezeburger');
+        }
+        // 2. Tomatonator
+        if (matchIds(['bottom-bun', 'beef-patty', 'cheese', 'tomato', 'tomato', 'tomato', 'top-bun'])) {
+          unlockAchievement('tomatonator');
+        }
+        // 3. Lilypad
+        if (matchIds(['bottom-bun', 'beef-patty', 'cheese', 'lettuce', 'top-bun'])) {
+          unlockAchievement('lilypad');
+        }
+        // 4. Saturn Burger
+        if (matchIds(['bottom-bun', 'beef-patty', 'white-onion', 'top-bun'])) {
+          unlockAchievement('saturn-burger');
+        }
+        // 5. Bustanator
+        if (matchIds(['bottom-bun', 'beef-patty', 'mayo', 'mayo', 'mayo', 'top-bun'])) {
+          unlockAchievement('bustanator');
+        }
+        // 6. McPickle Pounder
+        if (matchIds(['bottom-bun', 'beef-patty', 'cheese', 'pickles', 'pickles', 'pickles', 'top-bun'])) {
+          unlockAchievement('mc-pickle-pounder');
         }
 
         checkOrderCompletion(ids);
@@ -1038,7 +1344,7 @@
       function getMarginBottomForLayer(item, itemBelow, index) {
         const isSauce = ['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id);
         if (index === 0) return -10;
-        if (isSauce) return -60; // Исправленный отступ соусов назад к идеальному положению
+        if (isSauce) return -60;
         if (item.id === 'top-bun') return -38;
         if (item.id === 'cheese') return -60;
         if (item.id === 'hashbrown') return -52;
@@ -1226,7 +1532,6 @@
         link.click();
       };
 
-      updateSoundBtnUI();
       renderSauces();
       renderIngredientsMenu();
       updateBurgerDisplay(false);
