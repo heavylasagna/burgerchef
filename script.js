@@ -2,28 +2,38 @@
 // BURGER MAKER — FULL GAME SCRIPT (BACKUP #5 BASELINE)
 // ==========================================
 
+// Пример данных ингредиентов (если у тебя в проекте свой массив, замени или оставь этот)
+const INGREDIENTS_DATA = [
+  { id: 'top_bun', name: 'Top Bun', type: 'bread', image: 'images/top_bun.png', price: 1.5 },
+  { id: 'bottom_bun', name: 'Bottom Bun', type: 'bread', image: 'images/bottom_bun.png', price: 1.0 },
+  { id: 'beef_patty', name: 'Beef Patty', type: 'patty', image: 'images/patty.png', price: 2.5 },
+  { id: 'cheese', name: 'Cheese', type: 'protein', image: 'images/cheese.png', price: 0.8 },
+  { id: 'tomato', name: 'Tomato', type: 'vegetables', image: 'images/tomato.png', price: 0.5 },
+  { id: 'lettuce', name: 'Lettuce', type: 'vegetables', image: 'images/lettuce.png', price: 0.3 }
+];
+
+const SAUCES_DATA = [
+  { id: 'ketchup', name: 'Ketchup' },
+  { id: 'mayo', name: 'Mayo' },
+  { id: 'mustard', name: 'Mustard' }
+];
+
 // Глобальное состояние игры
 const state = {
   wallet: 100.00,
   selectedSauce: null,
   burgerStack: [], // Хранит массив добавленных ингредиентов
   pinnedRecipe: null,
-  gameMode: 'casual', // 'sandbox', 'casual', 'turbo'
+  gameMode: 'casual',
   orderSpeed: 'no-orders',
   volume: 1,
   theme: 'dark',
-  uiHidden: false,
-  orderTimer: null,
-  orderTimeLeft: 300,
-  activeOrder: null
+  uiHidden: false
 };
 
 // Элементы UI
 const elements = {
   walletBadge: document.getElementById('walletBadge'),
-  walletWidget: document.getElementById('walletWidget'),
-  topOrderWidget: document.getElementById('topOrderWidget'),
-  orderStatusText: document.getElementById('orderStatusText'),
   burgerStack: document.getElementById('burgerStack'),
   layersTitle: document.getElementById('layersTitle'),
   layersList: document.getElementById('layersList'),
@@ -37,8 +47,6 @@ const elements = {
   squeezeBtn: document.getElementById('squeezeBtn'),
   eatBtn: document.getElementById('eatBtn'),
   resetBtn: document.getElementById('resetBtn'),
-  downloadPngBtn: document.getElementById('downloadPngBtn'),
-  submitOrderBtn: document.getElementById('submitOrderBtn'),
 
   // Модалки
   recipesModal: document.getElementById('recipesModal'),
@@ -63,18 +71,18 @@ document.addEventListener('DOMContentLoaded', () => {
   initOpacityToggle();
   renderWallet();
   renderLayers();
+  renderIngredientsMenu();
+  renderSauces();
 });
 
 // ==========================================
 // 1. ПОЛУПРОЗРАЧНОСТЬ ПАНЕЛЕЙ ПО КЛИКУ
 // ==========================================
 function initOpacityToggle() {
-  // Вешаем клик на все панели, включая боковые и нижнюю
   const targetPanels = document.querySelectorAll('.panel, .bottom-panel, .wallet-widget, .top-order-widget');
 
   targetPanels.forEach(panel => {
     panel.addEventListener('click', (e) => {
-      // Игнорируем клики по кнопкам, карточкам, переключателям и инпутам
       if (
         e.target.closest('button') ||
         e.target.closest('.ingredient-card') ||
@@ -84,18 +92,74 @@ function initOpacityToggle() {
       ) {
         return;
       }
-      
-      // Переключаем класс dimmed
       panel.classList.toggle('dimmed');
     });
   });
 }
 
 // ==========================================
-// 2. ОБРАБОТКА ИНТЕРФЕЙСА И СОБЫТИЙ
+// 2. РЕНДЕР ИНГРЕДИЕНТОВ И СОУСОВ
+// ==========================================
+function renderIngredientsMenu() {
+  if (!elements.ingredientsMenu) return;
+  elements.ingredientsMenu.innerHTML = '';
+
+  INGREDIENTS_DATA.forEach(ing => {
+    const card = document.createElement('div');
+    card.className = 'ingredient-card';
+    card.innerHTML = `
+      <div class="ingredient-info-row">
+        <img src="${ing.image}" alt="${ing.name}">
+        <span class="ingredient-name">${ing.name}</span>
+      </div>
+      <span class="ingredient-stock-count">∞</span>
+    `;
+    card.addEventListener('click', () => {
+      addIngredientToBurger(ing);
+    });
+    elements.ingredientsMenu.appendChild(card);
+  });
+}
+
+function renderSauces() {
+  const containers = [elements.desktopSaucesGroup, elements.mobileSaucesGroup];
+  containers.forEach(container => {
+    if (!container) return;
+    container.innerHTML = '';
+    SAUCES_DATA.forEach(sauce => {
+      const chip = document.createElement('div');
+      chip.className = 'sauce-chip';
+      chip.textContent = sauce.name;
+      chip.addEventListener('click', () => {
+        state.selectedSauce = state.selectedSauce === sauce.id ? null : sauce.id;
+        // Подсветка выбранного соуса
+        containers.forEach(c => {
+          c.querySelectorAll('.sauce-chip').forEach(el => {
+            el.style.borderColor = el.textContent === sauce.name && state.selectedSauce ? 'var(--accent-color)' : '';
+          });
+        });
+      });
+      container.appendChild(chip);
+    });
+  });
+}
+
+function addIngredientToBurger(ing) {
+  if (state.burgerStack.length >= 30) {
+    if (elements.limitWarning) {
+      elements.limitWarning.classList.add('show');
+      setTimeout(() => elements.limitWarning.classList.remove('show'), 1500);
+    }
+    return;
+  }
+  state.burgerStack.push(ing);
+  renderLayers();
+}
+
+// ==========================================
+// 3. ОБРАБОТКА ИНТЕРФЕЙСА И СОБЫТИЙ
 // ==========================================
 function initUIEvents() {
-  // Кнопка Глаз (для мобильных)
   if (elements.toggleUiBtn) {
     elements.toggleUiBtn.addEventListener('click', () => {
       state.uiHidden = !state.uiHidden;
@@ -103,7 +167,6 @@ function initUIEvents() {
     });
   }
 
-  // Сжатие бургера
   if (elements.squeezeBtn) {
     elements.squeezeBtn.addEventListener('click', () => {
       const imgs = document.querySelectorAll('.burger-layer-img');
@@ -114,7 +177,6 @@ function initUIEvents() {
     });
   }
 
-  // Съесть бургер
   if (elements.eatBtn) {
     elements.eatBtn.addEventListener('click', () => {
       if (state.burgerStack.length === 0) return;
@@ -127,7 +189,6 @@ function initUIEvents() {
     });
   }
 
-  // Очистить бургер (Мусорка)
   if (elements.resetBtn) {
     elements.resetBtn.addEventListener('click', () => {
       state.burgerStack = [];
@@ -135,7 +196,6 @@ function initUIEvents() {
     });
   }
 
-  // Открытие / закрытие модалок
   setupModal(elements.openRecipesBtn, elements.recipesModal, elements.closeRecipesModal);
   setupModal(elements.openShopBtn, elements.shopModal, elements.closeShopModal);
   setupModal(elements.openAchievementsBtn, elements.achievementsModal, elements.closeAchievementsModal);
@@ -157,7 +217,7 @@ function setupModal(openBtn, modalEl, closeBtn) {
 }
 
 // ==========================================
-// 3. ОБНОВЛЕНИЕ И ОТРЕСОВКА
+// 4. ОБНОВЛЕНИЕ И ОТРЕСОВКА БУРГЕРА
 // ==========================================
 function renderWallet() {
   if (elements.walletBadge) {
@@ -170,27 +230,24 @@ function renderLayers() {
 
   elements.layersTitle.textContent = `Layers (${state.burgerStack.length}/30)`;
   elements.layersList.innerHTML = '';
-  elements.burgerStackContainer = elements.burgerStack;
-  elements.burgerStackContainer.innerHTML = '';
+  elements.burgerStack.innerHTML = '';
 
   state.burgerStack.forEach((ing, index) => {
-    // Слои в левой панели
     const layerItem = document.createElement('div');
     layerItem.className = 'layer-item';
     layerItem.innerHTML = `
-      <span style="font-size:0.75rem;">${ing.name || 'Ingredient'}</span>
+      <span style="font-size:0.75rem;">${ing.name}</span>
       <div class="layer-controls">
         <button class="btn-control delete" onclick="removeLayer(${index})">✕</button>
       </div>
     `;
     elements.layersList.appendChild(layerItem);
 
-    // Изображения бургера в центре
     const img = document.createElement('img');
-    img.className = 'burger-layer-img';
-    img.src = ing.image || 'images/default.png';
-    img.alt = ing.name || 'layer';
-    elements.burgerStackContainer.appendChild(img);
+    img.className = 'burger-layer-img new-layer';
+    img.src = ing.image;
+    img.alt = ing.name;
+    elements.burgerStack.appendChild(img);
   });
 }
 
@@ -199,7 +256,6 @@ function removeLayer(index) {
   renderLayers();
 }
 
-// Функция смены темы (Dark / Light)
 function setTheme(themeName) {
   state.theme = themeName;
   if (themeName === 'light') {
