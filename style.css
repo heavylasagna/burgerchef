@@ -1180,15 +1180,15 @@ input[type="range"]::-webkit-slider-thumb {
 .mobile-sauces { display: none !important; }
 
 @media (max-width: 900px) {
-  body { overflow: auto; }
-  .app-container {
-    display: flex;
-    flex-direction: column;
-    height: auto;
-    width: 100%;
-    padding: 8px;
-    gap: 8px;
-    padding-bottom: 75px;
+  /* ... другие стили ... */
+  .bottom-panel {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    padding: 8px 12px;
+    justify-content: flex-start; /* <--- Замените это значение */
+    border-radius: 12px 12px 0 0;
+    z-index: 1000;
+    overflow-x: auto;
   }
   .center-stage { order: 1; min-height: 350px; padding-bottom: 10px; justify-content: flex-end; }
   .grill-stage {
