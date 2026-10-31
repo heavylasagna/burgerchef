@@ -104,7 +104,7 @@ body {
   flex-shrink: 0;
 }
 
-/* Контейнер категорий с плавной прокруткой и полным заполнением */
+/* Плавная и гладкая прокрутка табов категорий */
 .panel-category-tabs {
   display: flex;
   gap: 6px;
@@ -116,9 +116,9 @@ body {
   width: 100%;
   box-sizing: border-box;
   padding: 0 2px 4px 2px;
-  scrollbar-width: thin;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  will-change: scroll-position;
 }
 
 .panel-category-tabs::-webkit-scrollbar {
@@ -131,19 +131,18 @@ body {
 }
 
 .panel-category-tabs .panel-tab-btn {
-  flex: 1 1 0px;
+  flex: 0 0 auto;
   text-align: center;
-  min-width: 65px;
-  padding: 6px 8px;
+  padding: 6px 12px;
   box-sizing: border-box;
   background: var(--item-bg);
   border: 1px solid var(--item-border);
   color: var(--text-color);
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   font-weight: 600;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
   white-space: nowrap;
 }
 
@@ -922,9 +921,9 @@ body {
   width: 100%;
   box-sizing: border-box;
   padding: 0 2px 4px 2px;
-  scrollbar-width: thin;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  will-change: scroll-position;
 }
 .recipe-tabs::-webkit-scrollbar {
   height: 4px;
@@ -935,9 +934,8 @@ body {
 }
 
 .recipe-tab {
-  flex: 1 1 0px;
-  min-width: 65px;
-  padding: 6px 8px;
+  flex: 0 0 auto;
+  padding: 6px 12px;
   background: var(--item-bg);
   border: 1px solid var(--item-border);
   border-radius: 8px;
@@ -948,6 +946,7 @@ body {
   text-align: center;
   white-space: nowrap;
   box-sizing: border-box;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
 .recipe-tab.active {
   background: var(--accent-color);
@@ -1268,7 +1267,8 @@ input[type="range"]::-webkit-slider-thumb {
   .grill-stage {
     flex-direction: column;
   }
-  .right-panel { order: 2; height: 160px; }
+  /* Фиксируем одинаковую высоту для правой панели (списка ингредиентов) и левой панели (cooked ingredients) на мобилках */
+  .right-panel { order: 2; height: 180px; }
   .ingredients-menu {
     flex-direction: column;
     overflow-y: auto;
