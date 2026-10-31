@@ -509,6 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
       state: 'cooking',
       startTime: now,
       flipStartTime: null,
+      burnStartTime: null,
       isFlipped: false,
       notified: false
     };
@@ -533,6 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (config.needsFlip) {
           if (elapsed >= halfTime) {
             slot.state = 'needsFlip';
+            slot.burnStartTime = now;
             if (!slot.notified) {
               playSound(SOUNDS.complete);
               slot.notified = true;
@@ -542,6 +544,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           if (elapsed >= config.cookTime) {
             slot.state = 'ready';
+            slot.burnStartTime = now;
             if (!slot.notified) {
               playSound(SOUNDS.complete);
               slot.notified = true;
@@ -550,8 +553,8 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
       } else if (slot.state === 'needsFlip') {
-        const waitElapsed = elapsed - halfTime;
-        if (waitElapsed >= config.burnTime) {
+        const burnElapsed = (now - slot.burnStartTime) / 1000;
+        if (burnElapsed >= config.burnTime) {
           slot.state = 'charred';
           playSound(SOUNDS.burnt);
           showToast('Burnt!', `${config.name} turned into charcoal!`, 'error');
@@ -561,6 +564,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const activeElapsed = (now - slot.flipStartTime) / 1000;
         if (activeElapsed >= halfTime) {
           slot.state = 'ready';
+          slot.burnStartTime = now;
           if (!slot.notified) {
             playSound(SOUNDS.complete);
             slot.notified = true;
@@ -568,8 +572,8 @@ document.addEventListener('DOMContentLoaded', () => {
           needsSave = true;
         }
       } else if (slot.state === 'ready') {
-        const activeElapsed = slot.isFlipped ? (now - slot.flipStartTime) / 1000 : (elapsed - config.cookTime);
-        if (activeElapsed >= config.burnTime) {
+        const burnElapsed = slot.burnStartTime ? (now - slot.burnStartTime) / 1000 : 0;
+        if (burnElapsed >= config.burnTime) {
           slot.state = 'charred';
           playSound(SOUNDS.burnt);
           showToast('Burnt!', `${config.name} turned into charcoal!`, 'error');
@@ -592,8 +596,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!config.needsFlip) {
       if (slot.state === 'ready') {
-        const activeElapsed = elapsed - config.cookTime;
-        return Math.max(0, 100 - (activeElapsed / config.burnTime) * 100);
+        const burnElapsed = slot.burnStartTime ? (now - slot.burnStartTime) / 1000 : 0;
+        return Math.max(0, 100 - (burnElapsed / config.burnTime) * 100);
       }
       return Math.min(100, (elapsed / config.cookTime) * 100);
     }
@@ -601,12 +605,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (slot.state === 'cooking' && !slot.isFlipped) {
       return Math.min(100, (elapsed / halfTime) * 100);
     } else if (slot.state === 'needsFlip') {
-      const waitElapsed = elapsed - halfTime;
-      return Math.max(0, 100 - (waitElapsed / config.burnTime) * 100);
+      const burnElapsed = slot.burnStartTime ? (now - slot.burnStartTime) / 1000 : 0;
+      return Math.max(0, 100 - (burnElapsed / config.burnTime) * 100);
     } else if (slot.isFlipped) {
       const activeElapsed = (now - slot.flipStartTime) / 1000;
       if (slot.state === 'ready') {
-        const burnElapsed = activeElapsed - halfTime;
+        const burnElapsed = slot.burnStartTime ? (now - slot.burnStartTime) / 1000 : 0;
         return Math.max(0, 100 - (burnElapsed / config.burnTime) * 100);
       }
       return Math.min(100, (activeElapsed / halfTime) * 100);
@@ -739,6 +743,7 @@ document.addEventListener('DOMContentLoaded', () => {
       slot.isFlipped = true;
       slot.state = 'cooking';
       slot.flipStartTime = now;
+      slot.burnStartTime = null; // Сбрасываем время простоя, теперь идет вторая половина жарки
       slot.notified = false;
       playSound(SOUNDS.buttons);
       saveGrillState();
