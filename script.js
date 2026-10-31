@@ -150,6 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('saved_burger_stack', JSON.stringify(currentBurger));
   }
 
+  // Позиционирование денег с идеальным выравниванием по центру относительно кошелька
   function updateMoneyPopupPosition() {
     const container = document.getElementById('moneyPopupContainer');
     const pinnedWidget = document.getElementById('pinnedRecipeWidget');
@@ -161,9 +162,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const isMobile = window.innerWidth <= 900;
     const isPinned = pinnedWidget && pinnedWidget.classList.contains('active');
 
+    // Функция для вычисления центрирования относительно кошелька
     const updateContainerLeft = (targetEl) => {
       const targetRect = targetEl.getBoundingClientRect();
       const containerRect = container.getBoundingClientRect();
+      // Вычисляем центр кошелька и сдвигаем контейнер уведомления так, чтобы оно было по центру
       const walletCenterX = targetRect.left + targetRect.width / 2;
       const newLeft = walletCenterX - containerRect.width / 2;
       container.style.left = `${Math.max(8, newLeft)}px`;
@@ -181,6 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       updateContainerLeft(walletWidget);
     } else {
+      // ПК версия
       container.style.bottom = 'unset';
       if (isPinned) {
         const rect = pinnedWidget.getBoundingClientRect();
@@ -216,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
     popup.onclick = removePopup;
 
     container.appendChild(popup);
-    updateMoneyPopupPosition();
+    updateMoneyPopupPosition(); // обновляем позицию после рендеринга текста для идеального центрирования
     setTimeout(removePopup, 2500);
   }
 
@@ -384,78 +388,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const forceOrderBtn = document.getElementById('forceOrderBtn');
   const skipOrderBtn = document.getElementById('skipOrderBtn');
   const openInventoryBtn = document.getElementById('openInventoryBtn');
-  const inventoryModal = document.getElementById('inventoryModal');
-  const closeInventoryModal = document.getElementById('closeInventoryModal');
-
-  // Логика работы модального окна инвентаря
-  const SHOP_ITEMS = [
-    { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
-    { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
-    { id: 'beef-patty', name: 'Beef Patty', category: 'patty', image: 'images/beef-patty.png' },
-    { id: 'chicken-patty', name: 'Chicken Patty', category: 'patty', image: 'images/chicken-patty.png' },
-    { id: 'fish-patty', name: 'Fish Patty', category: 'patty', image: 'images/fish-patty.png' },
-    { id: 'hashbrown', name: 'Hashbrown (Драник)', category: 'patty', image: 'images/hashbrown.png' },
-    { id: 'fried-bacon', name: 'Fried Bacon', category: 'protein', image: 'images/fried-bacon.png' },
-    { id: 'fried-egg', name: 'Fried Egg', category: 'protein', image: 'images/fried-egg.png' },
-    { id: 'cheese', name: 'Cheese', category: 'protein', image: 'images/cheese.png' },
-    { id: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/champignons.png' },
-    { id: 'lettuce', name: 'Lettuce', category: 'vegetables', image: 'images/lettuce.png' },
-    { id: 'tomato', name: 'Tomato', category: 'vegetables', image: 'images/tomato.png' },
-    { id: 'pickles', name: 'Pickles', category: 'vegetables', image: 'images/pickles.png' },
-    { id: 'red-onion', name: 'Red Onion', category: 'vegetables', image: 'images/red-onion.png' },
-    { id: 'white-onion', name: 'White Onion', category: 'vegetables', image: 'images/white-onion.png' },
-    { id: 'mayo', name: 'Mayo', category: 'sauce', image: 'images/sauce-mayo.png', isSauce: true },
-    { id: 'ketchup', name: 'Ketchup', category: 'sauce', image: 'images/sauce-ketchup.png', isSauce: true },
-    { id: 'mustard', name: 'Mustard', category: 'sauce', image: 'images/sauce-mustard.png', isSauce: true },
-    { id: 'spicy', name: 'Spicy', category: 'sauce', image: 'images/sauce-spicy.png', isSauce: true },
-    { id: 'bbq', name: 'BBQ', category: 'sauce', image: 'images/sauce-bbq.png', isSauce: true }
-  ];
-
-  let activeInventoryTab = 'all';
-  window.switchInventoryTab = function(tab) {
-    activeInventoryTab = tab;
-    document.querySelectorAll('#inventoryTabs .recipe-tab').forEach(t => {
-      t.classList.toggle('active', t.innerText.toLowerCase() === tab);
-    });
-    renderInventoryModal();
-  }
-
-  function renderInventoryModal() {
-    const body = document.getElementById('inventoryModalBody');
-    if (!body) return;
-    body.innerHTML = '';
-    const filtered = activeInventoryTab === 'all' ? SHOP_ITEMS : SHOP_ITEMS.filter(i => i.category === activeInventoryTab);
-
-    filtered.forEach(item => {
-      const stockVal = currentGameMode === 'sandbox' ? '∞' : (ingredientStock[item.id] ?? 0);
-      const card = document.createElement('div');
-      card.className = 'inventory-item-card';
-      card.innerHTML = `
-        <div class="inventory-item-info">
-          <img src="${item.image}" alt="${item.name}">
-          <div class="inventory-item-details">
-            <h4>${item.name}</h4>
-            <p>Category: ${item.category.toUpperCase()}</p>
-          </div>
-        </div>
-        <div class="inventory-count-badge">${stockVal}</div>
-      `;
-      body.appendChild(card);
-    });
-  }
 
   if (openInventoryBtn) {
     openInventoryBtn.onclick = () => {
       playSound(SOUNDS.buttons);
-      renderInventoryModal();
-      if (inventoryModal) inventoryModal.classList.add('open');
-    };
-  }
-
-  if (closeInventoryModal) {
-    closeInventoryModal.onclick = () => {
-      playSound(SOUNDS.buttons);
-      if (inventoryModal) inventoryModal.classList.remove('open');
+      showToast('Inventory', 'Empty for now', 'success');
     };
   }
 
@@ -744,6 +681,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     updateMoneyPopupPosition();
   }
+
+  const SHOP_ITEMS = [
+    { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
+    { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
+    { id: 'beef-patty', name: 'Beef Patty', category: 'patty', image: 'images/beef-patty.png' },
+    { id: 'chicken-patty', name: 'Chicken Patty', category: 'patty', image: 'images/chicken-patty.png' },
+    { id: 'fish-patty', name: 'Fish Patty', category: 'patty', image: 'images/fish-patty.png' },
+    { id: 'hashbrown', name: 'Hashbrown (Драник)', category: 'patty', image: 'images/hashbrown.png' },
+    { id: 'fried-bacon', name: 'Fried Bacon', category: 'protein', image: 'images/fried-bacon.png' },
+    { id: 'fried-egg', name: 'Fried Egg', category: 'protein', image: 'images/fried-egg.png' },
+    { id: 'cheese', name: 'Cheese', category: 'protein', image: 'images/cheese.png' },
+    { id: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/champignons.png' },
+    { id: 'lettuce', name: 'Lettuce', category: 'vegetables', image: 'images/lettuce.png' },
+    { id: 'tomato', name: 'Tomato', category: 'vegetables', image: 'images/tomato.png' },
+    { id: 'pickles', name: 'Pickles', category: 'vegetables', image: 'images/pickles.png' },
+    { id: 'red-onion', name: 'Red Onion', category: 'vegetables', image: 'images/red-onion.png' },
+    { id: 'white-onion', name: 'White Onion', category: 'vegetables', image: 'images/white-onion.png' },
+    { id: 'mayo', name: 'Mayo', category: 'sauce', image: 'images/sauce-mayo.png', isSauce: true },
+    { id: 'ketchup', name: 'Ketchup', category: 'sauce', image: 'images/sauce-ketchup.png', isSauce: true },
+    { id: 'mustard', name: 'Mustard', category: 'sauce', image: 'images/sauce-mustard.png', isSauce: true },
+    { id: 'spicy', name: 'Spicy', category: 'sauce', image: 'images/sauce-spicy.png', isSauce: true },
+    { id: 'bbq', name: 'BBQ', category: 'sauce', image: 'images/sauce-bbq.png', isSauce: true }
+  ];
 
   let activeShopTab = 'all';
   window.switchShopTab = function(tab) {
