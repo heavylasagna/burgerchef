@@ -71,13 +71,6 @@ body {
   transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* Исправленная блокировка прокрутки во время туториала */
-body.tutorial-active {
-  overflow: hidden !important;
-  height: 100vh;
-  height: 100dvh;
-}
-
 .app-container {
   display: grid;
   grid-template-columns: 220px 1fr 220px;
@@ -1308,44 +1301,6 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .btn-pin.pinned { background: #689f38; }
 
-/* --- Стили для Туториала --- */
-.tutorial-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: transparent;
-  z-index: 4000;
-  display: none;
-  pointer-events: none;
-}
-.tutorial-overlay.active {
-  display: block;
-}
-
-.tutorial-spotlight {
-  position: absolute;
-  border-radius: 16px;
-  background: transparent !important;
-  box-shadow: 0 0 0 3px var(--accent-color), 0 0 25px rgba(255, 179, 0, 0.6);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  pointer-events: none;
-  z-index: 4001;
-}
-
-.tutorial-tooltip {
-  position: absolute;
-  background: var(--modal-bg);
-  border: 1px solid var(--accent-color);
-  border-radius: 14px;
-  padding: 16px;
-  width: 310px;
-  max-width: 90vw;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-  z-index: 4002;
-  color: var(--text-color);
-  transition: all 0.3s ease;
-  pointer-events: auto;
-}
-
 .mobile-top-bar { display: none; }
 .toggle-ui-btn { display: none; }
 
@@ -1354,7 +1309,6 @@ input[type="range"]::-webkit-slider-thumb {
 
 @media (max-width: 900px) {
   body { overflow: auto; }
-  body.tutorial-active { overflow: hidden !important; }
   .app-container {
     display: flex;
     flex-direction: column;
