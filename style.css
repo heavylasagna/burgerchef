@@ -675,8 +675,8 @@ body {
 }
 
 .grill-item {
-  width: 105px; /* Увеличили размер с 75px до 105px */
-  height: 105px; /* Увеличили размер с 75px до 105px */
+  width: 105px;
+  height: 105px;
   object-fit: contain;
   animation: grillWobble 1.5s infinite ease-in-out;
   position: relative;
@@ -755,10 +755,10 @@ body {
   100% { transform: scale(1.18); }
 }
 
-/* Панель подтверждения выброса (галочка и крестик) в зоне гриля */
+/* Панель подтверждения выброса (плавающая над нижним меню) */
 .bin-confirm-bar {
   position: fixed;
-  bottom: 95px; /* Чуть выше нижнего меню (высота нижнего меню + отступ) */
+  bottom: 95px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -771,7 +771,7 @@ body {
   border-radius: 12px;
   border: 1.5px solid var(--border-color);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-  z-index: 2500; /* Гарантированно поверх всего */
+  z-index: 2500;
 }
 
 .bin-confirm-bar .btn-action {
@@ -1180,15 +1180,15 @@ input[type="range"]::-webkit-slider-thumb {
 .mobile-sauces { display: none !important; }
 
 @media (max-width: 900px) {
-  /* ... другие стили ... */
-  .bottom-panel {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    padding: 8px 12px;
-    justify-content: flex-start; /* <--- Замените это значение */
-    border-radius: 12px 12px 0 0;
-    z-index: 1000;
-    overflow-x: auto;
+  body { overflow: auto; }
+  .app-container {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    width: 100%;
+    padding: 8px;
+    gap: 8px;
+    padding-bottom: 75px;
   }
   .center-stage { order: 1; min-height: 350px; padding-bottom: 10px; justify-content: flex-end; }
   .grill-stage {
@@ -1224,7 +1224,7 @@ input[type="range"]::-webkit-slider-thumb {
     position: fixed;
     bottom: 0; left: 0; right: 0;
     padding: 8px 12px;
-    justify-content: flex-start;
+    justify-content: space-between;
     border-radius: 12px 12px 0 0;
     z-index: 1000;
     overflow-x: auto;
