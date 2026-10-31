@@ -26,7 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
     lilypad: safeAudio('audio/lilypad.mp3'),
     saturnBurger: safeAudio('audio/saturn-burger.mp3'),
     bustanator: safeAudio('audio/bustanator.mp3'),
-    mcPicklePounder: safeAudio('audio/mc-pickle-pounder.mp3')
+    mcPicklePounder: safeAudio('audio/mc-pickle-pounder.mp3'),
+    sizzling: safeAudio('audio/sizzling.mp3'),
+    burnt: safeAudio('audio/burnt.mp3')
   };
 
   let volumeLevel = parseFloat(localStorage.getItem('burger_volume'));
@@ -51,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const layersList = document.getElementById('layersList');
   const layersTitle = document.getElementById('layersTitle');
   const centerStage = document.getElementById('centerStage');
+  const grillStage = document.getElementById('grillStage');
   const limitWarning = document.getElementById('limitWarning');
 
   function initOpacityToggle() {
@@ -116,8 +119,28 @@ document.addEventListener('DOMContentLoaded', () => {
     'beef-patty': 15, 'chicken-patty': 15, 'fish-patty': 15, 'fried-bacon': 10, 'fried-egg': 10,
     'cheese': 15, 'hashbrown': 10, 'champignons': 10,
     'lettuce': 20, 'tomato': 20, 'pickles': 20, 'red-onion': 15, 'white-onion': 15,
-    'mayo': 30, 'ketchup': 30, 'mustard': 30, 'spicy': 30, 'bbq': 30
+    'mayo': 30, 'ketchup': 30, 'mustard': 30, 'spicy': 30, 'bbq': 30,
+    'raw-beef-patty': 10, 'raw-chicken-patty': 10, 'raw-fish-patty': 10, 'raw-hashbrown': 10,
+    'raw-bacon': 10, 'raw-egg': 10, 'raw-champignons': 10
   };
+
+  // Конфигурация продуктов для гриля
+  const GRILLABLE_ITEMS = {
+    'raw-beef-patty': { name: 'Beef Patty', rawImage: 'images/raw-beef-patty.png', cookedId: 'beef-patty', cookedImage: 'images/beef-patty.png', flippedImage: 'images/beef-patty-flip.png', needsFlip: true, cookTime: 6, burnTime: 8 },
+    'raw-chicken-patty': { name: 'Chicken Patty', rawImage: 'images/raw-chicken-patty.png', cookedId: 'chicken-patty', cookedImage: 'images/chicken-patty.png', flippedImage: 'images/chicken-patty-flip.png', needsFlip: true, cookTime: 6, burnTime: 8 },
+    'raw-fish-patty': { name: 'Fish Patty', rawImage: 'images/raw-fish-patty.png', cookedId: 'fish-patty', cookedImage: 'images/fish-patty.png', flippedImage: 'images/fish-patty-flip.png', needsFlip: true, cookTime: 6, burnTime: 8 },
+    'raw-hashbrown': { name: 'Hashbrown', rawImage: 'images/raw-hashbrown.png', cookedId: 'hashbrown', cookedImage: 'images/hashbrown.png', flippedImage: 'images/hasbrown-flip.png', needsFlip: true, cookTime: 5, burnTime: 7 },
+    'raw-bacon': { name: 'Fried Bacon', rawImage: 'images/raw-bacon.png', cookedId: 'fried-bacon', cookedImage: 'images/fried-bacon.png', needsFlip: false, cookTime: 4, burnTime: 4 },
+    'raw-egg': { name: 'Fried Egg', rawImage: 'images/egg.png', cookedId: 'fried-egg', cookedImage: 'images/fried-egg.png', needsFlip: false, cookTime: 4, burnTime: 4 },
+    'raw-champignons': { name: 'Champignons', rawImage: 'images/raw-champignons.png', cookedId: 'champignons', cookedImage: 'images/champignons.png', needsFlip: false, cookTime: 4, burnTime: 4 }
+  };
+
+  const maxGrillSlots = window.innerWidth <= 900 ? 1 : 3;
+  let grillSlots = JSON.parse(localStorage.getItem('burger_grill_slots')) || Array(maxGrillSlots).fill(null);
+  let currentScreen = 'assembly'; // 'assembly' | 'grill'
+  let isBinSelectMode = false;
+  let selectedGrillIndicesForBin = [];
+  let sizzlingAudioInstance = null;
 
   let currentGameMode = localStorage.getItem('burger_game_mode') || 'casual';
 
@@ -140,6 +163,46 @@ document.addEventListener('DOMContentLoaded', () => {
   let resetClickCount = 0;
   let resetClickTimeout = null;
 
+  const switchToAssemblyBtn = document.getElementById('switchToAssemblyBtn');
+  const switchToGrillBtn = document.getElementById('switchToGrillBtn');
+  const switchToBoardBtn = document.getElementById('switchToBoardBtn');
+
+  function switchScreen(screen) {
+    playSound(SOUNDS.buttons);
+    currentScreen = screen;
+
+    if (switchToAssemblyBtn) switchToAssemblyBtn.classList.toggle('active', screen === 'assembly');
+    if (switchToGrillBtn) switchToGrillBtn.classList.toggle('active', screen === 'grill');
+    if (switchToBoardBtn) switchToBoardBtn.classList.toggle('active', screen === 'board');
+
+    if (screen === 'assembly') {
+      if (centerStage) centerStage.style.display = 'flex';
+      if (grillStage) grillStage.style.display = 'none';
+      if (rightPanel) rightPanel.style.display = 'flex';
+      if (leftPanel) leftPanel.style.display = 'flex';
+      exitBinSelectMode();
+    } else if (screen === 'grill') {
+      if (centerStage) centerStage.style.display = 'none';
+      if (grillStage) grillStage.style.display = 'flex';
+      if (rightPanel) rightPanel.style.display = 'none';
+      if (leftPanel) leftPanel.style.display = 'none';
+      renderGrill();
+    }
+    updateBottomPanelForScreen();
+  }
+
+  if (switchToAssemblyBtn) switchToAssemblyBtn.onclick = () => switchScreen('assembly');
+  if (switchToGrillBtn) switchToGrillBtn.onclick = () => switchScreen('grill');
+
+  function updateBottomPanelForScreen() {
+    const isGrill = currentScreen === 'grill';
+    if (eatBtn) eatBtn.style.display = isGrill ? 'none' : 'flex';
+    if (squeezeBtn) squeezeBtn.style.display = isGrill ? 'none' : 'flex';
+    if (submitOrderBtn) submitOrderBtn.style.display = isGrill ? 'none' : (getCurrentSpeed() === 'no-orders' ? 'none' : 'flex');
+    if (forceOrderBtn) forceOrderBtn.style.display = isGrill ? 'none' : 'flex';
+    if (skipOrderBtn) skipOrderBtn.style.display = isGrill ? 'none' : 'flex';
+  }
+
   function getCurrentSpeed() {
     if (currentGameMode === 'turbo') return 'turbo';
     return modeSpeeds[currentGameMode] || 'no-orders';
@@ -151,6 +214,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function saveBurgerState() {
     localStorage.setItem('saved_burger_stack', JSON.stringify(currentBurger));
+  }
+
+  function saveGrillState() {
+    localStorage.setItem('burger_grill_slots', JSON.stringify(grillSlots));
   }
 
   function updateMoneyPopupPosition() {
@@ -328,6 +395,223 @@ document.addEventListener('DOMContentLoaded', () => {
       ingredientsMenu.appendChild(card);
     });
   }
+
+  function renderGrillIngredientsMenu() {
+    const menu = document.getElementById('grillIngredientsMenu');
+    if (!menu) return;
+    menu.innerHTML = '';
+
+    Object.keys(GRILLABLE_ITEMS).forEach(rawId => {
+      const itemConfig = GRILLABLE_ITEMS[rawId];
+      const stock = ingredientStock[rawId] ?? 0;
+      const isOut = currentGameMode !== 'sandbox' && stock <= 0;
+
+      const card = document.createElement('div');
+      card.className = `ingredient-card ${isOut ? 'disabled' : ''}`;
+      card.innerHTML = `
+        <img src="${itemConfig.rawImage}" alt="${itemConfig.name}">
+        <div class="ingredient-info-row">
+          <span class="ingredient-name" title="${itemConfig.name}">${itemConfig.name}</span>
+          <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
+        </div>
+      `;
+
+      card.onclick = () => {
+        if (isOut) { showToast('Out of stock!', `Buy more ${itemConfig.name} in shop.`, 'warning'); return; }
+        addToGrill(rawId);
+      };
+      menu.appendChild(card);
+    });
+  }
+
+  function addToGrill(rawId) {
+    const emptyIndex = grillSlots.findIndex(slot => slot === null);
+    if (emptyIndex === -1) {
+      showToast('Grill is full!', '', 'warning');
+      return;
+    }
+
+    if (currentGameMode !== 'sandbox') {
+      ingredientStock[rawId] = (ingredientStock[rawId] ?? 0) - 1;
+      saveStock();
+    }
+
+    grillSlots[emptyIndex] = {
+      rawId: rawId,
+      state: 'cooking',
+      progress: 0,
+      isFlipped: false
+    };
+
+    playSound(SOUNDS.ingridients);
+    saveGrillState();
+    renderGrill();
+  }
+
+  function renderGrill() {
+    if (currentScreen !== 'grill') return;
+    renderGrillIngredientsMenu();
+
+    const area = document.getElementById('grillCookingArea');
+    if (!area) return;
+    area.innerHTML = '';
+
+    let hasActiveCooking = false;
+
+    grillSlots.forEach((slotData, index) => {
+      const slotEl = document.createElement('div');
+      slotEl.className = `grill-slot ${selectedGrillIndicesForBin.includes(index) ? 'selected-for-bin' : ''}`;
+
+      if (slotData) {
+        hasActiveCooking = true;
+        const config = GRILLABLE_ITEMS[slotData.rawId];
+        let imgsrc = config.rawImage;
+        let extraHtml = '';
+
+        if (slotData.state === 'cooking') {
+          imgsrc = slotData.isFlipped ? config.flippedImage : config.rawImage;
+        } else if (slotData.state === 'needsFlip') {
+          imgsrc = config.rawImage;
+          extraHtml = `<div class="flip-badge">🔄 Flip!</div>`;
+        } else if (slotData.state === 'ready' || slotData.state === 'burning') {
+          imgsrc = slotData.isFlipped ? config.flippedImage : config.cookedImage;
+        } else if (slotData.state === 'charred') {
+          imgsrc = config.rawImage;
+          slotEl.classList.add('charred');
+        }
+
+        const progressPercent = Math.min(100, Math.max(0, slotData.progress));
+        const isBurningBar = slotData.state === 'burning';
+
+        slotEl.innerHTML = `
+          ${extraHtml}
+          <img src="${imgsrc}" class="grill-item ${slotData.isFlipped ? 'flipped' : ''} ${slotData.state === 'charred' ? 'charred' : ''}">
+          <div class="grill-progress-container">
+            <div class="grill-progress-bar ${isBurningBar ? 'burning' : ''}" style="width: ${progressPercent}%"></div>
+          </div>
+        `;
+
+        if (Math.random() < 0.25 && slotData.state !== 'charred') {
+          createOilSplash(slotEl);
+        }
+
+        slotEl.onclick = () => {
+          if (isBinSelectMode) {
+            toggleGrillSlotSelectionForBin(index);
+          } else {
+            handleGrillSlotClick(index);
+          }
+        };
+      } else {
+        slotEl.onclick = () => {
+          if (isBinSelectMode) toggleGrillSlotSelectionForBin(index);
+        };
+      }
+
+      area.appendChild(slotEl);
+    });
+
+    manageSizzlingAudio(hasActiveCooking);
+  }
+
+  function createOilSplash(parentEl) {
+    const splash = document.createElement('div');
+    splash.className = 'oil-splash';
+    const dx = (Math.random() - 0.5) * 50;
+    const dy = (Math.random() - 0.5) * 50;
+    splash.style.setProperty('--dx', `${dx}px`);
+    splash.style.setProperty('--dy', `${dy}px`);
+    splash.style.left = '50%';
+    splash.style.top = '50%';
+    parentEl.appendChild(splash);
+    setTimeout(() => splash.remove(), 700);
+  }
+
+  function manageSizzlingAudio(hasActive) {
+    if (hasActive) {
+      if (!sizzlingAudioInstance && SOUNDS.sizzling) {
+        sizzlingAudioInstance = SOUNDS.sizzling;
+        sizzlingAudioInstance.loop = true;
+        playSound(sizzlingAudioInstance);
+      }
+    } else {
+      if (sizzlingAudioInstance) {
+        try { sizzlingAudioInstance.pause(); sizzlingAudioInstance.currentTime = 0; } catch(e){}
+        sizzlingAudioInstance = null;
+      }
+    }
+  }
+
+  function handleGrillSlotClick(index) {
+    const slot = grillSlots[index];
+    if (!slot) return;
+    const config = GRILLABLE_ITEMS[slot.rawId];
+
+    if (slot.state === 'needsFlip') {
+      slot.isFlipped = true;
+      slot.state = 'cooking';
+      slot.progress = 50;
+      playSound(SOUNDS.buttons);
+      saveGrillState();
+      renderGrill();
+    } else if (slot.state === 'ready' || slot.state === 'burning') {
+      ingredientStock[config.cookedId] = (ingredientStock[config.cookedId] ?? 0) + 1;
+      saveStock();
+      showToast('Added to inventory!', `${config.name} added to backpack.`, 'success');
+      playSound(SOUNDS.buy);
+      
+      grillSlots[index] = null;
+      saveGrillState();
+      renderGrill();
+      renderIngredientsMenu();
+    }
+  }
+
+  setInterval(() => {
+    if (currentScreen !== 'grill') return;
+    let needsRedraw = false;
+
+    grillSlots.forEach((slot, index) => {
+      if (!slot) return;
+      const config = GRILLABLE_ITEMS[slot.rawId];
+
+      if (slot.state === 'cooking') {
+        const targetMid = config.needsFlip ? 50 : 100;
+        const increment = (100 / (config.cookTime * 5));
+        slot.progress += increment;
+
+        if (slot.progress >= targetMid) {
+          if (config.needsFlip && !slot.isFlipped) {
+            slot.progress = targetMid;
+            slot.state = 'needsFlip';
+          } else {
+            slot.progress = 100;
+            slot.state = 'ready';
+          }
+        }
+        needsRedraw = true;
+      } else if (slot.state === 'ready') {
+        slot.state = 'burning';
+        slot.progress = 100;
+        needsRedraw = true;
+      } else if (slot.state === 'burning') {
+        const burnDecrement = (100 / (config.burnTime * 5));
+        slot.progress -= burnDecrement;
+
+        if (slot.progress <= 0) {
+          slot.progress = 0;
+          slot.state = 'charred';
+          playSound(SOUNDS.burnt);
+          showToast('Burnt!', `${config.name} turned into charcoal!`, 'error');
+        }
+        needsRedraw = true;
+      }
+    });
+
+    if (needsRedraw) {
+      renderGrill();
+    }
+  }, 200);
 
   function renderSauces() {
     if (desktopSaucesGroup) desktopSaucesGroup.innerHTML = '';
@@ -1212,6 +1496,17 @@ document.addEventListener('DOMContentLoaded', () => {
   if (resetBtn) {
     resetBtn.onclick = () => {
       playSound(SOUNDS.buttons);
+
+      if (currentScreen === 'grill') {
+        const hasItemsOnGrill = grillSlots.some(s => s !== null);
+        if (!hasItemsOnGrill) {
+          showToast('Grill is empty', '', 'warning');
+          return;
+        }
+        enterBinSelectMode();
+        return;
+      }
+
       if (currentBurger.length === 0) {
         showToast('First you need to create a burger', '', 'warning');
         return;
@@ -1239,6 +1534,59 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
   }
+
+  function enterBinSelectMode() {
+    isBinSelectMode = true;
+    selectedGrillIndicesForBin = [];
+    showToast('Select items to bin', '', 'warning');
+    showBinConfirmBar();
+    renderGrill();
+  }
+
+  function exitBinSelectMode() {
+    isBinSelectMode = false;
+    selectedGrillIndicesForBin = [];
+    const bar = document.getElementById('binConfirmBar');
+    if (bar) bar.remove();
+    renderGrill();
+  }
+
+  function toggleGrillSlotSelectionForBin(index) {
+    if (!grillSlots[index]) return;
+    const pos = selectedGrillIndicesForBin.indexOf(index);
+    if (pos > -1) {
+      selectedGrillIndicesForBin.splice(pos, 1);
+    } else {
+      selectedGrillIndicesForBin.push(index);
+    }
+    renderGrill();
+  }
+
+  function showBinConfirmBar() {
+    let bar = document.getElementById('binConfirmBar');
+    if (bar) bar.remove();
+
+    bar = document.createElement('div');
+    bar.id = 'binConfirmBar';
+    bar.className = 'bin-confirm-bar';
+    bar.innerHTML = `
+      <button class="btn-action" style="background:#d32f2f; color:#fff;" onclick="confirmBinGrillItems()">✔ Bin</button>
+      <button class="btn-action" onclick="exitBinSelectMode()">✖ Cancel</button>
+    `;
+    document.body.appendChild(bar);
+  }
+
+  window.confirmBinGrillItems = function() {
+    playSound(SOUNDS.bin);
+    selectedGrillIndicesForBin.forEach(idx => {
+      grillSlots[idx] = null;
+    });
+    saveGrillState();
+    exitBinSelectMode();
+    showToast('Items discarded', '', 'success');
+  }
+
+  window.exitBinSelectMode = exitBinSelectMode;
 
   if (eatBtn) {
     eatBtn.onclick = () => {
