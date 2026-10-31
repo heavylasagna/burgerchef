@@ -15,6 +15,13 @@
     <button class="toggle-ui-btn" id="toggleUiBtn" title="Скрыть/показать окна">👁️</button>
   </div>
 
+  <!-- Кнопки переключения экранов (Сборка / Гриль / Доска) — пока нерабочие для примерки -->
+  <div class="screen-switcher" id="screenSwitcher">
+    <button class="btn-action active" title="Assembly">🍔</button>
+    <button class="btn-action" title="Grill">🔥</button>
+    <button class="btn-action" title="Cutting Board" style="opacity: 0.5; pointer-events: none;">🔪</button>
+  </div>
+
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Кошелёк -->
@@ -159,6 +166,15 @@
       <div class="limit-warning" id="limitWarning">Max 30 ingredients!</div>
       <div class="burger-wrapper">
         <div class="burger-stack" id="burgerStack"></div>
+      </div>
+    </div>
+
+    <!-- Экран гриля (пока скрыт) -->
+    <div class="center-stage grill-stage" id="grillStage" style="display: none;">
+      <div class="grill-cooking-area" id="grillCookingArea"></div>
+      <div class="panel right-panel grill-sidebar">
+        <div class="panel-title">Raw Ingredients</div>
+        <div class="ingredients-menu" id="grillIngredientsMenu"></div>
       </div>
     </div>
 
