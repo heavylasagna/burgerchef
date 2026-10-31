@@ -744,7 +744,6 @@ document.addEventListener('DOMContentLoaded', () => {
       renderGrillCookedInventory();
       renderGrill();
     }
-    // Сгоревшие предметы больше не выбрасываются по клику (только через ведро)
   }
 
   setInterval(() => {
@@ -1718,6 +1717,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGrill();
   }
 
+  // Обновленный вид бара подтверждения: ровно по центру над нижней панелью и только с иконками
   function showBinConfirmBar() {
     let bar = document.getElementById('binConfirmBar');
     if (bar) bar.remove();
@@ -1726,8 +1726,8 @@ document.addEventListener('DOMContentLoaded', () => {
     bar.id = 'binConfirmBar';
     bar.className = 'bin-confirm-bar';
     bar.innerHTML = `
-      <button class="btn-action" style="background:#d32f2f; color:#fff;" onclick="confirmBinGrillItems()">✔ Bin</button>
-      <button class="btn-action" onclick="exitBinSelectMode()">✖ Cancel</button>
+      <button class="btn-action btn-confirm" title="Confirm" onclick="confirmBinGrillItems()">✔</button>
+      <button class="btn-action btn-cancel" title="Cancel" onclick="exitBinSelectMode()">✖</button>
     `;
     document.body.appendChild(bar);
   }
