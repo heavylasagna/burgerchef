@@ -177,7 +177,7 @@
   </div>
 
   <!-- Контейнер для подсветки элементов и подсказок туториала -->
-  <div class="tutorial-overlay" id="tutorialOverlay">
+  <div class="tutorial-overlay" id="tutorialOverlay" ontouchmove="event.preventDefault()">
     <div class="tutorial-spotlight" id="tutorialSpotlight"></div>
     <div class="tutorial-tooltip" id="tutorialTooltip">
       <h4 id="tutorialTitle" style="color: var(--accent-color); margin-bottom: 6px; font-size: 0.9rem;"></h4>
