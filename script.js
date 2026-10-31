@@ -599,16 +599,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (slot.state === 'cooking' && !slot.isFlipped) {
-      return Math.min(50, (elapsed / halfTime) * 50);
+      return Math.min(100, (elapsed / halfTime) * 100);
     } else if (slot.state === 'needsFlip') {
       const waitElapsed = elapsed - halfTime;
       return Math.max(0, 100 - (waitElapsed / config.burnTime) * 100);
     } else if (slot.isFlipped) {
       const activeElapsed = (now - slot.flipStartTime) / 1000;
       if (slot.state === 'ready') {
-        return Math.max(0, 100 - (activeElapsed / config.burnTime) * 100);
+        const burnElapsed = activeElapsed - halfTime;
+        return Math.max(0, 100 - (burnElapsed / config.burnTime) * 100);
       }
-      return Math.min(100, 50 + (activeElapsed / halfTime) * 50);
+      return Math.min(100, (activeElapsed / halfTime) * 100);
     } else if (slot.state === 'charred') {
       return 0;
     }
@@ -668,7 +669,7 @@ document.addEventListener('DOMContentLoaded', () => {
           imgsrc = config.rawImage;
           extraHtml = `<div class="flip-badge">Flip!</div>`;
         } else if (slotData.state === 'ready' || slotData.state === 'burning') {
-          imgsrc = slotData.isFlipped ? config.flippedImage : config.cookedImage;
+          imgsrc = slotData.isFlipped ? config.cookedImage : config.cookedImage;
         } else if (slotData.state === 'charred') {
           imgsrc = config.cookedImage;
           slotEl.classList.add('charred');
