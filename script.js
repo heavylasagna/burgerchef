@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'raw-fish-patty': { name: 'Fish Patty', rawImage: 'images/raw-fish-patty.png', cookedId: 'fish-patty', cookedImage: 'images/fish-patty.png', flippedImage: 'images/fish-patty-flip.png', needsFlip: true, cookTime: 12, burnTime: 8 },
     'raw-hashbrown': { name: 'Hashbrown', rawImage: 'images/raw-hashbrown.png', cookedId: 'hashbrown', cookedImage: 'images/hashbrown.png', flippedImage: 'images/hasbrown-flip.png', needsFlip: true, cookTime: 10, burnTime: 7 },
     'raw-bacon': { name: 'Fried Bacon', rawImage: 'images/raw-bacon.png', cookedId: 'fried-bacon', cookedImage: 'images/fried-bacon.png', needsFlip: false, cookTime: 8, burnTime: 6 },
-    'raw-egg': { name: 'Fried Egg', rawImage: 'images/egg.png', cookedId: 'fried-egg', cookedImage: 'images/fried-egg.png', needsFlip: false, cookTime: 8, burnTime: 6 },
+    'raw-egg': { name: 'Fried Egg', rawImage: 'images/raw-egg.png', cookedId: 'fried-egg', cookedImage: 'images/fried-egg.png', needsFlip: false, cookTime: 8, burnTime: 6 },
     'raw-champignons': { name: 'Champignons', rawImage: 'images/raw-champignons.png', cookedId: 'champignons', cookedImage: 'images/champignons.png', needsFlip: false, cookTime: 8, burnTime: 6 }
   };
 
@@ -446,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       card.onclick = () => {
         if (isOut) { showToast('Out of stock!', `Buy more ${item.name} in shop.`, 'warning'); return; }
-        addToGrill(item.id);
+        addToGrill(item.id === 'raw-egg' ? 'raw-egg' : item.id);
       };
       menuEl.appendChild(card);
     });
@@ -582,19 +582,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const halfTime = config.cookTime / 2;
 
     if (!config.needsFlip) {
+      if (slot.state === 'ready') {
+        // Обратная шкала во время хранения готового продукта до сгорания (от 100% до 0%)
+        const activeElapsed = elapsed - config.cookTime;
+        return Math.max(0, 100 - (activeElapsed / config.burnTime) * 100);
+      }
       return Math.min(100, (elapsed / config.cookTime) * 100);
     }
 
     if (slot.state === 'cooking' && !slot.isFlipped) {
       return Math.min(50, (elapsed / halfTime) * 50);
     } else if (slot.state === 'needsFlip') {
-      const progress = 50 + ((elapsed - halfTime) / halfTime) * 50;
-      return Math.min(100, progress);
+      // Во время ожидания переворота шкала идет в обратную сторону или заполняет оставшееся до сгорания
+      const waitElapsed = elapsed - halfTime;
+      return Math.max(0, 100 - (waitElapsed / config.burnTime) * 100);
     } else if (slot.isFlipped) {
+      if (slot.state === 'ready') {
+        const activeElapsed = (now - slot.flipStartTime) / 1000 - halfTime;
+        return Math.max(0, 100 - (activeElapsed / config.burnTime) * 100);
+      }
       const activeElapsed = (now - slot.flipStartTime) / 1000;
       return Math.min(100, 50 + (activeElapsed / halfTime) * 50);
-    } else if (slot.state === 'ready' || slot.state === 'burning') {
-      return 100;
     } else if (slot.state === 'charred') {
       return 0;
     }
@@ -656,7 +664,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (slotData.state === 'ready' || slotData.state === 'burning') {
           imgsrc = slotData.isFlipped ? config.flippedImage : config.cookedImage;
         } else if (slotData.state === 'charred') {
-          imgsrc = config.rawImage;
+          imgsrc = config.cookedImage; // Сгоревший вариант базируется на приготовленном спрайте
           slotEl.classList.add('charred');
         }
 
@@ -716,7 +724,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const config = GRILLABLE_ITEMS[slot.rawId];
     const now = Date.now();
 
-    // Переворачивать разрешено ТОЛЬКО когда состояние равно 'needsFlip' (появилась иконка Flip!)
     if (slot.state === 'needsFlip' && config.needsFlip && !slot.isFlipped) {
       slot.isFlipped = true;
       slot.state = 'cooking';
@@ -729,7 +736,6 @@ document.addEventListener('DOMContentLoaded', () => {
       ingredientStock[config.cookedId] = (ingredientStock[config.cookedId] ?? 0) + 1;
       saveStock();
       showToast('Added to inventory!', `${config.name} added to backpack.`, 'success');
-      // Заменено на buttons.mp3 при сборе готового продукта с гриля
       playSound(SOUNDS.buttons);
       
       grillSlots[index] = null;
