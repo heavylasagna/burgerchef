@@ -297,7 +297,7 @@ body {
   100% { opacity: 0; transform: translateY(-15px) scale(0.95); }
 }
 
-/* Закрепленный рецепт: нижняя булка внизу, компактные отступы снизу вверх */
+/* Закрепленный рецепт */
 .pinned-recipe-widget {
   position: absolute;
   top: 52px;
@@ -323,7 +323,7 @@ body {
 .pinned-recipe-widget .unpin-btn { background: none; border: none; cursor: pointer; font-size: 0.75rem; color: var(--text-color); padding: 0 2px; }
 .pinned-ingredients { 
   display: flex; 
-  flex-direction: column-reverse; /* Нижняя булочка внизу, порядок снизу вверх */
+  flex-direction: column-reverse; 
   gap: 0px; 
   align-items: center; 
 }
@@ -331,7 +331,7 @@ body {
   width: 48px; 
   height: 48px; 
   object-fit: contain; 
-  margin-bottom: -12px; /* Наложение для минимального расстояния */
+  margin-bottom: -12px; 
 }
 .pinned-ingredients img:first-child {
   margin-bottom: 0;
@@ -884,29 +884,36 @@ input[type="range"]::-webkit-slider-thumb {
   .action-group { width: 100%; justify-content: space-between; }
   .btn-action { flex: 1; padding: 8px 2px; font-size: 0.75rem; text-align: center; }
 
-  /* Убрана фиксация (position: fixed) для кошелька, рецепта и глаза на мобильных */
+  /* На мобильных устройствах кошелёк и рецепт строго в левом верхнем углу друг под другом */
   .mobile-top-bar {
-    position: static !important;
+    position: fixed !important;
+    top: 10px !important; 
+    right: 10px !important;
     display: flex !important;
     justify-content: flex-end !important;
     align-items: center !important;
-    margin-bottom: 6px;
-    pointer-events: auto;
+    z-index: 1000 !important;
+    pointer-events: none;
   }
+  .mobile-top-bar > * { pointer-events: auto; }
   
   .wallet-widget { 
-    position: static !important; 
+    position: absolute !important; 
+    top: 10px !important; 
+    left: 10px !important; 
     transform: none !important; 
     width: max-content !important;
-    margin-bottom: 6px;
+    z-index: 1000 !important;
     padding: 6px 12px; 
     font-size: 0.75rem; 
   }
 
   .pinned-recipe-widget { 
-    position: static !important; 
+    position: absolute !important; 
+    top: 52px !important; 
+    left: 10px !important; 
     width: max-content !important;
-    margin-bottom: 6px;
+    z-index: 1000 !important;
     padding: 6px !important;
   }
   .pinned-ingredients img { 
@@ -932,7 +939,6 @@ input[type="range"]::-webkit-slider-thumb {
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
   }
 
-  /* Исправлено скрытие элементов интерфейса через класс ui-hidden без затрагивания кнопки глаза */
   body.ui-hidden .left-panel,
   body.ui-hidden .right-panel,
   body.ui-hidden .sauces-group.mobile-sauces,
