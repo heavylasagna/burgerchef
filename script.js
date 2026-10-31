@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('burger_theme', 'dark');
     }
   }
-  setTheme(localStorage.getItem('burger_theme'] || 'dark');
+  setTheme(localStorage.getItem('burger_theme') || 'dark');
 
   const squeezeBtn = document.getElementById('squeezeBtn');
   const eatBtn = document.getElementById('eatBtn');
