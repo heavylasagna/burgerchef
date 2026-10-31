@@ -137,7 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let skipOrderClickCount = 0;
   let skipOrderTimeout = null;
 
-  // Переменные для двойного клика по мусорному ведру
   let resetClickCount = 0;
   let resetClickTimeout = null;
 
@@ -154,7 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('saved_burger_stack', JSON.stringify(currentBurger));
   }
 
-  // Позиционирование денег с идеальным выравниванием по центру относительно кошелька
   function updateMoneyPopupPosition() {
     const container = document.getElementById('moneyPopupContainer');
     const pinnedWidget = document.getElementById('pinnedRecipeWidget');
@@ -389,14 +387,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const forceOrderBtn = document.getElementById('forceOrderBtn');
   const skipOrderBtn = document.getElementById('skipOrderBtn');
 
-  // Каталог товаров со связкой категорий для магазина и инвентаря
   const SHOP_ITEMS = [
     { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
     { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
     { id: 'beef-patty', name: 'Beef Patty', category: 'patty', image: 'images/beef-patty.png' },
     { id: 'chicken-patty', name: 'Chicken Patty', category: 'patty', image: 'images/chicken-patty.png' },
     { id: 'fish-patty', name: 'Fish Patty', category: 'patty', image: 'images/fish-patty.png' },
-    { id: 'hashbrown', name: 'Hashbrown (Драник)', category: 'patty', image: 'images/hashbrown.png' },
+    { id: 'hashbrown', name: 'Hashbrown', category: 'patty', image: 'images/hashbrown.png' },
     { id: 'fried-bacon', name: 'Fried Bacon', category: 'protein', image: 'images/fried-bacon.png' },
     { id: 'fried-egg', name: 'Fried Egg', category: 'protein', image: 'images/fried-egg.png' },
     { id: 'cheese', name: 'Cheese', category: 'protein', image: 'images/cheese.png' },
@@ -413,7 +410,6 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'bbq', name: 'BBQ', category: 'sauce', image: 'images/sauce-bbq.png', isSauce: true }
   ];
 
-  // Модальные окна и кнопки
   const inventoryModal = document.getElementById('inventoryModal');
   const openInventoryBtn = document.getElementById('openInventoryBtn');
   const closeInventoryModal = document.getElementById('closeInventoryModal');
@@ -493,7 +489,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Единая логика закрытия модальных окон по клику на оверлей (фон) и клавише ESC (теперь объявлена ПОСЛЕ всех модалок)
   const allModals = [
     { modal: recipesModal, closeBtn: closeRecipesModal },
     { modal: shopModal, closeBtn: closeShopModal },
