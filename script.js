@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'uncut-cheese': { name: 'Cheese', rawImage: 'images/uncut-cheese.png', slicedId: 'raw-cheese', slicedImage: 'images/raw-cheese.png', cutTime: 6 },
     'uncut-champignons': { name: 'Champignons', rawImage: 'images/uncut-champignons.png', slicedId: 'raw-champignons', slicedImage: 'images/raw-champignons.png', cutTime: 6 },
     'uncut-lettuce': { name: 'Lettuce', rawImage: 'images/uncut-lettuce.png', slicedId: 'lettuce', slicedImage: 'images/lettuce.png', cutTime: 5 },
-    'uncut-tomato': { name: 'Tomato', rawImage: 'images/uncut-tomato.png', slicedId: 'raw-tomato', slicedImage: 'images/tomato.png', cutTime: 5 },
+    'uncut-tomato': { name: 'Tomato', rawImage: 'images/uncut-tomato.png', slicedId: 'tomato', slicedImage: 'images/tomato.png', cutTime: 5 },
     'uncut-pickles': { name: 'Pickles', rawImage: 'images/uncut-pickles.png', slicedId: 'pickles', slicedImage: 'images/pickles.png', cutTime: 5 },
     'uncut-red-onion': { name: 'Red Onion', rawImage: 'images/uncut-red-onion.png', slicedId: 'red-onion', slicedImage: 'images/red-onion.png', cutTime: 5 },
     'uncut-white-onion': { name: 'White Onion', rawImage: 'images/uncut-white-onion.png', slicedId: 'white-onion', slicedImage: 'images/white-onion.png', cutTime: 5 }
@@ -1486,7 +1486,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeShopModal = document.getElementById('closeShopModal');
 
   const recipesModal = document.getElementById('recipesModal');
-  const openRecipesBtn = document.getElementById('openRecipesWidgetBtn');
+  const openRecipesBtn = document.getElementById('openRecipesBtn');
   const closeRecipesModal = document.getElementById('closeRecipesModal');
 
   const achievementsModal = document.getElementById('achievementsModal');
@@ -2712,17 +2712,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- 1. ПК-ТУТОРИАЛ (с подсветкой элементов интерфейса) ---
-  const pcTutorialSteps = [
+  // --- ПОЛНЫЙ ТУТОРИАЛ (с подсветкой элементов) ---
+  const tutorialSteps = [
     {
       title: "Assembly Screen",
-      text: "This is your main workplace where you can build orders or your own burgers.",
+      text: "This is your main workplace where you build custom burgers.",
       screen: "assembly",
       getElement: () => document.getElementById('centerStage') || document.querySelector('.center-stage')
     },
     {
       title: "Ingredients Menu",
-      text: "Here you can select what ingredients to add to your burger.",
+      text: "Here you can select and add various ingredients (buns, patties, veggies) to your burger stack.",
       screen: "assembly",
       getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
     },
@@ -2740,46 +2740,31 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       title: "Bottom Actions Menu",
-      text: `On the lower menu you have a variety of buttons:
-
-📋 List of recipes
-🏬 Groceries shop
-🎒 Your inventory
-🏆 Your achievements
----
-🔔 Summon new order
-⏩ Skip current order
-🍔 Eat your burger
-🍽 Serve the order
-✊ Squeeze your burger
-🗑 Bin current ingredients
----
-💾 Save your burger as PNG
-⚙ Settings`,
+      text: "Quick buttons for recipes, shop, inventory backpack, achievements, eating, squishing, or trashing the burger.",
       screen: "assembly",
       getElement: () => document.getElementById('bottomPanel') || document.querySelector('.bottom-panel')
     },
     {
       title: "Switch to Grill",
-      text: "Click this button to switch to the Grill screen and cook your ingredients.",
+      text: "Click this button to switch to the Grill screen and cook raw ingredients.",
       screen: "assembly",
       getElement: () => document.getElementById('switchToGrillBtn')
     },
     {
       title: "Grill Screen",
-      text: "Here you can cook your ingredients.",
+      text: "Here you can grill raw patties, bacon, eggs, and mushrooms.",
       screen: "grill",
       getElement: () => document.getElementById('grillStage')
     },
     {
       title: "Raw Ingredients Menu",
-      text: "On this panel you can select which items to grill.",
+      text: "On the right panel, select raw items from your stock to place them onto the grill slots.",
       screen: "grill",
       getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
     },
     {
       title: "Cooked Inventory",
-      text: "On the left panel you can see your inventory of cooked goods.",
+      text: "On the left panel, you can view your inventory of successfully cooked ingredients ready to use.",
       screen: "grill",
       getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
     },
@@ -2791,32 +2776,25 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       title: "Cutting Board Screen",
-      text: "Here you can slice ingredients before using them.",
+      text: "Here you can chop and slice uncut vegetables and cheeses before using them.",
       screen: "board",
       getElement: () => document.getElementById('boardStage')
     },
     {
       title: "Uncut Ingredients",
-      text: "Select items that you want to cut. From one item you get three slices.",
+      text: "Select uncut items on the right panel to place them onto the board and chop them into pieces.",
       screen: "board",
       getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
     },
     {
       title: "Sliced Inventory",
-      text: "The left panel displays your stock of sliced ingredients.",
+      text: "The left panel displays your stock of freshly sliced ingredients ready for your culinary creations.",
       screen: "board",
       getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
     },
     {
       title: "Settings & Game Modes",
-      text: `Let's head back to Assembly. Open Settings to configure volume, themes, game modes and order frequncy.
-      
-Sandbox. Infinite money and ingredients. Experiment and create.
-Casual. A regular career gamemode where you earn money and sell orders.
-Turbo. Orders come without stopping and an addition patience timer. Don't mess up or get fined!
----
-The order frequency changes how often you will get your order.
-Turbo gives you orders without waiting and no orders removes this feature at all.`,
+      text: "Let's head back to Assembly. Open Settings to configure volume, themes, game modes (Sandbox, Casual, Turbo), and order frequencies.",
       screen: "assembly",
       action: () => {
         const modal = document.getElementById('settingsModal');
@@ -2826,7 +2804,7 @@ Turbo gives you orders without waiting and no orders removes this feature at all
     },
     {
       title: "Reset & Tutorial",
-      text: "Here you can restart this tutorial anytime and access buttons to reset your achievements or entire game data. Be careful with that. For now enjoy your game!",
+      text: "Here you can restart this tutorial anytime and access the Danger Zone to wipe data or achievements.",
       screen: "assembly",
       action: () => {
         const modal = document.getElementById('settingsModal');
@@ -2837,92 +2815,6 @@ Turbo gives you orders without waiting and no orders removes this feature at all
         }
       },
       getElement: () => document.getElementById('tutorialFinalSection')
-    }
-  ];
-
-  // --- 2. МОБИЛЬНЫЙ ТУТОРИАЛ (полностью независимый, всегда строго по центру экрана) ---
-  const mobileTutorialSteps = [
-    {
-      title: "Assembly Screen",
-      text: "This is your main workplace where you can build orders or your own burgers."
-    },
-    {
-      title: "Ingredients Menu",
-      text: "Here you can select what ingredients to add to your burger."
-    },
-    {
-      title: "Layers Panel",
-      text: "Here you can see all current layers of your burger, reorder them, or remove individual items."
-    },
-    {
-      title: "Wallet",
-      text: "Shows your current money balance. Earn cash by fulfilling customer orders correctly!"
-    },
-    {
-      title: "Bottom Actions Menu",
-      text: `On the lower menu you have a variety of buttons:
-
-📋 List of recipes
-🏬 Groceries shop
-🎒 Your inventory
-🏆 Your achievements
----
-🔔 Summon new order
-⏩ Skip current order
-🍔 Eat your burger
-🍽 Serve the order
-✊ Squeeze your burger
-🗑 Bin current ingredients
----
-💾 Save your burger as PNG
-⚙ Settings`
-    },
-    {
-      title: "Switch to Grill",
-      text: "Click this button to switch to the Grill screen and cook your ingredients."
-    },
-    {
-      title: "Grill Screen",
-      text: "Here you can cook your ingredients."
-    },
-    {
-      title: "Raw Ingredients Menu",
-      text: "On this panel you can select which items to grill."
-    },
-    {
-      title: "Cooked Inventory",
-      text: "On the left panel you can see your inventory of cooked goods."
-    },
-    {
-      title: "Switch to Cutting Board",
-      text: "Click this button to switch to the Cutting Board screen."
-    },
-    {
-      title: "Cutting Board Screen",
-      text: "Here you can slice ingredients before using them."
-    },
-    {
-      title: "Uncut Ingredients",
-      text: "Select items that you want to cut. From one item you get three slices."
-    },
-    {
-      title: "Sliced Inventory",
-      text: "The left panel displays your stock of sliced ingredients."
-    },
-    {
-      title: "Settings & Game Modes",
-      text: `Let's head back to Assembly. Open Settings to configure volume, themes, game modes and order frequncy.
-      
-Sandbox. Infinite money and ingredients. Experiment and create.
-Casual. A regular career gamemode where you earn money and sell orders.
-Turbo. Orders come without stopping and an addition patience timer. Don't mess up or get fined!
----
-The order frequency changes how often you will get your order.
-Turbo gives you orders without waiting and no orders removes this feature at all.`
-    },
-    {
-      title: "Reset & Tutorial",
-      text: "Here you can restart this tutorial anytime and access buttons to reset your achievements or entire game data. Be careful with that. For now enjoy your game!"
     }
   ];
 
@@ -2976,114 +2868,76 @@ Turbo gives you orders without waiting and no orders removes this feature at all
 
   function startTutorial() {
     currentTutorialStep = 0;
-    const isMobile = window.innerWidth <= 900;
-    
-    if (isMobile) {
-      if (tutorialOverlay) tutorialOverlay.classList.add('active');
-      if (tutorialSpotlight) tutorialSpotlight.style.display = 'none';
-    } else {
-      document.body.classList.add('tutorial-active');
-      if (tutorialOverlay) tutorialOverlay.classList.add('active');
-      if (tutorialSpotlight) tutorialSpotlight.style.display = 'block';
-    }
-
+    document.body.classList.add('tutorial-active');
+    if (tutorialOverlay) tutorialOverlay.classList.add('active');
     showTutorialStep(currentTutorialStep);
   }
 
   function showTutorialStep(stepIndex) {
-    const isMobile = window.innerWidth <= 900;
-    const stepsList = isMobile ? mobileTutorialSteps : pcTutorialSteps;
-    const step = stepsList[stepIndex];
-
+    const step = tutorialSteps[stepIndex];
     if (!step) {
       endTutorial();
       return;
     }
 
-    if (!isMobile) {
-      if (step.screen && currentScreen !== step.screen) {
-        switchScreen(step.screen);
-      }
+    if (step.screen && currentScreen !== step.screen) {
+      switchScreen(step.screen);
+    }
 
-      if (step.action) {
-        step.action();
-      } else {
-        const settingsModalEl = document.getElementById('settingsModal');
-        if (settingsModalEl && stepIndex < stepsList.length - 1) {
-          settingsModalEl.classList.remove('open');
-        }
+    if (step.action) {
+      step.action();
+    } else {
+      const settingsModalEl = document.getElementById('settingsModal');
+      if (settingsModalEl && stepIndex < tutorialSteps.length - 1) {
+        settingsModalEl.classList.remove('open');
       }
     }
 
     if (tutorialTitle) tutorialTitle.innerText = step.title;
-    if (tutorialText) {
-      tutorialText.style.whiteSpace = 'pre-line';
-      tutorialText.innerText = step.text;
-    }
-    if (tutorialStepIndicator) tutorialStepIndicator.innerText = `${stepIndex + 1} / ${stepsList.length}`;
+    if (tutorialText) tutorialText.innerText = step.text;
+    if (tutorialStepIndicator) tutorialStepIndicator.innerText = `${stepIndex + 1} / ${tutorialSteps.length}`;
     if (tutorialPrevBtn) tutorialPrevBtn.style.display = stepIndex === 0 ? 'none' : 'block';
-    if (tutorialNextBtn) tutorialNextBtn.innerText = stepIndex === stepsList.length - 1 ? 'Finish' : 'Next';
+    if (tutorialNextBtn) tutorialNextBtn.innerText = stepIndex === tutorialSteps.length - 1 ? 'Finish' : 'Next';
 
-    if (isMobile) {
-      if (tutorialTooltip) {
-        tutorialTooltip.style.left = '50%';
-        tutorialTooltip.style.top = '50%';
-        tutorialTooltip.style.transform = 'translate(-50%, -50%)';
-        tutorialTooltip.style.position = 'fixed';
-        tutorialTooltip.style.maxHeight = '80vh';
-        tutorialTooltip.style.overflowY = 'auto';
-      }
-    } else {
-      if (tutorialTooltip) {
-        tutorialTooltip.style.transform = 'none';
-        tutorialTooltip.style.position = 'absolute';
-        tutorialTooltip.style.maxHeight = 'none';
-        tutorialTooltip.style.overflowY = 'visible';
-      }
+    setTimeout(() => {
       setTimeout(() => {
-        setTimeout(() => {
-          const targetEl = step.getElement ? step.getElement() : null;
-          if (targetEl) {
-            targetEl.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' });
+        const targetEl = step.getElement ? step.getElement() : null;
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' });
+        }
+
+        if (targetEl && tutorialSpotlight && tutorialTooltip) {
+          const rect = targetEl.getBoundingClientRect();
+          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+          const padding = 12;
+
+          tutorialSpotlight.style.top = `${rect.top + scrollTop - padding}px`;
+          tutorialSpotlight.style.left = `${rect.left + scrollLeft - padding}px`;
+          tutorialSpotlight.style.width = `${rect.width + padding * 2}px`;
+          tutorialSpotlight.style.height = `${rect.height + padding * 2}px`;
+
+          const tooltipWidth = 310;
+          let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2 + scrollLeft;
+          let tooltipTop = rect.bottom + scrollTop + 16;
+
+          if (tooltipLeft < 10) tooltipLeft = 10;
+          if (tooltipLeft + tooltipWidth > window.innerWidth - 10) tooltipLeft = window.innerWidth - tooltipWidth - 10;
+          if (tooltipTop + 190 > window.innerHeight + scrollTop) {
+            tooltipTop = rect.top + scrollTop - 190;
           }
 
-          if (targetEl && tutorialSpotlight && tutorialTooltip) {
-            const rect = targetEl.getBoundingClientRect();
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-            const padding = 12;
-
-            tutorialSpotlight.style.top = `${rect.top + scrollTop - padding}px`;
-            tutorialSpotlight.style.left = `${rect.left + scrollLeft - padding}px`;
-            tutorialSpotlight.style.width = `${rect.width + padding * 2}px`;
-            tutorialSpotlight.style.height = `${rect.height + padding * 2}px`;
-
-            const tooltipWidth = 310;
-            let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2 + scrollLeft;
-            let tooltipTop = rect.bottom + scrollTop + 16;
-
-            if (tooltipLeft < 10) tooltipLeft = 10;
-            if (tooltipLeft + tooltipWidth > window.innerWidth - 10) tooltipLeft = window.innerWidth - tooltipWidth - 10;
-            
-            if (step.title === "Bottom Actions Menu" && rect.bottom + 190 > window.innerHeight) {
-              tooltipTop = rect.top + scrollTop - 190;
-            }
-
-            tutorialTooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
-            tutorialTooltip.style.top = `${Math.max(10, tooltipTop)}px`;
-          }
-        }, 50);
-      }, 100);
-    }
+          tutorialTooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
+          tutorialTooltip.style.top = `${Math.max(10, tooltipTop)}px`;
+        }
+      }, 50);
+    }, 100);
   }
 
   if (tutorialNextBtn) {
     tutorialNextBtn.onclick = () => {
       playSound(SOUNDS.buttons);
-      const isMobile = window.innerWidth <= 900;
-      const stepsList = isMobile ? mobileTutorialSteps : pcTutorialSteps;
-
-      if (currentTutorialStep < stepsList.length - 1) {
+      if (currentTutorialStep < tutorialSteps.length - 1) {
         currentTutorialStep++;
         showTutorialStep(currentTutorialStep);
       } else {
@@ -3105,7 +2959,6 @@ Turbo gives you orders without waiting and no orders removes this feature at all
   function endTutorial() {
     document.body.classList.remove('tutorial-active');
     if (tutorialOverlay) tutorialOverlay.classList.remove('active');
-    if (tutorialSpotlight) tutorialSpotlight.style.display = 'block';
     const settingsModalEl = document.getElementById('settingsModal');
     if (settingsModalEl) settingsModalEl.classList.remove('open');
   }
