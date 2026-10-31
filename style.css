@@ -12,6 +12,7 @@
   --scrollbar-thumb: rgba(255, 179, 0, 0.3);
   --scrollbar-thumb-hover: rgba(255, 179, 0, 0.6);
   --stock-badge-bg: rgba(0,0,0,0.3);
+  --board-bg: radial-gradient(circle at 50% 30%, #5c3a21, #2d1a0d);
 }
 
 body.light-theme {
@@ -27,7 +28,8 @@ body.light-theme {
   --panel-title-color: #5d4037;
   --scrollbar-thumb: rgba(141, 110, 99, 0.35);
   --scrollbar-thumb-hover: rgba(141, 110, 99, 0.65);
-  --stock-badge-bg: rgba(141, 110, 99, 0.15); /* Более светлый и мягкий серый для светлой темы */
+  --stock-badge-bg: rgba(141, 110, 99, 0.15);
+  --board-bg: radial-gradient(circle at 50% 30%, #c8b9a6, #8c7355);
 }
 
 * {
@@ -165,7 +167,7 @@ body {
   overflow-y: auto;
   flex: 1;
   min-height: 0;
-  padding: 6px 2px 2px 2px; /* Смещено слегка вниз для предотвращения обрезания при наведении */
+  padding: 6px 2px 2px 2px;
 }
 
 .layers-list.assembly-mode {
@@ -513,7 +515,7 @@ body {
   overflow-y: auto;
   flex: 1;
   min-height: 0;
-  padding: 6px 2px 2px 2px; /* Смещено слегка вниз для предотвращения обрезания при наведении */
+  padding: 6px 2px 2px 2px;
   align-items: stretch;
 }
 
@@ -591,6 +593,7 @@ body {
   overflow-x: auto;
 }
 .sauces-group.hidden-on-grill { display: none !important; }
+.sauces-group.hidden-on-board { display: none !important; }
 
 .sauce-chip {
   background: var(--item-bg);
@@ -695,6 +698,22 @@ body {
   justify-content: center;
   position: relative;
   background: radial-gradient(circle at 50% 30%, #2a2a2a, #121212);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  padding: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  height: 100%;
+}
+
+.board-cooking-area {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: var(--board-bg);
   border-radius: 16px;
   border: 1px solid var(--border-color);
   padding: 20px;
@@ -1308,7 +1327,6 @@ input[type="range"]::-webkit-slider-thumb {
     border: 1px solid var(--border-color);
   }
   
-  /* Нижняя панель по умолчанию (экран сборки): с большим расстоянием между группами */
   .bottom-panel {
     position: fixed;
     bottom: 0; left: 0; right: 0;
@@ -1320,7 +1338,7 @@ input[type="range"]::-webkit-slider-thumb {
     z-index: 1000;
     overflow-x: auto;
     white-space: nowrap;
-    gap: 27px; /* Широкое расстояние между группами */
+    gap: 27px;
     width: 100%;
   }
   
@@ -1337,14 +1355,14 @@ input[type="range"]::-webkit-slider-thumb {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    gap: 27px; /* Широкое расстояние между блоками действий */
+    gap: 27px;
     flex-shrink: 0;
   }
 
   .action-box {
     flex-shrink: 0;
     padding: 0;
-    gap: 8px; /* Расстояние между кнопками внутри группы */
+    gap: 8px;
     display: inline-flex;
   }
   
@@ -1356,14 +1374,13 @@ input[type="range"]::-webkit-slider-thumb {
     flex: unset;
   }
 
-  /* Экран гриля: кнопки растягиваются на всю ширину и выравниваются по центру */
   body.grill-active .bottom-panel {
-    justify-content: center; /* Центрирование */
+    justify-content: center;
     gap: 12px;
   }
   body.grill-active .bottom-panel .actions-wrapper {
     width: 100%;
-    justify-content: center; /* Центрирование групп */
+    justify-content: center;
     gap: 16px;
   }
   body.grill-active .bottom-panel .action-box {
@@ -1397,7 +1414,6 @@ input[type="range"]::-webkit-slider-thumb {
     flex-direction: column !important;
     gap: 6px !important;
   }
-  /* Аккуратный размер кнопок переключения (по размеру глазка) */
   .screen-switcher .btn-action {
     width: 36px;
     height: 36px;
