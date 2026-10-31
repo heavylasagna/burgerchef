@@ -180,7 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('burger_money', playerMoney);
   }
 
-  // Универсальная функция тостов (тип: 'success', 'warning', 'error')
   function showToast(title, desc = '', type = 'success') {
     const container = document.getElementById('toastContainer');
     if (!container) return;
@@ -344,8 +343,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
+    // Кнопка пропуска теперь отображается всегда (включая no-orders)
     if (skipOrderBtn) {
-      skipOrderBtn.style.display = isNoOrders ? 'none' : 'flex';
+      skipOrderBtn.style.display = 'flex';
     }
   }
 
@@ -760,7 +760,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Кнопка сохранения картинки 💾
   const downloadPngBtn = document.getElementById('downloadPngBtn');
   if (downloadPngBtn) {
     downloadPngBtn.onclick = () => {
@@ -793,7 +792,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Кнопка призыва заказа 🔔
   if (forceOrderBtn) {
     forceOrderBtn.onclick = () => {
       playSound(SOUNDS.buttons);
@@ -812,12 +810,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Кнопка пропустить заказ ⏩
   if (skipOrderBtn) {
     skipOrderBtn.onclick = () => {
       playSound(SOUNDS.buttons);
       const speed = getCurrentSpeed();
-      if (speed === 'no-orders' || !currentActiveOrder) {
+      if (speed === 'no-orders' && !currentActiveOrder) {
         showToast('No active order', '', 'warning');
         return;
       }
@@ -988,7 +985,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Кнопка сжать ✊
   if (squeezeBtn) {
     squeezeBtn.onclick = () => {
       if (currentBurger.length === 0) {
@@ -1027,7 +1023,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Кнопка съесть 🍔
   if (eatBtn) {
     eatBtn.onclick = () => {
       if (currentBurger.length === 0) {
