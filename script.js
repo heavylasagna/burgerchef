@@ -2705,32 +2705,99 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- ЛОГИКА ТУТОРИАЛА И ПРИВЕТСТВИЯ ---
+ // --- ПОЛНЫЙ ТУТОРИАЛ ---
   const tutorialSteps = [
+    // 1. Экран сборки
     {
-      title: "Assembly Station",
-      text: "This is your main workplace. Click on ingredients on the right panel to build your burger layer by layer.",
+      title: "Assembly Screen",
+      text: "This is your main workplace where you build custom burgers.",
+      screen: "assembly",
       getElement: () => document.getElementById('centerStage') || document.querySelector('.center-stage')
     },
     {
-      title: "Ingredients Panel",
-      text: "Here you can choose buns, patties, veggies, and sauces. Keep an eye on your stock!",
+      title: "Ingredients Menu",
+      text: "Here you can select and add various ingredients (buns, patties, veggies) to your burger stack.",
+      screen: "assembly",
       getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
     },
     {
-      title: "Grill & Cutting Board",
-      text: "Use these buttons to switch to the Grill or Cutting Board to prepare raw ingredients before assembling.",
-      getElement: () => document.getElementById('screenSwitcher') || document.querySelector('.screen-switcher')
+      title: "Layers Panel",
+      text: "Here you can see all current layers of your burger, reorder them, or remove individual items.",
+      screen: "assembly",
+      getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
     },
     {
-      title: "Shop & Inventory",
-      text: "Need more supplies? Open the Shop to purchase ingredients using your earned money.",
-      getElement: () => document.getElementById('openShopBtn') || document.querySelector('.actions-wrapper')
+      title: "Wallet",
+      text: "Shows your current money balance. Earn cash by fulfilling customer orders correctly!",
+      screen: "assembly",
+      getElement: () => document.getElementById('walletWidget') || document.querySelector('.wallet-widget')
     },
     {
-      title: "Orders & Money",
-      text: "Complete client orders shown at the top to earn cash and become a master chef!",
-      getElement: () => document.getElementById('topOrderWidget') || document.getElementById('walletWidget')
+      title: "Bottom Actions Menu",
+      text: "Quick buttons for recipes, shop, inventory backpack, achievements, eating, squishing, or trashing the burger.",
+      screen: "assembly",
+      getElement: () => document.getElementById('bottomPanel') || document.querySelector('.bottom-panel')
+    },
+
+    // 2. Экран гриля
+    {
+      title: "Grill Screen",
+      text: "Switch here using the top switcher to cook raw ingredients like patties, bacon, or eggs.",
+      screen: "grill",
+      getElement: () => document.getElementById('switchToGrillBtn') || document.getElementById('grillStage')
+    },
+    {
+      title: "Raw Ingredients Menu",
+      text: "On the right panel, select raw items from your stock to place them onto the grill slots.",
+      screen: "grill",
+      getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
+    },
+    {
+      title: "Cooked Inventory",
+      text: "On the left panel, you can view your inventory of successfully cooked ingredients ready to use.",
+      screen: "grill",
+      getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
+    },
+
+    // 3. Экран доски для нарезки
+    {
+      title: "Cutting Board Screen",
+      text: "Switch here to chop and slice uncut vegetables and cheeses before using them.",
+      screen: "board",
+      getElement: () => document.getElementById('switchToBoardBtn') || document.getElementById('boardStage')
+    },
+    {
+      title: "Uncut Ingredients",
+      text: "Select uncut items on the right panel to place them onto the board and chop them into pieces.",
+      screen: "board",
+      getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
+    },
+    {
+      title: "Sliced Inventory",
+      text: "The left panel displays your stock of freshly sliced ingredients ready for your culinary creations.",
+      screen: "board",
+      getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
+    },
+
+    // 4. Финал в настройках
+    {
+      title: "Settings & Game Modes",
+      text: "Let's head back to Assembly. Open Settings to configure volume, themes, game modes (Sandbox, Casual, Turbo), and order frequencies.",
+      screen: "assembly",
+      action: () => {
+        const modal = document.getElementById('settingsModal');
+        if (modal) modal.classList.add('open');
+      },
+      getElement: () => document.getElementById('settingsModal') ? document.getElementById('settingsModal').querySelector('.modal-content') : document.body
+    },
+    {
+      title: "Reset Button",
+      text: "The Reset button in settings allows you to completely wipe data if needed. Also, you can restart this tutorial anytime via the button in settings!",
+      screen: "assembly",
+      action: () => {
+        // Оставляем модалку настроек открытой для наглядности
+      },
+      getElement: () => document.getElementById('hardResetBtn') || document.getElementById('openTutorialFromSettingsBtn')
     }
   ];
 
@@ -2795,35 +2862,54 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Если шаг требует определенного экрана — переключаемся на него
+    if (step.screen && currentScreen !== step.screen) {
+      switchScreen(step.screen);
+    }
+
+    // Выполняем кастомное действие (например, открытие модалки настроек)
+    if (step.action) {
+      step.action();
+    } else {
+      // Если на предыдущем шаге открывались настройки, а сейчас нет — закрываем настройки
+      const settingsModalEl = document.getElementById('settingsModal');
+      if (settingsModalEl && stepIndex < tutorialSteps.length - 1) {
+        settingsModalEl.classList.remove('open');
+      }
+    }
+
     if (tutorialTitle) tutorialTitle.innerText = step.title;
     if (tutorialText) tutorialText.innerText = step.text;
     if (tutorialStepIndicator) tutorialStepIndicator.innerText = `${stepIndex + 1} / ${tutorialSteps.length}`;
     if (tutorialPrevBtn) tutorialPrevBtn.style.display = stepIndex === 0 ? 'none' : 'block';
     if (tutorialNextBtn) tutorialNextBtn.innerText = stepIndex === tutorialSteps.length - 1 ? 'Finish' : 'Next';
 
-    const targetEl = step.getElement();
-    if (targetEl && tutorialSpotlight && tutorialTooltip) {
-      const rect = targetEl.getBoundingClientRect();
-      const padding = 16; // Увеличенный отступ для отличной видимости подсвеченной зоны
+    // Даем небольшую задержку на рендеринг экрана перед вычислением координат рамки
+    setTimeout(() => {
+      const targetEl = step.getElement ? step.getElement() : null;
+      if (targetEl && tutorialSpotlight && tutorialTooltip) {
+        const rect = targetEl.getBoundingClientRect();
+        const padding = 16; // Аккуратный отступ рамки
 
-      tutorialSpotlight.style.top = `${rect.top - padding}px`;
-      tutorialSpotlight.style.left = `${rect.left - padding}px`;
-      tutorialSpotlight.style.width = `${rect.width + padding * 2}px`;
-      tutorialSpotlight.style.height = `${rect.height + padding * 2}px`;
+        tutorialSpotlight.style.top = `${rect.top - padding}px`;
+        tutorialSpotlight.style.left = `${rect.left - padding}px`;
+        tutorialSpotlight.style.width = `${rect.width + padding * 2}px`;
+        tutorialSpotlight.style.height = `${rect.height + padding * 2}px`;
 
-      const tooltipWidth = 300;
-      let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2;
-      let tooltipTop = rect.bottom + 16;
+        const tooltipWidth = 310;
+        let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2;
+        let tooltipTop = rect.bottom + 16;
 
-      if (tooltipLeft < 10) tooltipLeft = 10;
-      if (tooltipLeft + tooltipWidth > window.innerWidth - 10) tooltipLeft = window.innerWidth - tooltipWidth - 10;
-      if (tooltipTop + 160 > window.innerHeight) {
-        tooltipTop = rect.top - 170;
+        if (tooltipLeft < 10) tooltipLeft = 10;
+        if (tooltipLeft + tooltipWidth > window.innerWidth - 10) tooltipLeft = window.innerWidth - tooltipWidth - 10;
+        if (tooltipTop + 180 > window.innerHeight) {
+          tooltipTop = rect.top - 190;
+        }
+
+        tutorialTooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
+        tutorialTooltip.style.top = `${Math.max(10, tooltipTop)}px`;
       }
-
-      tutorialTooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
-      tutorialTooltip.style.top = `${Math.max(10, tooltipTop)}px`;
-    }
+    }, 50);
   }
 
   if (tutorialNextBtn) {
@@ -2850,6 +2936,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function endTutorial() {
     if (tutorialOverlay) tutorialOverlay.classList.remove('active');
+    const settingsModalEl = document.getElementById('settingsModal');
+    if (settingsModalEl) settingsModalEl.classList.remove('open');
   }
 
   showWelcomeModalIfNeeded();
