@@ -734,7 +734,7 @@ body {
   height: 100%;
   width: 0%;
   background: #ffb300;
-  transition: width 0.2s linear, background-color 0.3s; /* Плавное движение шкалы */
+  transition: width 0.2s linear, background-color 0.3s;
 }
 
 .grill-progress-bar.burning {
