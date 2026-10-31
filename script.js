@@ -51,7 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const mobileSaucesGroup = document.getElementById('mobileSaucesGroup');
   const burgerStack = document.getElementById('burgerStack');
   const layersList = document.getElementById('layersList');
-  const layersTitle = document.getElementById('layersTitle');
   const centerStage = document.getElementById('centerStage');
   const grillStage = document.getElementById('grillStage');
   const limitWarning = document.getElementById('limitWarning');
@@ -135,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   let grillSlots = JSON.parse(localStorage.getItem('burger_grill_slots')) || Array(3).fill(null);
-  let currentScreen = 'assembly';
+  let currentScreen = localStorage.getItem('burger_current_screen') || 'assembly';
   let isBinSelectMode = false;
   let selectedGrillIndicesForBin = [];
   let sizzlingAudioInstance = null;
@@ -168,6 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function switchScreen(screen) {
     playSound(SOUNDS.buttons);
     currentScreen = screen;
+    localStorage.setItem('burger_current_screen', screen);
 
     if (switchToAssemblyBtn) switchToAssemblyBtn.classList.toggle('active', screen === 'assembly');
     if (switchToGrillBtn) switchToGrillBtn.classList.toggle('active', screen === 'grill');
@@ -495,11 +495,14 @@ document.addEventListener('DOMContentLoaded', () => {
       saveStock();
     }
 
+    const now = Date.now();
+
     grillSlots[emptyIndex] = {
       rawId: rawId,
       state: 'cooking',
-      progress: 0,
-      isFlipped: false
+      startTime: now,
+      isFlipped: false,
+      notified: false
     };
 
     playSound(SOUNDS.ingridients);
@@ -507,7 +510,92 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGrill();
   }
 
+  function updateGrillLogic() {
+    const now = Date.now();
+    let needsSave = false;
+
+    grillSlots.forEach((slot, index) => {
+      if (!slot) return;
+      const config = GRILLABLE_ITEMS[slot.rawId];
+      const elapsed = (now - slot.startTime) / 1000; // Прошедшие секунды
+
+      const cookSeconds = config.cookTime;
+      const burnSeconds = config.burnTime;
+
+      if (slot.state === 'cooking') {
+        const targetTime = config.needsFlip ? (cookSeconds / 2) : cookSeconds;
+        
+        if (elapsed >= targetTime) {
+          if (config.needsFlip && !slot.isFlipped) {
+            slot.state = 'needsFlip';
+            if (!slot.notified) {
+              playSound(SOUNDS.complete);
+              slot.notified = true;
+            }
+          } else {
+            slot.state = 'ready';
+            if (!slot.notified) {
+              playSound(SOUNDS.complete);
+              slot.notified = true;
+            }
+          }
+          needsSave = true;
+        }
+      } else if (slot.state === 'ready') {
+        const totalCookTime = config.needsFlip ? cookSeconds : cookSeconds;
+        if (elapsed >= totalCookTime) {
+          slot.state = 'burning';
+          slot.burnStartTime = now;
+          needsSave = true;
+        }
+      } else if (slot.state === 'burning') {
+        const burnElapsed = (now - (slot.burnStartTime || now)) / 1000;
+        if (burnElapsed >= burnSeconds) {
+          slot.state = 'charred';
+          playSound(SOUNDS.burnt);
+          showToast('Burnt!', `${config.name} turned into charcoal!`, 'error');
+          needsSave = true;
+        }
+      }
+    });
+
+    if (needsSave) {
+      saveGrillState();
+    }
+  }
+
+  function getSlotProgress(slot) {
+    if (!slot) return 0;
+    const config = GRILLABLE_ITEMS[slot.rawId];
+    const now = Date.now();
+    const elapsed = (now - slot.startTime) / 1000;
+
+    if (slot.state === 'cooking') {
+      if (config.needsFlip && !slot.isFlipped) {
+        return Math.min(50, (elapsed / (config.cookTime / 2)) * 50);
+      } else if (slot.isFlipped) {
+        const halfTime = config.cookTime / 2;
+        const currentPhaseElapsed = elapsed - (slot.flipTimeOffset || halfTime);
+        return Math.min(100, 50 + (currentPhaseElapsed / halfTime) * 50);
+      } else {
+        return Math.min(100, (elapsed / config.cookTime) * 100);
+      }
+    } else if (slot.state === 'needsFlip') {
+      return 50;
+    } else if (slot.state === 'ready') {
+      return 100;
+    } else if (slot.state === 'burning') {
+      const burnElapsed = (now - (slot.burnStartTime || now)) / 1000;
+      return Math.max(0, 100 - (burnElapsed / config.burnTime) * 100);
+    } else if (slot.state === 'charred') {
+      return 0;
+    }
+    return 0;
+  }
+
   function renderGrill() {
+    updateGrillLogic();
+
     if (currentScreen !== 'grill') return;
     renderGrillIngredientsMenu();
     renderGrillCookedInventory();
@@ -540,7 +628,7 @@ document.addEventListener('DOMContentLoaded', () => {
           slotEl.classList.add('charred');
         }
 
-        const progressPercent = Math.min(100, Math.max(0, slotData.progress));
+        const progressPercent = getSlotProgress(slotData);
         const isBurningBar = slotData.state === 'burning';
 
         slotEl.innerHTML = `
@@ -606,11 +694,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const slot = grillSlots[index];
     if (!slot) return;
     const config = GRILLABLE_ITEMS[slot.rawId];
+    const now = Date.now();
 
     if (slot.state === 'needsFlip') {
       slot.isFlipped = true;
       slot.state = 'cooking';
-      slot.progress = 50;
+      slot.flipTimeOffset = (now - slot.startTime) / 1000;
+      slot.notified = false;
       playSound(SOUNDS.buttons);
       saveGrillState();
       renderGrill();
@@ -627,47 +717,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   setInterval(() => {
-    if (currentScreen !== 'grill') return;
-    let needsRedraw = false;
-
-    grillSlots.forEach((slot, index) => {
-      if (!slot) return;
-      const config = GRILLABLE_ITEMS[slot.rawId];
-
-      if (slot.state === 'cooking') {
-        const targetMid = config.needsFlip ? 50 : 100;
-        const increment = (100 / (config.cookTime * 5));
-        slot.progress += increment;
-
-        if (slot.progress >= targetMid) {
-          if (config.needsFlip && !slot.isFlipped) {
-            slot.progress = targetMid;
-            slot.state = 'needsFlip';
-          } else {
-            slot.progress = 100;
-            slot.state = 'ready';
-          }
-        }
-        needsRedraw = true;
-      } else if (slot.state === 'ready') {
-        slot.state = 'burning';
-        slot.progress = 100;
-        needsRedraw = true;
-      } else if (slot.state === 'burning') {
-        const burnDecrement = (100 / (config.burnTime * 5));
-        slot.progress -= burnDecrement;
-
-        if (slot.progress <= 0) {
-          slot.progress = 0;
-          slot.state = 'charred';
-          playSound(SOUNDS.burnt);
-          showToast('Burnt!', `${config.name} turned into charcoal!`, 'error');
-        }
-        needsRedraw = true;
-      }
-    });
-
-    if (needsRedraw) {
+    updateGrillLogic();
+    if (currentScreen === 'grill') {
       renderGrill();
     }
   }, 200);
@@ -1842,6 +1893,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  switchScreen(currentScreen);
   renderSauces();
   renderIngredientsMenu();
   updateBurgerDisplay(false);
