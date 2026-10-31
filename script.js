@@ -1019,19 +1019,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const SHOP_ITEMS = [
     { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
     { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
-    { id: 'raw-beef-patty', name: 'Beef Patty', category: 'patty', image: 'images/raw-beef-patty.png' },
-    { id: 'raw-chicken-patty', name: 'Chicken Patty', category: 'patty', image: 'images/raw-chicken-patty.png' },
-    { id: 'raw-fish-patty', name: 'Fish Patty', category: 'patty', image: 'images/raw-fish-patty.png' },
-    { id: 'raw-hashbrown', name: 'Hashbrown', category: 'patty', image: 'images/raw-hashbrown.png' },
-    { id: 'raw-bacon', name: 'Bacon', category: 'protein', image: 'images/raw-bacon.png' },
-    { id: 'raw-egg', name: 'Egg', category: 'protein', image: 'images/egg.png' },
-    { id: 'cheese', name: 'Cheese', category: 'protein', image: 'images/uncut-cheese.png' },
-    { id: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/uncut-champignons.png' },
-    { id: 'lettuce', name: 'Lettuce', category: 'vegetables', image: 'images/uncut-lettuce.png' },
-    { id: 'tomato', name: 'Tomato', category: 'vegetables', image: 'images/uncut-tomato.png' },
-    { id: 'pickles', name: 'Pickles', category: 'vegetables', image: 'images/uncut-pickles.png' },
-    { id: 'red-onion', name: 'Red Onion', category: 'vegetables', image: 'images/uncut-red-onion.png' },
-    { id: 'white-onion', name: 'White Onion', category: 'vegetables', image: 'images/uncut-white-onion.png' },
+    { id: 'raw-beef-patty', name: 'Beef Patty', category: 'patty', image: 'images/raw-beef-patty.png', isRawGrillable: true },
+    { id: 'raw-chicken-patty', name: 'Chicken Patty', category: 'patty', image: 'images/raw-chicken-patty.png', isRawGrillable: true },
+    { id: 'raw-fish-patty', name: 'Fish Patty', category: 'patty', image: 'images/raw-fish-patty.png', isRawGrillable: true },
+    { id: 'raw-hashbrown', name: 'Hashbrown', category: 'patty', image: 'images/raw-hashbrown.png', isRawGrillable: true },
+    { id: 'raw-bacon', name: 'Bacon', category: 'protein', image: 'images/raw-bacon.png', isRawGrillable: true },
+    { id: 'raw-egg', name: 'Egg', category: 'protein', image: 'images/egg.png', isRawGrillable: true },
+    { id: 'cheese', name: 'Cheese', category: 'protein', image: 'images/uncut-cheese.png', isUncut: true },
+    { id: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/uncut-champignons.png', isRawGrillable: true },
+    { id: 'lettuce', name: 'Lettuce', category: 'vegetables', image: 'images/uncut-lettuce.png', isUncut: true },
+    { id: 'tomato', name: 'Tomato', category: 'vegetables', image: 'images/uncut-tomato.png', isUncut: true },
+    { id: 'pickles', name: 'Pickles', category: 'vegetables', image: 'images/uncut-pickles.png', isUncut: true },
+    { id: 'red-onion', name: 'Red Onion', category: 'vegetables', image: 'images/uncut-red-onion.png', isUncut: true },
+    { id: 'white-onion', name: 'White Onion', category: 'vegetables', image: 'images/uncut-white-onion.png', isUncut: true },
     { id: 'mayo', name: 'Mayo', category: 'sauce', image: 'images/sauce-mayo.png', isSauce: true },
     { id: 'ketchup', name: 'Ketchup', category: 'sauce', image: 'images/sauce-ketchup.png', isSauce: true },
     { id: 'mustard', name: 'Mustard', category: 'sauce', image: 'images/sauce-mustard.png', isSauce: true },
@@ -1076,7 +1076,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     filtered.forEach(item => {
       let stockKey = item.id;
-      if (stockKey.startsWith('raw-')) {
+      if (item.isUncut) {
+        // Ненарезанные продукты хранятся под своим id, но пока не имеют функционала нарезки
+        stockKey = item.id;
+      } else if (stockKey.startsWith('raw-')) {
         stockKey = stockKey.replace('raw-', '');
         if (stockKey === 'bacon') stockKey = 'fried-bacon';
         if (stockKey === 'egg') stockKey = 'fried-egg';
@@ -1547,34 +1550,42 @@ document.addEventListener('DOMContentLoaded', () => {
     filtered.forEach(item => {
       const unitPrice = ITEM_PRICES[item.id] || 1;
       let stockKey = item.id;
-      if (stockKey.startsWith('raw-')) {
+      if (item.isUncut) {
+        stockKey = item.id;
+      } else if (stockKey.startsWith('raw-')) {
         stockKey = stockKey.replace('raw-', '');
         if (stockKey === 'bacon') stockKey = 'fried-bacon';
         if (stockKey === 'egg') stockKey = 'fried-egg';
       }
       const stockDisplay = currentGameMode === 'sandbox' ? '∞' : (ingredientStock[stockKey] ?? ingredientStock[item.id] ?? 0);
+      
+      // Если продукт ненарезанный (требует доску для резки), кнопка покупки будет неактивной
+      const isDisabledInShop = item.isUncut;
+
       cardsHtml += `
-        <div class="shop-item-card">
+        <div class="shop-item-card" style="${isDisabledInShop ? 'opacity: 0.6;' : ''}">
           <div class="shop-item-info">
             <img src="${item.image}" alt="${item.name}">
             <div class="shop-item-details">
               <h4>${item.name} ${item.isSauce ? '<span style="color:#ffb300; font-size:0.7rem;">x10</span>' : ''}</h4>
-              <p>$${unitPrice.toFixed(2)} ${item.isSauce ? 'per pack' : 'each'} | Stock: ${stockDisplay}</p>
+              <p>$${unitPrice.toFixed(2)} ${item.isSauce ? 'per pack' : 'each'} | Stock: ${stockDisplay} ${item.isUncut ? '<span style="color:#e57373; font-size:0.65rem; display:block;">(Requires cutting board)</span>' : ''}</p>
             </div>
           </div>
           <div class="shop-buy-group">
             <div class="shop-total-price" id="total-${item.id}">$0.00</div>
-            <button class="shop-qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
-            <input type="number" min="0" max="100" value="0" id="qty-${item.id}" oninput="updateItemTotal('${item.id}')">
-            <button class="shop-qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
-            <button class="btn-buy" onclick="buyItem('${item.id}')">Buy</button>
+            <button class="shop-qty-btn" ${isDisabledInShop ? 'disabled' : ''} onclick="changeQty('${item.id}', -1)">-</button>
+            <input type="number" min="0" max="100" value="0" id="qty-${item.id}" ${isDisabledInShop ? 'disabled style="opacity:0.4;"' : ''} oninput="updateItemTotal('${item.id}')">
+            <button class="shop-qty-btn" ${isDisabledInShop ? 'disabled' : ''} onclick="changeQty('${item.id}', 1)">+</button>
+            <button class="btn-buy" ${isDisabledInShop ? 'disabled style="background:gray; cursor:not-allowed;"' : ''} onclick="buyItem('${item.id}')">Buy</button>
           </div>
         </div>
       `;
     });
 
     body.innerHTML = `<div style="display:flex; flex-direction:column; gap:8px; min-height: 340px;">${cardsHtml}</div>`;
-    filtered.forEach(item => updateItemTotal(item.id));
+    filtered.forEach(item => {
+      if (!item.isUncut) updateItemTotal(item.id);
+    });
   }
 
   window.updateItemTotal = function(id) {
@@ -1588,6 +1599,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.changeQty = function(id, delta) {
+    const item = SHOP_ITEMS.find(i => i.id === id);
+    if (item && item.isUncut) return;
     const input = document.getElementById(`qty-${id}`);
     if (!input) return;
     let val = parseInt(input.value) || 0;
@@ -1597,6 +1610,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.buyItem = function(id) {
+    const item = SHOP_ITEMS.find(i => i.id === id);
+    if (item && item.isUncut) {
+      showToast('Cutting board required!', 'Cutting board is not ready yet.', 'warning');
+      return;
+    }
+
     const input = document.getElementById(`qty-${id}`);
     const qty = parseInt(input.value) || 0;
     if (qty <= 0) { showToast('Invalid quantity', 'Please select quantity greater than 0!', 'warning'); return; }
