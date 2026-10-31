@@ -454,6 +454,16 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'bbq', name: '🟤 BBQ', image: 'images/sauce-bbq.png' }
   ];
 
+  function setupWheelScrollForContainer(tabsEl) {
+    if (!tabsEl) return;
+    tabsEl.addEventListener('wheel', (e) => {
+      if (e.deltaY !== 0) {
+        e.preventDefault();
+        tabsEl.scrollLeft += e.deltaY;
+      }
+    }, { passive: false });
+  }
+
   function renderCategoryTabs(activeCat, onSelectCb, hideBread = false) {
     let cats = [
       { id: 'all', label: 'All' },
@@ -477,6 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       const tabsEl = document.getElementById(tabsId);
       if (tabsEl) {
+        setupWheelScrollForContainer(tabsEl);
         const activeBtn = tabsEl.querySelector('.panel-tab-btn.active');
         if (activeBtn) {
           tabsEl.scrollLeft = activeBtn.offsetLeft - tabsEl.offsetWidth / 2 + activeBtn.offsetWidth / 2;
@@ -1324,6 +1335,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       const recipeTabsEl = document.getElementById('recipe-cats-container');
       if (recipeTabsEl) {
+        setupWheelScrollForContainer(recipeTabsEl);
         const activeBtn = recipeTabsEl.querySelector('.recipe-tab.active');
         if (activeBtn) {
           recipeTabsEl.scrollLeft = activeBtn.offsetLeft - recipeTabsEl.offsetWidth / 2 + activeBtn.offsetWidth / 2;
@@ -1371,7 +1383,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Убран старый блок с кнопками Regular/Secret, выводим только табы категорий и список рецептов
+    // Полностью убраны старые кнопки Regular/Secret. Теперь здесь только табы категорий и рецепты.
     body.innerHTML = tabsHtml + itemsHtml;
   }
 
