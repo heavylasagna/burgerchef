@@ -540,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'red-onion', name: 'Red Onion', category: 'vegetables', image: 'images/red-onion.png' },
     { id: 'white-onion', name: 'White Onion', category: 'vegetables', image: 'images/white-onion.png' }
   ];
-  
+
   const SAUCES = [
     { id: 'mayo', name: '⚪️ Mayo', image: 'images/sauce-mayo.png' },
     { id: 'ketchup', name: '🔴 Ketchup', image: 'images/sauce-ketchup.png' },
@@ -946,7 +946,6 @@ document.addEventListener('DOMContentLoaded', () => {
     slot.state = 'cutting';
     slot.startTime = Date.now();
     
-    // Перезапуск звука cutting.mp3 без наслоения и с проигрыванием ровно один раз
     if (cuttingAudioInstance) {
       try {
         cuttingAudioInstance.pause();
@@ -1083,8 +1082,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         slotEl.innerHTML = `
           ${extraHtml}
-          <img src="${imgsrc}" class="grill-item ${slotData.state === 'charred' ? 'charred' : ''}">
-          <div class="oil-splash-container" id="splash-container-${index}"></div>
+          <div class="grill-item-wrapper">
+            <img src="${imgsrc}" class="grill-item">
+          </div>
           ${progressHtml}
         `;
       } else {
@@ -1311,8 +1311,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         slotEl.innerHTML = `
           ${extraHtml}
-          <div class="oil-splash-container" id="splash-container-${index}"></div>
-          <img src="${imgsrc}" class="grill-item ${slotData.state === 'charred' ? 'charred' : ''}">
+          <div class="grill-item-wrapper">
+            <img src="${imgsrc}" class="grill-item ${slotData.state === 'charred' ? 'charred' : ''}">
+            <div class="oil-splash-container" id="splash-container-${index}"></div>
+          </div>
           ${progressHtml}
         `;
 
@@ -2430,9 +2432,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function enterBinSelectMode() {
     isBinSelectMode = true;
     selectedGrillIndicesForBin = [];
+    selectedBoardIndicesForBin = [];
     showToast('Select items to bin', '', 'warning');
     showBinConfirmBar();
-    renderGrill();
+    if (currentScreen === 'grill') renderGrill();
+    if (currentScreen === 'board') renderBoard();
   }
 
   function exitBinSelectMode() {
@@ -2457,11 +2461,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function enterBoardBinSelectMode() {
-    isBinSelectMode = true;
-    selectedBoardIndicesForBin = [];
-    showToast('Select items to bin', '', 'warning');
-    showBoardBinConfirmBar();
-    renderBoard();
+    enterBinSelectMode();
   }
 
   function exitBoardBinSelectMode() {
@@ -2491,10 +2491,6 @@ document.addEventListener('DOMContentLoaded', () => {
       <button class="btn-action btn-cancel" title="Cancel" onclick="exitBinSelectMode()">✖</button>
     `;
     document.body.appendChild(bar);
-  }
-
-  function showBoardBinConfirmBar() {
-    showBinConfirmBar();
   }
 
   window.confirmBinActiveItems = function() {
