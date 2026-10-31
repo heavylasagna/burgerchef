@@ -676,7 +676,6 @@ document.addEventListener('DOMContentLoaded', () => {
           imgsrc = slotData.isFlipped ? config.cookedImage : config.cookedImage;
         } else if (slotData.state === 'charred') {
           imgsrc = config.cookedImage;
-          slotEl.classList.add('charred');
         }
 
         const progressPercent = getSlotProgress(slotData);
@@ -697,33 +696,26 @@ document.addEventListener('DOMContentLoaded', () => {
           ${progressHtml}
         `;
 
-        // Создаем брызги у нижнего края, если продукт жарится
-        if (Math.randomStr < 0.3 && slotData.state !== 'charred') {
+        // Брызги вылетают снизу из-под котлеты/продукта
+        if (Math.random() < 0.35 && slotData.state !== 'charred') {
           const splashContainer = slotEl.querySelector('.oil-splash-container');
           if (splashContainer) {
             const splash = document.createElement('div');
             splash.className = 'oil-splash';
-            const dx = (Math.random() - 0.5) * 50;
-            const dy = -Math.random() * 15 - 5; // Брызги летят слегка вверх из-под низа
+            const dx = (Math.random() - 0.5) * 60;
+            const dy = -Math.random() * 20 - 5;
             splash.style.setProperty('--dx', `${dx}px`);
             splash.style.setProperty('--dy', `${dy}px`);
             splashContainer.appendChild(splash);
             setTimeout(() => splash.remove(), 500);
           }
         }
+      } else {
+        slotEl.innerHTML = '';
+      }
+    });
 
     manageSizzlingAudio(hasActiveCooking);
-  }
-
-  function createOilSplash(parentEl) {
-    const splash = document.createElement('div');
-    splash.className = 'oil-splash';
-    const dx = (Math.random() - 0.5) * 70;
-    const dy = (Math.random() - 0.5) * 70;
-    splash.style.setProperty('--dx', `${dx}px`);
-    splash.style.setProperty('--dy', `${dy}px`);
-    parentEl.appendChild(splash);
-    setTimeout(() => splash.remove(), 600);
   }
 
   function manageSizzlingAudio(hasActive) {
