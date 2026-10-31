@@ -110,11 +110,15 @@ body {
 
 .layers-list {
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column; /* Элементы заполняются сверху вниз */
   gap: 6px;
   overflow-y: auto;
   flex: 1;
   padding-right: 2px;
+}
+
+.layers-list.assembly-mode {
+  flex-direction: column-reverse; /* Для слоев бургера на экране сборки */
 }
 
 .layer-item {
@@ -129,8 +133,8 @@ body {
 }
 
 .layer-preview {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   object-fit: contain;
 }
 
@@ -651,7 +655,7 @@ body {
   height: 100%;
 }
 
-/* Слоты на гриле (без видимой рамки/разметки, полностью невидимые слоты) */
+/* Слоты на гриле (без рамки) */
 .grill-slot {
   width: 120px;
   height: 120px;
