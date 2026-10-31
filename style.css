@@ -1282,14 +1282,14 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .btn-pin.pinned { background: #689f38; }
 
-/* --- Стили для Туториала --- */
+/* --- Стили для Туториала (без затемнения фона) --- */
 .tutorial-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.75); /* Затемнение только фона вокруг */
+  background: transparent; /* Убрано затемнение */
   z-index: 4000;
   display: none;
-  pointer-events: auto;
+  pointer-events: none; /* Чтобы клики проходили сквозь оверлей, если нужно */
 }
 .tutorial-overlay.active {
   display: block;
@@ -1298,8 +1298,8 @@ input[type="range"]::-webkit-slider-thumb {
 .tutorial-spotlight {
   position: absolute;
   border-radius: 16px;
-  background: transparent !important; /* Убираем любое затемнение внутри рамки */
-  box-shadow: 0 0 0 2px var(--accent-color), 0 0 20px rgba(255, 179, 0, 0.4); /* Яркая рамка и свечение */
+  background: transparent !important;
+  box-shadow: 0 0 0 3px var(--accent-color), 0 0 25px rgba(255, 179, 0, 0.6); /* Яркая рамка и свечение вокруг элемента */
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
   z-index: 4001;
@@ -1311,12 +1311,13 @@ input[type="range"]::-webkit-slider-thumb {
   border: 1px solid var(--accent-color);
   border-radius: 14px;
   padding: 16px;
-  width: 300px;
+  width: 310px;
   max-width: 90vw;
   box-shadow: 0 10px 30px rgba(0,0,0,0.6);
   z-index: 4002;
   color: var(--text-color);
   transition: all 0.3s ease;
+  pointer-events: auto;
 }
 
 .mobile-top-bar { display: none; }
