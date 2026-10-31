@@ -123,14 +123,15 @@ document.addEventListener('DOMContentLoaded', () => {
     'raw-bacon': 10, 'raw-egg': 10, 'raw-champignons': 10
   };
 
+  // Увеличенное и сбалансированное время готовки и сгорания (в секундах)
   const GRILLABLE_ITEMS = {
-    'raw-beef-patty': { name: 'Beef Patty', rawImage: 'images/raw-beef-patty.png', cookedId: 'beef-patty', cookedImage: 'images/beef-patty.png', flippedImage: 'images/beef-patty-flip.png', needsFlip: true, cookTime: 6, burnTime: 8 },
-    'raw-chicken-patty': { name: 'Chicken Patty', rawImage: 'images/raw-chicken-patty.png', cookedId: 'chicken-patty', cookedImage: 'images/chicken-patty.png', flippedImage: 'images/chicken-patty-flip.png', needsFlip: true, cookTime: 6, burnTime: 8 },
-    'raw-fish-patty': { name: 'Fish Patty', rawImage: 'images/raw-fish-patty.png', cookedId: 'fish-patty', cookedImage: 'images/fish-patty.png', flippedImage: 'images/fish-patty-flip.png', needsFlip: true, cookTime: 6, burnTime: 8 },
-    'raw-hashbrown': { name: 'Hashbrown', rawImage: 'images/raw-hashbrown.png', cookedId: 'hashbrown', cookedImage: 'images/hashbrown.png', flippedImage: 'images/hasbrown-flip.png', needsFlip: true, cookTime: 5, burnTime: 7 },
-    'raw-bacon': { name: 'Fried Bacon', rawImage: 'images/raw-bacon.png', cookedId: 'fried-bacon', cookedImage: 'images/fried-bacon.png', needsFlip: false, cookTime: 4, burnTime: 4 },
-    'raw-egg': { name: 'Fried Egg', rawImage: 'images/egg.png', cookedId: 'fried-egg', cookedImage: 'images/fried-egg.png', needsFlip: false, cookTime: 4, burnTime: 4 },
-    'raw-champignons': { name: 'Champignons', rawImage: 'images/raw-champignons.png', cookedId: 'champignons', cookedImage: 'images/champignons.png', needsFlip: false, cookTime: 4, burnTime: 4 }
+    'raw-beef-patty': { name: 'Beef Patty', rawImage: 'images/raw-beef-patty.png', cookedId: 'beef-patty', cookedImage: 'images/beef-patty.png', flippedImage: 'images/beef-patty-flip.png', needsFlip: true, cookTime: 12, burnTime: 8 },
+    'raw-chicken-patty': { name: 'Chicken Patty', rawImage: 'images/raw-chicken-patty.png', cookedId: 'chicken-patty', cookedImage: 'images/chicken-patty.png', flippedImage: 'images/chicken-patty-flip.png', needsFlip: true, cookTime: 12, burnTime: 8 },
+    'raw-fish-patty': { name: 'Fish Patty', rawImage: 'images/raw-fish-patty.png', cookedId: 'fish-patty', cookedImage: 'images/fish-patty.png', flippedImage: 'images/fish-patty-flip.png', needsFlip: true, cookTime: 12, burnTime: 8 },
+    'raw-hashbrown': { name: 'Hashbrown', rawImage: 'images/raw-hashbrown.png', cookedId: 'hashbrown', cookedImage: 'images/hashbrown.png', flippedImage: 'images/hasbrown-flip.png', needsFlip: true, cookTime: 10, burnTime: 7 },
+    'raw-bacon': { name: 'Fried Bacon', rawImage: 'images/raw-bacon.png', cookedId: 'fried-bacon', cookedImage: 'images/fried-bacon.png', needsFlip: false, cookTime: 8, burnTime: 6 },
+    'raw-egg': { name: 'Fried Egg', rawImage: 'images/egg.png', cookedId: 'fried-egg', cookedImage: 'images/fried-egg.png', needsFlip: false, cookTime: 8, burnTime: 6 },
+    'raw-champignons': { name: 'Champignons', rawImage: 'images/raw-champignons.png', cookedId: 'champignons', cookedImage: 'images/champignons.png', needsFlip: false, cookTime: 8, burnTime: 6 }
   };
 
   let grillSlots = JSON.parse(localStorage.getItem('burger_grill_slots')) || Array(3).fill(null);
@@ -518,6 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGrill();
   }
 
+  // Обновленная логика гриля согласно требованиям
   function updateGrillLogic() {
     const now = Date.now();
     let needsSave = false;
@@ -527,37 +529,46 @@ document.addEventListener('DOMContentLoaded', () => {
       const config = GRILLABLE_ITEMS[slot.rawId];
       const elapsed = (now - slot.startTime) / 1000;
 
-      const cookSeconds = config.cookTime;
-      const burnSeconds = config.burnTime;
+      const halfTime = config.cookTime / 2; // Время до переворачивания (первая сторона)
+      const fullTime = config.cookTime;     // Полное время готовки (обе стороны)
+      const totalCharTime = fullTime + config.burnTime; // Время до полного сгорания
 
-      if (slot.state === 'cooking') {
-        const targetTime = config.needsFlip ? (cookSeconds / 2) : cookSeconds;
-        
-        if (elapsed >= targetTime) {
-          if (config.needsFlip && !slot.isFlipped) {
+      if (slot.state === 'cooking' || slot.state === 'needsFlip') {
+        if (config.needsFlip && !slot.isFlipped) {
+          // Первый этап (до переворота)
+          if (elapsed >= halfTime && slot.state === 'cooking') {
             slot.state = 'needsFlip';
             if (!slot.notified) {
               playSound(SOUNDS.complete);
               slot.notified = true;
             }
-          } else {
+            needsSave = true;
+          }
+          
+          // Если проигнорировали переворот и время истекло до конца полного цикла — сгорает
+          if (elapsed >= fullTime) {
+            slot.state = 'charred';
+            playSound(SOUNDS.burnt);
+            showToast('Burnt!', `${config.name} turned into charcoal!`, 'error');
+            needsSave = true;
+          }
+        } else {
+          // Второй этап (после переворота) или продукты без переворота
+          const activeElapsed = slot.isFlipped ? (elapsed - slot.flipStartTime) : elapsed;
+          
+          if (activeElapsed >= halfTime) {
             slot.state = 'ready';
             if (!slot.notified) {
               playSound(SOUNDS.complete);
               slot.notified = true;
             }
+            needsSave = true;
           }
-          needsSave = true;
         }
       } else if (slot.state === 'ready') {
-        if (elapsed >= cookSeconds) {
-          slot.state = 'burning';
-          slot.burnStartTime = now;
-          needsSave = true;
-        }
-      } else if (slot.state === 'burning') {
-        const burnElapsed = (now - (slot.burnStartTime || now)) / 1000;
-        if (burnElapsed >= burnSeconds) {
+        // Переход в режим сгорания, если забрали не вовремя
+        const activeElapsed = slot.isFlipped ? (elapsed - slot.flipStartTime) : elapsed;
+        if (activeElapsed >= halfTime + config.burnTime) {
           slot.state = 'charred';
           playSound(SOUNDS.burnt);
           showToast('Burnt!', `${config.name} turned into charcoal!`, 'error');
@@ -576,24 +587,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const config = GRILLABLE_ITEMS[slot.rawId];
     const now = Date.now();
     const elapsed = (now - slot.startTime) / 1000;
+    const halfTime = config.cookTime / 2;
 
-    if (slot.state === 'cooking') {
-      if (config.needsFlip && !slot.isFlipped) {
-        return Math.min(50, (elapsed / (config.cookTime / 2)) * 50);
-      } else if (slot.isFlipped) {
-        const halfTime = config.cookTime / 2;
-        const currentPhaseElapsed = elapsed - (slot.flipTimeOffset || halfTime);
-        return Math.min(100, 50 + (currentPhaseElapsed / halfTime) * 50);
-      } else {
-        return Math.min(100, (elapsed / config.cookTime) * 100);
-      }
+    if (slot.state === 'cooking' && !slot.isFlipped) {
+      return Math.min(50, (elapsed / halfTime) * 50);
     } else if (slot.state === 'needsFlip') {
-      return 50;
+      // Таймер продолжает идти дальше 50%
+      const progress = 50 + ((elapsed - halfTime) / halfTime) * 50;
+      return Math.min(100, progress);
+    } else if (slot.state === 'cooking' && slot.isFlipped) {
+      const activeElapsed = elapsed - slot.flipStartTime;
+      return Math.min(100, 50 + (activeElapsed / halfTime) * 50);
     } else if (slot.state === 'ready') {
       return 100;
-    } else if (slot.state === 'burning') {
-      const burnElapsed = (now - (slot.burnStartTime || now)) / 1000;
-      return Math.max(0, 100 - (burnElapsed / config.burnTime) * 100);
+    } else if (slot.state === 'burning' || slot.state === 'ready') {
+      // Шкала сгорания уменьшается или держится
+      return 100;
     } else if (slot.state === 'charred') {
       return 0;
     }
@@ -640,7 +649,9 @@ document.addEventListener('DOMContentLoaded', () => {
       slotEl.className = `grill-slot ${selectedGrillIndicesForBin.includes(index) ? 'selected-for-bin' : ''}`;
 
       if (slotData) {
-        hasActiveCooking = true;
+        if (slotData.state !== 'charred') {
+          hasActiveCooking = true;
+        }
         const config = GRILLABLE_ITEMS[slotData.rawId];
         let imgsrc = config.rawImage;
         let extraHtml = '';
@@ -649,7 +660,8 @@ document.addEventListener('DOMContentLoaded', () => {
           imgsrc = slotData.isFlipped ? config.flippedImage : config.rawImage;
         } else if (slotData.state === 'needsFlip') {
           imgsrc = config.rawImage;
-          extraHtml = `<div class="flip-badge">🔄 Flip!</div>`;
+          // Требование 8: Убраны эмодзи из надписи Flip!
+          extraHtml = `<div class="flip-badge">Flip!</div>`;
         } else if (slotData.state === 'ready' || slotData.state === 'burning') {
           imgsrc = slotData.isFlipped ? config.flippedImage : config.cookedImage;
         } else if (slotData.state === 'charred') {
@@ -658,7 +670,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const progressPercent = getSlotProgress(slotData);
-        const isBurningBar = slotData.state === 'burning';
+        const isBurningBar = slotData.state === 'burning' || slotData.state === 'needsFlip';
 
         slotEl.innerHTML = `
           ${extraHtml}
@@ -700,6 +712,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(sizzlingAudioInstance);
       }
     } else {
+      // Требование 7: Когда продукты сгорают или гриль пуст — останавливать звук шкварчания
       if (sizzlingAudioInstance) {
         try { sizzlingAudioInstance.pause(); sizzlingAudioInstance.currentTime = 0; } catch(e){}
         sizzlingAudioInstance = null;
@@ -713,15 +726,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const config = GRILLABLE_ITEMS[slot.rawId];
     const now = Date.now();
 
-    if (slot.state === 'needsFlip') {
+    if (slot.state === 'needsFlip' || (slot.state === 'cooking' && !slot.isFlipped && config.needsFlip)) {
       slot.isFlipped = true;
       slot.state = 'cooking';
-      slot.flipTimeOffset = (now - slot.startTime) / 1000;
+      slot.flipStartTime = now / 1000;
       slot.notified = false;
       playSound(SOUNDS.buttons);
       saveGrillState();
       renderGrill();
-    } else if (slot.state === 'ready' || slot.state === 'burning') {
+    } else if (slot.state === 'ready') {
       ingredientStock[config.cookedId] = (ingredientStock[config.cookedId] ?? 0) + 1;
       saveStock();
       showToast('Added to inventory!', `${config.name} added to backpack.`, 'success');
@@ -731,10 +744,15 @@ document.addEventListener('DOMContentLoaded', () => {
       saveGrillState();
       renderGrillCookedInventory();
       renderGrill();
+    } else if (slot.state === 'charred') {
+      grillSlots[index] = null;
+      saveGrillState();
+      playSound(SOUNDS.bin);
+      showToast('Thrown away', 'Charcoal discarded', 'warning');
+      renderGrill();
     }
   }
 
-  // Обновление гриля теперь идет отдельно, не затрагивая меню и не вызывая мерцания кнопок
   setInterval(() => {
     updateGrillLogic();
     if (currentScreen === 'grill') {
