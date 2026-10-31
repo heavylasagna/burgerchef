@@ -488,8 +488,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const tabsEl = document.getElementById(tabsId);
       if (tabsEl) {
         setupWheelScrollForContainer(tabsEl);
-        // Убрано принудительное автоматическое смещение скролла при рендере,
-        // теперь позиция прокрутки пользователя сохраняется и не дергается.
       }
     }, 0);
 
@@ -497,28 +495,32 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.handleTabClick = function(cbName, catId) {
-    if (cbName === 'setAssemblyCategory') window.setAssemblyCategory(catId);
-    else if (cbName === 'setGrillRawCategory') window.setGrillRawCategory(catId);
-    else if (cbName === 'setGrillCookedCategory') window.setGrillCookedCategory(catId);
-    else if (cbName === 'switchRecipeCategory') window.switchRecipeCategory(catId);
+    // Сохраняем текущий скролл табов перед переключением категории для этого конкретного контейнера
+    const tabsEl = document.querySelector(`#cat-tabs-${cbName}`);
+    const scrollPos = tabsEl ? tabsEl.scrollLeft : 0;
+
+    if (cbName === 'setAssemblyCategory') window.setAssemblyCategory(catId, scrollPos);
+    else if (cbName === 'setGrillRawCategory') window.setGrillRawCategory(catId, scrollPos);
+    else if (cbName === 'setGrillCookedCategory') window.setGrillCookedCategory(catId, scrollPos);
+    else if (cbName === 'switchRecipeCategory') window.switchRecipeCategory(catId, scrollPos);
   }
 
-  window.setAssemblyCategory = function(cat) {
+  window.setAssemblyCategory = function(cat, savedScroll = null) {
     assemblyActiveCategory = cat;
-    renderIngredientsMenu();
+    renderIngredientsMenu(savedScroll);
   }
 
-  window.setGrillRawCategory = function(cat) {
+  window.setGrillRawCategory = function(cat, savedScroll = null) {
     grillRawActiveCategory = cat;
-    renderGrillIngredientsMenu();
+    renderGrillIngredientsMenu(savedScroll);
   }
 
-  window.setGrillCookedCategory = function(cat) {
+  window.setGrillCookedCategory = function(cat, savedScroll = null) {
     grillCookedActiveCategory = cat;
-    renderGrillCookedInventory();
+    renderGrillCookedInventory(savedScroll);
   }
 
-  function renderIngredientsMenu() {
+  function renderIngredientsMenu(savedScroll = null) {
     if (currentScreen !== 'assembly') return;
     if (!rightPanel) return;
     const titleEl = rightPanel.querySelector('.panel-title');
@@ -549,6 +551,11 @@ document.addEventListener('DOMContentLoaded', () => {
     cardsHtml += `</div>`;
 
     ingredientsMenu.innerHTML = tabsHtml + cardsHtml;
+
+    if (savedScroll !== null) {
+      const tabsEl = document.getElementById('cat-tabs-setAssemblyCategory');
+      if (tabsEl) tabsEl.scrollLeft = savedScroll;
+    }
   }
 
   window.handleAssemblyClick = function(id) {
@@ -561,7 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addIngredient(item);
   }
 
-  function renderGrillIngredientsMenu() {
+  function renderGrillIngredientsMenu(savedScroll = null) {
     if (currentScreen !== 'grill') return;
     if (!rightPanel) return;
     const titleEl = rightPanel.querySelector('.panel-title');
@@ -593,6 +600,11 @@ document.addEventListener('DOMContentLoaded', () => {
     cardsHtml += `</div>`;
 
     menuEl.innerHTML = tabsHtml + cardsHtml;
+
+    if (savedScroll !== null) {
+      const tabsEl = document.getElementById('cat-tabs-setGrillRawCategory');
+      if (tabsEl) tabsEl.scrollLeft = savedScroll;
+    }
   }
 
   window.handleGrillAddClick = function(id) {
@@ -602,7 +614,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addToGrill(id);
   }
 
-  function renderGrillCookedInventory() {
+  function renderGrillCookedInventory(savedScroll = null) {
     if (currentScreen !== 'grill') return;
     if (!leftPanel) return;
     const titleEl = leftPanel.querySelector('.panel-title');
@@ -632,6 +644,11 @@ document.addEventListener('DOMContentLoaded', () => {
     itemsContainerHtml += `</div>`;
 
     listEl.innerHTML = tabsHtml + itemsContainerHtml;
+
+    if (savedScroll !== null) {
+      const tabsEl = document.getElementById('cat-tabs-setGrillCookedCategory');
+      if (tabsEl) tabsEl.scrollLeft = savedScroll;
+    }
   }
 
   function addToGrill(rawId) {
@@ -1305,12 +1322,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let activeRecipeCategory = 'all';
 
-  window.switchRecipeCategory = function(cat) {
+  window.switchRecipeCategory = function(cat, savedScroll = null) {
     activeRecipeCategory = cat;
-    renderRecipesModal();
+    renderRecipesModal(savedScroll);
   }
 
-  function renderRecipesModal() {
+  function renderRecipesModal(savedScroll = null) {
     const body = document.getElementById('recipesModalBody');
     if (!body) return;
 
@@ -1334,7 +1351,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const recipeTabsEl = document.getElementById('recipe-cats-container');
       if (recipeTabsEl) {
         setupWheelScrollForContainer(recipeTabsEl);
-        // Убрано принудительное автоматическое смещение скролла при рендере.
       }
     }, 0);
 
@@ -1379,6 +1395,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     body.innerHTML = tabsHtml + itemsHtml;
+
+    if (savedScroll !== null) {
+      const recipeTabsEl = document.getElementById('recipe-cats-container');
+      if (recipeTabsEl) recipeTabsEl.scrollLeft = savedScroll;
+    }
   }
 
   window.pinRecipe = function(name) {
@@ -2078,7 +2099,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!currentActiveOrder) {
         triggerRandomOrder();
       } else {
-        updateOrderWidgetsTest(currentActiveOrder.name);
+        updateOrderWidgetsText(currentActiveOrder.name);
       }
       return;
     }
