@@ -696,16 +696,19 @@ document.addEventListener('DOMContentLoaded', () => {
           ${progressHtml}
         `;
 
-        // Брызги вылетают снизу из-под котлеты/продукта
+        // Брызги летят снизу под продуктом, спавнясь случайно по ширине слота (от 10% до 90%)
         if (Math.random() < 0.35 && slotData.state !== 'charred') {
           const splashContainer = slotEl.querySelector('.oil-splash-container');
           if (splashContainer) {
             const splash = document.createElement('div');
             splash.className = 'oil-splash';
-            const dx = (Math.random() - 0.5) * 60;
+            
+            const randomX = Math.random() * 80 + 10;
+            splash.style.left = `${randomX}%`;
+            
             const dy = -Math.random() * 20 - 5;
-            splash.style.setProperty('--dx', `${dx}px`);
             splash.style.setProperty('--dy', `${dy}px`);
+            
             splashContainer.appendChild(splash);
             setTimeout(() => splash.remove(), 500);
           }
