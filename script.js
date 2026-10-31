@@ -660,6 +660,7 @@ document.addEventListener('DOMContentLoaded', () => {
       slotEl.className = `grill-slot ${selectedGrillIndicesForBin.includes(index) ? 'selected-for-bin' : ''}`;
 
       if (slotData) {
+        // Продукт считается активным для звука, если он еще не обуглен
         if (slotData.state !== 'charred') {
           hasActiveCooking = true;
         }
@@ -675,7 +676,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (slotData.state === 'ready' || slotData.state === 'burning') {
           imgsrc = slotData.isFlipped ? config.cookedImage : config.cookedImage;
         } else if (slotData.state === 'charred') {
-          imgsrc = config.cookedImage;
+          imgsrc = slotData.cookedImage;
           slotEl.classList.add('charred');
         }
 
@@ -688,13 +689,17 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         `;
 
+        // Добавляем класс покачивания для жарящихся/готовых продуктов
+        const isSizzling = slotData.state !== 'charred';
+
         slotEl.innerHTML = `
           ${extraHtml}
-          <img src="${imgsrc}" class="grill-item ${slotData.isFlipped ? 'flipped' : ''} ${slotData.state === 'charred' ? 'charred' : ''}">
+          <img src="${imgsrc}" class="grill-item ${isSizzling ? 'sizzling-anim' : ''} ${slotData.isFlipped ? 'flipped' : ''} ${slotData.state === 'charred' ? 'charred' : ''}">
           ${progressHtml}
         `;
 
-        if (Math.random() < 0.2 && slotData.state !== 'charred' && slotEl.children.length < 4) {
+        // Генерируем брызги масла с некоторой вероятностью, если продукт жарится или готов (но не обуглен)
+        if (Math.random() < 0.3 && slotData.state !== 'charred') {
           createOilSplash(slotEl);
         }
       } else {
@@ -708,14 +713,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function createOilSplash(parentEl) {
     const splash = document.createElement('div');
     splash.className = 'oil-splash';
-    const dx = (Math.random() - 0.5) * 50;
-    const dy = (Math.random() - 0.5) * 50;
+    const dx = (Math.random() - 0.5) * 60;
+    const dy = (Math.random() - 0.5) * 60;
     splash.style.setProperty('--dx', `${dx}px`);
     splash.style.setProperty('--dy', `${dy}px`);
     splash.style.left = '50%';
     splash.style.top = '50%';
     parentEl.appendChild(splash);
-    setTimeout(() => splash.remove(), 700);
+    setTimeout(() => splash.remove(), 600);
   }
 
   function manageSizzlingAudio(hasActive) {
@@ -743,7 +748,7 @@ document.addEventListener('DOMContentLoaded', () => {
       slot.isFlipped = true;
       slot.state = 'cooking';
       slot.flipStartTime = now;
-      slot.burnStartTime = null; // Сбрасываем время простоя, теперь идет вторая половина жарки
+      slot.burnStartTime = null;
       slot.notified = false;
       playSound(SOUNDS.buttons);
       saveGrillState();
