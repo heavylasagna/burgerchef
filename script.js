@@ -324,6 +324,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (switchToGrillBtn) switchToGrillBtn.onclick = () => switchScreen('grill');
   if (switchToBoardBtn) switchToBoardBtn.onclick = () => switchScreen('board');
 
+  const knifeBtn = document.getElementById('knifeBtn');
+
   function updateBottomPanelForScreen() {
     const isGrill = currentScreen === 'grill';
     const isBoard = currentScreen === 'board';
@@ -2111,16 +2113,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (closeSettingsModal) closeSettingsModal.onclick = () => { playSound(SOUNDS.buttons); settingsModal.classList.remove('open'); };
 
   const hardResetBtn = document.getElementById('hardResetBtn');
-  if (hardResetBtn) {
-    hardResetBtn.onclick = () => {
-      if (confirm("⚠️ WARNING: Wipe all data?")) { 
-        localStorage.clear(); 
-        // Принудительно убираем флаг, чтобы приветствие точно появилось при перезагрузке
-        localStorage.removeItem('has_seen_welcome');
-        location.reload(); 
-      }
-    };
-  }
+  if (hardResetBtn) hardResetBtn.onclick = () => {
+    if (confirm("⚠️ WARNING: Wipe all data?")) { 
+      localStorage.clear(); 
+      localStorage.setItem('has_seen_welcome', 'true'); 
+      location.reload(); 
+    }
+  };
 
   const toggleUiBtn = document.getElementById('toggleUiBtn');
   if (toggleUiBtn) {
@@ -2705,7 +2704,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
- // --- ПОЛНЫЙ ТУТОРИАЛ ---
+  // --- ПОЛНЫЙ ТУТОРИАЛ ---
   const tutorialSteps = [
     // 1. Экран сборки
     {
@@ -2739,12 +2738,18 @@ document.addEventListener('DOMContentLoaded', () => {
       getElement: () => document.getElementById('bottomPanel') || document.querySelector('.bottom-panel')
     },
 
-    // 2. Экран гриля
+    // 2. Экран гриля (сначала показываем кнопку переключения на экране сборки)
+    {
+      title: "Switch to Grill",
+      text: "Click this button to switch to the Grill screen and cook raw ingredients.",
+      screen: "assembly",
+      getElement: () => document.getElementById('switchToGrillBtn')
+    },
     {
       title: "Grill Screen",
-      text: "Switch here using the top switcher to cook raw ingredients like patties, bacon, or eggs.",
+      text: "Here you can grill raw patties, bacon, eggs, and mushrooms.",
       screen: "grill",
-      getElement: () => document.getElementById('switchToGrillBtn') || document.getElementById('grillStage')
+      getElement: () => document.getElementById('grillStage')
     },
     {
       title: "Raw Ingredients Menu",
@@ -2759,12 +2764,18 @@ document.addEventListener('DOMContentLoaded', () => {
       getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
     },
 
-    // 3. Экран доски для нарезки
+    // 3. Экран доски для нарезки (сначала кнопка переключения на сборке)
+    {
+      title: "Switch to Cutting Board",
+      text: "Click this button to switch to the Cutting Board screen.",
+      screen: "assembly",
+      getElement: () => document.getElementById('switchToBoardBtn')
+    },
     {
       title: "Cutting Board Screen",
-      text: "Switch here to chop and slice uncut vegetables and cheeses before using them.",
+      text: "Here you can chop and slice uncut vegetables and cheeses before using them.",
       screen: "board",
-      getElement: () => document.getElementById('switchToBoardBtn') || document.getElementById('boardStage')
+      getElement: () => document.getElementById('boardStage')
     },
     {
       title: "Uncut Ingredients",
@@ -2791,13 +2802,16 @@ document.addEventListener('DOMContentLoaded', () => {
       getElement: () => document.getElementById('settingsModal') ? document.getElementById('settingsModal').querySelector('.modal-content') : document.body
     },
     {
-      title: "Reset Button",
-      text: "The Reset button in settings allows you to completely wipe data if needed. Also, you can restart this tutorial anytime via the button in settings!",
+      title: "Reset & Tutorial",
+      text: "Scroll down to see the Danger Zone where you can reset data, and the button to restart this tutorial anytime!",
       screen: "assembly",
       action: () => {
-        // Оставляем модалку настроек открытой для наглядности
+        const bodyEl = document.getElementById('settingsModalBody');
+        if (bodyEl) {
+          bodyEl.scrollTop = bodyEl.scrollHeight;
+        }
       },
-      getElement: () => document.getElementById('hardResetBtn') || document.getElementById('openTutorialFromSettingsBtn')
+      getElement: () => document.getElementById('openTutorialFromSettingsBtn') || document.getElementById('hardResetBtn')
     }
   ];
 
@@ -2862,16 +2876,13 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Если шаг требует определенного экрана — переключаемся на него
     if (step.screen && currentScreen !== step.screen) {
       switchScreen(step.screen);
     }
 
-    // Выполняем кастомное действие (например, открытие модалки настроек)
     if (step.action) {
       step.action();
     } else {
-      // Если на предыдущем шаге открывались настройки, а сейчас нет — закрываем настройки
       const settingsModalEl = document.getElementById('settingsModal');
       if (settingsModalEl && stepIndex < tutorialSteps.length - 1) {
         settingsModalEl.classList.remove('open');
@@ -2884,12 +2895,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tutorialPrevBtn) tutorialPrevBtn.style.display = stepIndex === 0 ? 'none' : 'block';
     if (tutorialNextBtn) tutorialNextBtn.innerText = stepIndex === tutorialSteps.length - 1 ? 'Finish' : 'Next';
 
-    // Даем небольшую задержку на рендеринг экрана перед вычислением координат рамки
     setTimeout(() => {
       const targetEl = step.getElement ? step.getElement() : null;
       if (targetEl && tutorialSpotlight && tutorialTooltip) {
         const rect = targetEl.getBoundingClientRect();
-        const padding = 16; // Аккуратный отступ рамки
+        const padding = 16;
 
         tutorialSpotlight.style.top = `${rect.top - padding}px`;
         tutorialSpotlight.style.left = `${rect.left - padding}px`;
