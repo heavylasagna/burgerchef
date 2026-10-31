@@ -11,6 +11,7 @@
   --panel-title-color: #ffb300;
   --scrollbar-thumb: rgba(255, 179, 0, 0.3);
   --scrollbar-thumb-hover: rgba(255, 179, 0, 0.6);
+  --stock-badge-bg: rgba(0,0,0,0.3);
 }
 
 body.light-theme {
@@ -26,6 +27,7 @@ body.light-theme {
   --panel-title-color: #5d4037;
   --scrollbar-thumb: rgba(141, 110, 99, 0.35);
   --scrollbar-thumb-hover: rgba(141, 110, 99, 0.65);
+  --stock-badge-bg: rgba(141, 110, 99, 0.15); /* Более светлый и мягкий серый для светлой темы */
 }
 
 * {
@@ -163,7 +165,7 @@ body {
   overflow-y: auto;
   flex: 1;
   min-height: 0;
-  padding-right: 2px;
+  padding: 6px 2px 2px 2px; /* Смещено слегка вниз для предотвращения обрезания при наведении */
 }
 
 .layers-list.assembly-mode {
@@ -511,7 +513,7 @@ body {
   overflow-y: auto;
   flex: 1;
   min-height: 0;
-  padding-right: 2px;
+  padding: 6px 2px 2px 2px; /* Смещено слегка вниз для предотвращения обрезания при наведении */
   align-items: stretch;
 }
 
@@ -558,7 +560,7 @@ body {
 .ingredient-stock-count {
   font-size: 0.75rem;
   font-weight: bold;
-  background: rgba(0,0,0,0.3);
+  background: var(--stock-badge-bg);
   padding: 2px 6px;
   border-radius: 6px;
   color: var(--accent-color);
@@ -1014,7 +1016,7 @@ body {
   font-size: 0.75rem;
   font-weight: bold;
   color: var(--accent-color);
-  background: rgba(0,0,0,0.3);
+  background: var(--stock-badge-bg);
   padding: 4px 6px;
   border-radius: 6px;
   border: 1px solid var(--item-border);
@@ -1123,7 +1125,7 @@ body {
   font-size: 0.85rem;
   font-weight: bold;
   color: var(--accent-color);
-  background: rgba(0,0,0,0.3);
+  background: var(--stock-badge-bg);
   padding: 6px 14px;
   border-radius: 8px;
   border: 1px solid var(--item-border);
