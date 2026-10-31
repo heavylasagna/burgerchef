@@ -884,9 +884,9 @@ input[type="range"]::-webkit-slider-thumb {
   .action-group { width: 100%; justify-content: space-between; }
   .btn-action { flex: 1; padding: 8px 2px; font-size: 0.75rem; text-align: center; }
 
-  /* На мобильных устройствах кошелёк и рецепт строго в левом верхнем углу друг под другом */
+  /* Убрана фиксация position: fixed и для кнопки глаза тоже */
   .mobile-top-bar {
-    position: fixed !important;
+    position: absolute !important;
     top: 10px !important; 
     right: 10px !important;
     display: flex !important;
