@@ -674,13 +674,13 @@ body {
   background: rgba(211, 47, 47, 0.1);
 }
 
+/* === САМ ПРОДУКТ НА ГРИЛЕ === */
 .grill-item {
   width: 105px;
   height: 105px;
   object-fit: contain;
   position: relative;
-  /* Устанавливаем z-index ниже, чем у брызг или элементов интерфейса */
-  z-index: 2; 
+  z-index: 2; /* Продукт поверх брызг */
 }
 
 .grill-item.flipped {
@@ -691,36 +691,45 @@ body {
   filter: grayscale(100%) brightness(0.2);
 }
 
-/* === МЯГКОЕ И ПОСТОЯННОЕ ПОКАЧИВАНИЕ (ШКВАРЧАНИЕ) === */
+/* === ПЛАВНОЕ ПОКАЧИВАНИЕ (ШКВАРЧАНИЕ) === */
 @keyframes sizzleWobble {
   0%, 100% { transform: translateY(0) rotate(0deg); }
-  25% { transform: translateY(-1.5px) rotate(-1deg); }
-  75% { transform: translateY(1.5px) rotate(1deg); }
+  25% { transform: translateY(-2px) rotate(-1.5deg); }
+  75% { transform: translateY(1px) rotate(1.5deg); }
 }
 
 .sizzling-anim {
-  animation: sizzleWobble 0.9s infinite ease-in-out;
+  animation: sizzleWobble 0.8s infinite ease-in-out;
   transform-origin: bottom center;
 }
 
-/* === БРЫЗГИ МАСЛА (теперь под продуктами: z-index: 1) === */
+/* === БРЫЗГИ МАСЛА (строго у нижнего края продукта) === */
+.oil-splash-container {
+  position: absolute;
+  bottom: 15px; /* Располагаем в нижней части слота, под продуктом */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 20px;
+  pointer-events: none;
+  z-index: 1; /* Под продуктом */
+}
+
 .oil-splash {
   position: absolute;
-  top: 50%;
+  bottom: 0;
   left: 50%;
-  width: 7px;
-  height: 7px;
-  background: rgba(255, 204, 0, 0.85);
+  width: 6px;
+  height: 6px;
+  background: rgba(255, 204, 0, 0.9);
   border-radius: 50%;
-  animation: splashAnim 0.6s forwards ease-out;
-  pointer-events: none;
-  z-index: 1; /* Брызги находятся под картинкой продукта (z-index: 2) */
-  box-shadow: 0 0 5px rgba(255, 179, 0, 0.6);
+  animation: splashAnim 0.5s forwards ease-out;
+  box-shadow: 0 0 4px rgba(255, 179, 0, 0.8);
 }
 
 @keyframes splashAnim {
-  0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
-  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.1); opacity: 0; }
+  0% { transform: translate(-50%, 0) scale(0.4); opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), var(--dy)) scale(1.2); opacity: 0; }
 }
 
 .grill-progress-container {
