@@ -443,7 +443,7 @@ body {
   border: 1px solid var(--border-color);
   z-index: 100;
   transition: opacity 0.3s ease, background 0.3s ease;
-  gap: 12px;
+  gap: 8px;
 }
 .bottom-panel.dimmed { opacity: 0.25; }
 
@@ -468,22 +468,15 @@ body {
 }
 .sauce-chip.disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* Общий большой контейнер для кнопок действий с единой рамкой и компактными отступами */
-.actions-master-container {
+/* Отдельные контейнеры с индивидуальными рамками */
+.action-box {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   background: var(--item-bg);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: 6px 10px;
-  overflow-x: auto;
-}
-
-.action-group-left, .action-group-right {
-  display: flex;
-  gap: 6px;
-  align-items: center;
+  padding: 5px 8px;
 }
 
 .btn-action {
@@ -897,18 +890,10 @@ input[type="range"]::-webkit-slider-thumb {
     overflow-x: auto;
   }
   
-  /* Прокрутка кнопок на мобильной версии */
-  .actions-master-container {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding: 4px 6px;
-    gap: 6px;
+  .action-box {
     flex-shrink: 0;
-  }
-  .action-group-left, .action-group-right {
-    flex-wrap: nowrap;
-    gap: 6px;
-    flex-shrink: 0;
+    padding: 4px;
+    gap: 5px;
   }
   .btn-action {
     flex-shrink: 0;
