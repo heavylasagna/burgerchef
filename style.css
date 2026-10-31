@@ -1306,7 +1306,7 @@ input[type="range"]::-webkit-slider-thumb {
     border: 1px solid var(--border-color);
   }
   
-  /* Нижняя панель по умолчанию (экран сборки): прокручиваемая сгруппированная лента с расстоянием между блоками */
+  /* Нижняя панель по умолчанию (экран сборки): с большим расстоянием между группами */
   .bottom-panel {
     position: fixed;
     bottom: 0; left: 0; right: 0;
@@ -1318,7 +1318,7 @@ input[type="range"]::-webkit-slider-thumb {
     z-index: 1000;
     overflow-x: auto;
     white-space: nowrap;
-    gap: 12px; /* Увеличенное расстояние между группами кнопок */
+    gap: 16px; /* Широкое расстояние между группами */
     width: 100%;
   }
   
@@ -1326,7 +1326,7 @@ input[type="range"]::-webkit-slider-thumb {
     flex-shrink: 0;
     overflow-x: auto;
     display: flex;
-    gap: 6px;
+    gap: 8px;
   }
 
   .actions-wrapper {
@@ -1335,14 +1335,14 @@ input[type="range"]::-webkit-slider-thumb {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    gap: 12px; /* Увеличенное расстояние между группами действий */
+    gap: 16px; /* Широкое расстояние между блоками действий */
     flex-shrink: 0;
   }
 
   .action-box {
     flex-shrink: 0;
     padding: 0;
-    gap: 6px; /* Больше расстояния между кнопками внутри одной группы */
+    gap: 8px; /* Расстояние между кнопками внутри группы */
     display: inline-flex;
   }
   
@@ -1354,20 +1354,21 @@ input[type="range"]::-webkit-slider-thumb {
     flex: unset;
   }
 
-  /* Экран гриля: кнопки растягиваются на всю ширину нижнего меню */
+  /* Экран гриля: кнопки растягиваются на всю ширину и выравниваются по центру */
   body.grill-active .bottom-panel {
-    justify-content: space-between;
-    gap: 8px;
+    justify-content: center; /* Центрирование */
+    gap: 12px;
   }
   body.grill-active .bottom-panel .actions-wrapper {
     width: 100%;
-    justify-content: space-between;
-    gap: 8px;
+    justify-content: center; /* Центрирование групп */
+    gap: 16px;
   }
   body.grill-active .bottom-panel .action-box {
     flex: 1;
     display: flex;
-    gap: 6px;
+    justify-content: center;
+    gap: 8px;
   }
   body.grill-active .bottom-panel .btn-action {
     flex: 1;
