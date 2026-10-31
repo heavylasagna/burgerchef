@@ -1312,9 +1312,9 @@ document.addEventListener('DOMContentLoaded', () => {
       { id: 'secret', label: 'Secret' }
     ];
 
-    let tabsHtml = `<div class="recipe-tabs" id="recipe-cats-container" style="margin-bottom:8px; display:flex; gap:6px; overflow-x:auto; flex-wrap:nowrap; scrollbar-width:thin;">`;
+    let tabsHtml = `<div class="recipe-tabs" id="recipe-cats-container">`;
     cats.forEach(c => {
-      tabsHtml += `<button class="recipe-tab ${activeRecipeCategory === c.id ? 'active' : ''}" style="flex:0 0 auto; font-size:0.75rem; padding:6px 10px;" onclick="switchRecipeCategory('${c.id}')">${c.label}</button>`;
+      tabsHtml += `<button class="recipe-tab ${activeRecipeCategory === c.id ? 'active' : ''}" onclick="switchRecipeCategory('${c.id}')">${c.label}</button>`;
     });
     tabsHtml += `</div>`;
 
