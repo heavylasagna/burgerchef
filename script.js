@@ -582,19 +582,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const halfTime = config.cookTime / 2;
 
     if (!config.needsFlip) {
+      if (slot.state === 'ready') {
+        // Обратная шкала от 100% до 0% во время ожидания снятия до сгорания
+        const activeElapsed = elapsed - config.cookTime;
+        return Math.max(0, 100 - (activeElapsed / config.burnTime) * 100);
+      }
       return Math.min(100, (elapsed / config.cookTime) * 100);
     }
 
     if (slot.state === 'cooking' && !slot.isFlipped) {
       return Math.min(50, (elapsed / halfTime) * 50);
     } else if (slot.state === 'needsFlip') {
-      const progress = 50 + ((elapsed - halfTime) / halfTime) * 50;
-      return Math.min(100, progress);
+      // Ожидание переворота: шкала показывает остаток до сгорания (от 100% до 0%)
+      const waitElapsed = elapsed - halfTime;
+      return Math.max(0, 100 - (waitElapsed / config.burnTime) * 100);
     } else if (slot.isFlipped) {
       const activeElapsed = (now - slot.flipStartTime) / 1000;
+      if (slot.state === 'ready') {
+        // Готово после переворота: обратная шкала до сгорания
+        return Math.max(0, 100 - (activeElapsed / config.burnTime) * 100);
+      }
       return Math.min(100, 50 + (activeElapsed / halfTime) * 50);
-    } else if (slot.state === 'ready' || slot.state === 'burning') {
-      return 100;
     } else if (slot.state === 'charred') {
       return 0;
     }
