@@ -674,44 +674,21 @@ body {
   background: rgba(211, 47, 47, 0.1);
 }
 
-/* === САМ ПРОДУКТ НА ГРИЛЕ === */
-/* === САМ ПРОДУКТ НА ГРИЛЕ === */
+/* === СТАБИЛЬНЫЙ ПРОДУКТ НА ГРИЛЕ (БЕЗ ПОКАЧИВАНИЯ) === */
 .grill-item {
   width: 105px;
   height: 105px;
   object-fit: contain;
   position: relative;
-  z-index: 2; /* Картинка котлеты/яйца всегда строго над брызгами */
-  display: block !important; /* КРИТИЧЕСКИ ВАЖНО для работы анимации на img */
-  transform-origin: bottom center;
+  z-index: 2;
+  display: block;
 }
 
 .grill-item.charred {
   filter: grayscale(100%) brightness(0.2);
 }
 
-/* === ПОСТОЯННОЕ ШКВАРЧАНИЕ И ПОКАЧИВАНИЕ === */
-@keyframes sizzleWobble {
-  0%, 100% { transform: scaleX(1) translateY(0) rotate(0deg); }
-  25% { transform: scaleX(1) translateY(-3px) rotate(-2deg); }
-  75% { transform: scaleX(1) translateY(1px) rotate(2deg); }
-}
-
-@keyframes sizzleWobbleFlipped {
-  0%, 100% { transform: scaleX(-1) translateY(0) rotate(0deg); }
-  25% { transform: scaleX(-1) translateY(-3px) rotate(-2deg); }
-  75% { transform: scaleX(-1) translateY(1px) rotate(2deg); }
-}
-
-.sizzling-anim {
-  animation: sizzleWobble 0.7s infinite ease-in-out !important;
-}
-
-.sizzling-anim.flipped {
-  animation: sizzleWobbleFlipped 0.7s infinite ease-in-out !important;
-}
-
-/* === БРЫЗГИ МАСЛА (РАСПРЕДЕЛЕНЫ ПО ВСЕЙ НИЖНЕЙ ШИРИНЕ СЛОТА) === */
+/* === БРЫЗГИ МАСЛА === */
 .oil-splash-container {
   position: absolute;
   bottom: 25px;
@@ -720,7 +697,7 @@ body {
   width: 100px;
   height: 10px;
   pointer-events: none;
-  z-index: 1; /* Под продуктом */
+  z-index: 1;
 }
 
 .oil-splash {
@@ -782,7 +759,6 @@ body {
   100% { transform: scale(1.18); }
 }
 
-/* Панель подтверждения выброса */
 .bin-confirm-bar {
   position: fixed;
   bottom: 95px;
