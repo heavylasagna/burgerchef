@@ -108,21 +108,33 @@ document.addEventListener('DOMContentLoaded', () => {
   const ITEM_PRICES = {
     'top-bun': 2, 'bottom-bun': 2,
     'beef-patty': 5, 'chicken-patty': 4, 'fish-patty': 4, 'fried-bacon': 3, 'fried-egg': 2,
-    'cheese': 3, 'hashbrown': 3, 'champignons': 3,
-    'lettuce': 1, 'tomato': 1, 'pickles': 1, 'red-onion': 1, 'white-onion': 1,
+    'cheese': 3, 'raw-cheese': 3, 'uncut-cheese': 3,
+    'hashbrown': 3,
+    'champignons': 3, 'raw-champignons': 3, 'uncut-champignons': 3,
+    'lettuce': 1, 'uncut-lettuce': 1,
+    'tomato': 1, 'uncut-tomato': 1,
+    'pickles': 1, 'uncut-pickles': 1,
+    'red-onion': 1, 'uncut-red-onion': 1,
+    'white-onion': 1, 'uncut-white-onion': 1,
     'mayo': 2, 'ketchup': 2, 'mustard': 2, 'spicy': 2, 'bbq': 2,
     'raw-beef-patty': 5, 'raw-chicken-patty': 4, 'raw-fish-patty': 4, 'raw-hashbrown': 3,
-    'raw-bacon': 3, 'raw-egg': 2, 'raw-champignons': 3
+    'raw-bacon': 3, 'raw-egg': 2
   };
 
   let ingredientStock = JSON.parse(localStorage.getItem('burger_ingredient_stock')) || {
     'top-bun': 10, 'bottom-bun': 10,
     'beef-patty': 0, 'chicken-patty': 0, 'fish-patty': 0, 'fried-bacon': 0, 'fried-egg': 0,
-    'cheese': 0, 'hashbrown': 0, 'champignons': 0,
-    'lettuce': 0, 'tomato': 0, 'pickles': 0, 'red-onion': 0, 'white-onion': 0,
+    'cheese': 0, 'raw-cheese': 0, 'uncut-cheese': 5,
+    'hashbrown': 0,
+    'champignons': 0, 'raw-champignons': 0, 'uncut-champignons': 5,
+    'lettuce': 0, 'uncut-lettuce': 5,
+    'tomato': 0, 'uncut-tomato': 5,
+    'pickles': 0, 'uncut-pickles': 5,
+    'red-onion': 0, 'uncut-red-onion': 5,
+    'white-onion': 0, 'uncut-white-onion': 5,
     'mayo': 20, 'ketchup': 20, 'mustard': 20, 'spicy': 20, 'bbq': 20,
     'raw-beef-patty': 5, 'raw-chicken-patty': 5, 'raw-fish-patty': 5, 'raw-hashbrown': 5,
-    'raw-bacon': 5, 'raw-egg': 5, 'raw-champignons': 5
+    'raw-bacon': 5, 'raw-egg': 5
   };
 
   const GRILLABLE_ITEMS = {
@@ -189,10 +201,10 @@ document.addEventListener('DOMContentLoaded', () => {
       cookedImage: 'images/champignons.png', 
       needsFlip: false, cookTime: 8, burnTime: 6 
     },
-    'cheese': { 
+    'raw-cheese': { 
       name: 'Cheese (Fried)', 
-      rawImage: 'images/cheese.png', 
-      flip1Image: 'images/cheese.png', 
+      rawImage: 'images/raw-cheese.png', 
+      flip1Image: 'images/raw-cheese.png', 
       flip2Image: 'images/cheese.png', 
       cookedId: 'cheese', 
       cookedImage: 'images/cheese.png', 
@@ -444,7 +456,8 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'raw-hashbrown', cookedId: 'hashbrown', name: 'Hashbrown', category: 'patty', image: 'images/raw-hashbrown.png' },
     { id: 'raw-bacon', cookedId: 'fried-bacon', name: 'Bacon', category: 'protein', image: 'images/raw-bacon.png' },
     { id: 'raw-egg', cookedId: 'fried-egg', name: 'Egg', category: 'protein', image: 'images/egg.png' },
-    { id: 'raw-champignons', cookedId: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/raw-champignons.png' }
+    { id: 'raw-champignons', cookedId: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/raw-champignons.png' },
+    { id: 'raw-cheese', cookedId: 'cheese', name: 'Cheese', category: 'protein', image: 'images/raw-cheese.png' }
   ];
 
   const COOKED_INVENTORY_ITEMS = [
@@ -454,6 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'hashbrown', name: 'Hashbrown', category: 'patty', image: 'images/hashbrown.png' },
     { id: 'fried-bacon', name: 'Fried Bacon', category: 'protein', image: 'images/fried-bacon.png' },
     { id: 'fried-egg', name: 'Fried Egg', category: 'protein', image: 'images/fried-egg.png' },
+    { id: 'cheese', name: 'Cheese', category: 'protein', image: 'images/cheese.png' },
     { id: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/champignons.png' }
   ];
 
@@ -1027,12 +1041,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const forceOrderBtn = document.getElementById('forceOrderBtn');
   const skipOrderBtn = document.getElementById('skipOrderBtn');
 
-  // Упорядоченный список магазина: идут связками (сырой/ненарезанный -> готовый/нарезанный)
+  // Упорядоченный список магазина: строгая цепочка (Ненарезанный -> Нарезанный/Сырой -> Готовый/Приготовленный)
   const SHOP_ITEMS = [
     { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
     { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
     
-    // Котлеты и пати (сырые -> готовые)
+    // Котлеты и пати (Сырые -> Готовые)
     { id: 'raw-beef-patty', name: 'Beef Patty (Raw)', category: 'patty', image: 'images/raw-beef-patty.png' },
     { id: 'beef-patty', name: 'Beef Patty (Cooked)', category: 'patty', image: 'images/beef-patty.png' },
     
@@ -1045,34 +1059,36 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'raw-hashbrown', name: 'Hashbrown (Raw)', category: 'patty', image: 'images/raw-hashbrown.png' },
     { id: 'hashbrown', name: 'Hashbrown (Cooked)', category: 'patty', image: 'images/hashbrown.png' },
     
-    // Протеины (бекон, яйцо, сыр: сырые/ненарезанные -> готовые/нарезанные)
+    // Протеины (Бекон, Яйцо, Сыр: Ненарезанный -> Нарезанный/Сырой -> Приготовленный)
     { id: 'raw-bacon', name: 'Bacon (Raw)', category: 'protein', image: 'images/raw-bacon.png' },
     { id: 'fried-bacon', name: 'Bacon (Cooked)', category: 'protein', image: 'images/fried-bacon.png' },
     
     { id: 'raw-egg', name: 'Egg (Raw)', category: 'protein', image: 'images/egg.png' },
     { id: 'fried-egg', name: 'Egg (Cooked)', category: 'protein', image: 'images/fried-egg.png' },
     
-    { id: 'cheese', name: 'Cheese (Uncut)', category: 'protein', image: 'images/cheese.png', isUncut: true },
-    { id: 'cheese-sliced', name: 'Cheese (Sliced)', category: 'protein', image: 'images/cheese.png' }, // задел
+    { id: 'uncut-cheese', name: 'Cheese (Uncut)', category: 'protein', image: 'images/uncut-cheese.png', isUncut: true },
+    { id: 'raw-cheese', name: 'Cheese (Sliced)', category: 'protein', image: 'images/raw-cheese.png' },
+    { id: 'cheese', name: 'Cheese (Cooked)', category: 'protein', image: 'images/cheese.png' },
 
-    // Шампиньоны и овощи (ненарезанные -> нарезанные)
-    { id: 'raw-champignons', name: 'Champignons (Uncut)', category: 'vegetables', image: 'images/raw-champignons.png', isUncut: true },
-    { id: 'champignons', name: 'Champignons (Sliced)', category: 'vegetables', image: 'images/champignons.png' },
+    // Овощи и грибы (Ненарезанный -> Нарезанный/Сырой -> Готовый)
+    { id: 'uncut-champignons', name: 'Champignons (Uncut)', category: 'vegetables', image: 'images/uncut-champignons.png', isUncut: true },
+    { id: 'raw-champignons', name: 'Champignons (Sliced)', category: 'vegetables', image: 'images/raw-champignons.png' },
+    { id: 'champignons', name: 'Champignons (Cooked)', category: 'vegetables', image: 'images/champignons.png' },
     
-    { id: 'lettuce', name: 'Lettuce (Uncut)', category: 'vegetables', image: 'images/uncut-lettuce.png', isUncut: true },
-    { id: 'lettuce-sliced', name: 'Lettuce (Sliced)', category: 'vegetables', image: 'images/lettuce.png' }, // задел
+    { id: 'uncut-lettuce', name: 'Lettuce (Uncut)', category: 'vegetables', image: 'images/uncut-lettuce.png', isUncut: true },
+    { id: 'lettuce', name: 'Lettuce (Sliced)', category: 'vegetables', image: 'images/lettuce.png' },
     
-    { id: 'tomato', name: 'Tomato (Uncut)', category: 'vegetables', image: 'images/uncut-tomato.png', isUncut: true },
-    { id: 'tomato-sliced', name: 'Tomato (Sliced)', category: 'vegetables', image: 'images/tomato.png' }, // задел
+    { id: 'uncut-tomato', name: 'Tomato (Uncut)', category: 'vegetables', image: 'images/uncut-tomato.png', isUncut: true },
+    { id: 'tomato', name: 'Tomato (Sliced)', category: 'vegetables', image: 'images/tomato.png' },
     
-    { id: 'pickles', name: 'Pickles (Uncut)', category: 'vegetables', image: 'images/uncut-pickles.png', isUncut: true },
-    { id: 'pickles-sliced', name: 'Pickles (Sliced)', category: 'vegetables', image: 'images/pickles.png' }, // задел
+    { id: 'uncut-pickles', name: 'Pickles (Uncut)', category: 'vegetables', image: 'images/uncut-pickles.png', isUncut: true },
+    { id: 'pickles', name: 'Pickles (Sliced)', category: 'vegetables', image: 'images/pickles.png' },
     
-    { id: 'red-onion', name: 'Red Onion (Uncut)', category: 'vegetables', image: 'images/uncut-red-onion.png', isUncut: true },
-    { id: 'red-onion-sliced', name: 'Red Onion (Sliced)', category: 'vegetables', image: 'images/red-onion.png' }, // задел
+    { id: 'uncut-red-onion', name: 'Red Onion (Uncut)', category: 'vegetables', image: 'images/uncut-red-onion.png', isUncut: true },
+    { id: 'red-onion', name: 'Red Onion (Sliced)', category: 'vegetables', image: 'images/red-onion.png' },
     
-    { id: 'white-onion', name: 'White Onion (Uncut)', category: 'vegetables', image: 'images/uncut-white-onion.png', isUncut: true },
-    { id: 'white-onion-sliced', name: 'White Onion (Sliced)', category: 'vegetables', image: 'images/white-onion.png' }, // задел
+    { id: 'uncut-white-onion', name: 'White Onion (Uncut)', category: 'vegetables', image: 'images/uncut-white-onion.png', isUncut: true },
+    { id: 'white-onion', name: 'White Onion (Sliced)', category: 'vegetables', image: 'images/white-onion.png' },
 
     // Соусы
     { id: 'mayo', name: 'Mayo', category: 'sauce', image: 'images/sauce-mayo.png', isSauce: true },
