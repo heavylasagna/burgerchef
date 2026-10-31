@@ -737,7 +737,16 @@ body {
   padding-top: 5px;
 }
 
-/* Ограничиваем область спавна брызг внутри самого спрайта */
+.grill-slot * {
+  pointer-events: none;
+}
+
+.grill-slot.selected-for-bin {
+  border: 2px dashed #d32f2f !important;
+  box-shadow: 0 0 12px rgba(211, 47, 47, 0.6);
+  background: rgba(211, 47, 47, 0.1);
+}
+
 .grill-item-wrapper {
   position: relative;
   width: 105px;
@@ -756,17 +765,20 @@ body {
   display: block;
 }
 
-/* Контейнер брызг привязывается к НИЗУ картинки продукта, а не слота */
+.grill-item.charred {
+  filter: grayscale(100%) brightness(0.2);
+}
+
 .oil-splash-container {
   position: absolute;
-  bottom: 5px; /* Привязка к низу продукта */
+  bottom: 2px;
   left: 50%;
   transform: translateX(-50%);
   width: 90px;
   height: 15px;
   pointer-events: none;
-  z-index: 1; /* Под продуктом, чтобы брызги вылетали из-под него */
-  overflow: hidden; /* Не дает брызгам вылетать за пределы картинки вниз на таймер */
+  z-index: 1;
+  overflow: hidden;
 }
 
 .oil-splash {
@@ -780,7 +792,11 @@ body {
   box-shadow: 0 0 6px rgba(255, 179, 0, 0.9);
 }
 
-/* Таймер идет строго отдельным блоком ниже продукта */
+@keyframes splashAnim {
+  0% { transform: translateY(0) scale(0.4); opacity: 1; }
+  100% { transform: translateY(var(--dy)) scale(1.3); opacity: 0; }
+}
+
 .grill-progress-container {
   position: relative;
   width: 100px;
