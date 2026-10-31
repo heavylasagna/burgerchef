@@ -332,8 +332,10 @@ document.addEventListener('DOMContentLoaded', () => {
       currentActiveOrder = null;
       localStorage.removeItem('current_active_order');
       if (speed !== 'no-orders') {
-        if (speed === 'turbo') {
+        if (speed === 'turbo' && mode === 'turbo') {
           currentTurboTimeLeft = 180;
+          triggerRandomOrder();
+        } else if (speed === 'turbo') {
           triggerRandomOrder();
         } else {
           timeUntilNextOrder = getRandomTimeForSpeed(speed);
@@ -352,7 +354,6 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('current_active_order');
       } else if (speed === 'turbo') {
         if(topWidget) topWidget.classList.remove('hidden');
-        currentTurboTimeLeft = 180;
         if (!currentActiveOrder) triggerRandomOrder();
       } else {
         if(topWidget) topWidget.classList.remove('hidden');
@@ -405,7 +406,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (topWidget) topWidget.classList.add('hidden');
       } else if (newSpeed === 'turbo') {
         if (topWidget) topWidget.classList.remove('hidden');
-        currentTurboTimeLeft = 180;
         triggerRandomOrder();
       } else {
         if (topWidget) topWidget.classList.remove('hidden');
@@ -963,7 +963,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       showToast(null, 'Order Complete!', `${currentActiveOrder.name} served successfully!`);
       
-      if (currentGameMode === 'turbo' || getCurrentSpeed() === 'turbo') {
+      if (currentGameMode === 'turbo') {
+        currentTurboTimeLeft = 180;
         triggerRandomOrder();
       } else {
         currentActiveOrder = null;
@@ -991,7 +992,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     const currentSpeed = getCurrentSpeed();
-    if (currentActiveOrder && (currentSpeed === 'no-orders' || currentSpeed === 'turbo')) {
+    if (currentActiveOrder && currentSpeed === 'no-orders') {
       const targetIds = currentActiveOrder.ids;
       if (ids.length === targetIds.length && ids.every((val, idx) => val === targetIds[idx])) {
         playSound(SOUNDS.complete);
@@ -1003,12 +1004,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         showToast(null, 'Order Complete!', `${currentActiveOrder.name} served successfully!`);
         
-        if (currentSpeed === 'turbo') {
-          triggerRandomOrder();
-        } else {
-          currentActiveOrder = null;
-          localStorage.removeItem('current_active_order');
-        }
+        currentActiveOrder = null;
+        localStorage.removeItem('current_active_order');
 
         updateActionButtonsVisibility();
         setTimeout(() => { if (eatBtn && eatBtn.style.display !== 'none') eatBtn.click(); else { currentBurger = []; updateBurgerDisplay(false); } }, 600);
@@ -1039,7 +1036,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const chosen = allAvailable[Math.floor(Math.random() * allAvailable.length)];
     currentActiveOrder = { name: chosen.name || chosen.title, ids: chosen.ids };
     
-    if (currentGameMode === 'turbo' || getCurrentSpeed() === 'turbo') {
+    if (currentGameMode === 'turbo') {
       currentTurboTimeLeft = 180;
     }
     
@@ -1059,7 +1056,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentSpeed = getCurrentSpeed();
     if (currentSpeed === 'no-orders') return;
 
-    if (currentGameMode === 'turbo' || currentSpeed === 'turbo') {
+    // Таймер работает СТРОГО в турбо-режиме игры
+    if (currentGameMode === 'turbo') {
       if (!currentActiveOrder) {
         triggerRandomOrder();
       } else {
@@ -1074,6 +1072,16 @@ document.addEventListener('DOMContentLoaded', () => {
           showToast({title: 'Time Out! -$5'}, 'Order Failed', 'You ran out of time!');
           triggerRandomOrder();
         }
+      }
+      return;
+    }
+
+    // Для песочницы и казуального режима при выбранной турбо-скорости заказов таймер не нужен
+    if (currentSpeed === 'turbo') {
+      if (!currentActiveOrder) {
+        triggerRandomOrder();
+      } else {
+        updateOrderWidgetsText(currentActiveOrder.name);
       }
       return;
     }
@@ -1093,7 +1101,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 1000);
 
   if (currentActiveOrder && getCurrentSpeed() !== 'no-orders') {
-    if (currentGameMode === 'turbo' || getCurrentSpeed() === 'turbo') {
+    if (currentGameMode === 'turbo') {
       updateOrderWidgetsText(currentActiveOrder.name, formatTime(currentTurboTimeLeft));
     } else {
       updateOrderWidgetsText(currentActiveOrder.name);
