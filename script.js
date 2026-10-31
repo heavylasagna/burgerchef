@@ -2755,8 +2755,7 @@ document.addEventListener('DOMContentLoaded', () => {
 🗑 Bin current ingredients
 ---
 💾 Save your burger as PNG
-⚙ Settings`
-    },
+⚙ Settings`,
       screen: "assembly",
       getElement: () => document.getElementById('bottomPanel') || document.querySelector('.bottom-panel')
     },
@@ -2812,12 +2811,12 @@ document.addEventListener('DOMContentLoaded', () => {
       title: "Settings & Game Modes",
       text: `Let's head back to Assembly. Open Settings to configure volume, themes, game modes and order frequncy.
       
-      Sandbox. Infinite money and ingredients. Experiment and create.
-      Casual. A regular career gamemode where you earn money and sell orders.
-      Turbo. Orders come without stopping and an addition patience timer. Don't mess up or get fined!
-      ---
-      The order frequency changes how often you will get your order.
-      Turbo gives you orders without waiting and no orders removes this feature at all.`,
+Sandbox. Infinite money and ingredients. Experiment and create.
+Casual. A regular career gamemode where you earn money and sell orders.
+Turbo. Orders come without stopping and an addition patience timer. Don't mess up or get fined!
+---
+The order frequency changes how often you will get your order.
+Turbo gives you orders without waiting and no orders removes this feature at all.`,
       screen: "assembly",
       action: () => {
         const modal = document.getElementById('settingsModal');
@@ -2841,16 +2840,90 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   ];
 
-  // Упрощенные шаги для телефонов (модальное окно по центру, фон не меняется)
+  // Дублированные обновленные шаги для мобильных устройств (модальное окно по центру без изменения фона)
   const mobileTutorialSteps = [
-    { title: "Assembly Screen", text: "This is your main workplace where you build custom burgers." },
-    { title: "Ingredients Menu", text: "Select and add various ingredients (buns, patties, veggies) to your burger stack." },
-    { title: "Layers Panel", text: "View all current layers of your burger, reorder them, or remove individual items." },
-    { title: "Wallet", text: "Shows your current money balance. Earn cash by fulfilling customer orders!" },
-    { title: "Bottom Actions Menu", text: "Quick buttons for recipes, shop, backpack, achievements, eating, and more." },
-    { title: "Grill Screen", text: "Switch to the Grill screen using top buttons to cook raw ingredients." },
-    { title: "Cutting Board", text: "Switch to the Cutting Board screen to chop and slice vegetables and cheese." },
-    { title: "Settings", text: "Open Settings to configure volume, themes, game modes, and view this tutorial again." }
+    {
+      title: "Assembly Screen",
+      text: "This is your main workplace where you can build orders or your own burgers."
+    },
+    {
+      title: "Ingredients Menu",
+      text: "Here you can select what ingredients to add to your burger."
+    },
+    {
+      title: "Layers Panel",
+      text: "Here you can see all current layers of your burger, reorder them, or remove individual items."
+    },
+    {
+      title: "Wallet",
+      text: "Shows your current money balance. Earn cash by fulfilling customer orders correctly!"
+    },
+    {
+      title: "Bottom Actions Menu",
+      text: `On the lower menu you have a variety of buttons:
+
+📋 List of recipes
+🏬 Groceries shop
+🎒 Your inventory
+🏆 Your achievements
+---
+🔔 Summon new order
+⏩ Skip current order
+🍔 Eat your burger
+🍽 Serve the order
+✊ Squeeze your burger
+🗑 Bin current ingredients
+---
+💾 Save your burger as PNG
+⚙ Settings`
+    },
+    {
+      title: "Switch to Grill",
+      text: "Click this button to switch to the Grill screen and cook your ingredients."
+    },
+    {
+      title: "Grill Screen",
+      text: "Here you can cook your ingredients."
+    },
+    {
+      title: "Raw Ingredients Menu",
+      text: "On this panel you can select which items to grill."
+    },
+    {
+      title: "Cooked Inventory",
+      text: "On the left panel you can see your inventory of cooked goods."
+    },
+    {
+      title: "Switch to Cutting Board",
+      text: "Click this button to switch to the Cutting Board screen."
+    },
+    {
+      title: "Cutting Board Screen",
+      text: "Here you can slice ingredients before using them."
+    },
+    {
+      title: "Uncut Ingredients",
+      text: "Select items that you want to cut. From one item you get three slices."
+    },
+    {
+      title: "Sliced Inventory",
+      text: "The left panel displays your stock of sliced ingredients."
+    },
+    {
+      title: "Settings & Game Modes",
+      text: `Let's head back to Assembly. Open Settings to configure volume, themes, game modes and order frequncy.
+      
+Sandbox. Infinite money and ingredients. Experiment and create.
+Casual. A regular career gamemode where you earn money and sell orders.
+Turbo. Orders come without stopping and an addition patience timer. Don't mess up or get fined!
+---
+The order frequency changes how often you will get your order.
+Turbo gives you orders without waiting and no orders removes this feature at all.`
+    },
+    {
+      title: "Reset & Tutorial",
+      text: "Here you can restart this tutorial anytime and access buttons to reset your achievements or entire game data. Be careful with that. For now enjoy your game!"
+    }
   ];
 
   let currentTutorialStep = 0;
@@ -2943,23 +3016,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (tutorialTitle) tutorialTitle.innerText = step.title;
-    if (tutorialText) tutorialText.innerText = step.text;
+    if (tutorialText) {
+      // Сохраняем переносы строк для красивого отображения списков
+      tutorialText.style.whiteSpace = 'pre-line';
+      tutorialText.innerText = step.text;
+    }
     if (tutorialStepIndicator) tutorialStepIndicator.innerText = `${stepIndex + 1} / ${stepsList.length}`;
     if (tutorialPrevBtn) tutorialPrevBtn.style.display = stepIndex === 0 ? 'none' : 'block';
     if (tutorialNextBtn) tutorialNextBtn.innerText = stepIndex === stepsList.length - 1 ? 'Finish' : 'Next';
 
-    // Исправленное позиционирование подсказки: строго по центру для мобильных устройств
+    // Гарантированное центрирование модального окна туториала на мобильных устройствах
     if (isMobile) {
       if (tutorialTooltip) {
         tutorialTooltip.style.left = '50%';
         tutorialTooltip.style.top = '50%';
         tutorialTooltip.style.transform = 'translate(-50%, -50%)';
         tutorialTooltip.style.position = 'fixed';
+        tutorialTooltip.style.maxHeight = '80vh';
+        tutorialTooltip.style.overflowY = 'auto';
       }
     } else {
       if (tutorialTooltip) {
         tutorialTooltip.style.transform = 'none';
         tutorialTooltip.style.position = 'absolute';
+        tutorialTooltip.style.maxHeight = 'none';
+        tutorialTooltip.style.overflowY = 'visible';
       }
       setTimeout(() => {
         setTimeout(() => {
