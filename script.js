@@ -2712,169 +2712,199 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- ПОШАГОВЫЙ ТУТОРИАЛ В МОДАЛЬНОМ ОКНЕ ---
+  // --- ТУТОРИАЛ (С ПОДСВЕТКОЙ ДЛЯ ПК И МОДАЛЬНЫМ ОКНОМ ДЛЯ ТЕЛЕФОНОВ) ---
   const tutorialSteps = [
     {
       title: "Assembly Screen",
-      text: "This is your main workplace where you build custom burgers."
+      text: "This is your main workplace where you build custom burgers.",
+      getElement: () => document.getElementById('centerStage')
     },
     {
       title: "Ingredients Menu",
-      text: "Here you can select and add various ingredients (buns, patties, veggies) to your burger stack."
+      text: "Here you can select and add various ingredients (buns, patties, veggies) to your burger stack.",
+      getElement: () => document.getElementById('rightPanel')
     },
     {
       title: "Layers Panel",
-      text: "Here you can see all current layers of your burger, reorder them, or remove individual items."
+      text: "Here you can see all current layers of your burger, reorder them, or remove individual items.",
+      getElement: () => document.getElementById('leftPanel')
     },
     {
       title: "Wallet",
-      text: "Shows your current money balance. Earn cash by fulfilling customer orders correctly!"
+      text: "Shows your current money balance. Earn cash by fulfilling customer orders correctly!",
+      getElement: () => document.getElementById('walletWidget')
     },
     {
       title: "Bottom Actions Menu",
-      text: "Quick buttons for recipes, shop, inventory backpack, achievements, eating, squishing, or trashing the burger."
+      text: "Quick buttons for recipes, shop, inventory backpack, achievements, eating, squishing, or trashing the burger.",
+      getElement: () => document.getElementById('bottomPanel')
     },
     {
       title: "Switch to Grill",
-      text: "Click the flame button to switch to the Grill screen and cook raw ingredients."
+      text: "Click the flame button to switch to the Grill screen and cook raw ingredients.",
+      getElement: () => document.getElementById('switchToGrillBtn')
     },
     {
       title: "Grill Screen",
-      text: "Here you can grill raw patties, bacon, eggs, and mushrooms."
+      text: "Here you can grill raw patties, bacon, eggs, and mushrooms.",
+      getElement: () => document.getElementById('grillStage')
     },
     {
       title: "Raw Ingredients Menu",
-      text: "On the right panel, select raw items from your stock to place them onto the grill slots."
+      text: "On the right panel, select raw items from your stock to place them onto the grill slots.",
+      getElement: () => document.getElementById('rightPanel')
     },
     {
       title: "Cooked Inventory",
-      text: "On the left panel, you can view your inventory of successfully cooked ingredients ready to use."
+      text: "On the left panel, you can view your inventory of successfully cooked ingredients ready to use.",
+      getElement: () => document.getElementById('leftPanel')
     },
     {
       title: "Switch to Cutting Board",
-      text: "Click the knife button to switch to the Cutting Board screen."
+      text: "Click the knife button to switch to the Cutting Board screen.",
+      getElement: () => document.getElementById('switchToBoardBtn')
     },
     {
       title: "Cutting Board Screen",
-      text: "Here you can chop and slice uncut vegetables and cheeses before using them."
+      text: "Here you can chop and slice uncut vegetables and cheeses before using them.",
+      getElement: () => document.getElementById('boardStage')
     },
     {
       title: "Uncut Ingredients",
-      text: "Select uncut items on the right panel to place them onto the board and chop them into pieces."
+      text: "Select uncut items on the right panel to place them onto the board and chop them into pieces.",
+      getElement: () => document.getElementById('rightPanel')
     },
     {
       title: "Sliced Inventory",
-      text: "The left panel displays your stock of freshly sliced ingredients ready for your culinary creations."
+      text: "The left panel displays your stock of freshly sliced ingredients ready for your culinary creations.",
+      getElement: () => document.getElementById('leftPanel')
     },
     {
       title: "Settings & Game Modes",
-      text: "Open Settings to configure volume, themes, game modes (Sandbox, Casual, Turbo), and order frequencies."
+      text: "Open Settings to configure volume, themes, game modes (Sandbox, Casual, Turbo), and order frequencies.",
+      getElement: () => document.getElementById('openSettingsBtn')
     },
     {
       title: "Reset & Tutorial",
-      text: "Here you can restart this tutorial anytime and access the Danger Zone to wipe data or achievements."
+      text: "Here you can restart this tutorial anytime and access the Danger Zone to wipe data or achievements.",
+      getElement: () => document.getElementById('openSettingsBtn')
     }
   ];
 
   let currentTutorialStep = 0;
 
-  function showWelcomeModalIfNeeded() {
-    const hasSeenWelcome = localStorage.getItem('has_seen_welcome');
-    const welcomeModal = document.getElementById('welcomeModal');
-    if (!hasSeenWelcome && welcomeModal) {
-      welcomeModal.classList.add('open');
+  function startTutorial() {
+    currentTutorialStep = 0;
+    // На мобильных устройствах запускаем простой модальный туториал
+    if (window.innerWidth <= 900) {
+      if (tutorialModal) tutorialModal.classList.add('open');
+      showTutorialStep(currentTutorialStep);
+    } else {
+      // На ПК запускаем туториал с подсветкой элементов
+      const overlay = document.getElementById('tutorialOverlay');
+      if (overlay) overlay.classList.add('open');
+      showPcTutorialStep(currentTutorialStep);
     }
   }
 
-  const welcomeModal = document.getElementById('welcomeModal');
-  const welcomeNoBtn = document.getElementById('welcomeNoBtn');
-  const welcomeYesBtn = document.getElementById('welcomeYesBtn');
-  
-  const tutorialModal = document.getElementById('tutorialModal');
-  const tutorialModalTitle = document.getElementById('tutorialModalTitle');
-  const tutorialModalText = document.getElementById('tutorialModalText');
-  const tutorialModalStepIndicator = document.getElementById('tutorialModalStepIndicator');
-  const tutorialModalPrevBtn = document.getElementById('tutorialModalPrevBtn');
-  const tutorialModalNextBtn = document.getElementById('tutorialModalNextBtn');
-  const closeTutorialModalBtn = document.getElementById('closeTutorialModalBtn');
-  const openTutorialFromSettingsBtn = document.getElementById('openTutorialFromSettingsBtn');
-
-  if (welcomeNoBtn) {
-    welcomeNoBtn.onclick = () => {
-      playSound(SOUNDS.buttons);
-      localStorage.setItem('has_seen_welcome', 'true');
-      if (welcomeModal) welcomeModal.classList.remove('open');
-    };
-  }
-
-  if (welcomeYesBtn) {
-    welcomeYesBtn.onclick = () => {
-      playSound(SOUNDS.buttons);
-      localStorage.setItem('has_seen_welcome', 'true');
-      if (welcomeModal) welcomeModal.classList.remove('open');
-      startTutorial();
-    };
-  }
-
-  if (openTutorialFromSettingsBtn) {
-    openTutorialFromSettingsBtn.onclick = () => {
-      playSound(SOUNDS.buttons);
-      if (settingsModal) settingsModal.classList.remove('open');
-      startTutorial();
-    };
-  }
-
-  if (closeTutorialModalBtn) {
-    closeTutorialModalBtn.onclick = () => {
-      playSound(SOUNDS.buttons);
-      endTutorial();
-    };
-  }
-
-  function startTutorial() {
-    currentTutorialStep = 0;
-    if (tutorialModal) tutorialModal.classList.add('open');
-    showTutorialStep(currentTutorialStep);
-  }
-
-  function showTutorialStep(stepIndex) {
+  function showPcTutorialStep(stepIndex) {
     const step = tutorialSteps[stepIndex];
     if (!step) {
       endTutorial();
       return;
     }
 
-    if (tutorialModalTitle) tutorialModalTitle.innerText = step.title;
-    if (tutorialModalText) tutorialModalText.innerText = step.text;
-    if (tutorialModalStepIndicator) tutorialModalStepIndicator.innerText = `${stepIndex + 1} / ${tutorialSteps.length}`;
-    if (tutorialModalPrevBtn) tutorialModalPrevBtn.style.display = stepIndex === 0 ? 'none' : 'block';
-    if (tutorialModalNextBtn) tutorialModalNextBtn.innerText = stepIndex === tutorialSteps.length - 1 ? 'Finish' : 'Next';
+    const targetEl = step.getElement ? step.getElement() : null;
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+    }
+
+    const spotlight = document.getElementById('tutorialSpotlight');
+    const tooltip = document.getElementById('tutorialTooltip');
+    const titleEl = document.getElementById('tutorialTitle');
+    const textEl = document.getElementById('tutorialText');
+    const indicatorEl = document.getElementById('tutorialStepIndicator');
+    const nextBtn = document.getElementById('tutorialNextBtn');
+    const prevBtn = document.getElementById('tutorialPrevBtn');
+
+    if (titleEl) titleEl.innerText = step.title;
+    if (textEl) textEl.innerText = step.text;
+    if (indicatorEl) indicatorEl.innerText = `${stepIndex + 1} / ${tutorialSteps.length}`;
+    if (prevBtn) prevBtn.style.display = stepIndex === 0 ? 'none' : 'block';
+    if (nextBtn) nextBtn.innerText = stepIndex === tutorialSteps.length - 1 ? 'Finish' : 'Next';
+
+    if (targetEl && spotlight && tooltip) {
+      setTimeout(() => {
+        const rect = targetEl.getBoundingClientRect();
+        const padding = 10;
+
+        spotlight.style.top = `${rect.top - padding}px`;
+        spotlight.style.left = `${rect.left - padding}px`;
+        spotlight.style.width = `${rect.width + padding * 2}px`;
+        spotlight.style.height = `${rect.height + padding * 2}px`;
+
+        let tooltipLeft = rect.left + (rect.width / 2) - 150;
+        if (tooltipLeft < 10) tooltipLeft = 10;
+        if (tooltipLeft + 300 > window.innerWidth - 10) {
+          tooltipLeft = window.innerWidth - 310;
+        }
+
+        let tooltipTop = rect.bottom + 16;
+        if (tooltipTop + 180 > window.innerHeight) {
+          tooltipTop = rect.top - 180 - 16;
+        }
+
+        tooltip.style.left = `${tooltipLeft}px`;
+        tooltip.style.top = `${tooltipTop}px`;
+      }, 100);
+    }
   }
 
-  if (tutorialModalNextBtn) {
-    tutorialModalNextBtn.onclick = () => {
+  const tutorialNextBtn = document.getElementById('tutorialNextBtn');
+  const tutorialPrevBtn = document.getElementById('tutorialPrevBtn');
+
+  if (tutorialNextBtn) {
+    tutorialNextBtn.onclick = () => {
       playSound(SOUNDS.buttons);
-      if (currentTutorialStep < tutorialSteps.length - 1) {
-        currentTutorialStep++;
-        showTutorialStep(currentTutorialStep);
+      if (window.innerWidth <= 900) {
+        if (currentTutorialStep < tutorialSteps.length - 1) {
+          currentTutorialStep++;
+          showTutorialStep(currentTutorialStep);
+        } else {
+          endTutorial();
+        }
       } else {
-        endTutorial();
+        if (currentTutorialStep < tutorialSteps.length - 1) {
+          currentTutorialStep++;
+          showPcTutorialStep(currentTutorialStep);
+        } else {
+          endTutorial();
+        }
       }
     };
   }
 
-  if (tutorialModalPrevBtn) {
-    tutorialModalPrevBtn.onclick = () => {
+  if (tutorialPrevBtn) {
+    tutorialPrevBtn.onclick = () => {
       playSound(SOUNDS.buttons);
-      if (currentTutorialStep > 0) {
-        currentTutorialStep--;
-        showTutorialStep(currentTutorialStep);
+      if (window.innerWidth <= 900) {
+        if (currentTutorialStep > 0) {
+          currentTutorialStep--;
+          showTutorialStep(currentTutorialStep);
+        }
+      } else {
+        if (currentTutorialStep > 0) {
+          currentTutorialStep--;
+          showPcTutorialStep(currentTutorialStep);
+        }
       }
     };
   }
 
   function endTutorial() {
     if (tutorialModal) tutorialModal.classList.remove('open');
+    const overlay = document.getElementById('tutorialOverlay');
+    if (overlay) overlay.classList.remove('open');
   }
 
   showWelcomeModalIfNeeded();
