@@ -789,6 +789,56 @@ body {
 }
 .btn-buy:hover { transform: scale(1.03); background: linear-gradient(135deg, #7cb342, #689f38); }
 
+/* Стили для карточек инвентаря (рюкзака) */
+.inventory-item-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--item-bg);
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--item-border);
+  gap: 12px;
+}
+.inventory-item-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+.inventory-item-info img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 2px;
+}
+.inventory-item-details h4 {
+  font-size: 0.85rem;
+  color: var(--text-color);
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.inventory-item-details p {
+  font-size: 0.75rem;
+  color: var(--accent-color);
+  font-weight: bold;
+}
+.inventory-count-badge {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--accent-color);
+  background: rgba(0,0,0,0.3);
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--item-border);
+  min-width: 60px;
+  text-align: center;
+}
+
 .settings-group {
   display: flex;
   flex-direction: column;
