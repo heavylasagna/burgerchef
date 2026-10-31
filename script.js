@@ -1018,12 +1018,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (slotData.state === 'cutting') {
           imgsrc = config.rawImage;
         } else if (slotData.state === 'ready') {
-          // Render 3 sliced items in a circle/fan inside the slot
+          // Render 3 sliced items enlarged (60px) in a fan pattern
           slotEl.innerHTML = `
             <div style="position:relative; width:100px; height:100px; display:flex; align-items:center; justify-content:center;">
-              <img src="${config.slicedImage}" style="width:45px; height:45px; position:absolute; transform: translate(-20px, -10px) rotate(-15deg); object-fit:contain;">
-              <img src="${config.slicedImage}" style="width:45px; height:45px; position:absolute; transform: translate(20px, -10px) rotate(15deg); object-fit:contain;">
-              <img src="${config.slicedImage}" style="width:45px; height:45px; position:absolute; transform: translate(0px, 15deg); object-fit:contain;">
+              <img src="${config.slicedImage}" style="width:60px; height:60px; position:absolute; transform: translate(-18px, -12px) rotate(-15deg); object-fit:contain;">
+              <img src="${config.slicedImage}" style="width:60px; height:60px; position:absolute; transform: translate(18px, -12px) rotate(15deg); object-fit:contain;">
+              <img src="${config.slicedImage}" style="width:60px; height:60px; position:absolute; transform: translate(0px, 12px); object-fit:contain;">
               <div class="flip-badge" style="background:#689f38; color:#fff; top:-4px; right:-4px;">x3 Collect</div>
             </div>
           `;
@@ -1258,6 +1258,7 @@ document.addEventListener('DOMContentLoaded', () => {
           extraHtml = `<div class="flip-badge">Flip!</div>`;
         } else if (slotData.state === 'ready' || slotData.state === 'burning') {
           imgsrc = config.cookedImage;
+          extraHtml = `<div class="flip-badge" style="background:#689f38; color:#fff;">Collect!</div>`;
         } else if (slotData.state === 'charred') {
           imgsrc = config.cookedImage;
         }
@@ -1410,50 +1411,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const forceOrderBtn = document.getElementById('forceOrderBtn');
   const skipOrderBtn = document.getElementById('skipOrderBtn');
 
+  // Магазин: содержатся только сырые/цельные продукты и соусы
   const SHOP_ITEMS = [
     { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
     { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
     
     { id: 'raw-beef-patty', name: 'Beef Patty (Raw)', category: 'patty', image: 'images/raw-beef-patty.png' },
-    { id: 'beef-patty', name: 'Beef Patty (Cooked)', category: 'patty', image: 'images/beef-patty.png' },
-    
     { id: 'raw-chicken-patty', name: 'Chicken Patty (Raw)', category: 'patty', image: 'images/raw-chicken-patty.png' },
-    { id: 'chicken-patty', name: 'Chicken Patty (Cooked)', category: 'patty', image: 'images/chicken-patty.png' },
-    
     { id: 'raw-fish-patty', name: 'Fish Patty (Raw)', category: 'patty', image: 'images/raw-fish-patty.png' },
-    { id: 'fish-patty', name: 'Fish Patty (Cooked)', category: 'patty', image: 'images/fish-patty.png' },
-    
     { id: 'raw-hashbrown', name: 'Hashbrown (Raw)', category: 'patty', image: 'images/raw-hashbrown.png' },
-    { id: 'hashbrown', name: 'Hashbrown (Cooked)', category: 'patty', image: 'images/hashbrown.png' },
     
     { id: 'raw-bacon', name: 'Bacon (Raw)', category: 'protein', image: 'images/raw-bacon.png' },
-    { id: 'fried-bacon', name: 'Bacon (Cooked)', category: 'protein', image: 'images/fried-bacon.png' },
-    
     { id: 'raw-egg', name: 'Egg (Raw)', category: 'protein', image: 'images/egg.png' },
-    { id: 'fried-egg', name: 'Egg (Cooked)', category: 'protein', image: 'images/fried-egg.png' },
     
     { id: 'uncut-cheese', name: 'Cheese (Uncut)', category: 'protein', image: 'images/uncut-cheese.png' },
-    { id: 'raw-cheese', name: 'Cheese (Sliced)', category: 'protein', image: 'images/raw-cheese.png' },
-    { id: 'cheese', name: 'Cheese (Cooked)', category: 'protein', image: 'images/cheese.png' },
-
     { id: 'uncut-champignons', name: 'Champignons (Uncut)', category: 'vegetables', image: 'images/uncut-champignons.png' },
-    { id: 'raw-champignons', name: 'Champignons (Sliced)', category: 'vegetables', image: 'images/raw-champignons.png' },
-    { id: 'champignons', name: 'Champignons (Cooked)', category: 'vegetables', image: 'images/champignons.png' },
-    
     { id: 'uncut-lettuce', name: 'Lettuce (Uncut)', category: 'vegetables', image: 'images/uncut-lettuce.png' },
-    { id: 'lettuce', name: 'Lettuce (Sliced)', category: 'vegetables', image: 'images/lettuce.png' },
-    
     { id: 'uncut-tomato', name: 'Tomato (Uncut)', category: 'vegetables', image: 'images/uncut-tomato.png' },
-    { id: 'tomato', name: 'Tomato (Sliced)', category: 'vegetables', image: 'images/tomato.png' },
-    
     { id: 'uncut-pickles', name: 'Pickles (Uncut)', category: 'vegetables', image: 'images/uncut-pickles.png' },
-    { id: 'pickles', name: 'Pickles (Sliced)', category: 'vegetables', image: 'images/pickles.png' },
-    
     { id: 'uncut-red-onion', name: 'Red Onion (Uncut)', category: 'vegetables', image: 'images/uncut-red-onion.png' },
-    { id: 'red-onion', name: 'Red Onion (Sliced)', category: 'vegetables', image: 'images/red-onion.png' },
-    
     { id: 'uncut-white-onion', name: 'White Onion (Uncut)', category: 'vegetables', image: 'images/uncut-white-onion.png' },
-    { id: 'white-onion', name: 'White Onion (Sliced)', category: 'vegetables', image: 'images/white-onion.png' },
 
     { id: 'mayo', name: 'Mayo', category: 'sauce', image: 'images/sauce-mayo.png', isSauce: true },
     { id: 'ketchup', name: 'Ketchup', category: 'sauce', image: 'images/sauce-ketchup.png', isSauce: true },
@@ -1979,7 +1956,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <img src="${item.image}" alt="${item.name}">
             <div class="shop-item-details">
               <h4>${item.name} ${item.isSauce ? '<span style="color:#ffb300; font-size:0.7rem;">x1 (pack)</span>' : ''}</h4>
-              <p>$${unitPrice.toFixed(2)} ${item.isSauce ? 'each' : 'each'} | Stock: ${stockDisplay}</p>
+              <p>$${unitPrice.toFixed(2)} each | Stock: ${stockDisplay}</p>
             </div>
           </div>
           <div class="shop-buy-group">
