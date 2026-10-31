@@ -120,8 +120,8 @@ document.addEventListener('DOMContentLoaded', () => {
     'red-onion': 1, 'uncut-red-onion': 1,
     'white-onion': 1, 'uncut-white-onion': 1,
     'mayo': 2, 'ketchup': 2, 'mustard': 2, 'spicy': 2, 'bbq': 2,
-    'raw-beef-patty': 5, 'raw-chicken-patty': 4, 'raw-fish-patty': 4, 'raw-hashbrown': 3,
-    'raw-bacon': 3, 'raw-egg': 2
+    'raw-beef-patty': 5, 'raw-chicken-patty': 5, 'raw-fish-patty': 5, 'raw-hashbrown': 5,
+    'raw-bacon': 5, 'raw-egg': 5
   };
 
   let ingredientStock = JSON.parse(localStorage.getItem('burger_ingredient_stock')) || {
@@ -2712,7 +2712,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- ПОЛНЫЙ ТУТОРИАЛ (с подсветкой элементов) ---
+  // --- ПОЛНЫЙ ТУТОРИАЛ (с адаптивной подсветкой для ПК и чистым окном для телефонов) ---
   const tutorialSteps = [
     {
       title: "Assembly Screen",
@@ -2880,8 +2880,13 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    if (step.screen && currentScreen !== step.screen) {
-      switchScreen(step.screen);
+    const isMobile = window.innerWidth <= 900;
+
+    // На мобилках не переключаем экраны фона во время туториала, чтобы фон был статичным
+    if (!isMobile) {
+      if (step.screen && currentScreen !== step.screen) {
+        switchScreen(step.screen);
+      }
     }
 
     if (step.action) {
@@ -2899,39 +2904,42 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tutorialPrevBtn) tutorialPrevBtn.style.display = stepIndex === 0 ? 'none' : 'block';
     if (tutorialNextBtn) tutorialNextBtn.innerText = stepIndex === tutorialSteps.length - 1 ? 'Finish' : 'Next';
 
-    setTimeout(() => {
+    // Подсветка элементов только для ПК
+    if (!isMobile) {
       setTimeout(() => {
-        const targetEl = step.getElement ? step.getElement() : null;
-        if (targetEl) {
-          targetEl.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' });
-        }
-
-        if (targetEl && tutorialSpotlight && tutorialTooltip) {
-          const rect = targetEl.getBoundingClientRect();
-          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-          const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-          const padding = 12;
-
-          tutorialSpotlight.style.top = `${rect.top + scrollTop - padding}px`;
-          tutorialSpotlight.style.left = `${rect.left + scrollLeft - padding}px`;
-          tutorialSpotlight.style.width = `${rect.width + padding * 2}px`;
-          tutorialSpotlight.style.height = `${rect.height + padding * 2}px`;
-
-          const tooltipWidth = 310;
-          let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2 + scrollLeft;
-          let tooltipTop = rect.bottom + scrollTop + 16;
-
-          if (tooltipLeft < 10) tooltipLeft = 10;
-          if (tooltipLeft + tooltipWidth > window.innerWidth - 10) tooltipLeft = window.innerWidth - tooltipWidth - 10;
-          if (tooltipTop + 190 > window.innerHeight + scrollTop) {
-            tooltipTop = rect.top + scrollTop - 190;
+        setTimeout(() => {
+          const targetEl = step.getElement ? step.getElement() : null;
+          if (targetEl) {
+            targetEl.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' });
           }
 
-          tutorialTooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
-          tutorialTooltip.style.top = `${Math.max(10, tooltipTop)}px`;
-        }
-      }, 50);
-    }, 100);
+          if (targetEl && tutorialSpotlight && tutorialTooltip) {
+            const rect = targetEl.getBoundingClientRect();
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+            const padding = 12;
+
+            tutorialSpotlight.style.top = `${rect.top + scrollTop - padding}px`;
+            tutorialSpotlight.style.left = `${rect.left + scrollLeft - padding}px`;
+            tutorialSpotlight.style.width = `${rect.width + padding * 2}px`;
+            tutorialSpotlight.style.height = `${rect.height + padding * 2}px`;
+
+            const tooltipWidth = 310;
+            let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2 + scrollLeft;
+            let tooltipTop = rect.bottom + scrollTop + 16;
+
+            if (tooltipLeft < 10) tooltipLeft = 10;
+            if (tooltipLeft + tooltipWidth > window.innerWidth - 10) tooltipLeft = window.innerWidth - tooltipWidth - 10;
+            if (tooltipTop + 190 > window.innerHeight + scrollTop) {
+              tooltipTop = rect.top + scrollTop - 190;
+            }
+
+            tutorialTooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
+            tutorialTooltip.style.top = `${Math.max(10, tooltipTop)}px`;
+          }
+        }, 50);
+      }, 100);
+    }
   }
 
   if (tutorialNextBtn) {
