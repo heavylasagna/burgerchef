@@ -1019,19 +1019,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const SHOP_ITEMS = [
     { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
     { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
-    { id: 'beef-patty', name: 'Beef Patty', category: 'patty', image: 'images/beef-patty.png' },
-    { id: 'chicken-patty', name: 'Chicken Patty', category: 'patty', image: 'images/chicken-patty.png' },
-    { id: 'fish-patty', name: 'Fish Patty', category: 'patty', image: 'images/fish-patty.png' },
-    { id: 'hashbrown', name: 'Hashbrown', category: 'patty', image: 'images/hashbrown.png' },
-    { id: 'fried-bacon', name: 'Fried Bacon', category: 'protein', image: 'images/fried-bacon.png' },
-    { id: 'fried-egg', name: 'Fried Egg', category: 'protein', image: 'images/fried-egg.png' },
-    { id: 'cheese', name: 'Cheese', category: 'protein', image: 'images/cheese.png' },
-    { id: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/champignons.png' },
-    { id: 'lettuce', name: 'Lettuce', category: 'vegetables', image: 'images/lettuce.png' },
-    { id: 'tomato', name: 'Tomato', category: 'vegetables', image: 'images/tomato.png' },
-    { id: 'pickles', name: 'Pickles', category: 'vegetables', image: 'images/pickles.png' },
-    { id: 'red-onion', name: 'Red Onion', category: 'vegetables', image: 'images/red-onion.png' },
-    { id: 'white-onion', name: 'White Onion', category: 'vegetables', image: 'images/white-onion.png' },
+    { id: 'raw-beef-patty', name: 'Beef Patty', category: 'patty', image: 'images/raw-beef-patty.png' },
+    { id: 'raw-chicken-patty', name: 'Chicken Patty', category: 'patty', image: 'images/raw-chicken-patty.png' },
+    { id: 'raw-fish-patty', name: 'Fish Patty', category: 'patty', image: 'images/raw-fish-patty.png' },
+    { id: 'raw-hashbrown', name: 'Hashbrown', category: 'patty', image: 'images/raw-hashbrown.png' },
+    { id: 'raw-bacon', name: 'Fried Bacon', category: 'protein', image: 'images/raw-bacon.png' },
+    { id: 'raw-egg', name: 'Fried Egg', category: 'protein', image: 'images/egg.png' },
+    { id: 'cheese', name: 'Cheese', category: 'protein', image: 'images/uncut-cheese.png' },
+    { id: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/raw-champignons.png' },
+    { id: 'lettuce', name: 'Lettuce', category: 'vegetables', image: 'images/uncut-lettuce.png' },
+    { id: 'tomato', name: 'Tomato', category: 'vegetables', image: 'images/uncut-tomato.png' },
+    { id: 'pickles', name: 'Pickles', category: 'vegetables', image: 'images/uncut-pickles.png' },
+    { id: 'red-onion', name: 'Red Onion', category: 'vegetables', image: 'images/uncut-red-onion.png' },
+    { id: 'white-onion', name: 'White Onion', category: 'vegetables', image: 'images/uncut-white-onion.png' },
     { id: 'mayo', name: 'Mayo', category: 'sauce', image: 'images/sauce-mayo.png', isSauce: true },
     { id: 'ketchup', name: 'Ketchup', category: 'sauce', image: 'images/sauce-ketchup.png', isSauce: true },
     { id: 'mustard', name: 'Mustard', category: 'sauce', image: 'images/sauce-mustard.png', isSauce: true },
@@ -1075,7 +1075,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const filtered = activeInventoryTab === 'all' ? SHOP_ITEMS : SHOP_ITEMS.filter(i => i.category === activeInventoryTab);
 
     filtered.forEach(item => {
-      const stockVal = currentGameMode === 'sandbox' ? '∞' : (ingredientStock[item.id] ?? 0);
+      // Для инвентаря берем базовый id (например, если в shop id это raw-beef-patty, то на складе учитывается beef-patty или сам raw, сохраним соответствие)
+      let stockKey = item.id;
+      if (stockKey.startsWith('raw-')) {
+        stockKey = stockKey.replace('raw-', '');
+        if (stockKey === 'bacon') stockKey = 'fried-bacon';
+        if (stockKey === 'egg') stockKey = 'fried-egg';
+      }
+      const stockVal = currentGameMode === 'sandbox' ? '∞' : (ingredientStock[stockKey] ?? ingredientStock[item.id] ?? 0);
       const card = document.createElement('div');
       card.className = 'inventory-item-card';
       card.innerHTML = `
@@ -1359,7 +1366,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderRecipesModal(savedScroll);
   }
 
-  // Расширенная проверка соответствия бургера выбранной вкладке рецептов с учётом вегетарианских и веганских правил
   function itemMatchesRecipeCategory(item, cat) {
     if (cat === 'all') return true;
     const ids = item.ids;
@@ -1384,15 +1390,12 @@ document.addEventListener('DOMContentLoaded', () => {
       return hasHashbrown && !hasBeef && !hasChicken && !hasFish && !hasEgg;
     }
     if (cat === 'egg') {
-      // Бургер с яйцом подходит сюда, если нет мясных/рыбных котлет или драника
       return hasEgg && !hasBeef && !hasChicken && !hasFish && !hasHashbrown;
     }
     if (cat === 'vegetarian') {
-      // Вегетарианские: нет мясных и рыбных котлет, а также бекона (сыр и яйцо разрешены)
       return !hasBeef && !hasChicken && !hasFish && !hasBacon;
     }
     if (cat === 'vegan') {
-      // Веганские: нет никаких животных продуктов, включая сыр, яйцо, бекон, котлеты, а также майонез и острый соус
       const animalOrProhibited = ['beef-patty', 'chicken-patty', 'fish-patty', 'fried-egg', 'fried-bacon', 'cheese', 'mayo', 'spicy'];
       return !ids.some(id => animalOrProhibited.includes(id));
     }
@@ -1458,7 +1461,6 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     });
 
-    // Добавляем заблокированные секреты, если активна вкладка secret или all
     if (activeRecipeCategory === 'all' || activeRecipeCategory === 'secret') {
       SECRET_ACHIEVEMENTS.forEach(ach => {
         if (!unlockedAchievements[ach.id]) {
@@ -1545,7 +1547,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let cardsHtml = '';
     filtered.forEach(item => {
       const unitPrice = ITEM_PRICES[item.id] || 1;
-      const stockDisplay = currentGameMode === 'sandbox' ? '∞' : (ingredientStock[item.id] ?? 0);
+      let stockKey = item.id;
+      if (stockKey.startsWith('raw-')) {
+        stockKey = stockKey.replace('raw-', '');
+        if (stockKey === 'bacon') stockKey = 'fried-bacon';
+        if (stockKey === 'egg') stockKey = 'fried-egg';
+      }
+      const stockDisplay = currentGameMode === 'sandbox' ? '∞' : (ingredientStock[stockKey] ?? ingredientStock[item.id] ?? 0);
       cardsHtml += `
         <div class="shop-item-card">
           <div class="shop-item-info">
@@ -1602,7 +1610,13 @@ document.addEventListener('DOMContentLoaded', () => {
       updateShopBalanceHeader();
     }
 
-    ingredientStock[id] = (ingredientStock[id] ?? 0) + qty;
+    let stockKey = id;
+    if (stockKey.startsWith('raw-')) {
+      stockKey = stockKey.replace('raw-', '');
+      if (stockKey === 'bacon') stockKey = 'fried-bacon';
+      if (stockKey === 'egg') stockKey = 'fried-egg';
+    }
+    ingredientStock[stockKey] = (ingredientStock[stockKey] ?? ingredientStock[id] ?? 0) + qty;
     saveStock();
     renderIngredientsMenu();
     renderSauces();
