@@ -2716,13 +2716,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const pcTutorialSteps = [
     {
       title: "Assembly Screen",
-      text: "This is your main workplace where you build custom burgers.",
+      text: "This is your main workplace where you can build orders or your own burgers.",
       screen: "assembly",
       getElement: () => document.getElementById('centerStage') || document.querySelector('.center-stage')
     },
     {
       title: "Ingredients Menu",
-      text: "Here you can select and add various ingredients (buns, patties, veggies) to your burger stack.",
+      text: "Here you can select what ingredients to add to your burger.",
       screen: "assembly",
       getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
     },
@@ -2740,31 +2740,47 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       title: "Bottom Actions Menu",
-      text: "Quick buttons for recipes, shop, inventory backpack, achievements, eating, squishing, or trashing the burger.",
+      text: `On the lower menu you have a variety of buttons:
+
+📋 List of recipes
+🏬 Groceries shop
+🎒 Your inventory
+🏆 Your achievements
+---
+🔔 Summon new order
+⏩ Skip current order
+🍔 Eat your burger
+🍽 Serve the order
+✊ Squeeze your burger
+🗑 Bin current ingredients
+---
+💾 Save your burger as PNG
+⚙ Settings`
+    },
       screen: "assembly",
       getElement: () => document.getElementById('bottomPanel') || document.querySelector('.bottom-panel')
     },
     {
       title: "Switch to Grill",
-      text: "Click this button to switch to the Grill screen and cook raw ingredients.",
+      text: "Click this button to switch to the Grill screen and cook your ingredients.",
       screen: "assembly",
       getElement: () => document.getElementById('switchToGrillBtn')
     },
     {
       title: "Grill Screen",
-      text: "Here you can grill raw patties, bacon, eggs, and mushrooms.",
+      text: "Here you can cook your ingredients.",
       screen: "grill",
       getElement: () => document.getElementById('grillStage')
     },
     {
       title: "Raw Ingredients Menu",
-      text: "On the right panel, select raw items from your stock to place them onto the grill slots.",
+      text: "On this panel you can select which items to grill.",
       screen: "grill",
       getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
     },
     {
       title: "Cooked Inventory",
-      text: "On the left panel, you can view your inventory of successfully cooked ingredients ready to use.",
+      text: "On the left panel you can see your inventory of cooked goods.",
       screen: "grill",
       getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
     },
@@ -2776,25 +2792,32 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       title: "Cutting Board Screen",
-      text: "Here you can chop and slice uncut vegetables and cheeses before using them.",
+      text: "Here you can slice ingredients before using them.",
       screen: "board",
       getElement: () => document.getElementById('boardStage')
     },
     {
       title: "Uncut Ingredients",
-      text: "Select uncut items on the right panel to place them onto the board and chop them into pieces.",
+      text: "Select items that you want to cut. From one item you get three slices.",
       screen: "board",
       getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
     },
     {
       title: "Sliced Inventory",
-      text: "The left panel displays your stock of freshly sliced ingredients ready for your culinary creations.",
+      text: "The left panel displays your stock of sliced ingredients.",
       screen: "board",
       getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
     },
     {
       title: "Settings & Game Modes",
-      text: "Let's head back to Assembly. Open Settings to configure volume, themes, game modes (Sandbox, Casual, Turbo), and order frequencies.",
+      text: `Let's head back to Assembly. Open Settings to configure volume, themes, game modes and order frequncy.
+      
+      Sandbox. Infinite money and ingredients. Experiment and create.
+      Casual. A regular career gamemode where you earn money and sell orders.
+      Turbo. Orders come without stopping and an addition patience timer. Don't mess up or get fined!
+      ---
+      The order frequency changes how often you will get your order.
+      Turbo gives you orders without waiting and no orders removes this feature at all.`,
       screen: "assembly",
       action: () => {
         const modal = document.getElementById('settingsModal');
@@ -2804,7 +2827,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       title: "Reset & Tutorial",
-      text: "Here you can restart this tutorial anytime and access the Danger Zone to wipe data or achievements.",
+      text: "Here you can restart this tutorial anytime and access buttons to reset your achievements or entire game data. Be careful with that. For now enjoy your game!",
       screen: "assembly",
       action: () => {
         const modal = document.getElementById('settingsModal');
