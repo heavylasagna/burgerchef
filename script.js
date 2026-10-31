@@ -2712,9 +2712,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- ПОЛНЫЙ ТУТОРИАЛ ---
+  // --- ПОЛНЫЙ ТУТОРИАЛ (с исправленным позиционированием и блокировкой скролла) ---
   const tutorialSteps = [
-    // 1. Экран сборки
     {
       title: "Assembly Screen",
       text: "This is your main workplace where you build custom burgers.",
@@ -2745,8 +2744,6 @@ document.addEventListener('DOMContentLoaded', () => {
       screen: "assembly",
       getElement: () => document.getElementById('bottomPanel') || document.querySelector('.bottom-panel')
     },
-
-    // 2. Экран гриля
     {
       title: "Switch to Grill",
       text: "Click this button to switch to the Grill screen and cook raw ingredients.",
@@ -2771,8 +2768,6 @@ document.addEventListener('DOMContentLoaded', () => {
       screen: "grill",
       getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
     },
-
-    // 3. Экран доски для нарезки
     {
       title: "Switch to Cutting Board",
       text: "Click this button to switch to the Cutting Board screen.",
@@ -2797,8 +2792,6 @@ document.addEventListener('DOMContentLoaded', () => {
       screen: "board",
       getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
     },
-
-    // 4. Финал в настройках
     {
       title: "Settings & Game Modes",
       text: "Let's head back to Assembly. Open Settings to configure volume, themes, game modes (Sandbox, Casual, Turbo), and order frequencies.",
@@ -2814,6 +2807,8 @@ document.addEventListener('DOMContentLoaded', () => {
       text: "Here you can restart this tutorial anytime and access the Danger Zone to wipe data or achievements.",
       screen: "assembly",
       action: () => {
+        const modal = document.getElementById('settingsModal');
+        if (modal && !modal.classList.contains('open')) modal.classList.add('open');
         const finalSec = document.getElementById('tutorialFinalSection');
         if (finalSec) {
           finalSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -2873,6 +2868,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function startTutorial() {
     currentTutorialStep = 0;
+    document.body.classList.add('tutorial-active');
     if (tutorialOverlay) tutorialOverlay.classList.add('active');
     showTutorialStep(currentTutorialStep);
   }
@@ -2903,34 +2899,39 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tutorialPrevBtn) tutorialPrevBtn.style.display = stepIndex === 0 ? 'none' : 'block';
     if (tutorialNextBtn) tutorialNextBtn.innerText = stepIndex === tutorialSteps.length - 1 ? 'Finish' : 'Next';
 
+    // Даем время DOM и анимациям завершиться, затем с двойным таймером точно рассчитываем геометрию
     setTimeout(() => {
-      const targetEl = step.getElement ? step.getElement() : null;
-      if (targetEl) {
-        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-      }
-
-      if (targetEl && tutorialSpotlight && tutorialTooltip) {
-        const rect = targetEl.getBoundingClientRect();
-        const padding = 16;
-
-        tutorialSpotlight.style.top = `${rect.top - padding}px`;
-        tutorialSpotlight.style.left = `${rect.left - padding}px`;
-        tutorialSpotlight.style.width = `${rect.width + padding * 2}px`;
-        tutorialSpotlight.style.height = `${rect.height + padding * 2}px`;
-
-        const tooltipWidth = 310;
-        let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2;
-        let tooltipTop = rect.bottom + 16;
-
-        if (tooltipLeft < 10) tooltipLeft = 10;
-        if (tooltipLeft + tooltipWidth > window.innerWidth - 10) tooltipLeft = window.innerWidth - tooltipWidth - 10;
-        if (tooltipTop + 180 > window.innerHeight) {
-          tooltipTop = rect.top - 190;
+      setTimeout(() => {
+        const targetEl = step.getElement ? step.getElement() : null;
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' });
         }
 
-        tutorialTooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
-        tutorialTooltip.style.top = `${Math.max(10, tooltipTop)}px`;
-      }
+        if (targetEl && tutorialSpotlight && tutorialTooltip) {
+          const rect = targetEl.getBoundingClientRect();
+          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+          const padding = 12;
+
+          tutorialSpotlight.style.top = `${rect.top + scrollTop - padding}px`;
+          tutorialSpotlight.style.left = `${rect.left + scrollLeft - padding}px`;
+          tutorialSpotlight.style.width = `${rect.width + padding * 2}px`;
+          tutorialSpotlight.style.height = `${rect.height + padding * 2}px`;
+
+          const tooltipWidth = 310;
+          let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2 + scrollLeft;
+          let tooltipTop = rect.bottom + scrollTop + 16;
+
+          if (tooltipLeft < 10) tooltipLeft = 10;
+          if (tooltipLeft + tooltipWidth > window.innerWidth - 10) tooltipLeft = window.innerWidth - tooltipWidth - 10;
+          if (tooltipTop + 190 > window.innerHeight + scrollTop) {
+            tooltipTop = rect.top + scrollTop - 190;
+          }
+
+          tutorialTooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
+          tutorialTooltip.style.top = `${Math.max(10, tooltipTop)}px`;
+        }
+      }, 50);
     }, 100);
   }
 
@@ -2957,6 +2958,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function endTutorial() {
+    document.body.classList.remove('tutorial-active');
     if (tutorialOverlay) tutorialOverlay.classList.remove('active');
     const settingsModalEl = document.getElementById('settingsModal');
     if (settingsModalEl) settingsModalEl.classList.remove('open');
