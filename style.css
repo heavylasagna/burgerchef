@@ -680,56 +680,62 @@ body {
   height: 105px;
   object-fit: contain;
   position: relative;
-  z-index: 2; /* Картинка котлеты/яйца находится над брызгами */
-}
-
-.grill-item.flipped {
-  transform: scaleX(-1);
+  z-index: 2; /* Картинка котлеты/яйца всегда строго над брызгами */
 }
 
 .grill-item.charred {
   filter: grayscale(100%) brightness(0.2);
 }
 
-/* === МЯГКОЕ И ПОСТОЯННОЕ ПОКАЧИВАНИЕ (ШКВАРЧАНИЕ) === */
+/* === ПОСТОЯННОЕ ШКВАРЧАНИЕ И ПОКАЧИВАНИЕ === */
 @keyframes sizzleWobble {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  25% { transform: translateY(-2px) rotate(-1.5deg); }
-  75% { transform: translateY(1px) rotate(1.5deg); }
+  0%, 100% { transform: scaleX(1) translateY(0) rotate(0deg); }
+  25% { transform: scaleX(1) translateY(-3px) rotate(-2deg); }
+  75% { transform: scaleX(1) translateY(1px) rotate(2deg); }
+}
+
+@keyframes sizzleWobbleFlipped {
+  0%, 100% { transform: scaleX(-1) translateY(0) rotate(0deg); }
+  25% { transform: scaleX(-1) translateY(-3px) rotate(-2deg); }
+  75% { transform: scaleX(-1) translateY(1px) rotate(2deg); }
 }
 
 .sizzling-anim {
-  animation: sizzleWobble 0.8s infinite ease-in-out;
+  animation: sizzleWobble 0.7s infinite ease-in-out !important;
   transform-origin: bottom center;
 }
 
-/* === БРЫЗГИ МАСЛА (строго у нижнего края продукта) === */
+.sizzling-anim.flipped {
+  animation: sizzleWobbleFlipped 0.7s infinite ease-in-out !important;
+  transform-origin: bottom center;
+}
+
+/* === БРЫЗГИ МАСЛА (РАСПРЕДЕЛЕНЫ ПО ВСЕЙ НИЖНЕЙ ШИРИНЕ СЛОТА) === */
 .oil-splash-container {
   position: absolute;
   bottom: 25px;
   left: 50%;
   transform: translateX(-50%);
-  width: 80px;
-  height: 20px;
+  width: 100px;
+  height: 10px;
   pointer-events: none;
-  z-index: 1; /* Брызги вылетают снизу из-под слоя с продуктом */
+  z-index: 1; /* Под продуктом */
 }
 
 .oil-splash {
   position: absolute;
   bottom: 0;
-  left: 50%;
   width: 6px;
   height: 6px;
-  background: rgba(255, 204, 0, 0.9);
+  background: rgba(255, 204, 0, 0.95);
   border-radius: 50%;
   animation: splashAnim 0.5s forwards ease-out;
-  box-shadow: 0 0 5px rgba(255, 179, 0, 0.8);
+  box-shadow: 0 0 6px rgba(255, 179, 0, 0.9);
 }
 
 @keyframes splashAnim {
-  0% { transform: translate(-50%, 0) scale(0.4); opacity: 1; }
-  100% { transform: translate(calc(-50% + var(--dx)), var(--dy)) scale(1.2); opacity: 0; }
+  0% { transform: translateY(0) scale(0.4); opacity: 1; }
+  100% { transform: translateY(var(--dy)) scale(1.3); opacity: 0; }
 }
 
 .grill-progress-container {
@@ -775,7 +781,7 @@ body {
   100% { transform: scale(1.18); }
 }
 
-/* Панель подтверждения выброса (плавающая над нижним меню) */
+/* Панель подтверждения выброса */
 .bin-confirm-bar {
   position: fixed;
   bottom: 95px;
