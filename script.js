@@ -150,26 +150,34 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('saved_burger_stack', JSON.stringify(currentBurger));
   }
 
-  // Позиционирование денег: на ПК под кошельком/рецептом, на телефоне при закрепленном рецепте над ингредиентами снизу
+  // Умное позиционирование денег (с учетом ПК и требований для мобильной версии)
   function updateMoneyPopupPosition() {
     const container = document.getElementById('moneyPopupContainer');
     const pinnedWidget = document.getElementById('pinnedRecipeWidget');
-    if (!container) return;
+    const walletWidget = document.getElementById('walletWidget');
+    const rightPanelEl = document.getElementById('rightPanel');
+
+    if (!container || !walletWidget) return;
 
     const isMobile = window.innerWidth <= 900;
     const isPinned = pinnedWidget && pinnedWidget.classList.contains('active');
 
     if (isMobile) {
-      if (isPinned) {
+      const walletRect = walletWidget.getBoundingClientRect();
+      container.style.left = `${walletRect.left}px`;
+
+      if (isPinned && rightPanelEl) {
+        // Если рецепт закреплен на телефоне -> над окном со списком ингредиентов
+        const rightRect = rightPanelEl.getBoundingClientRect();
         container.style.top = 'unset';
-        container.style.bottom = '125px';
-        container.style.left = '10px';
+        container.style.bottom = `${window.innerHeight - rightRect.top + 6}px`;
       } else {
+        // Если рецепт не закреплен -> под кошельком
         container.style.bottom = 'unset';
-        container.style.top = '52px';
-        container.style.left = '10px';
+        container.style.top = `${walletRect.bottom + 6}px`;
       }
     } else {
+      // ПК версия
       container.style.bottom = 'unset';
       container.style.left = '240px';
       if (isPinned) {
@@ -195,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
     popup.className = `money-popup ${isPlus ? 'plus' : 'minus'}`;
     popup.innerText = `${isPlus ? '+' : '-'}$${Math.abs(amount).toFixed(2)}`;
     
-    // Плавное скрытие по клику
+    // Плавное закрытие по клику/тапу
     let isRemoved = false;
     const removePopup = () => {
       if (isRemoved) return;
