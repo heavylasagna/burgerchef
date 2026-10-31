@@ -1306,11 +1306,11 @@ input[type="range"]::-webkit-slider-thumb {
     border: 1px solid var(--border-color);
   }
   
-  /* Нижняя панель по умолчанию (экран сборки): с прокруткой и группировкой */
+  /* Нижняя панель по умолчанию (экран сборки): прокручиваемая сгруппированная лента с расстоянием между блоками */
   .bottom-panel {
     position: fixed;
     bottom: 0; left: 0; right: 0;
-    padding: 6px 10px;
+    padding: 6px 12px;
     display: flex;
     justify-content: flex-start;
     align-items: center;
@@ -1318,7 +1318,7 @@ input[type="range"]::-webkit-slider-thumb {
     z-index: 1000;
     overflow-x: auto;
     white-space: nowrap;
-    gap: 8px;
+    gap: 12px; /* Увеличенное расстояние между группами кнопок */
     width: 100%;
   }
   
@@ -1335,14 +1335,14 @@ input[type="range"]::-webkit-slider-thumb {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    gap: 6px;
+    gap: 12px; /* Увеличенное расстояние между группами действий */
     flex-shrink: 0;
   }
 
   .action-box {
     flex-shrink: 0;
     padding: 0;
-    gap: 4px;
+    gap: 6px; /* Больше расстояния между кнопками внутри одной группы */
     display: inline-flex;
   }
   
@@ -1354,13 +1354,20 @@ input[type="range"]::-webkit-slider-thumb {
     flex: unset;
   }
 
-  /* Только на экране гриля: растягиваем кнопки на всё нижнее меню и группируем */
+  /* Экран гриля: кнопки растягиваются на всю ширину нижнего меню */
   body.grill-active .bottom-panel {
     justify-content: space-between;
+    gap: 8px;
   }
   body.grill-active .bottom-panel .actions-wrapper {
     width: 100%;
     justify-content: space-between;
+    gap: 8px;
+  }
+  body.grill-active .bottom-panel .action-box {
+    flex: 1;
+    display: flex;
+    gap: 6px;
   }
   body.grill-active .bottom-panel .btn-action {
     flex: 1;
