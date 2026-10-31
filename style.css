@@ -71,6 +71,14 @@ body {
   transition: background 0.3s ease, color 0.3s ease;
 }
 
+/* Блокировка прокрутки во время туториала */
+body.tutorial-active {
+  overflow: hidden !important;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
 .app-container {
   display: grid;
   grid-template-columns: 220px 1fr 220px;
@@ -1301,7 +1309,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .btn-pin.pinned { background: #689f38; }
 
-/* --- Стили для Туториала (без затемнения фона) --- */
+/* --- Стили для Туториала --- */
 .tutorial-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -1347,6 +1355,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 @media (max-width: 900px) {
   body { overflow: auto; }
+  body.tutorial-active { overflow: hidden !important; }
   .app-container {
     display: flex;
     flex-direction: column;
