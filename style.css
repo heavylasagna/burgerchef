@@ -104,7 +104,7 @@ body {
   flex-shrink: 0;
 }
 
-/* Плавная и гладкая прокрутка табов категорий */
+/* Контейнер категорий с поддержкой колесика мыши */
 .panel-category-tabs {
   display: flex;
   gap: 6px;
@@ -118,7 +118,6 @@ body {
   padding: 0 2px 4px 2px;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  will-change: scroll-position;
 }
 
 .panel-category-tabs::-webkit-scrollbar {
@@ -923,7 +922,6 @@ body {
   padding: 0 2px 4px 2px;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  will-change: scroll-position;
 }
 .recipe-tabs::-webkit-scrollbar {
   height: 4px;
@@ -1267,14 +1265,23 @@ input[type="range"]::-webkit-slider-thumb {
   .grill-stage {
     flex-direction: column;
   }
-  /* Фиксируем одинаковую высоту для правой панели (списка ингредиентов) и левой панели (cooked ingredients) на мобилках */
-  .right-panel { order: 2; height: 180px; }
+  
+  /* Жестко фиксируем одинаковую высоту для правой и левой панелей */
+  .right-panel { order: 2; height: 190px; }
+  .left-panel { order: 4; height: 190px; }
+
   .ingredients-menu {
     flex-direction: column;
     overflow-y: auto;
     overflow-x: hidden;
     padding-bottom: 4px;
   }
+  .layers-list {
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
   .ingredient-card { min-width: 100%; height: auto; padding: 6px 10px; flex-direction: row; justify-content: space-between; }
   .ingredient-card img { width: 36px; height: 36px; }
   .ingredient-info-row { flex-direction: row; align-items: center; gap: 8px; }
@@ -1293,34 +1300,43 @@ input[type="range"]::-webkit-slider-thumb {
     overflow-x: auto;
     border: 1px solid var(--border-color);
   }
-  .left-panel { order: 4; height: 180px; }
   
+  /* Нижняя панель с горизонтальным скроллом, чтобы кнопки никогда не уходили за экран и были сгруппированы */
   .bottom-panel {
     position: fixed;
     bottom: 0; left: 0; right: 0;
-    padding: 8px 16px;
+    padding: 6px 10px;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     border-radius: 12px 12px 0 0;
     z-index: 1000;
+    overflow-x: auto;
+    white-space: nowrap;
+    gap: 8px;
   }
   
+  .sauces-group {
+    flex-shrink: 0;
+  }
+
   .actions-wrapper {
     margin-left: 0;
-    width: 100%;
+    width: auto;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
-    gap: 0;
+    gap: 6px;
     flex-shrink: 0;
   }
 
   .action-box {
-    flex-shrink: 1;
+    flex-shrink: 0;
     padding: 0;
-    gap: 0;
+    gap: 4px;
+    display: inline-flex;
   }
+  
   .btn-action {
     flex-shrink: 0;
     padding: 0 10px;
