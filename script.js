@@ -189,6 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (leftPanel) leftPanel.style.display = 'flex';  
       if (desktopSaucesGroup) desktopSaucesGroup.classList.add('hidden-on-grill');
       if (mobileSaucesGroup) mobileSaucesGroup.classList.add('hidden-on-grill');
+      initGrillStructure();
       renderGrill();
     }
     updateBottomPanelForScreen();
@@ -592,7 +593,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return 0;
   }
 
-  // Создаем структуру гриля 1 раз, дальше обновляем динамически без перерисовки всей сетки
   function initGrillStructure() {
     const area = document.getElementById('grillCookingArea');
     if (!area) return;
@@ -729,12 +729,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Оптимизированный интервал (увеличен до 250мс для разгрузки процессора и устранения мерцания кнопок)
   setInterval(() => {
     updateGrillLogic();
     if (currentScreen === 'grill') {
       renderGrill();
     }
-  }, 100);
+  }, 250);
 
   function renderSauces() {
     if (desktopSaucesGroup) desktopSaucesGroup.innerHTML = '';
