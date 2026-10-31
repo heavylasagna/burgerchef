@@ -434,8 +434,8 @@ body {
   grid-row: 2;
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* Сдвигаем всё влево, убираем огромные промежутки */
-  padding: 0 10px;
+  justify-content: space-between; /* Соусы слева, обертка кнопок справа */
+  padding: 0 15px;
   background: linear-gradient(145deg, var(--panel-bg-1), var(--panel-bg-2));
   backdrop-filter: blur(10px);
   border-radius: 14px;
@@ -443,7 +443,6 @@ body {
   border: 1px solid var(--border-color);
   z-index: 100;
   transition: opacity 0.3s ease, background 0.3s ease;
-  gap: 16px; /* Небольшой аккуратный промежуток между соусами и группами кнопок */
 }
 .bottom-panel.dimmed { opacity: 0.25; }
 
@@ -468,7 +467,14 @@ body {
 }
 .sauce-chip.disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* Убираем рамку и фон у контейнера, оставляем только группы кнопок с небольшим отступом */
+/* Правая обертка для кнопок на ПК с увеличенным расстоянием между группами */
+.actions-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 28px; /* Увеличенное визуальное расстояние между группами */
+  margin-left: auto; /* Прижимает всю группу вправую часть панельки */
+}
+
 .action-box {
   display: flex;
   align-items: center;
@@ -887,9 +893,14 @@ input[type="range"]::-webkit-slider-thumb {
     border-radius: 12px 12px 0 0;
     z-index: 1000;
     overflow-x: auto;
-    gap: 12px;
   }
   
+  .actions-wrapper {
+    margin-left: 0;
+    gap: 20px; /* Заметный отступ между группами кнопок в прокрутке на телефоне */
+    flex-shrink: 0;
+  }
+
   .action-box {
     flex-shrink: 0;
     padding: 0;
