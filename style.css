@@ -678,7 +678,6 @@ body {
   width: 105px;
   height: 105px;
   object-fit: contain;
-  /* Анимация покачивания шкварчания (заменена на sizzleWobble) */
   position: relative;
   z-index: 2;
 }
@@ -691,34 +690,35 @@ body {
   filter: grayscale(100%) brightness(0.2);
 }
 
-/* === ДОБАВЛЕННЫЕ АНИМАЦИИ ДЛЯ ГРИЛЯ === */
+/* === МЯГКОЕ И ПЛАВНОЕ ШКВАРЧАНИЕ (ПОКАЧИВАНИЕ) === */
 @keyframes sizzleWobble {
-  0% { transform: translateY(0) rotate(0deg); }
-  25% { transform: translateY(-2px) rotate(-1deg); }
-  50% { transform: translateY(1px) rotate(1deg); }
-  75% { transform: translateY(-1px) rotate(0.5deg); }
-  100% { transform: translateY(0) rotate(0deg); }
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-2px) rotate(1.2deg); }
 }
 
 .sizzling-anim {
-  animation: sizzleWobble 0.6s ease-in-out infinite;
+  animation: sizzleWobble 1.2s infinite ease-in-out;
   transform-origin: bottom center;
 }
 
+/* === БРЫЗГИ МАСЛА (заметные точки) === */
 .oil-splash {
   position: absolute;
-  width: 6px;
-  height: 6px;
-  background: rgba(255, 215, 0, 0.75);
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 204, 0, 0.9);
   border-radius: 50%;
-  animation: splashAnim 0.7s forwards linear;
+  animation: splashAnim 0.6s forwards ease-out;
   pointer-events: none;
-  z-index: 1;
+  z-index: 5;
+  box-shadow: 0 0 6px rgba(255, 179, 0, 0.8);
 }
 
 @keyframes splashAnim {
-  0% { transform: translate(0, 0) scale(0.5); opacity: 1; }
-  100% { transform: translate(var(--dx), var(--dy)) scale(1.4); opacity: 0; }
+  0% { transform: translate(-50%, -50%) scale(0.4); opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.2); opacity: 0; }
 }
 
 .grill-progress-container {
