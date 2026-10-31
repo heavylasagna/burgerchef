@@ -680,7 +680,7 @@ body {
   height: 105px;
   object-fit: contain;
   position: relative;
-  z-index: 2; /* Продукт поверх брызг */
+  z-index: 2; /* Картинка котлеты/яйца находится над брызгами */
 }
 
 .grill-item.flipped {
@@ -691,7 +691,7 @@ body {
   filter: grayscale(100%) brightness(0.2);
 }
 
-/* === ПЛАВНОЕ ПОКАЧИВАНИЕ (ШКВАРЧАНИЕ) === */
+/* === МЯГКОЕ И ПОСТОЯННОЕ ПОКАЧИВАНИЕ (ШКВАРЧАНИЕ) === */
 @keyframes sizzleWobble {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   25% { transform: translateY(-2px) rotate(-1.5deg); }
@@ -706,13 +706,13 @@ body {
 /* === БРЫЗГИ МАСЛА (строго у нижнего края продукта) === */
 .oil-splash-container {
   position: absolute;
-  bottom: 15px; /* Располагаем в нижней части слота, под продуктом */
+  bottom: 25px;
   left: 50%;
   transform: translateX(-50%);
   width: 80px;
   height: 20px;
   pointer-events: none;
-  z-index: 1; /* Под продуктом */
+  z-index: 1; /* Брызги вылетают снизу из-под слоя с продуктом */
 }
 
 .oil-splash {
@@ -724,7 +724,7 @@ body {
   background: rgba(255, 204, 0, 0.9);
   border-radius: 50%;
   animation: splashAnim 0.5s forwards ease-out;
-  box-shadow: 0 0 4px rgba(255, 179, 0, 0.8);
+  box-shadow: 0 0 5px rgba(255, 179, 0, 0.8);
 }
 
 @keyframes splashAnim {
