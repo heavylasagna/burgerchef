@@ -770,10 +770,6 @@ body {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
-.bin-confirm-bar.active {
-  display: flex !important;
-}
-
 .bin-confirm-bar .btn-action {
   width: 32px;
   height: 32px;
