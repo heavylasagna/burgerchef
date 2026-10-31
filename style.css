@@ -1243,6 +1243,26 @@ input[type="range"]::-webkit-slider-thumb {
   border-color: var(--accent-color);
 }
 
+/* Стили кнопки See the tutorial, выровненные под Reset */
+#openTutorialFromSettingsBtn {
+  width: 100%;
+  margin-top: 4px;
+  background: var(--modal-bg);
+  border: 1.5px solid var(--border-color);
+  color: var(--text-color);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  height: auto;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+#openTutorialFromSettingsBtn:hover {
+  background: var(--item-bg);
+  border-color: var(--accent-color);
+  color: var(--text-color);
+}
+
 .recipe-card, .achievement-item {
   display: flex;
   align-items: center;
@@ -1286,10 +1306,10 @@ input[type="range"]::-webkit-slider-thumb {
 .tutorial-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: transparent; /* Убрано затемнение */
+  background: transparent;
   z-index: 4000;
   display: none;
-  pointer-events: none; /* Чтобы клики проходили сквозь оверлей, если нужно */
+  pointer-events: none;
 }
 .tutorial-overlay.active {
   display: block;
@@ -1299,7 +1319,7 @@ input[type="range"]::-webkit-slider-thumb {
   position: absolute;
   border-radius: 16px;
   background: transparent !important;
-  box-shadow: 0 0 0 3px var(--accent-color), 0 0 25px rgba(255, 179, 0, 0.6); /* Яркая рамка и свечение вокруг элемента */
+  box-shadow: 0 0 0 3px var(--accent-color), 0 0 25px rgba(255, 179, 0, 0.6);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
   z-index: 4001;
