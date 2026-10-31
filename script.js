@@ -216,7 +216,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let resetClickCount = 0;
   let resetClickTimeout = null;
 
-  // Выбранные категории для боковых панелей экрана сборки и гриля
   let assemblyActiveCategory = 'all';
   let grillRawActiveCategory = 'all';
   let grillCookedActiveCategory = 'all';
@@ -409,7 +408,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(removeToast, 3500);
   }
 
-  /* Единый список ингредиентов с категориями для экрана сборки (строгий одинаковый порядок) */
   const INGREDIENTS = [
     { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
     { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
@@ -428,7 +426,6 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'white-onion', name: 'White Onion', category: 'vegetables', image: 'images/white-onion.png' }
   ];
 
-  /* Сырые продукты для гриля (зеркальный порядок к готовым) */
   const GRILLABLE_MENU_ITEMS = [
     { id: 'raw-beef-patty', cookedId: 'beef-patty', name: 'Beef Patty', category: 'patty', image: 'images/raw-beef-patty.png' },
     { id: 'raw-chicken-patty', cookedId: 'chicken-patty', name: 'Chicken Patty', category: 'patty', image: 'images/raw-chicken-patty.png' },
@@ -439,7 +436,6 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'raw-champignons', cookedId: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/raw-champignons.png' }
   ];
 
-  /* Готовые продукты для инвентаря гриля (соответствуют порядку сырых) */
   const COOKED_INVENTORY_ITEMS = [
     { id: 'beef-patty', name: 'Beef Patty', category: 'patty', image: 'images/beef-patty.png' },
     { id: 'chicken-patty', name: 'Chicken Patty', category: 'patty', image: 'images/chicken-patty.png' },
@@ -1236,7 +1232,6 @@ document.addEventListener('DOMContentLoaded', () => {
     'spicy': 'images/sauce-spicy.png', 'bbq': 'images/sauce-bbq.png'
   };
 
-  /* Рецепты с категориями (all, beef, chicken, fish, vegetarian, vegan, weird) */
   const REGULAR_RECIPES = [
     { name: 'Classic Burger', category: 'beef', ids: ['bottom-bun', 'beef-patty', 'top-bun'] },
     { name: 'Cheeseburger', category: 'beef', ids: ['bottom-bun', 'beef-patty', 'cheese', 'top-bun'] },
@@ -1482,18 +1477,6 @@ document.addEventListener('DOMContentLoaded', () => {
       else badge.classList.add('negative');
     }
   }
-
-  const openShopBtn = document.getElementById('openShopBtn');
-  const closeShopModal = document.getElementById('closeShopModal');
-  const recipesModal = document.getElementById('recipesModal');
-  const openRecipesBtn = document.getElementById('openRecipesBtn');
-  const closeRecipesModal = document.getElementById('closeRecipesModal');
-  const achievementsModal = document.getElementById('achievementsModal');
-  const openAchievementsBtn = document.getElementById('openAchievementsBtn');
-  const closeAchievementsModal = document.getElementById('closeAchievementsModal');
-  const settingsModal = document.getElementById('settingsModal');
-  const openSettingsBtn = document.getElementById('openSettingsBtn');
-  const closeSettingsModal = document.getElementById('closeSettingsModal');
 
   if (openShopBtn) openShopBtn.onclick = () => { playSound(SOUNDS.buttons); updateShopBalanceHeader(); renderShopModal(); shopModal.classList.add('open'); };
   if (closeShopModal) closeShopModal.onclick = () => { playSound(SOUNDS.buttons); shopModal.classList.remove('open'); };
