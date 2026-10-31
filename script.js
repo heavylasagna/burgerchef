@@ -2712,174 +2712,237 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- ТУТОРИАЛ (С ПОДСВЕТКОЙ ДЛЯ ПК И МОДАЛЬНЫМ ОКНОМ ДЛЯ ТЕЛЕФОНОВ) ---
+  // --- ПОЛНЫЙ ТУТОРИАЛ (с исправленным позиционированием и блокировкой скролла) ---
   const tutorialSteps = [
     {
       title: "Assembly Screen",
       text: "This is your main workplace where you build custom burgers.",
-      getElement: () => document.getElementById('centerStage')
+      screen: "assembly",
+      getElement: () => document.getElementById('centerStage') || document.querySelector('.center-stage')
     },
     {
       title: "Ingredients Menu",
       text: "Here you can select and add various ingredients (buns, patties, veggies) to your burger stack.",
-      getElement: () => document.getElementById('rightPanel')
+      screen: "assembly",
+      getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
     },
     {
       title: "Layers Panel",
       text: "Here you can see all current layers of your burger, reorder them, or remove individual items.",
-      getElement: () => document.getElementById('leftPanel')
+      screen: "assembly",
+      getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
     },
     {
       title: "Wallet",
       text: "Shows your current money balance. Earn cash by fulfilling customer orders correctly!",
-      getElement: () => document.getElementById('walletWidget')
+      screen: "assembly",
+      getElement: () => document.getElementById('walletWidget') || document.querySelector('.wallet-widget')
     },
     {
       title: "Bottom Actions Menu",
       text: "Quick buttons for recipes, shop, inventory backpack, achievements, eating, squishing, or trashing the burger.",
-      getElement: () => document.getElementById('bottomPanel')
+      screen: "assembly",
+      getElement: () => document.getElementById('bottomPanel') || document.querySelector('.bottom-panel')
     },
     {
       title: "Switch to Grill",
-      text: "Click the flame button to switch to the Grill screen and cook raw ingredients.",
+      text: "Click this button to switch to the Grill screen and cook raw ingredients.",
+      screen: "assembly",
       getElement: () => document.getElementById('switchToGrillBtn')
     },
     {
       title: "Grill Screen",
       text: "Here you can grill raw patties, bacon, eggs, and mushrooms.",
+      screen: "grill",
       getElement: () => document.getElementById('grillStage')
     },
     {
       title: "Raw Ingredients Menu",
       text: "On the right panel, select raw items from your stock to place them onto the grill slots.",
-      getElement: () => document.getElementById('rightPanel')
+      screen: "grill",
+      getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
     },
     {
       title: "Cooked Inventory",
       text: "On the left panel, you can view your inventory of successfully cooked ingredients ready to use.",
-      getElement: () => document.getElementById('leftPanel')
+      screen: "grill",
+      getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
     },
     {
       title: "Switch to Cutting Board",
-      text: "Click the knife button to switch to the Cutting Board screen.",
+      text: "Click this button to switch to the Cutting Board screen.",
+      screen: "assembly",
       getElement: () => document.getElementById('switchToBoardBtn')
     },
     {
       title: "Cutting Board Screen",
       text: "Here you can chop and slice uncut vegetables and cheeses before using them.",
+      screen: "board",
       getElement: () => document.getElementById('boardStage')
     },
     {
       title: "Uncut Ingredients",
       text: "Select uncut items on the right panel to place them onto the board and chop them into pieces.",
-      getElement: () => document.getElementById('rightPanel')
+      screen: "board",
+      getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
     },
     {
       title: "Sliced Inventory",
       text: "The left panel displays your stock of freshly sliced ingredients ready for your culinary creations.",
-      getElement: () => document.getElementById('leftPanel')
+      screen: "board",
+      getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
     },
     {
       title: "Settings & Game Modes",
-      text: "Open Settings to configure volume, themes, game modes (Sandbox, Casual, Turbo), and order frequencies.",
-      getElement: () => document.getElementById('openSettingsBtn')
+      text: "Let's head back to Assembly. Open Settings to configure volume, themes, game modes (Sandbox, Casual, Turbo), and order frequencies.",
+      screen: "assembly",
+      action: () => {
+        const modal = document.getElementById('settingsModal');
+        if (modal) modal.classList.add('open');
+      },
+      getElement: () => document.getElementById('settingsModal') ? document.getElementById('settingsModal').querySelector('.modal-content') : document.body
     },
     {
       title: "Reset & Tutorial",
       text: "Here you can restart this tutorial anytime and access the Danger Zone to wipe data or achievements.",
-      getElement: () => document.getElementById('openSettingsBtn')
+      screen: "assembly",
+      action: () => {
+        const modal = document.getElementById('settingsModal');
+        if (modal && !modal.classList.contains('open')) modal.classList.add('open');
+        const finalSec = document.getElementById('tutorialFinalSection');
+        if (finalSec) {
+          finalSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      },
+      getElement: () => document.getElementById('tutorialFinalSection')
     }
   ];
 
   let currentTutorialStep = 0;
 
-  function startTutorial() {
-    currentTutorialStep = 0;
-    // На мобильных устройствах запускаем простой модальный туториал
-    if (window.innerWidth <= 900) {
-      if (tutorialModal) tutorialModal.classList.add('open');
-      showTutorialStep(currentTutorialStep);
-    } else {
-      // На ПК запускаем туториал с подсветкой элементов
-      const overlay = document.getElementById('tutorialOverlay');
-      if (overlay) overlay.classList.add('open');
-      showPcTutorialStep(currentTutorialStep);
+  function showWelcomeModalIfNeeded() {
+    const hasSeenWelcome = localStorage.getItem('has_seen_welcome');
+    const welcomeModal = document.getElementById('welcomeModal');
+    if (!hasSeenWelcome && welcomeModal) {
+      welcomeModal.classList.add('open');
     }
   }
 
-  function showPcTutorialStep(stepIndex) {
+  const welcomeModal = document.getElementById('welcomeModal');
+  const welcomeNoBtn = document.getElementById('welcomeNoBtn');
+  const welcomeYesBtn = document.getElementById('welcomeYesBtn');
+  const tutorialOverlay = document.getElementById('tutorialOverlay');
+  const tutorialSpotlight = document.getElementById('tutorialSpotlight');
+  const tutorialTooltip = document.getElementById('tutorialTooltip');
+  const tutorialTitle = document.getElementById('tutorialTitle');
+  const tutorialText = document.getElementById('tutorialText');
+  const tutorialStepIndicator = document.getElementById('tutorialStepIndicator');
+  const tutorialPrevBtn = document.getElementById('tutorialPrevBtn');
+  const tutorialNextBtn = document.getElementById('tutorialNextBtn');
+  const openTutorialFromSettingsBtn = document.getElementById('openTutorialFromSettingsBtn');
+
+  if (welcomeNoBtn) {
+    welcomeNoBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      localStorage.setItem('has_seen_welcome', 'true');
+      if (welcomeModal) welcomeModal.classList.remove('open');
+    };
+  }
+
+  if (welcomeYesBtn) {
+    welcomeYesBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      localStorage.setItem('has_seen_welcome', 'true');
+      if (welcomeModal) welcomeModal.classList.remove('open');
+      startTutorial();
+    };
+  }
+
+  if (openTutorialFromSettingsBtn) {
+    openTutorialFromSettingsBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      if (settingsModal) settingsModal.classList.remove('open');
+      startTutorial();
+    };
+  }
+
+  function startTutorial() {
+    currentTutorialStep = 0;
+    document.body.classList.add('tutorial-active');
+    if (tutorialOverlay) tutorialOverlay.classList.add('active');
+    showTutorialStep(currentTutorialStep);
+  }
+
+  function showTutorialStep(stepIndex) {
     const step = tutorialSteps[stepIndex];
     if (!step) {
       endTutorial();
       return;
     }
 
-    const targetEl = step.getElement ? step.getElement() : null;
-    if (targetEl) {
-      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+    if (step.screen && currentScreen !== step.screen) {
+      switchScreen(step.screen);
     }
 
-    const spotlight = document.getElementById('tutorialSpotlight');
-    const tooltip = document.getElementById('tutorialTooltip');
-    const titleEl = document.getElementById('tutorialTitle');
-    const textEl = document.getElementById('tutorialText');
-    const indicatorEl = document.getElementById('tutorialStepIndicator');
-    const nextBtn = document.getElementById('tutorialNextBtn');
-    const prevBtn = document.getElementById('tutorialPrevBtn');
+    if (step.action) {
+      step.action();
+    } else {
+      const settingsModalEl = document.getElementById('settingsModal');
+      if (settingsModalEl && stepIndex < tutorialSteps.length - 1) {
+        settingsModalEl.classList.remove('open');
+      }
+    }
 
-    if (titleEl) titleEl.innerText = step.title;
-    if (textEl) textEl.innerText = step.text;
-    if (indicatorEl) indicatorEl.innerText = `${stepIndex + 1} / ${tutorialSteps.length}`;
-    if (prevBtn) prevBtn.style.display = stepIndex === 0 ? 'none' : 'block';
-    if (nextBtn) nextBtn.innerText = stepIndex === tutorialSteps.length - 1 ? 'Finish' : 'Next';
+    if (tutorialTitle) tutorialTitle.innerText = step.title;
+    if (tutorialText) tutorialText.innerText = step.text;
+    if (tutorialStepIndicator) tutorialStepIndicator.innerText = `${stepIndex + 1} / ${tutorialSteps.length}`;
+    if (tutorialPrevBtn) tutorialPrevBtn.style.display = stepIndex === 0 ? 'none' : 'block';
+    if (tutorialNextBtn) tutorialNextBtn.innerText = stepIndex === tutorialSteps.length - 1 ? 'Finish' : 'Next';
 
-    if (targetEl && spotlight && tooltip) {
+    // Даем время DOM и анимациям завершиться, затем с двойным таймером точно рассчитываем геометрию
+    setTimeout(() => {
       setTimeout(() => {
-        const rect = targetEl.getBoundingClientRect();
-        const padding = 10;
-
-        spotlight.style.top = `${rect.top - padding}px`;
-        spotlight.style.left = `${rect.left - padding}px`;
-        spotlight.style.width = `${rect.width + padding * 2}px`;
-        spotlight.style.height = `${rect.height + padding * 2}px`;
-
-        let tooltipLeft = rect.left + (rect.width / 2) - 150;
-        if (tooltipLeft < 10) tooltipLeft = 10;
-        if (tooltipLeft + 300 > window.innerWidth - 10) {
-          tooltipLeft = window.innerWidth - 310;
+        const targetEl = step.getElement ? step.getElement() : null;
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' });
         }
 
-        let tooltipTop = rect.bottom + 16;
-        if (tooltipTop + 180 > window.innerHeight) {
-          tooltipTop = rect.top - 180 - 16;
-        }
+        if (targetEl && tutorialSpotlight && tutorialTooltip) {
+          const rect = targetEl.getBoundingClientRect();
+          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+          const padding = 12;
 
-        tooltip.style.left = `${tooltipLeft}px`;
-        tooltip.style.top = `${tooltipTop}px`;
-      }, 100);
-    }
+          tutorialSpotlight.style.top = `${rect.top + scrollTop - padding}px`;
+          tutorialSpotlight.style.left = `${rect.left + scrollLeft - padding}px`;
+          tutorialSpotlight.style.width = `${rect.width + padding * 2}px`;
+          tutorialSpotlight.style.height = `${rect.height + padding * 2}px`;
+
+          const tooltipWidth = 310;
+          let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2 + scrollLeft;
+          let tooltipTop = rect.bottom + scrollTop + 16;
+
+          if (tooltipLeft < 10) tooltipLeft = 10;
+          if (tooltipLeft + tooltipWidth > window.innerWidth - 10) tooltipLeft = window.innerWidth - tooltipWidth - 10;
+          if (tooltipTop + 190 > window.innerHeight + scrollTop) {
+            tooltipTop = rect.top + scrollTop - 190;
+          }
+
+          tutorialTooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
+          tutorialTooltip.style.top = `${Math.max(10, tooltipTop)}px`;
+        }
+      }, 50);
+    }, 100);
   }
-
-  const tutorialNextBtn = document.getElementById('tutorialNextBtn');
-  const tutorialPrevBtn = document.getElementById('tutorialPrevBtn');
 
   if (tutorialNextBtn) {
     tutorialNextBtn.onclick = () => {
       playSound(SOUNDS.buttons);
-      if (window.innerWidth <= 900) {
-        if (currentTutorialStep < tutorialSteps.length - 1) {
-          currentTutorialStep++;
-          showTutorialStep(currentTutorialStep);
-        } else {
-          endTutorial();
-        }
+      if (currentTutorialStep < tutorialSteps.length - 1) {
+        currentTutorialStep++;
+        showTutorialStep(currentTutorialStep);
       } else {
-        if (currentTutorialStep < tutorialSteps.length - 1) {
-          currentTutorialStep++;
-          showPcTutorialStep(currentTutorialStep);
-        } else {
-          endTutorial();
-        }
+        endTutorial();
       }
     };
   }
@@ -2887,24 +2950,18 @@ document.addEventListener('DOMContentLoaded', () => {
   if (tutorialPrevBtn) {
     tutorialPrevBtn.onclick = () => {
       playSound(SOUNDS.buttons);
-      if (window.innerWidth <= 900) {
-        if (currentTutorialStep > 0) {
-          currentTutorialStep--;
-          showTutorialStep(currentTutorialStep);
-        }
-      } else {
-        if (currentTutorialStep > 0) {
-          currentTutorialStep--;
-          showPcTutorialStep(currentTutorialStep);
-        }
+      if (currentTutorialStep > 0) {
+        currentTutorialStep--;
+        showTutorialStep(currentTutorialStep);
       }
     };
   }
 
   function endTutorial() {
-    if (tutorialModal) tutorialModal.classList.remove('open');
-    const overlay = document.getElementById('tutorialOverlay');
-    if (overlay) overlay.classList.remove('open');
+    document.body.classList.remove('tutorial-active');
+    if (tutorialOverlay) tutorialOverlay.classList.remove('active');
+    const settingsModalEl = document.getElementById('settingsModal');
+    if (settingsModalEl) settingsModalEl.classList.remove('open');
   }
 
   showWelcomeModalIfNeeded();
