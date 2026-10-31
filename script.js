@@ -150,6 +150,21 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('saved_burger_stack', JSON.stringify(currentBurger));
   }
 
+  // Динамически рассчитываем позицию денег под кошельком или закрепленным рецептом
+  function updateMoneyPopupPosition() {
+    const container = document.getElementById('moneyPopupContainer');
+    const pinnedWidget = document.getElementById('pinnedRecipeWidget');
+    if (!container) return;
+
+    if (pinnedWidget && pinnedWidget.classList.contains('active')) {
+      const rect = pinnedWidget.getBoundingClientRect();
+      const bottomPos = rect.bottom + 6;
+      container.style.top = `${bottomPos}px`;
+    } else {
+      container.style.top = '52px';
+    }
+  }
+
   function showMoneyPopup(amount, isPlus) {
     let container = document.getElementById('moneyPopupContainer');
     if (!container) {
@@ -158,6 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
       container.className = 'money-popup-container';
       document.body.appendChild(container);
     }
+    updateMoneyPopupPosition();
+
     const popup = document.createElement('div');
     popup.className = `money-popup ${isPlus ? 'plus' : 'minus'}`;
     popup.innerText = `${isPlus ? '+' : ''}$${amount.toFixed(2)}`;
@@ -171,8 +188,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (currentGameMode === 'sandbox') {
       badge.innerText = '$∞';
+      badge.className = 'positive';
     } else {
       badge.innerText = `$${playerMoney.toFixed(2)}`;
+      
+      // Установка цвета в зависимости от баланса
+      badge.className = '';
+      if (playerMoney > 0) {
+        badge.classList.add('positive');
+      } else if (playerMoney === 0) {
+        badge.classList.add('zero');
+      } else {
+        badge.classList.add('negative');
+      }
+
       if (changeAmount !== null && changeAmount !== 0) {
         showMoneyPopup(changeAmount, isPlus);
       }
@@ -298,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('burger_theme', 'dark');
     }
   }
-  setTheme(localStorage.getItem('burger_theme') || 'dark');
+  setTheme(localStorage.getItem('burger_theme'] || 'dark');
 
   const squeezeBtn = document.getElementById('squeezeBtn');
   const eatBtn = document.getElementById('eatBtn');
@@ -597,6 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       widget.classList.remove('active');
     }
+    updateMoneyPopupPosition();
   }
 
   const SHOP_ITEMS = [
@@ -680,6 +710,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (playerMoney < totalCost) { showToast('Not enough money', 'Not enough money in your wallet!', 'error'); return; }
       playerMoney -= totalCost;
       updateMoneyDisplay(totalCost, false);
+      updateShopBalanceHeader();
     }
 
     ingredientStock[id] = (ingredientStock[id] ?? 0) + qty;
@@ -690,9 +721,32 @@ document.addEventListener('DOMContentLoaded', () => {
     playSound(SOUNDS.buy);
   }
 
+  // Обновление баланса в заголовке магазина
+  function updateShopBalanceHeader() {
+    const modalHeader = document.querySelector('#shopModal .modal-header h3');
+    if (!modalHeader) return;
+    let badge = document.getElementById('shopBalanceBadge');
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.id = 'shopBalanceBadge';
+      badge.className = 'shop-balance-badge';
+      modalHeader.appendChild(badge);
+    }
+    if (currentGameMode === 'sandbox') {
+      badge.innerText = '($∞)';
+      badge.className = 'shop-balance-badge positive';
+    } else {
+      badge.innerText = `($${playerMoney.toFixed(2)})`;
+      badge.className = 'shop-balance-badge';
+      if (playerMoney > 0) badge.classList.add('positive');
+      else if (playerMoney === 0) badge.classList.add('zero');
+      else badge.classList.add('negative');
+    }
+  }
+
   const shopModal = document.getElementById('shopModal');
   const openShopBtn = document.getElementById('openShopBtn');
-  if (openShopBtn) openShopBtn.onclick = () => { playSound(SOUNDS.buttons); renderShopModal(); shopModal.classList.add('open'); };
+  if (openShopBtn) openShopBtn.onclick = () => { playSound(SOUNDS.buttons); updateShopBalanceHeader(); renderShopModal(); shopModal.classList.add('open'); };
   
   const closeShopModal = document.getElementById('closeShopModal');
   if (closeShopModal) closeShopModal.onclick = () => { playSound(SOUNDS.buttons); shopModal.classList.remove('open'); };
