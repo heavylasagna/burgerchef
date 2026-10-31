@@ -1306,13 +1306,13 @@ input[type="range"]::-webkit-slider-thumb {
     border: 1px solid var(--border-color);
   }
   
-  /* Нижняя панель с корректным скроллом и растягиванием на мобилках */
+  /* Нижнее меню на мобилках с прокруткой и правильным размером кнопок */
   .bottom-panel {
     position: fixed;
     bottom: 0; left: 0; right: 0;
     padding: 6px 10px;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     border-radius: 12px 12px 0 0;
     z-index: 1000;
@@ -1331,9 +1331,9 @@ input[type="range"]::-webkit-slider-thumb {
 
   .actions-wrapper {
     margin-left: 0;
-    width: 100%;
+    width: auto;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     gap: 6px;
     flex-shrink: 0;
@@ -1350,7 +1350,8 @@ input[type="range"]::-webkit-slider-thumb {
     flex-shrink: 0;
     padding: 0 10px;
     font-size: 0.85rem;
-    flex: 1;
+    width: auto;
+    flex: unset;
   }
 
   .mobile-top-bar {
@@ -1373,9 +1374,10 @@ input[type="range"]::-webkit-slider-thumb {
     flex-direction: column !important;
     gap: 6px !important;
   }
+  /* Возвращаем нормальный размер кнопкам переключения экранов */
   .screen-switcher .btn-action {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     padding: 0;
   }
 
