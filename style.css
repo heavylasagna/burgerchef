@@ -467,7 +467,8 @@ body {
 }
 .sauce-chip.disabled { opacity: 0.4; cursor: not-allowed; }
 
-.action-group {
+/* Разделение на два контейнера на ПК */
+.action-group-left, .action-group-right {
   display: flex;
   gap: 8px;
   align-items: center;
@@ -881,10 +882,10 @@ input[type="range"]::-webkit-slider-thumb {
     border-radius: 12px 12px 0 0;
     z-index: 1000;
   }
-  .action-group { width: 100%; justify-content: space-between; }
+  .action-group-left { width: 100%; justify-content: space-between; }
+  .action-group-right { display: none !important; } /* На мобилках все кнопки в одном баре */
   .btn-action { flex: 1; padding: 8px 2px; font-size: 0.75rem; text-align: center; }
 
-  /* Убрана фиксация fixed, теперь элементы абсолютные относительно документа (свободно прокручиваются) */
   .mobile-top-bar {
     position: absolute !important;
     top: 10px !important; 
