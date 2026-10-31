@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
       needsFlip: true, cookTime: 10, burnTime: 7 
     },
     'raw-bacon': { 
-      name: 'Fried Bacon', 
+      name: 'Bacon', 
       rawImage: 'images/raw-bacon.png', 
       flip1Image: 'images/raw-bacon.png', 
       flip2Image: 'images/fried-bacon.png', 
@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
       needsFlip: false, cookTime: 8, burnTime: 6 
     },
     'raw-egg': { 
-      name: 'Fried Egg', 
+      name: 'Egg', 
       rawImage: 'images/raw-egg.png', 
       flip1Image: 'images/raw-egg.png', 
       flip2Image: 'images/fried-egg.png', 
@@ -1023,10 +1023,10 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'raw-chicken-patty', name: 'Chicken Patty', category: 'patty', image: 'images/raw-chicken-patty.png' },
     { id: 'raw-fish-patty', name: 'Fish Patty', category: 'patty', image: 'images/raw-fish-patty.png' },
     { id: 'raw-hashbrown', name: 'Hashbrown', category: 'patty', image: 'images/raw-hashbrown.png' },
-    { id: 'raw-bacon', name: 'Fried Bacon', category: 'protein', image: 'images/raw-bacon.png' },
-    { id: 'raw-egg', name: 'Fried Egg', category: 'protein', image: 'images/egg.png' },
+    { id: 'raw-bacon', name: 'Bacon', category: 'protein', image: 'images/raw-bacon.png' },
+    { id: 'raw-egg', name: 'Egg', category: 'protein', image: 'images/egg.png' },
     { id: 'cheese', name: 'Cheese', category: 'protein', image: 'images/uncut-cheese.png' },
-    { id: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/raw-champignons.png' },
+    { id: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/uncut-champignons.png' },
     { id: 'lettuce', name: 'Lettuce', category: 'vegetables', image: 'images/uncut-lettuce.png' },
     { id: 'tomato', name: 'Tomato', category: 'vegetables', image: 'images/uncut-tomato.png' },
     { id: 'pickles', name: 'Pickles', category: 'vegetables', image: 'images/uncut-pickles.png' },
@@ -1075,7 +1075,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const filtered = activeInventoryTab === 'all' ? SHOP_ITEMS : SHOP_ITEMS.filter(i => i.category === activeInventoryTab);
 
     filtered.forEach(item => {
-      // Для инвентаря берем базовый id (например, если в shop id это raw-beef-patty, то на складе учитывается beef-patty или сам raw, сохраним соответствие)
       let stockKey = item.id;
       if (stockKey.startsWith('raw-')) {
         stockKey = stockKey.replace('raw-', '');
