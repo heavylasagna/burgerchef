@@ -134,6 +134,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (isNaN(timeUntilNextOrder)) timeUntilNextOrder = 120;
   let currentTurboTimeLeft = 180;
   let lastOrderReducedReward = false;
+  let skipOrderClickCount = 0;
+  let skipOrderTimeout = null;
 
   function getCurrentSpeed() {
     if (currentGameMode === 'turbo') return 'turbo';
@@ -176,6 +178,20 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     localStorage.setItem('burger_money', playerMoney);
+  }
+
+  // Универсальная функция тостов (тип: 'success', 'warning', 'error')
+  function showToast(title, desc = '', type = 'success') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = `toast-message ${type}`;
+    toast.innerHTML = `
+      <h4 style="font-size:0.85rem; margin:0; font-weight:700;">${title}</h4>
+      ${desc ? `<p style="font-size:0.75rem; opacity:0.85; margin:0;">${desc}</p>` : ''}
+    `;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3500);
   }
 
   const INGREDIENTS = [
@@ -226,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       card.onclick = () => {
         if (isEating || isAddingInProgress) return;
-        if (isOut) { alert(`Out of ${item.name}! Buy more in the shop.`); return; }
+        if (isOut) { showToast('Out of stock!', `Buy more ${item.name} in shop.`, 'warning'); return; }
         addIngredient(item);
       };
       ingredientsMenu.appendChild(card);
@@ -248,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         chip.onclick = () => {
           if (isEating || isAddingInProgress) return;
-          if (isOut) { alert(`Out of ${sauce.name}! Buy more in the shop.`); return; }
+          if (isOut) { showToast('Out of stock!', `Buy more ${sauce.name} in shop.`, 'warning'); return; }
           addSauce(sauce);
         };
         container.appendChild(chip);
@@ -289,12 +305,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const eatBtn = document.getElementById('eatBtn');
   const submitOrderBtn = document.getElementById('submitOrderBtn');
   const forceOrderBtn = document.getElementById('forceOrderBtn');
+  const skipOrderBtn = document.getElementById('skipOrderBtn');
   const openInventoryBtn = document.getElementById('openInventoryBtn');
 
   if (openInventoryBtn) {
     openInventoryBtn.onclick = () => {
       playSound(SOUNDS.buttons);
-      showToast(null, 'Inventory', 'Empty for now');
+      showToast('Inventory', 'Empty for now', 'success');
     };
   }
 
@@ -325,6 +342,10 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         forceOrderBtn.style.display = 'flex';
       }
+    }
+
+    if (skipOrderBtn) {
+      skipOrderBtn.style.display = isNoOrders ? 'none' : 'flex';
     }
   }
 
@@ -485,22 +506,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!unlockedAchievements[ach.id]) {
       unlockedAchievements[ach.id] = true;
       localStorage.setItem('unlocked_achievements', JSON.stringify(unlockedAchievements));
-      showToast(ach);
+      showToast(ach.title, 'Secret recipe unlocked!', 'success');
       playSound(SOUNDS[ach.sound] || SOUNDS.achievement);
     }
-  }
-
-  function showToast(ach, customTitle, customDesc) {
-    const container = document.getElementById('toastContainer');
-    if (!container) return;
-    const toast = document.createElement('div');
-    toast.className = 'achievement-toast';
-    toast.innerHTML = `
-      <h4 style="font-size:0.9rem; margin:0;">${customTitle || ach.title}</h4>
-      <p style="font-size:0.75rem; opacity:0.8; margin:0;">${customDesc || 'Secret recipe unlocked!'}</p>
-    `;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3500);
   }
 
   let activeRecipeTab = 'regular';
@@ -665,12 +673,12 @@ document.addEventListener('DOMContentLoaded', () => {
   window.buyItem = function(id) {
     const input = document.getElementById(`qty-${id}`);
     const qty = parseInt(input.value) || 0;
-    if (qty <= 0) { alert("Please select quantity greater than 0!"); return; }
+    if (qty <= 0) { showToast('Invalid quantity', 'Please select quantity greater than 0!', 'warning'); return; }
     
     const totalCost = (ITEM_PRICES[id] || 1) * qty;
 
     if (currentGameMode !== 'sandbox') {
-      if (playerMoney < totalCost) { alert("Not enough money in your wallet!"); return; }
+      if (playerMoney < totalCost) { showToast('Not enough money', 'Not enough money in your wallet!', 'error'); return; }
       playerMoney -= totalCost;
       updateMoneyDisplay(totalCost, false);
     }
@@ -727,7 +735,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('unlocked_achievements');
         playSound(SOUNDS.bin);
         achievementsModal.classList.remove('open');
-        showToast({title: 'Achievements Reset!'}, 'Reset', 'All secret recipes locked again.');
+        showToast('Achievements Reset!', 'All secret recipes locked again.', 'warning');
       }
     };
   }
@@ -752,11 +760,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
+  // Кнопка сохранения картинки 💾
   const downloadPngBtn = document.getElementById('downloadPngBtn');
   if (downloadPngBtn) {
     downloadPngBtn.onclick = () => {
       if (currentBurger.length === 0) {
-        alert("Your burger stack is empty! Build a burger first.");
+        showToast('First you need to create a burger', '', 'warning');
         return;
       }
       playSound(SOUNDS.buttons);
@@ -779,7 +788,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }).catch(err => {
         targetElement.classList.remove('capturing-png');
         console.error("Failed to save image:", err);
-        alert("Could not save image.");
+        showToast('Error', 'Could not save image.', 'error');
       });
     };
   }
@@ -790,17 +799,62 @@ document.addEventListener('DOMContentLoaded', () => {
       playSound(SOUNDS.buttons);
       const speed = getCurrentSpeed();
       if (currentGameMode === 'turbo' || speed === 'no-orders' || speed === 'turbo') {
-        showToast(null, 'Cannot call order!', 'Order summoning is disabled in this mode/speed.');
+        showToast('No active order timer', '', 'warning');
         return;
       }
       if (currentActiveOrder !== null) {
-        showToast(null, 'Order active!', 'Finish or submit current order first.');
+        showToast("Active order isn't completed", '', 'warning');
         return;
       }
-      // Призыв заказа с заготовленным описанием "Reward has been reduced"
       lastOrderReducedReward = true;
       triggerRandomOrder();
-      showToast(null, 'Order Summoned!', 'Reward has been reduced');
+      showToast('Order Summoned!', 'Reward has been reduced', 'warning');
+    };
+  }
+
+  // Кнопка пропустить заказ ⏩
+  if (skipOrderBtn) {
+    skipOrderBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      const speed = getCurrentSpeed();
+      if (speed === 'no-orders' || !currentActiveOrder) {
+        showToast('No active order', '', 'warning');
+        return;
+      }
+
+      if (skipOrderClickCount === 0) {
+        skipOrderClickCount = 1;
+        if (currentGameMode === 'turbo') {
+          showToast("You will get fined if you skip. To proceed click the button again", '', 'warning');
+        } else {
+          showToast("You won't get reward if you skip. To proceed click the button again", '', 'warning');
+        }
+        clearTimeout(skipOrderTimeout);
+        skipOrderTimeout = setTimeout(() => { skipOrderClickCount = 0; }, 5000);
+      } else {
+        skipOrderClickCount = 0;
+        clearTimeout(skipOrderTimeout);
+
+        if (currentGameMode === 'turbo') {
+          playSound(SOUNDS.wrongOrder);
+          playerMoney = Math.max(0, playerMoney - 5);
+          updateMoneyDisplay(5, false);
+          showToast('Fined! -$5', 'Order skipped with fine', 'error');
+          currentTurboTimeLeft = 180;
+          triggerRandomOrder();
+        } else {
+          showToast('Order Skipped', 'No reward received', 'warning');
+          currentActiveOrder = null;
+          localStorage.removeItem('current_active_order');
+          if (speed === 'turbo') {
+            triggerRandomOrder();
+          } else {
+            timeUntilNextOrder = getRandomTimeForSpeed(speed);
+            localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+          }
+          updateActionButtonsVisibility();
+        }
+      }
     };
   }
 
@@ -934,8 +988,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  // Кнопка сжать ✊
   if (squeezeBtn) {
     squeezeBtn.onclick = () => {
+      if (currentBurger.length === 0) {
+        showToast('First you need to create a burger', '', 'warning');
+        return;
+      }
       if (currentBurger.length <= 1 || isEating) return;
       playSound(SOUNDS.squeeze);
       isSqueezed = !isSqueezed;
@@ -948,7 +1007,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (currentActiveOrder && currentBurger.length > 0) {
         checkOrderSubmission();
       } else {
-        alert("No active order or burger stack is empty!");
+        showToast('No active order or burger is empty!', '', 'warning');
       }
     };
   }
@@ -968,9 +1027,14 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
+  // Кнопка съесть 🍔
   if (eatBtn) {
     eatBtn.onclick = () => {
-      if (currentBurger.length === 0 || isEating) return;
+      if (currentBurger.length === 0) {
+        showToast('First you need to create a burger', '', 'warning');
+        return;
+      }
+      if (isEating) return;
       playSound(SOUNDS.eating);
       isEating = true; isSqueezed = false;
       if (burgerStack) burgerStack.classList.add('eating');
@@ -1002,7 +1066,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playerMoney += reward;
         updateMoneyDisplay(reward, true);
       }
-      showToast(null, 'Order Complete!', `${currentActiveOrder.name} served successfully!`);
+      showToast('Order Complete!', `${currentActiveOrder.name} served successfully!`, 'success');
       
       if (currentGameMode === 'turbo') {
         currentTurboTimeLeft = 180;
@@ -1019,7 +1083,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playerMoney = Math.max(0, playerMoney - 3);
         updateMoneyDisplay(3, false);
       }
-      showToast(null, 'Wrong Order! -$3', 'Recipe does not match current order!');
+      showToast('Wrong order!', '-$3 penalty', 'error');
     }
   }
 
@@ -1047,7 +1111,7 @@ document.addEventListener('DOMContentLoaded', () => {
           playerMoney += reward;
           updateMoneyDisplay(reward, true);
         }
-        showToast(null, 'Order Complete!', `${currentActiveOrder.name} served successfully!`);
+        showToast('Order Complete!', `${currentActiveOrder.name} served successfully!`, 'success');
         
         currentActiveOrder = null;
         localStorage.removeItem('current_active_order');
@@ -1113,7 +1177,7 @@ document.addEventListener('DOMContentLoaded', () => {
           playSound(SOUNDS.wrongOrder);
           playerMoney = Math.max(0, playerMoney - 5);
           updateMoneyDisplay(5, false);
-          showToast({title: 'Time Out! -$5'}, 'Order Failed', 'You ran out of time!');
+          showToast('You ran out of time!', '-$5 penalty', 'error');
           triggerRandomOrder();
         }
       }
