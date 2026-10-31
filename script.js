@@ -2825,7 +2825,7 @@ document.addEventListener('DOMContentLoaded', () => {
       getElement: () => {
         if (window.innerWidth <= 900) return document.getElementById('openSettingsBtn');
         const modal = document.getElementById('settingsModal');
-        return modal ? modal.querySelector('.modal-content') : document.body;
+        return modal ? document.getElementById('tutorialFinalSection') : document.body;
       }
     }
   ];
@@ -2921,7 +2921,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         setTimeout(() => {
           const targetEl = step.getElement ? step.getElement() : null;
-          if (targetEl) {
+          if (targetEl && targetEl !== document.body) {
             targetEl.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' });
           }
 
