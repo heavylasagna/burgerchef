@@ -29,7 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
     mcPicklePounder: safeAudio('audio/mc-pickle-pounder.mp3'),
     sizzling: safeAudio('audio/sizzling.mp3'),
     burnt: safeAudio('audio/burnt.mp3'),
-    chop: safeAudio('audio/ingridients.mp3')
+    chop: safeAudio('audio/ingridients.mp3'),
+    cutting: safeAudio('audio/cutting.mp3')
   };
 
   let volumeLevel = parseFloat(localStorage.getItem('burger_volume'));
@@ -230,6 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let isBinSelectMode = false;
   let selectedGrillIndicesForBin = [];
   let sizzlingAudioInstance = null;
+  let cuttingAudioInstance = null;
 
   let currentGameMode = localStorage.getItem('burger_game_mode') || 'casual';
 
@@ -266,6 +268,10 @@ document.addEventListener('DOMContentLoaded', () => {
     playSound(SOUNDS.buttons);
     currentScreen = screen;
     localStorage.setItem('burger_current_screen', screen);
+
+    if (screen !== 'board') {
+      manageCuttingAudio(false);
+    }
 
     if (switchToAssemblyBtn) switchToAssemblyBtn.classList.toggle('active', screen === 'assembly');
     if (switchToGrillBtn) switchToGrillBtn.classList.toggle('active', screen === 'grill');
@@ -794,7 +800,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const filtered = boardUncutActiveCategory === 'all' ? BOARD_UNCUT_ITEMS : BOARD_UNCUT_ITEMS.filter(i => i.category === boardUncutActiveCategory);
 
-    // hideBread = true, hidePatty = true
     const tabsHtml = renderCategoryTabs(boardUncutActiveCategory, 'setBoardUncutCategory', true, true);
 
     let cardsHtml = `<div style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
@@ -852,7 +857,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const filtered = boardSlicedActiveCategory === 'all' ? BOARD_SLICED_ITEMS : BOARD_SLICED_ITEMS.filter(i => i.category === boardSlicedActiveCategory);
 
-    // hideBread = true, hidePatty = true
     const tabsHtml = renderCategoryTabs(boardSlicedActiveCategory, 'setBoardSlicedCategory', true, true);
     let itemsContainerHtml = `<div style="display:flex; flex-direction:column; gap:6px; overflow-y:auto; flex:1; min-height:0;">`;
 
@@ -938,24 +942,48 @@ document.addEventListener('DOMContentLoaded', () => {
     renderBoard();
   }
 
+  function manageCuttingAudio(hasActiveCutting) {
+    if (hasActiveCutting) {
+      if (!cuttingAudioInstance && SOUNDS.cutting) {
+        cuttingAudioInstance = SOUNDS.cutting;
+        cuttingAudioInstance.loop = true;
+        playSound(cuttingAudioInstance);
+      }
+    } else {
+      if (cuttingAudioInstance) {
+        try { 
+          cuttingAudioInstance.pause(); 
+          cuttingAudioInstance.currentTime = 0; 
+        } catch(e){}
+        cuttingAudioInstance = null;
+      }
+    }
+  }
+
   function updateBoardLogic() {
     const now = Date.now();
     let needsSave = false;
+    let hasActiveCutting = false;
 
     boardSlots.forEach((slot) => {
-      if (!slot || slot.state !== 'cutting') return;
-      const config = CUTTABLE_ITEMS[slot.uncutId];
-      const elapsed = (now - slot.startTime) / 1000;
+      if (!slot) return;
+      if (slot.state === 'cutting') {
+        hasActiveCutting = true;
+        const config = CUTTABLE_ITEMS[slot.uncutId];
+        const elapsed = (now - slot.startTime) / 1000;
 
-      if (elapsed >= config.cutTime) {
-        slot.state = 'ready';
-        if (!slot.notified) {
-          playSound(SOUNDS.complete);
-          slot.notified = true;
+        if (elapsed >= config.cutTime) {
+          slot.state = 'ready';
+          if (!slot.notified) {
+            playSound(SOUNDS.complete);
+            slot.notified = true;
+          }
+          needsSave = true;
         }
-        needsSave = true;
       }
     });
+
+    manageCuttingAudio(hasActiveCutting);
 
     if (needsSave) {
       saveBoardState();
@@ -1018,7 +1046,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (slotData.state === 'cutting') {
           imgsrc = config.rawImage;
         } else if (slotData.state === 'ready') {
-          // Render 3 sliced items enlarged (60px) in a fan pattern
           slotEl.innerHTML = `
             <div style="position:relative; width:100px; height:100px; display:flex; align-items:center; justify-content:center;">
               <img src="${config.slicedImage}" style="width:60px; height:60px; position:absolute; transform: translate(-18px, -12px) rotate(-15deg); object-fit:contain;">
@@ -1411,7 +1438,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const forceOrderBtn = document.getElementById('forceOrderBtn');
   const skipOrderBtn = document.getElementById('skipOrderBtn');
 
-  // Магазин: содержатся только сырые/цельные продукты и соусы
   const SHOP_ITEMS = [
     { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
     { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
@@ -1476,8 +1502,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     filtered.forEach(item => {
       const stockVal = currentGameMode === 'sandbox' ? '∞' : (ingredientStock[item.id] ?? 0);
+      const isZero = stockVal === 0 || stockVal === '0';
       const card = document.createElement('div');
-      card.className = 'inventory-item-card';
+      card.className = `inventory-item-card ${isZero ? 'zero-stock' : ''}`;
       card.innerHTML = `
         <div class="inventory-item-info">
           <img src="${item.image}" alt="${item.name}">
