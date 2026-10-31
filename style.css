@@ -1553,17 +1553,22 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .center-stage { min-height: 75vh; }
 }
 
-/* --- Стили для адаптивного туториала (модальное окно на телефонах) --- */
+/* --- Стили для адаптивного туториала (модальное окно на телефонах с фиксацией фона) --- */
 @media (max-width: 900px) {
   .tutorial-overlay {
     display: none;
-    position: fixed;
+    position: fixed !important;
     top: 0; left: 0; right: 0; bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(4px);
     z-index: 4000;
     align-items: center;
     justify-content: center;
+    overflow: hidden !important;
+    touch-action: none;
   }
   .tutorial-overlay.active {
     display: flex !important;
