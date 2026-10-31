@@ -137,6 +137,10 @@ document.addEventListener('DOMContentLoaded', () => {
   let skipOrderClickCount = 0;
   let skipOrderTimeout = null;
 
+  // Переменные для двойного клика по мусорному ведру
+  let resetClickCount = 0;
+  let resetClickTimeout = null;
+
   function getCurrentSpeed() {
     if (currentGameMode === 'turbo') return 'turbo';
     return modeSpeeds[currentGameMode] || 'no-orders';
@@ -385,11 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const forceOrderBtn = document.getElementById('forceOrderBtn');
   const skipOrderBtn = document.getElementById('skipOrderBtn');
 
-  // Логика инвентаря (Рюкзака)
-  const inventoryModal = document.getElementById('inventoryModal');
-  const openInventoryBtn = document.getElementById('openInventoryBtn');
-  const closeInventoryModal = document.getElementById('closeInventoryModal');
-
+  // Каталог товаров со связкой категорий для магазина и инвентаря
   const SHOP_ITEMS = [
     { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
     { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
@@ -412,6 +412,11 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'spicy', name: 'Spicy', category: 'sauce', image: 'images/sauce-spicy.png', isSauce: true },
     { id: 'bbq', name: 'BBQ', category: 'sauce', image: 'images/sauce-bbq.png', isSauce: true }
   ];
+
+  // Логика инвентаря (Рюкзака)
+  const inventoryModal = document.getElementById('inventoryModal');
+  const openInventoryBtn = document.getElementById('openInventoryBtn');
+  const closeInventoryModal = document.getElementById('closeInventoryModal');
 
   let activeInventoryTab = 'all';
   window.switchInventoryTab = function(tab) {
@@ -437,13 +442,24 @@ document.addEventListener('DOMContentLoaded', () => {
           <img src="${item.image}" alt="${item.name}">
           <div class="inventory-item-details">
             <h4>${item.name}</h4>
-            <p>Category: ${item.category.toUpperCase()}</p>
           </div>
         </div>
-        <div class="inventory-count-badge">${stockVal}</div>
+        <div class="inventory-right-group">
+          <button class="btn-buy-more" onclick="openShopForCategory('${item.category}')">Buy more</button>
+          <div class="inventory-count-badge">${stockVal}</div>
+        </div>
       `;
       body.appendChild(card);
     });
+  }
+
+  window.openShopForCategory = function(category) {
+    playSound(SOUNDS.buttons);
+    inventoryModal.classList.remove('open');
+    updateShopBalanceHeader();
+    renderShopModal();
+    switchShopTab(category);
+    shopModal.classList.add('open');
   }
 
   if (openInventoryBtn) {
@@ -460,6 +476,36 @@ document.addEventListener('DOMContentLoaded', () => {
       if (inventoryModal) inventoryModal.classList.remove('open');
     };
   }
+
+  // Единая логика закрытия модальных окон по клику на оверлей (фон) и клавише ESC
+  const allModals = [
+    { modal: document.getElementById('recipesModal'), closeBtn: closeRecipesModal },
+    { modal: document.getElementById('shopModal'), closeBtn: closeShopModal },
+    { modal: inventoryModal, closeBtn: closeInventoryModal },
+    { modal: document.getElementById('achievementsModal'), closeBtn: document.getElementById('closeAchievementsModal') },
+    { modal: document.getElementById('settingsModal'), closeBtn: document.getElementById('closeSettingsModal') }
+  ];
+
+  allModals.forEach(item => {
+    if (!item.modal) return;
+    item.modal.addEventListener('click', (e) => {
+      if (e.target === item.modal) {
+        playSound(SOUNDS.buttons);
+        item.modal.classList.remove('open');
+      }
+    });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      allModals.forEach(item => {
+        if (item.modal && item.modal.classList.contains('open')) {
+          playSound(SOUNDS.buttons);
+          item.modal.classList.remove('open');
+        }
+      });
+    }
+  });
 
   function updateActionButtonsVisibility() {
     if (squeezeBtn) squeezeBtn.style.display = 'flex';
@@ -1170,15 +1216,32 @@ document.addEventListener('DOMContentLoaded', () => {
   const resetBtn = document.getElementById('resetBtn');
   if (resetBtn) {
     resetBtn.onclick = () => {
-      if (currentGameMode !== 'sandbox' && currentBurger.length > 0) {
-        currentBurger.forEach(item => { ingredientStock[item.id] = (ingredientStock[item.id] ?? 0) + 1; });
-        saveStock();
+      playSound(SOUNDS.buttons);
+      if (currentBurger.length === 0) {
+        showToast('First you need to create a burger', '', 'warning');
+        return;
       }
-      playSound(SOUNDS.bin);
-      isEating = false; isSqueezed = false;
-      if (burgerStack) burgerStack.classList.remove('eating');
-      currentBurger = [];
-      updateBurgerDisplay(false);
+
+      if (resetClickCount === 0) {
+        resetClickCount = 1;
+        showToast("To bin the burger click the button again", '', 'warning');
+        clearTimeout(resetClickTimeout);
+        resetClickTimeout = setTimeout(() => { resetClickCount = 0; }, 5000);
+      } else {
+        resetClickCount = 0;
+        clearTimeout(resetClickTimeout);
+
+        if (currentGameMode !== 'sandbox' && currentBurger.length > 0) {
+          currentBurger.forEach(item => { ingredientStock[item.id] = (ingredientStock[item.id] ?? 0) + 1; });
+          saveStock();
+        }
+        playSound(SOUNDS.bin);
+        isEating = false; isSqueezed = false;
+        if (burgerStack) burgerStack.classList.remove('eating');
+        currentBurger = [];
+        updateBurgerDisplay(false);
+        showToast('The burger is binned', '', 'success');
+      }
     };
   }
 
