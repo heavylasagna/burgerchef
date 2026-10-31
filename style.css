@@ -71,6 +71,13 @@ body {
   transition: background 0.3s ease, color 0.3s ease;
 }
 
+/* Корректная блокировка скролла для мобилок при открытом туториале */
+body.tutorial-active {
+  overflow: hidden !important;
+  height: 100vh;
+  height: 100dvh;
+}
+
 .app-container {
   display: grid;
   grid-template-columns: 220px 1fr 220px;
@@ -1505,7 +1512,9 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .pinned-recipe-widget,
   body.ui-hidden .screen-switcher { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
+}
 
+/* --- Стили для интерактивного туториала с подсветкой на ПК --- */
 .tutorial-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -1576,5 +1585,4 @@ input[type="range"]::-webkit-slider-thumb {
   justify-content: flex-end;
   gap: 6px;
   margin-top: 4px;
-}
 }
