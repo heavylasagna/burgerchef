@@ -1654,9 +1654,8 @@ document.addEventListener('DOMContentLoaded', () => {
       playSound(SOUNDS.buttons);
 
       if (currentScreen === 'grill') {
-        const hasItemsOnGrill = grillSlots.some(s => s !== null);
-        if (!hasItemsOnGrill) {
-          showToast('Grill is empty', '', 'warning');
+        if (isBinSelectMode) {
+          exitBinSelectMode();
           return;
         }
         enterBinSelectMode();
@@ -1718,7 +1717,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGrill();
   }
 
-  // Панель подтверждения внутри гриля по центру снизу
   function showBinConfirmBar() {
     let bar = document.getElementById('binConfirmBar');
     if (bar) bar.remove();
