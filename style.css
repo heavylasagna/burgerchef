@@ -284,7 +284,7 @@ body {
 #walletBadge.zero { color: rgba(255, 255, 255, 0.6); }
 #walletBadge.negative { color: #e57373; }
 
-/* Контейнер всплывающих денег */
+/* Контейнер всплывающих денег (точное скругление и центрирование) */
 .money-popup-container {
   position: absolute;
   top: 52px;
@@ -299,8 +299,8 @@ body {
 .money-popup {
   font-size: 0.8rem;
   font-weight: bold;
-  padding: 3px 8px;
-  border-radius: 6px;
+  padding: 6px 12px;
+  border-radius: 12px;
   background: var(--modal-bg);
   backdrop-filter: blur(4px);
   animation: moneyPopupAnim 2.5s forwards ease-in-out;
@@ -308,6 +308,7 @@ body {
   cursor: pointer;
   transition: opacity 0.3s ease, transform 0.3s ease;
   width: max-content;
+  text-align: center;
 }
 
 .money-popup.hiding {
@@ -401,7 +402,7 @@ body {
 .top-order-widget span { color: var(--accent-color); font-weight: bold; }
 .order-timer-badge { color: #e57373; font-weight: bold; font-family: monospace; display: block; margin-top: 2px; }
 
-/* Оповещения */
+/* Оповещения (Toast) с поддержкой клика для закрытия */
 .toast-container {
   position: absolute;
   top: 68px; 
@@ -411,7 +412,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  pointer-events: none;
   width: 380px;
   max-width: 90vw;
   align-items: center;
@@ -420,7 +420,7 @@ body {
   background: var(--modal-bg);
   color: var(--text-color);
   padding: 8px 14px;
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow: 0 6px 20px rgba(0,0,0,0.3);
   display: flex;
   flex-direction: column;
@@ -430,6 +430,13 @@ body {
   animation: toastAnim 3.5s forwards ease-in-out;
   border-width: 2px;
   border-style: solid;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.toast-message.hiding {
+  opacity: 0 !important;
+  transform: scale(0.8) translateY(-10px);
 }
 .toast-message.success { border-color: #81c784; }
 .toast-message.warning { border-color: #ffb300; }
@@ -1012,7 +1019,6 @@ input[type="range"]::-webkit-slider-thumb {
     margin-bottom: 0 !important;
   }
 
-  /* Динамический контейнер денег на мобилках управляется через JS */
   .money-popup-container {
     position: absolute !important;
     left: 10px !important;
