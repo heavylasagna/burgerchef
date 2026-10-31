@@ -28,8 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     bustanator: safeAudio('audio/bustanator.mp3'),
     mcPicklePounder: safeAudio('audio/mc-pickle-pounder.mp3'),
     sizzling: safeAudio('audio/sizzling.mp3'),
-    burnt: safeAudio('audio/burnt.mp3'),
-    chop: safeAudio('audio/ingridients.mp3')
+    burnt: safeAudio('audio/burnt.mp3')
   };
 
   let volumeLevel = parseFloat(localStorage.getItem('burger_volume'));
@@ -204,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
       needsFlip: false, cookTime: 8, burnTime: 6 
     },
     'raw-cheese': { 
-      name: 'Cheese', 
+      name: 'Cheese (Fried)', 
       rawImage: 'images/raw-cheese.png', 
       flip1Image: 'images/raw-cheese.png', 
       flip2Image: 'images/cheese.png', 
@@ -214,18 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  const CUTTABLE_ITEMS = {
-    'uncut-cheese': { name: 'Cheese', rawImage: 'images/uncut-cheese.png', slicedId: 'raw-cheese', slicedImage: 'images/raw-cheese.png', cutTime: 5 },
-    'uncut-champignons': { name: 'Champignons', rawImage: 'images/uncut-champignons.png', slicedId: 'raw-champignons', slicedImage: 'images/raw-champignons.png', cutTime: 5 },
-    'uncut-lettuce': { name: 'Lettuce', rawImage: 'images/uncut-lettuce.png', slicedId: 'lettuce', slicedImage: 'images/lettuce.png', cutTime: 5 },
-    'uncut-tomato': { name: 'Tomato', rawImage: 'images/uncut-tomato.png', slicedId: 'tomato', slicedImage: 'images/tomato.png', cutTime: 5 },
-    'uncut-pickles': { name: 'Pickles', rawImage: 'images/uncut-pickles.png', slicedId: 'pickles', slicedImage: 'images/pickles.png', cutTime: 5 },
-    'uncut-red-onion': { name: 'Red Onion', rawImage: 'images/uncut-red-onion.png', slicedId: 'red-onion', slicedImage: 'images/red-onion.png', cutTime: 5 },
-    'uncut-white-onion': { name: 'White Onion', rawImage: 'images/uncut-white-onion.png', slicedId: 'white-onion', slicedImage: 'images/white-onion.png', cutTime: 5 }
-  };
-
   let grillSlots = JSON.parse(localStorage.getItem('burger_grill_slots')) || Array(3).fill(null);
-  let boardSlots = JSON.parse(localStorage.getItem('burger_board_slots')) || Array(3).fill(null);
   let currentScreen = localStorage.getItem('burger_current_screen') || 'assembly';
   let isBinSelectMode = false;
   let selectedGrillIndicesForBin = [];
@@ -305,7 +293,6 @@ document.addEventListener('DOMContentLoaded', () => {
       renderBoardUncutMenu();
       renderBoardSlicedInventory();
       initBoardStructure();
-      renderBoard();
     }
     updateBottomPanelForScreen();
   }
@@ -315,10 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (switchToBoardBtn) switchToBoardBtn.onclick = () => switchScreen('board');
 
   function updateBottomPanelForScreen() {
-    const isGrill = currentScreen === 'grill';
-    const isBoard = currentScreen === 'board';
-    const isSpecialScreen = isGrill || isBoard;
-
+    const isSpecialScreen = currentScreen === 'grill' || currentScreen === 'board';
     if (eatBtn) eatBtn.style.display = isSpecialScreen ? 'none' : 'flex';
     if (squeezeBtn) squeezeBtn.style.display = isSpecialScreen ? 'none' : 'flex';
     if (submitOrderBtn) submitOrderBtn.style.display = isSpecialScreen ? 'none' : (getCurrentSpeed() === 'no-orders' ? 'none' : 'flex');
@@ -341,10 +325,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function saveGrillState() {
     localStorage.setItem('burger_grill_slots', JSON.stringify(grillSlots));
-  }
-
-  function saveBoardState() {
-    localStorage.setItem('burger_board_slots', JSON.stringify(boardSlots));
   }
 
   function updateMoneyPopupPosition() {
@@ -546,7 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: false });
   }
 
-  function renderCategoryTabs(activeCat, onSelectCb, hideBread = false, hidePatty = false) {
+  function renderCategoryTabs(activeCat, onSelectCb, hideBread = false) {
     let cats = [
       { id: 'all', label: 'All' },
       { id: 'bread', label: 'Bread' },
@@ -557,9 +537,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (hideBread) {
       cats = cats.filter(c => c.id !== 'bread');
-    }
-    if (hidePatty) {
-      cats = cats.filter(c => c.id !== 'patty');
     }
 
     const tabsId = `cat-tabs-${onSelectCb}`;
@@ -629,7 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const filtered = assemblyActiveCategory === 'all' ? INGREDIENTS : INGREDIENTS.filter(i => i.category === assemblyActiveCategory);
 
-    const tabsHtml = renderCategoryTabs(assemblyActiveCategory, 'setAssemblyCategory', false, false);
+    const tabsHtml = renderCategoryTabs(assemblyActiveCategory, 'setAssemblyCategory', false);
     
     let cardsHtml = `<div style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
     filtered.forEach(item => {
@@ -688,7 +665,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const filtered = grillRawActiveCategory === 'all' ? GRILLABLE_MENU_ITEMS : GRILLABLE_MENU_ITEMS.filter(i => i.category === grillRawActiveCategory);
 
-    const tabsHtml = renderCategoryTabs(grillRawActiveCategory, 'setGrillRawCategory', true, false);
+    const tabsHtml = renderCategoryTabs(grillRawActiveCategory, 'setGrillRawCategory', true);
 
     let cardsHtml = `<div style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
     filtered.forEach(item => {
@@ -745,7 +722,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const filtered = grillCookedActiveCategory === 'all' ? COOKED_INVENTORY_ITEMS : COOKED_INVENTORY_ITEMS.filter(i => i.category === grillCookedActiveCategory);
 
-    const tabsHtml = renderCategoryTabs(grillCookedActiveCategory, 'setGrillCookedCategory', true, false);
+    const tabsHtml = renderCategoryTabs(grillCookedActiveCategory, 'setGrillCookedCategory', true);
     let itemsContainerHtml = `<div style="display:flex; flex-direction:column; gap:6px; overflow-y:auto; flex:1; min-height:0;">`;
 
     filtered.forEach(item => {
@@ -791,7 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const filtered = boardUncutActiveCategory === 'all' ? BOARD_UNCUT_ITEMS : BOARD_UNCUT_ITEMS.filter(i => i.category === boardUncutActiveCategory);
 
-    const tabsHtml = renderCategoryTabs(boardUncutActiveCategory, 'setBoardUncutCategory', true, true);
+    const tabsHtml = renderCategoryTabs(boardUncutActiveCategory, 'setBoardUncutCategory', true);
 
     let cardsHtml = `<div style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
     filtered.forEach(item => {
@@ -830,7 +807,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const stock = ingredientStock[id] ?? 0;
     const isOut = currentGameMode !== 'sandbox' && stock <= 0;
     if (isOut) { showToast('Out of stock!', `Buy more in shop.`, 'warning'); return; }
-    addToBoard(id);
+    showToast('Cutting board', 'Cutting mechanics coming soon!', 'success');
   }
 
   function renderBoardSlicedInventory(savedScroll = null) {
@@ -848,7 +825,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const filtered = boardSlicedActiveCategory === 'all' ? BOARD_SLICED_ITEMS : BOARD_SLICED_ITEMS.filter(i => i.category === boardSlicedActiveCategory);
 
-    const tabsHtml = renderCategoryTabs(boardSlicedActiveCategory, 'setBoardSlicedCategory', true, true);
+    const tabsHtml = renderCategoryTabs(boardSlicedActiveCategory, 'setBoardSlicedCategory', true);
     let itemsContainerHtml = `<div style="display:flex; flex-direction:column; gap:6px; overflow-y:auto; flex:1; min-height:0;">`;
 
     filtered.forEach(item => {
@@ -883,163 +860,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function initBoardStructure() {
     const area = document.getElementById('boardCookingArea');
     if (!area) return;
-    area.innerHTML = '';
-
-    boardSlots.forEach((_, index) => {
-      const slotEl = document.createElement('div');
-      slotEl.className = 'grill-slot';
-      slotEl.dataset.index = index;
-      
-      slotEl.onclick = () => {
-        handleBoardSlotClick(index);
-      };
-      area.appendChild(slotEl);
-    });
+    area.innerHTML = `
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-color); opacity: 0.7; gap: 10px;">
+        <span style="font-size: 3rem;">🔪</span>
+        <h3 style="font-size: 1.1rem;">Cutting Board</h3>
+        <p style="font-size: 0.85rem; text-align: center; max-width: 250px;">Place uncut vegetables and cheese here to chop them into slices.</p>
+      </div>
+    `;
   }
-
-  function addToBoard(uncutId) {
-    const emptyIndex = boardSlots.findIndex(slot => slot === null);
-    if (emptyIndex === -1) {
-      showToast('Board is full!', '', 'warning');
-      return;
-    }
-
-    if (currentGameMode !== 'sandbox') {
-      ingredientStock[uncutId] = (ingredientStock[uncutId] ?? 0) - 1;
-      saveStock();
-    }
-
-    boardSlots[emptyIndex] = {
-      uncutId: uncutId,
-      state: 'uncut',
-      startTime: null,
-      notified: false
-    };
-
-    playSound(SOUNDS.ingridients);
-    saveBoardState();
-    renderBoardUncutMenu();
-    renderBoard();
-  }
-
-  function startCuttingSlot(index) {
-    const slot = boardSlots[index];
-    if (!slot || slot.state !== 'uncut') return;
-
-    slot.state = 'cutting';
-    slot.startTime = Date.now();
-    playSound(SOUNDS.chop);
-    saveBoardState();
-    renderBoard();
-  }
-
-  function updateBoardLogic() {
-    const now = Date.now();
-    let needsSave = false;
-
-    boardSlots.forEach((slot) => {
-      if (!slot || slot.state !== 'cutting') return;
-      const config = CUTTABLE_ITEMS[slot.uncutId];
-      const elapsed = (now - slot.startTime) / 1000;
-
-      if (elapsed >= config.cutTime) {
-        slot.state = 'ready';
-        if (!slot.notified) {
-          playSound(SOUNDS.complete);
-          slot.notified = true;
-        }
-        needsSave = true;
-      }
-    });
-
-    if (needsSave) {
-      saveBoardState();
-    }
-  }
-
-  function getBoardSlotProgress(slot) {
-    if (!slot || slot.state !== 'cutting') return 0;
-    const config = CUTTABLE_ITEMS[slot.uncutId];
-    const now = Date.now();
-    const elapsed = (now - slot.startTime) / 1000;
-    return Math.min(100, (elapsed / config.cutTime) * 100);
-  }
-
-  function handleBoardSlotClick(index) {
-    const slot = boardSlots[index];
-    if (!slot) return;
-    const config = CUTTABLE_ITEMS[slot.uncutId];
-
-    if (slot.state === 'uncut') {
-      startCuttingSlot(index);
-    } else if (slot.state === 'ready') {
-      ingredientStock[config.slicedId] = (ingredientStock[config.slicedId] ?? 0) + 3;
-      saveStock();
-      showToast('Added x3 to inventory!', `${config.name} (x3) added to backpack.`, 'success');
-      playSound(SOUNDS.buttons);
-      
-      boardSlots[index] = null;
-      saveBoardState();
-      renderBoardSlicedInventory();
-      renderBoard();
-    }
-  }
-
-  function renderBoard() {
-    updateBoardLogic();
-    if (currentScreen !== 'board') return;
-
-    const area = document.getElementById('boardCookingArea');
-    if (!area || area.children.length !== boardSlots.length) {
-      initBoardStructure();
-    }
-
-    const slotElements = area.querySelectorAll('.grill-slot');
-
-    boardSlots.forEach((slotData, index) => {
-      const slotEl = slotElements[index];
-      if (!slotEl) return;
-
-      slotEl.className = 'grill-slot';
-
-      if (slotData) {
-        const config = CUTTABLE_ITEMS[slotData.uncutId];
-
-        if (slotData.state === 'uncut') {
-          slotEl.innerHTML = `
-            <div class="flip-badge" style="background:#8d6e63; color:#fff;">Click to Chop!</div>
-            <img src="${config.rawImage}" class="grill-item">
-          `;
-        } else if (slotData.state === 'cutting') {
-          const progressPercent = getBoardSlotProgress(slotData);
-          slotEl.innerHTML = `
-            <img src="${config.rawImage}" class="grill-item">
-            <div class="grill-progress-container">
-              <div class="grill-progress-bar" style="width: ${progressPercent}%"></div>
-            </div>
-          `;
-        } else if (slotData.state === 'ready') {
-          slotEl.innerHTML = `
-            <div style="position:relative; width:100px; height:100px; display:flex; align-items:center; justify-content:center;">
-              <img src="${config.slicedImage}" style="width:45px; height:45px; position:absolute; transform: translate(-20px, -10px) rotate(-15deg); object-fit:contain;">
-              <img src="${config.slicedImage}" style="width:45px; height:45px; position:absolute; transform: translate(20px, -10px) rotate(15deg); object-fit:contain;">
-              <img src="${config.slicedImage}" style="width:45px; height:45px; position:absolute; transform: translate(0px, 15deg); object-fit:contain;">
-              <div class="flip-badge" style="background:#689f38; color:#fff; top:-4px; right:-4px;">x3 Collect</div>
-            </div>
-          `;
-        }
-      } else {
-        slotEl.innerHTML = '';
-      }
-    });
-  }
-
-  setInterval(() => {
-    updateBoardLogic();
-    if (currentScreen === 'board') {
-      renderBoard();
-    }
-  }, 50);
 
   function addToGrill(rawId) {
     const emptyIndex = grillSlots.findIndex(slot => slot === null);
@@ -1225,10 +1053,8 @@ document.addEventListener('DOMContentLoaded', () => {
           extraHtml = `<div class="flip-badge">Flip!</div>`;
         } else if (slotData.state === 'ready' || slotData.state === 'burning') {
           imgsrc = config.cookedImage;
-          extraHtml = `<div class="flip-badge" style="background:#689f38; color:#fff;">Collect</div>`;
         } else if (slotData.state === 'charred') {
           imgsrc = config.cookedImage;
-          extraHtml = `<div class="flip-badge" style="background:#d32f2f; color:#fff;">Burnt</div>`;
         }
 
         const progressPercent = getSlotProgress(slotData);
@@ -1384,20 +1210,45 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
     
     { id: 'raw-beef-patty', name: 'Beef Patty (Raw)', category: 'patty', image: 'images/raw-beef-patty.png' },
+    { id: 'beef-patty', name: 'Beef Patty (Cooked)', category: 'patty', image: 'images/beef-patty.png' },
+    
     { id: 'raw-chicken-patty', name: 'Chicken Patty (Raw)', category: 'patty', image: 'images/raw-chicken-patty.png' },
+    { id: 'chicken-patty', name: 'Chicken Patty (Cooked)', category: 'patty', image: 'images/chicken-patty.png' },
+    
     { id: 'raw-fish-patty', name: 'Fish Patty (Raw)', category: 'patty', image: 'images/raw-fish-patty.png' },
+    { id: 'fish-patty', name: 'Fish Patty (Cooked)', category: 'patty', image: 'images/fish-patty.png' },
+    
     { id: 'raw-hashbrown', name: 'Hashbrown (Raw)', category: 'patty', image: 'images/raw-hashbrown.png' },
+    { id: 'hashbrown', name: 'Hashbrown (Cooked)', category: 'patty', image: 'images/hashbrown.png' },
     
     { id: 'raw-bacon', name: 'Bacon (Raw)', category: 'protein', image: 'images/raw-bacon.png' },
+    { id: 'fried-bacon', name: 'Bacon (Cooked)', category: 'protein', image: 'images/fried-bacon.png' },
+    
     { id: 'raw-egg', name: 'Egg (Raw)', category: 'protein', image: 'images/egg.png' },
+    { id: 'fried-egg', name: 'Egg (Cooked)', category: 'protein', image: 'images/fried-egg.png' },
+    
     { id: 'uncut-cheese', name: 'Cheese (Uncut)', category: 'protein', image: 'images/uncut-cheese.png', isUncut: true },
+    { id: 'raw-cheese', name: 'Cheese (Sliced)', category: 'protein', image: 'images/raw-cheese.png' },
+    { id: 'cheese', name: 'Cheese (Cooked)', category: 'protein', image: 'images/cheese.png' },
 
     { id: 'uncut-champignons', name: 'Champignons (Uncut)', category: 'vegetables', image: 'images/uncut-champignons.png', isUncut: true },
+    { id: 'raw-champignons', name: 'Champignons (Sliced)', category: 'vegetables', image: 'images/raw-champignons.png' },
+    { id: 'champignons', name: 'Champignons (Cooked)', category: 'vegetables', image: 'images/champignons.png' },
+    
     { id: 'uncut-lettuce', name: 'Lettuce (Uncut)', category: 'vegetables', image: 'images/uncut-lettuce.png', isUncut: true },
+    { id: 'lettuce', name: 'Lettuce (Sliced)', category: 'vegetables', image: 'images/lettuce.png' },
+    
     { id: 'uncut-tomato', name: 'Tomato (Uncut)', category: 'vegetables', image: 'images/uncut-tomato.png', isUncut: true },
+    { id: 'tomato', name: 'Tomato (Sliced)', category: 'vegetables', image: 'images/tomato.png' },
+    
     { id: 'uncut-pickles', name: 'Pickles (Uncut)', category: 'vegetables', image: 'images/uncut-pickles.png', isUncut: true },
+    { id: 'pickles', name: 'Pickles (Sliced)', category: 'vegetables', image: 'images/pickles.png' },
+    
     { id: 'uncut-red-onion', name: 'Red Onion (Uncut)', category: 'vegetables', image: 'images/uncut-red-onion.png', isUncut: true },
+    { id: 'red-onion', name: 'Red Onion (Sliced)', category: 'vegetables', image: 'images/red-onion.png' },
+    
     { id: 'uncut-white-onion', name: 'White Onion (Uncut)', category: 'vegetables', image: 'images/uncut-white-onion.png', isUncut: true },
+    { id: 'white-onion', name: 'White Onion (Sliced)', category: 'vegetables', image: 'images/white-onion.png' },
 
     { id: 'mayo', name: 'Mayo', category: 'sauce', image: 'images/sauce-mayo.png', isSauce: true },
     { id: 'ketchup', name: 'Ketchup', category: 'sauce', image: 'images/sauce-ketchup.png', isSauce: true },
@@ -1441,14 +1292,8 @@ document.addEventListener('DOMContentLoaded', () => {
     body.innerHTML = '';
     const filtered = activeInventoryTab === 'all' ? SHOP_ITEMS : SHOP_ITEMS.filter(i => i.category === activeInventoryTab);
 
-    let hasVisibleItems = false;
-
     filtered.forEach(item => {
       const stockVal = currentGameMode === 'sandbox' ? '∞' : (ingredientStock[item.id] ?? 0);
-      
-      if (currentGameMode !== 'sandbox' && stockVal <= 0) return;
-
-      hasVisibleItems = true;
       const card = document.createElement('div');
       card.className = 'inventory-item-card';
       card.innerHTML = `
@@ -1465,10 +1310,6 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       body.appendChild(card);
     });
-
-    if (!hasVisibleItems) {
-      body.innerHTML = `<div style="text-align: center; opacity: 0.6; padding: 20px;">No items in inventory. Visit the shop!</div>`;
-    }
   }
 
   window.openShopForCategory = function(category) {
@@ -1525,9 +1366,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function updateActionButtonsVisibility() {
-    const isGrill = currentScreen === 'grill';
-    const isBoard = currentScreen === 'board';
-    const isSpecialScreen = isGrill || isBoard;
+    const isSpecialScreen = currentScreen === 'grill' || currentScreen === 'board';
     if (squeezeBtn) squeezeBtn.style.display = isSpecialScreen ? 'none' : 'flex';
 
     const currentSpeed = getCurrentSpeed();
@@ -1923,22 +1762,24 @@ document.addEventListener('DOMContentLoaded', () => {
     filtered.forEach(item => {
       const unitPrice = ITEM_PRICES[item.id] || 1;
       const stockDisplay = currentGameMode === 'sandbox' ? '∞' : (ingredientStock[item.id] ?? 0);
+      
+      const isDisabledInShop = item.isUncut;
 
       cardsHtml += `
-        <div class="shop-item-card">
+        <div class="shop-item-card" style="${isDisabledInShop ? 'opacity: 0.6;' : ''}">
           <div class="shop-item-info">
             <img src="${item.image}" alt="${item.name}">
             <div class="shop-item-details">
               <h4>${item.name} ${item.isSauce ? '<span style="color:#ffb300; font-size:0.7rem;">x1 (pack)</span>' : ''}</h4>
-              <p>$${unitPrice.toFixed(2)} ${item.isSauce ? 'each' : 'each'} | Stock: ${stockDisplay}</p>
+              <p>$${unitPrice.toFixed(2)} ${item.isSauce ? 'each' : 'each'} | Stock: ${stockDisplay} ${item.isUncut ? '<span style="color:#e57373; font-size:0.65rem; display:block;">(Requires cutting board)</span>' : ''}</p>
             </div>
           </div>
           <div class="shop-buy-group">
             <div class="shop-total-price" id="total-${item.id}">$0.00</div>
-            <button class="shop-qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
-            <input type="number" min="0" max="100" value="0" id="qty-${item.id}" oninput="updateItemTotal('${item.id}')">
-            <button class="shop-qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
-            <button class="btn-buy" onclick="buyItem('${item.id}')">Buy</button>
+            <button class="shop-qty-btn" ${isDisabledInShop ? 'disabled' : ''} onclick="changeQty('${item.id}', -1)">-</button>
+            <input type="number" min="0" max="100" value="0" id="qty-${item.id}" ${isDisabledInShop ? 'disabled style="opacity:0.4;"' : ''} oninput="updateItemTotal('${item.id}')">
+            <button class="shop-qty-btn" ${isDisabledInShop ? 'disabled' : ''} onclick="changeQty('${item.id}', 1)">+</button>
+            <button class="btn-buy" ${isDisabledInShop ? 'disabled style="background:gray; cursor:not-allowed;"' : ''} onclick="buyItem('${item.id}')">Buy</button>
           </div>
         </div>
       `;
@@ -1946,7 +1787,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     body.innerHTML = `<div style="display:flex; flex-direction:column; gap:8px; min-height: 340px;">${cardsHtml}</div>`;
     filtered.forEach(item => {
-      updateItemTotal(item.id);
+      if (!item.isUncut) updateItemTotal(item.id);
     });
   }
 
@@ -1961,6 +1802,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.changeQty = function(id, delta) {
+    const item = SHOP_ITEMS.find(i => i.id === id);
+    if (item && item.isUncut) return;
     const input = document.getElementById(`qty-${id}`);
     if (!input) return;
     let val = parseInt(input.value) || 0;
@@ -1970,6 +1813,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.buyItem = function(id) {
+    const item = SHOP_ITEMS.find(i => i.id === id);
+    if (item && item.isUncut) {
+      showToast('Cutting board required!', 'Cutting board is not ready yet.', 'warning');
+      return;
+    }
+
     const input = document.getElementById(`qty-${id}`);
     const qty = parseInt(input.value) || 0;
     if (qty <= 0) { showToast('Invalid quantity', 'Please select quantity greater than 0!', 'warning'); return; }
