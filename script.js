@@ -124,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
     'raw-bacon': 10, 'raw-egg': 10, 'raw-champignons': 10
   };
 
-  // Конфигурация продуктов для гриля
   const GRILLABLE_ITEMS = {
     'raw-beef-patty': { name: 'Beef Patty', rawImage: 'images/raw-beef-patty.png', cookedId: 'beef-patty', cookedImage: 'images/beef-patty.png', flippedImage: 'images/beef-patty-flip.png', needsFlip: true, cookTime: 6, burnTime: 8 },
     'raw-chicken-patty': { name: 'Chicken Patty', rawImage: 'images/raw-chicken-patty.png', cookedId: 'chicken-patty', cookedImage: 'images/chicken-patty.png', flippedImage: 'images/chicken-patty-flip.png', needsFlip: true, cookTime: 6, burnTime: 8 },
@@ -137,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const maxGrillSlots = window.innerWidth <= 900 ? 1 : 3;
   let grillSlots = JSON.parse(localStorage.getItem('burger_grill_slots')) || Array(maxGrillSlots).fill(null);
-  let currentScreen = 'assembly'; // 'assembly' | 'grill'
+  let currentScreen = 'assembly';
   let isBinSelectMode = false;
   let selectedGrillIndicesForBin = [];
   let sizzlingAudioInstance = null;
@@ -180,12 +179,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (grillStage) grillStage.style.display = 'none';
       if (rightPanel) rightPanel.style.display = 'flex';
       if (leftPanel) leftPanel.style.display = 'flex';
+      if (desktopSaucesGroup) desktopSaucesGroup.classList.remove('hidden-on-grill');
+      if (mobileSaucesGroup) mobileSaucesGroup.classList.remove('hidden-on-grill');
       exitBinSelectMode();
     } else if (screen === 'grill') {
       if (centerStage) centerStage.style.display = 'none';
       if (grillStage) grillStage.style.display = 'flex';
       if (rightPanel) rightPanel.style.display = 'none';
       if (leftPanel) leftPanel.style.display = 'none';
+      if (desktopSaucesGroup) desktopSaucesGroup.classList.add('hidden-on-grill');
+      if (mobileSaucesGroup) mobileSaucesGroup.classList.add('hidden-on-grill');
       renderGrill();
     }
     updateBottomPanelForScreen();
