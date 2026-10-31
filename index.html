@@ -145,11 +145,17 @@
           </div>
         </div>
 
-        <button class="btn-action" id="openTutorialFromSettingsBtn" style="width: 100%; margin-top: 4px;">See the tutorial</button>
+        <!-- Общий контейнер для финала туториала -->
+        <div id="tutorialFinalSection" style="display: flex; flex-direction: column; gap: 6px;">
+          <button class="btn-action" id="openTutorialFromSettingsBtn" style="width: 100%;">See the tutorial</button>
 
-        <div class="settings-group" style="background: transparent; border-color: rgba(211,47,47,0.3);">
-          <label style="color: #d32f2f;">Danger Zone</label>
-          <button class="btn-outline-danger" id="hardResetBtn">Reset</button>
+          <div class="settings-group" style="background: transparent; border-color: rgba(211,47,47,0.3); margin-top: 0;">
+            <label style="color: #d32f2f;">Danger Zone</label>
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <button class="btn-outline-danger" id="hardResetBtn">Reset Data</button>
+              <button class="btn-outline-danger" id="resetAchievementsBtn" style="border-color: #e65100; color: #e65100;">Reset Achievements</button>
+            </div>
+          </div>
         </div>
 
       </div>
