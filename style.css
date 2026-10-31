@@ -651,12 +651,12 @@ body {
   height: 100%;
 }
 
-/* Слоты на гриле */
+/* Слоты на гриле (без видимой рамки/разметки, полностью невидимые слоты) */
 .grill-slot {
   width: 120px;
   height: 120px;
-  background: var(--item-bg);
-  border: 2px dashed var(--border-color);
+  background: transparent;
+  border: none;
   border-radius: 16px;
   display: flex;
   flex-direction: column;
@@ -668,7 +668,7 @@ body {
 }
 
 .grill-slot.selected-for-bin {
-  border-color: #d32f2f !important;
+  border: 2px dashed #d32f2f !important;
   box-shadow: 0 0 12px rgba(211, 47, 47, 0.6);
   background: rgba(211, 47, 47, 0.1);
 }
