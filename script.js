@@ -2712,8 +2712,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- ПОЛНЫЙ ТУТОРИАЛ (с подсветкой элементов) ---
-  const tutorialSteps = [
+  // --- ТУТОРИАЛ (Адаптивный: ПК — с подсветкой элементов, Мобильные — простое модальное окно без изменений фона) ---
+  const pcTutorialSteps = [
     {
       title: "Assembly Screen",
       text: "This is your main workplace where you build custom burgers.",
@@ -2818,6 +2818,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   ];
 
+  // Упрощенные шаги для телефонов (модальное окно по центру, фон не меняется)
+  const mobileTutorialSteps = [
+    { title: "Assembly Screen", text: "This is your main workplace where you build custom burgers." },
+    { title: "Ingredients Menu", text: "Select and add various ingredients (buns, patties, veggies) to your burger stack." },
+    { title: "Layers Panel", text: "View all current layers of your burger, reorder them, or remove individual items." },
+    { title: "Wallet", text: "Shows your current money balance. Earn cash by fulfilling customer orders!" },
+    { title: "Bottom Actions Menu", text: "Quick buttons for recipes, shop, backpack, achievements, eating, and more." },
+    { title: "Grill Screen", text: "Switch to the Grill screen using top buttons to cook raw ingredients." },
+    { title: "Cutting Board", text: "Switch to the Cutting Board screen to chop and slice vegetables and cheese." },
+    { title: "Settings", text: "Open Settings to configure volume, themes, game modes, and view this tutorial again." }
+  ];
+
   let currentTutorialStep = 0;
 
   function showWelcomeModalIfNeeded() {
@@ -2868,76 +2880,107 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function startTutorial() {
     currentTutorialStep = 0;
-    document.body.classList.add('tutorial-active');
-    if (tutorialOverlay) tutorialOverlay.classList.add('active');
+    const isMobile = window.innerWidth <= 900;
+    
+    if (isMobile) {
+      // Для мобильных не трогаем класс tutorial-active на body, чтобы фон не менялся и элементы не подсвечивались
+      if (tutorialOverlay) tutorialOverlay.classList.add('active');
+      if (tutorialSpotlight) tutorialSpotlight.style.display = 'none'; // убираем рамку подсветки на телефоне
+    } else {
+      document.body.classList.add('tutorial-active');
+      if (tutorialOverlay) tutorialOverlay.classList.add('active');
+      if (tutorialSpotlight) tutorialSpotlight.style.display = 'block';
+    }
+
     showTutorialStep(currentTutorialStep);
   }
 
   function showTutorialStep(stepIndex) {
-    const step = tutorialSteps[stepIndex];
+    const isMobile = window.innerWidth <= 900;
+    const stepsList = isMobile ? mobileTutorialSteps : pcTutorialSteps;
+    const step = stepsList[stepIndex];
+
     if (!step) {
       endTutorial();
       return;
     }
 
-    if (step.screen && currentScreen !== step.screen) {
-      switchScreen(step.screen);
-    }
+    // На ПК выполняем переключение экранов/действий, на телефоне — нет (фон остается прежним)
+    if (!isMobile) {
+      if (step.screen && currentScreen !== step.screen) {
+        switchScreen(step.screen);
+      }
 
-    if (step.action) {
-      step.action();
-    } else {
-      const settingsModalEl = document.getElementById('settingsModal');
-      if (settingsModalEl && stepIndex < tutorialSteps.length - 1) {
-        settingsModalEl.classList.remove('open');
+      if (step.action) {
+        step.action();
+      } else {
+        const settingsModalEl = document.getElementById('settingsModal');
+        if (settingsModalEl && stepIndex < stepsList.length - 1) {
+          settingsModalEl.classList.remove('open');
+        }
       }
     }
 
     if (tutorialTitle) tutorialTitle.innerText = step.title;
     if (tutorialText) tutorialText.innerText = step.text;
-    if (tutorialStepIndicator) tutorialStepIndicator.innerText = `${stepIndex + 1} / ${tutorialSteps.length}`;
+    if (tutorialStepIndicator) tutorialStepIndicator.innerText = `${stepIndex + 1} / ${stepsList.length}`;
     if (tutorialPrevBtn) tutorialPrevBtn.style.display = stepIndex === 0 ? 'none' : 'block';
-    if (tutorialNextBtn) tutorialNextBtn.innerText = stepIndex === tutorialSteps.length - 1 ? 'Finish' : 'Next';
+    if (tutorialNextBtn) tutorialNextBtn.innerText = stepIndex === stepsList.length - 1 ? 'Finish' : 'Next';
 
-    setTimeout(() => {
+    // Позиционирование подсказки по центру экрана для мобильных, либо с подсветкой для ПК
+    if (isMobile) {
+      if (tutorialTooltip) {
+        tutorialTooltip.style.left = '50%';
+        tutorialTooltip.style.top = '50%';
+        tutorialTooltip.style.transform = 'translate(-50%, -50%)';
+      }
+    } else {
+      if (tutorialTooltip) {
+        tutorialTooltip.style.transform = 'none';
+      }
       setTimeout(() => {
-        const targetEl = step.getElement ? step.getElement() : null;
-        if (targetEl) {
-          targetEl.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' });
-        }
-
-        if (targetEl && tutorialSpotlight && tutorialTooltip) {
-          const rect = targetEl.getBoundingClientRect();
-          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-          const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-          const padding = 12;
-
-          tutorialSpotlight.style.top = `${rect.top + scrollTop - padding}px`;
-          tutorialSpotlight.style.left = `${rect.left + scrollLeft - padding}px`;
-          tutorialSpotlight.style.width = `${rect.width + padding * 2}px`;
-          tutorialSpotlight.style.height = `${rect.height + padding * 2}px`;
-
-          const tooltipWidth = 310;
-          let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2 + scrollLeft;
-          let tooltipTop = rect.bottom + scrollTop + 16;
-
-          if (tooltipLeft < 10) tooltipLeft = 10;
-          if (tooltipLeft + tooltipWidth > window.innerWidth - 10) tooltipLeft = window.innerWidth - tooltipWidth - 10;
-          if (tooltipTop + 190 > window.innerHeight + scrollTop) {
-            tooltipTop = rect.top + scrollTop - 190;
+        setTimeout(() => {
+          const targetEl = step.getElement ? step.getElement() : null;
+          if (targetEl) {
+            targetEl.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' });
           }
 
-          tutorialTooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
-          tutorialTooltip.style.top = `${Math.max(10, tooltipTop)}px`;
-        }
-      }, 50);
-    }, 100);
+          if (targetEl && tutorialSpotlight && tutorialTooltip) {
+            const rect = targetEl.getBoundingClientRect();
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+            const padding = 12;
+
+            tutorialSpotlight.style.top = `${rect.top + scrollTop - padding}px`;
+            tutorialSpotlight.style.left = `${rect.left + scrollLeft - padding}px`;
+            tutorialSpotlight.style.width = `${rect.width + padding * 2}px`;
+            tutorialSpotlight.style.height = `${rect.height + padding * 2}px`;
+
+            const tooltipWidth = 310;
+            let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2 + scrollLeft;
+            let tooltipTop = rect.bottom + scrollTop + 16;
+
+            if (tooltipLeft < 10) tooltipLeft = 10;
+            if (tooltipLeft + tooltipWidth > window.innerWidth - 10) tooltipLeft = window.innerWidth - tooltipWidth - 10;
+            if (tooltipTop + 190 > window.innerHeight + scrollTop) {
+              tooltipTop = rect.top + scrollTop - 190;
+            }
+
+            tutorialTooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
+            tutorialTooltip.style.top = `${Math.max(10, tooltipTop)}px`;
+          }
+        }, 50);
+      }, 100);
+    }
   }
 
   if (tutorialNextBtn) {
     tutorialNextBtn.onclick = () => {
       playSound(SOUNDS.buttons);
-      if (currentTutorialStep < tutorialSteps.length - 1) {
+      const isMobile = window.innerWidth <= 900;
+      const stepsList = isMobile ? mobileTutorialSteps : pcTutorialSteps;
+
+      if (currentTutorialStep < stepsList.length - 1) {
         currentTutorialStep++;
         showTutorialStep(currentTutorialStep);
       } else {
@@ -2959,6 +3002,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function endTutorial() {
     document.body.classList.remove('tutorial-active');
     if (tutorialOverlay) tutorialOverlay.classList.remove('active');
+    if (tutorialSpotlight) tutorialSpotlight.style.display = 'block';
     const settingsModalEl = document.getElementById('settingsModal');
     if (settingsModalEl) settingsModalEl.classList.remove('open');
   }
