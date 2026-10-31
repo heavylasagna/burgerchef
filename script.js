@@ -306,8 +306,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (submitOrderBtn) {
-      const hasActiveOrders = !isNoOrders && currentActiveOrder !== null;
-      submitOrderBtn.style.display = hasActiveOrders ? 'flex' : 'none';
+      // Кнопка подачи отображается во всех скоростях кроме no-orders
+      submitOrderBtn.style.display = isNoOrders ? 'none' : 'flex';
     }
   }
 
@@ -1056,7 +1056,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentSpeed = getCurrentSpeed();
     if (currentSpeed === 'no-orders') return;
 
-    // Таймер работает СТРОГО в турбо-режиме игры
     if (currentGameMode === 'turbo') {
       if (!currentActiveOrder) {
         triggerRandomOrder();
@@ -1076,7 +1075,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Для песочницы и казуального режима при выбранной турбо-скорости заказов таймер не нужен
     if (currentSpeed === 'turbo') {
       if (!currentActiveOrder) {
         triggerRandomOrder();
