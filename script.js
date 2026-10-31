@@ -660,7 +660,6 @@ document.addEventListener('DOMContentLoaded', () => {
       slotEl.className = `grill-slot ${selectedGrillIndicesForBin.includes(index) ? 'selected-for-bin' : ''}`;
 
       if (slotData) {
-        // Продукт считается активным для звука, если он еще не обуглен
         if (slotData.state !== 'charred') {
           hasActiveCooking = true;
         }
@@ -676,7 +675,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (slotData.state === 'ready' || slotData.state === 'burning') {
           imgsrc = slotData.isFlipped ? config.cookedImage : config.cookedImage;
         } else if (slotData.state === 'charred') {
-          imgsrc = slotData.cookedImage;
+          imgsrc = config.cookedImage;
           slotEl.classList.add('charred');
         }
 
@@ -689,7 +688,6 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         `;
 
-        // Добавляем класс покачивания для жарящихся/готовых продуктов
         const isSizzling = slotData.state !== 'charred';
 
         slotEl.innerHTML = `
@@ -698,8 +696,7 @@ document.addEventListener('DOMContentLoaded', () => {
           ${progressHtml}
         `;
 
-        // Генерируем брызги масла с некоторой вероятностью, если продукт жарится или готов (но не обуглен)
-        if (Math.random() < 0.3 && slotData.state !== 'charred') {
+        if (Math.random() < 0.25 && slotData.state !== 'charred') {
           createOilSplash(slotEl);
         }
       } else {
@@ -713,12 +710,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function createOilSplash(parentEl) {
     const splash = document.createElement('div');
     splash.className = 'oil-splash';
-    const dx = (Math.random() - 0.5) * 60;
-    const dy = (Math.random() - 0.5) * 60;
+    const dx = (Math.random() - 0.5) * 70;
+    const dy = (Math.random() - 0.5) * 70;
     splash.style.setProperty('--dx', `${dx}px`);
     splash.style.setProperty('--dy', `${dy}px`);
-    splash.style.left = '50%';
-    splash.style.top = '50%';
     parentEl.appendChild(splash);
     setTimeout(() => splash.remove(), 600);
   }
