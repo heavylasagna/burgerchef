@@ -315,7 +315,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (switchToBoardBtn) switchToBoardBtn.onclick = () => switchScreen('board');
 
   function updateBottomPanelForScreen() {
-    const isSpecialScreen = currentScreen === 'grill' || currentScreen === 'board';
+    const isGrill = currentScreen === 'grill';
+    const isBoard = currentScreen === 'board';
+    const isSpecialScreen = isGrill || isBoard;
+
     if (eatBtn) eatBtn.style.display = isSpecialScreen ? 'none' : 'flex';
     if (squeezeBtn) squeezeBtn.style.display = isSpecialScreen ? 'none' : 'flex';
     if (submitOrderBtn) submitOrderBtn.style.display = isSpecialScreen ? 'none' : (getCurrentSpeed() === 'no-orders' ? 'none' : 'flex');
@@ -1222,10 +1225,10 @@ document.addEventListener('DOMContentLoaded', () => {
           extraHtml = `<div class="flip-badge">Flip!</div>`;
         } else if (slotData.state === 'ready' || slotData.state === 'burning') {
           imgsrc = config.cookedImage;
-          // Индикатор Collect для готового продукта на гриле
           extraHtml = `<div class="flip-badge" style="background:#689f38; color:#fff;">Collect</div>`;
         } else if (slotData.state === 'charred') {
           imgsrc = config.cookedImage;
+          extraHtml = `<div class="flip-badge" style="background:#d32f2f; color:#fff;">Burnt</div>`;
         }
 
         const progressPercent = getSlotProgress(slotData);
@@ -2263,3 +2266,355 @@ document.addEventListener('DOMContentLoaded', () => {
       if ((ingredientStock[sauce.id] ?? 0) <= 0) return;
       ingredientStock[sauce.id]--;
       saveStock();
+    }
+
+    isAddingInProgress = true;
+    playSound(SOUNDS.sauce);
+    currentBurger.push({ ...sauce });
+    checkSpecialCombos();
+    updateBurgerDisplay(true);
+
+    setTimeout(() => {
+      isAddingInProgress = false;
+    }, 150);
+  }
+
+  window.removeLayer = function(index) {
+    if (isEating) return;
+    const removed = currentBurger[index];
+    if (currentGameMode !== 'sandbox' && removed) {
+      ingredientStock[removed.id] = (ingredientStock[removed.id] ?? 0) + 1;
+      saveStock();
+    }
+    playSound(SOUNDS.buttons);
+    currentBurger.splice(index, 1);
+    checkSpecialCombos();
+    updateBurgerDisplay(false);
+  };
+
+  window.moveLayer = function(index, direction) {
+    if (isEating) return;
+    const targetIndex = index + direction;
+    if (targetIndex >= 0 && targetIndex < currentBurger.length) {
+      playSound(SOUNDS.buttons);
+      const temp = currentBurger[index];
+      currentBurger[index] = currentBurger[targetIndex];
+      currentBurger[targetIndex] = temp;
+      checkSpecialCombos();
+      updateBurgerDisplay(false);
+    }
+  };
+
+  if (squeezeBtn) {
+    squeezeBtn.onclick = () => {
+      if (currentBurger.length === 0) {
+        showToast('First you need to create a burger', '', 'warning');
+        return;
+      }
+      if (currentBurger.length <= 1 || isEating) return;
+      playSound(SOUNDS.squeeze);
+      isSqueezed = !isSqueezed;
+      updateBurgerDisplay(false);
+    };
+  }
+
+  if (submitOrderBtn) {
+    submitOrderBtn.onclick = () => {
+      if (currentActiveOrder && currentBurger.length > 0) {
+        checkOrderSubmission();
+      } else {
+        showToast('No active order or burger is empty!', '', 'warning');
+      }
+    };
+  }
+
+  const resetBtn = document.getElementById('resetBtn');
+  if (resetBtn) {
+    resetBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+
+      if (currentScreen === 'grill') {
+        if (isBinSelectMode) {
+          exitBinSelectMode();
+          return;
+        }
+        enterBinSelectMode();
+        return;
+      }
+
+      if (currentBurger.length === 0) {
+        showToast('First you need to create a burger', '', 'warning');
+        return;
+      }
+
+      if (resetClickCount === 0) {
+        resetClickCount = 1;
+        showToast("To bin the burger click the button again", '', 'warning');
+        clearTimeout(resetClickTimeout);
+        resetClickTimeout = setTimeout(() => { resetClickCount = 0; }, 5000);
+      } else {
+        resetClickCount = 0;
+        clearTimeout(resetClickTimeout);
+
+        if (currentGameMode !== 'sandbox' && currentBurger.length > 0) {
+          currentBurger.forEach(item => { ingredientStock[item.id] = (ingredientStock[item.id] ?? 0) + 1; });
+          saveStock();
+        }
+        playSound(SOUNDS.bin);
+        isEating = false; isSqueezed = false;
+        if (burgerStack) burgerStack.classList.remove('eating');
+        currentBurger = [];
+        updateBurgerDisplay(false);
+        showToast('The burger is binned', '', 'success');
+      }
+    };
+  }
+
+  function enterBinSelectMode() {
+    isBinSelectMode = true;
+    selectedGrillIndicesForBin = [];
+    showToast('Select items to bin', '', 'warning');
+    showBinConfirmBar();
+    renderGrill();
+  }
+
+  function exitBinSelectMode() {
+    isBinSelectMode = false;
+    selectedGrillIndicesForBin = [];
+    const bar = document.getElementById('binConfirmBar');
+    if (bar) bar.remove();
+    renderGrill();
+  }
+
+  function toggleGrillSlotSelectionForBin(index) {
+    if (!grillSlots[index]) return;
+    const pos = selectedGrillIndicesForBin.indexOf(index);
+    if (pos > -1) {
+      selectedGrillIndicesForBin.splice(pos, 1);
+    } else {
+      selectedGrillIndicesForBin.push(index);
+    }
+    renderGrill();
+  }
+
+  function showBinConfirmBar() {
+    let bar = document.getElementById('binConfirmBar');
+    if (bar) bar.remove();
+
+    bar = document.createElement('div');
+    bar.id = 'binConfirmBar';
+    bar.className = 'bin-confirm-bar';
+    bar.innerHTML = `
+      <button class="btn-action btn-confirm" title="Confirm" onclick="confirmBinGrillItems()">✔</button>
+      <button class="btn-action btn-cancel" title="Cancel" onclick="exitBinSelectMode()">✖</button>
+    `;
+    document.body.appendChild(bar);
+  }
+
+  window.confirmBinGrillItems = function() {
+    playSound(SOUNDS.bin);
+    selectedGrillIndicesForBin.forEach(idx => {
+      grillSlots[idx] = null;
+    });
+    saveGrillState();
+    exitBinSelectMode();
+    showToast('Items discarded', '', 'success');
+  }
+
+  window.exitBinSelectMode = exitBinSelectMode;
+
+  if (eatBtn) {
+    eatBtn.onclick = () => {
+      if (currentBurger.length === 0) {
+        showToast('First you need to create a burger', '', 'warning');
+        return;
+      }
+      if (isEating) return;
+      playSound(SOUNDS.eating);
+      isEating = true; isSqueezed = false;
+      if (burgerStack) burgerStack.classList.add('eating');
+      setTimeout(() => {
+        currentBurger = [];
+        if (burgerStack) burgerStack.classList.remove('eating');
+        isEating = false;
+        updateBurgerDisplay(false);
+      }, 2000);
+    };
+  }
+
+  function checkOrderSubmission() {
+    const ids = currentBurger.map(i => i.id);
+    if (!currentActiveOrder) return;
+
+    const targetIds = currentActiveOrder.ids;
+    const isCorrect = ids.length === targetIds.length && ids.every((val, idx) => val === targetIds[idx]);
+
+    if (isCorrect) {
+      playSound(SOUNDS.complete);
+      if (currentGameMode !== 'sandbox') {
+        const cost = ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0);
+        let reward = Math.round(cost * 2 * 100) / 100;
+        if (lastOrderReducedReward) {
+          reward = Math.round(reward * (2 / 3) * 100) / 100;
+          lastOrderReducedReward = false;
+        }
+        playerMoney += reward;
+        updateMoneyDisplay(reward, true);
+      }
+      showToast('Order Complete!', `${currentActiveOrder.name} served successfully!`, 'success');
+      
+      if (currentGameMode === 'turbo') {
+        currentTurboTimeLeft = 180;
+        triggerRandomOrder();
+      } else {
+        currentActiveOrder = null;
+        localStorage.removeItem('current_active_order');
+      }
+      updateActionButtonsVisibility();
+      setTimeout(() => { if (eatBtn && eatBtn.style.display !== 'none') eatBtn.click(); else { currentBurger = []; updateBurgerDisplay(false); } }, 600);
+    } else {
+      playSound(SOUNDS.wrongOrder);
+      if (currentGameMode !== 'sandbox') {
+        playerMoney -= 3;
+        updateMoneyDisplay(3, false);
+      }
+      showToast('Wrong order!', '-$3 penalty', 'error');
+    }
+  }
+
+  function checkSpecialCombos() {
+    if (currentBurger.length === 0) return;
+    const ids = currentBurger.map(i => i.id);
+    SECRET_ACHIEVEMENTS.forEach(ach => {
+      if (ids.length === ach.ids.length && ids.every((val, idx) => val === ach.ids[idx])) {
+        unlockAchievement(ach);
+      }
+    });
+    
+    const currentSpeed = getCurrentSpeed();
+    if (currentActiveOrder && currentSpeed === 'no-orders') {
+      const targetIds = currentActiveOrder.ids;
+      if (ids.length === targetIds.length && ids.every((val, idx) => val === targetIds[idx])) {
+        playSound(SOUNDS.complete);
+        if (currentGameMode !== 'sandbox') {
+          const cost = ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0);
+          let reward = Math.round(cost * 2 * 100) / 100;
+          if (lastOrderReducedReward) {
+            reward = Math.round(reward * (2 / 3) * 100) / 100;
+            lastOrderReducedReward = false;
+          }
+          playerMoney += reward;
+          updateMoneyDisplay(reward, true);
+        }
+        showToast('Order Complete!', `${currentActiveOrder.name} served successfully!`, 'success');
+        
+        currentActiveOrder = null;
+        localStorage.removeItem('current_active_order');
+
+        updateActionButtonsVisibility();
+        setTimeout(() => { if (eatBtn && eatBtn.style.display !== 'none') eatBtn.click(); else { currentBurger = []; updateBurgerDisplay(false); } }, 600);
+      }
+    }
+  }
+
+  function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  function updateOrderWidgetsText(orderName, timerText = '') {
+    const w1 = document.getElementById('orderStatusText');
+    if (!w1) return;
+    
+    if (timerText) {
+      w1.innerHTML = `<div>🔔 Order: <span>${orderName}</span></div><div class="order-timer-badge">⏱️ ${timerText}</div>`;
+    } else {
+      w1.innerHTML = `🔔 Order: <span>${orderName}</span>`;
+    }
+  }
+
+  function triggerRandomOrder() {
+    const unlockedSecretNames = SECRET_ACHIEVEMENTS.filter(a => unlockedAchievements[a.id]);
+    const allAvailable = [...REGULAR_RECIPES, ...unlockedSecretNames];
+    const chosen = allAvailable[Math.floor(Math.random() * allAvailable.length)];
+    currentActiveOrder = { name: chosen.name || chosen.title, ids: chosen.ids };
+    
+    if (currentGameMode === 'turbo') {
+      currentTurboTimeLeft = 180;
+    }
+    
+    localStorage.setItem('current_active_order', JSON.stringify(currentActiveOrder));
+    
+    const speed = getCurrentSpeed();
+    if (speed !== 'no-orders' && speed !== 'turbo' && currentGameMode !== 'turbo') {
+      timeUntilNextOrder = getRandomTimeForSpeed(speed);
+      localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+    }
+    
+    playSound(SOUNDS.order);
+    updateActionButtonsVisibility();
+  }
+
+  setInterval(() => {
+    const currentSpeed = getCurrentSpeed();
+    if (currentSpeed === 'no-orders') return;
+
+    if (currentGameMode === 'turbo') {
+      if (!currentActiveOrder) {
+        triggerRandomOrder();
+      } else {
+        if (currentTurboTimeLeft > 0) {
+          currentTurboTimeLeft--;
+          updateOrderWidgetsText(currentActiveOrder.name, formatTime(currentTurboTimeLeft));
+        } else {
+          currentTurboTimeLeft = 180;
+          playSound(SOUNDS.wrongOrder);
+          playerMoney -= 5;
+          updateMoneyDisplay(5, false);
+          showToast('You ran out of time!', '-$5 penalty', 'error');
+          triggerRandomOrder();
+        }
+      }
+      return;
+    }
+
+    if (currentSpeed === 'turbo') {
+      if (!currentActiveOrder) {
+        triggerRandomOrder();
+      } else {
+        updateOrderWidgetsText(currentActiveOrder.name);
+      }
+      return;
+    }
+
+    if (!currentActiveOrder) {
+      if (timeUntilNextOrder > 0) {
+        timeUntilNextOrder--;
+        localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+        const w1 = document.getElementById('orderStatusText');
+        if (w1) w1.innerHTML = `Next order in: <span>${formatTime(timeUntilNextOrder)}</span>`;
+      } else {
+        triggerRandomOrder();
+      }
+    } else {
+      updateOrderWidgetsText(currentActiveOrder.name);
+    }
+  }, 1000);
+
+  if (currentActiveOrder && getCurrentSpeed() !== 'no-orders') {
+    if (currentGameMode === 'turbo') {
+      updateOrderWidgetsText(currentActiveOrder.name, formatTime(currentTurboTimeLeft));
+    } else {
+      updateOrderWidgetsText(currentActiveOrder.name);
+    }
+  }
+
+  switchScreen(currentScreen);
+  renderSauces();
+  renderIngredientsMenu();
+  updateBurgerDisplay(false);
+  updatePinnedWidget();
+  updateMoneyDisplay();
+  updateActionButtonsVisibility();
+});
