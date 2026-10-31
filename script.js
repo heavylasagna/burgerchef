@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('saved_burger_stack', JSON.stringify(currentBurger));
   }
 
-  // Умное позиционирование денег (с учетом ПК и требований для мобильной версии)
+  // Позиционирование денег с идеальным выравниванием по центру относительно кошелька
   function updateMoneyPopupPosition() {
     const container = document.getElementById('moneyPopupContainer');
     const pinnedWidget = document.getElementById('pinnedRecipeWidget');
@@ -162,30 +162,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const isMobile = window.innerWidth <= 900;
     const isPinned = pinnedWidget && pinnedWidget.classList.contains('active');
 
-    if (isMobile) {
-      const walletRect = walletWidget.getBoundingClientRect();
-      container.style.left = `${walletRect.left}px`;
+    // Функция для вычисления центрирования относительно кошелька
+    const updateContainerLeft = (targetEl) => {
+      const targetRect = targetEl.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      // Вычисляем центр кошелька и сдвигаем контейнер уведомления так, чтобы оно было по центру
+      const walletCenterX = targetRect.left + targetRect.width / 2;
+      const newLeft = walletCenterX - containerRect.width / 2;
+      container.style.left = `${Math.max(8, newLeft)}px`;
+    };
 
+    if (isMobile) {
       if (isPinned && rightPanelEl) {
-        // Если рецепт закреплен на телефоне -> над окном со списком ингредиентов
         const rightRect = rightPanelEl.getBoundingClientRect();
         container.style.top = 'unset';
         container.style.bottom = `${window.innerHeight - rightRect.top + 6}px`;
       } else {
-        // Если рецепт не закреплен -> под кошельком
         container.style.bottom = 'unset';
+        const walletRect = walletWidget.getBoundingClientRect();
         container.style.top = `${walletRect.bottom + 6}px`;
       }
+      updateContainerLeft(walletWidget);
     } else {
       // ПК версия
       container.style.bottom = 'unset';
-      container.style.left = '240px';
       if (isPinned) {
         const rect = pinnedWidget.getBoundingClientRect();
         container.style.top = `${rect.bottom + 6}px`;
       } else {
         container.style.top = '52px';
       }
+      updateContainerLeft(walletWidget);
     }
   }
 
@@ -197,13 +204,11 @@ document.addEventListener('DOMContentLoaded', () => {
       container.className = 'money-popup-container';
       document.body.appendChild(container);
     }
-    updateMoneyPopupPosition();
 
     const popup = document.createElement('div');
     popup.className = `money-popup ${isPlus ? 'plus' : 'minus'}`;
     popup.innerText = `${isPlus ? '+' : '-'}$${Math.abs(amount).toFixed(2)}`;
     
-    // Плавное закрытие по клику/тапу
     let isRemoved = false;
     const removePopup = () => {
       if (isRemoved) return;
@@ -215,6 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
     popup.onclick = removePopup;
 
     container.appendChild(popup);
+    updateMoneyPopupPosition(); // обновляем позицию после рендеринга текста для идеального центрирования
     setTimeout(removePopup, 2500);
   }
 
@@ -254,8 +260,19 @@ document.addEventListener('DOMContentLoaded', () => {
       <h4 style="font-size:0.85rem; margin:0; font-weight:700;">${title}</h4>
       ${desc ? `<p style="font-size:0.75rem; opacity:0.85; margin:0;">${desc}</p>` : ''}
     `;
+
+    let isRemoved = false;
+    const removeToast = () => {
+      if (isRemoved) return;
+      isRemoved = true;
+      toast.classList.add('hiding');
+      setTimeout(() => toast.remove(), 300);
+    };
+
+    toast.onclick = removeToast;
+
     container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3500);
+    setTimeout(removeToast, 3500);
   }
 
   const INGREDIENTS = [
