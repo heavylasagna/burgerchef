@@ -1318,7 +1318,7 @@ input[type="range"]::-webkit-slider-thumb {
     z-index: 1000;
     overflow-x: auto;
     white-space: nowrap;
-    gap: 16px; /* Широкое расстояние между группами */
+    gap: 20px; /* Широкое расстояние между группами */
     width: 100%;
   }
   
@@ -1335,7 +1335,7 @@ input[type="range"]::-webkit-slider-thumb {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    gap: 16px; /* Широкое расстояние между блоками действий */
+    gap: 20px; /* Широкое расстояние между блоками действий */
     flex-shrink: 0;
   }
 
