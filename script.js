@@ -2712,109 +2712,67 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- ПОЛНЫЙ ТУТОРИАЛ (с исправленным позиционированием и блокировкой скролла) ---
+  // --- ПОШАГОВЫЙ ТУТОРИАЛ В МОДАЛЬНОМ ОКНЕ ---
   const tutorialSteps = [
     {
       title: "Assembly Screen",
-      text: "This is your main workplace where you build custom burgers.",
-      screen: "assembly",
-      getElement: () => document.getElementById('centerStage') || document.querySelector('.center-stage')
+      text: "This is your main workplace where you build custom burgers."
     },
     {
       title: "Ingredients Menu",
-      text: "Here you can select and add various ingredients (buns, patties, veggies) to your burger stack.",
-      screen: "assembly",
-      getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
+      text: "Here you can select and add various ingredients (buns, patties, veggies) to your burger stack."
     },
     {
       title: "Layers Panel",
-      text: "Here you can see all current layers of your burger, reorder them, or remove individual items.",
-      screen: "assembly",
-      getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
+      text: "Here you can see all current layers of your burger, reorder them, or remove individual items."
     },
     {
       title: "Wallet",
-      text: "Shows your current money balance. Earn cash by fulfilling customer orders correctly!",
-      screen: "assembly",
-      getElement: () => document.getElementById('walletWidget') || document.querySelector('.wallet-widget')
+      text: "Shows your current money balance. Earn cash by fulfilling customer orders correctly!"
     },
     {
       title: "Bottom Actions Menu",
-      text: "Quick buttons for recipes, shop, inventory backpack, achievements, eating, squishing, or trashing the burger.",
-      screen: "assembly",
-      getElement: () => document.getElementById('bottomPanel') || document.querySelector('.bottom-panel')
+      text: "Quick buttons for recipes, shop, inventory backpack, achievements, eating, squishing, or trashing the burger."
     },
     {
       title: "Switch to Grill",
-      text: "Click this button to switch to the Grill screen and cook raw ingredients.",
-      screen: "assembly",
-      getElement: () => document.getElementById('switchToGrillBtn')
+      text: "Click the flame button to switch to the Grill screen and cook raw ingredients."
     },
     {
       title: "Grill Screen",
-      text: "Here you can grill raw patties, bacon, eggs, and mushrooms.",
-      screen: "grill",
-      getElement: () => document.getElementById('grillStage')
+      text: "Here you can grill raw patties, bacon, eggs, and mushrooms."
     },
     {
       title: "Raw Ingredients Menu",
-      text: "On the right panel, select raw items from your stock to place them onto the grill slots.",
-      screen: "grill",
-      getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
+      text: "On the right panel, select raw items from your stock to place them onto the grill slots."
     },
     {
       title: "Cooked Inventory",
-      text: "On the left panel, you can view your inventory of successfully cooked ingredients ready to use.",
-      screen: "grill",
-      getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
+      text: "On the left panel, you can view your inventory of successfully cooked ingredients ready to use."
     },
     {
       title: "Switch to Cutting Board",
-      text: "Click this button to switch to the Cutting Board screen.",
-      screen: "assembly",
-      getElement: () => document.getElementById('switchToBoardBtn')
+      text: "Click the knife button to switch to the Cutting Board screen."
     },
     {
       title: "Cutting Board Screen",
-      text: "Here you can chop and slice uncut vegetables and cheeses before using them.",
-      screen: "board",
-      getElement: () => document.getElementById('boardStage')
+      text: "Here you can chop and slice uncut vegetables and cheeses before using them."
     },
     {
       title: "Uncut Ingredients",
-      text: "Select uncut items on the right panel to place them onto the board and chop them into pieces.",
-      screen: "board",
-      getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
+      text: "Select uncut items on the right panel to place them onto the board and chop them into pieces."
     },
     {
       title: "Sliced Inventory",
-      text: "The left panel displays your stock of freshly sliced ingredients ready for your culinary creations.",
-      screen: "board",
-      getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
+      text: "The left panel displays your stock of freshly sliced ingredients ready for your culinary creations."
     },
     {
       title: "Settings & Game Modes",
-      text: "Let's head back to Assembly. Open Settings to configure volume, themes, game modes (Sandbox, Casual, Turbo), and order frequencies.",
-      screen: "assembly",
-      action: () => {
-        const modal = document.getElementById('settingsModal');
-        if (modal) modal.classList.add('open');
-      },
-      getElement: () => document.getElementById('settingsModal') ? document.getElementById('settingsModal').querySelector('.modal-content') : document.body
+      text: "Open Settings to configure volume, themes, game modes (Sandbox, Casual, Turbo), and order frequencies."
     },
     {
       title: "Reset & Tutorial",
-      text: "Here you can restart this tutorial anytime and access the Danger Zone to wipe data or achievements.",
-      screen: "assembly",
-      action: () => {
-        const modal = document.getElementById('settingsModal');
-        if (modal && !modal.classList.contains('open')) modal.classList.add('open');
-        const finalSec = document.getElementById('tutorialFinalSection');
-        if (finalSec) {
-          finalSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      },
-      getElement: () => document.getElementById('tutorialFinalSection')
+      text: "Here you can restart this tutorial anytime and access the Danger Zone to wipe data or achievements."
     }
   ];
 
@@ -2831,14 +2789,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const welcomeModal = document.getElementById('welcomeModal');
   const welcomeNoBtn = document.getElementById('welcomeNoBtn');
   const welcomeYesBtn = document.getElementById('welcomeYesBtn');
-  const tutorialOverlay = document.getElementById('tutorialOverlay');
-  const tutorialSpotlight = document.getElementById('tutorialSpotlight');
-  const tutorialTooltip = document.getElementById('tutorialTooltip');
-  const tutorialTitle = document.getElementById('tutorialTitle');
-  const tutorialText = document.getElementById('tutorialText');
-  const tutorialStepIndicator = document.getElementById('tutorialStepIndicator');
-  const tutorialPrevBtn = document.getElementById('tutorialPrevBtn');
-  const tutorialNextBtn = document.getElementById('tutorialNextBtn');
+  
+  const tutorialModal = document.getElementById('tutorialModal');
+  const tutorialModalTitle = document.getElementById('tutorialModalTitle');
+  const tutorialModalText = document.getElementById('tutorialModalText');
+  const tutorialModalStepIndicator = document.getElementById('tutorialModalStepIndicator');
+  const tutorialModalPrevBtn = document.getElementById('tutorialModalPrevBtn');
+  const tutorialModalNextBtn = document.getElementById('tutorialModalNextBtn');
+  const closeTutorialModalBtn = document.getElementById('closeTutorialModalBtn');
   const openTutorialFromSettingsBtn = document.getElementById('openTutorialFromSettingsBtn');
 
   if (welcomeNoBtn) {
@@ -2866,10 +2824,16 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
+  if (closeTutorialModalBtn) {
+    closeTutorialModalBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      endTutorial();
+    };
+  }
+
   function startTutorial() {
     currentTutorialStep = 0;
-    document.body.classList.add('tutorial-active');
-    if (tutorialOverlay) tutorialOverlay.classList.add('active');
+    if (tutorialModal) tutorialModal.classList.add('open');
     showTutorialStep(currentTutorialStep);
   }
 
@@ -2880,63 +2844,15 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    if (step.screen && currentScreen !== step.screen) {
-      switchScreen(step.screen);
-    }
-
-    if (step.action) {
-      step.action();
-    } else {
-      const settingsModalEl = document.getElementById('settingsModal');
-      if (settingsModalEl && stepIndex < tutorialSteps.length - 1) {
-        settingsModalEl.classList.remove('open');
-      }
-    }
-
-    if (tutorialTitle) tutorialTitle.innerText = step.title;
-    if (tutorialText) tutorialText.innerText = step.text;
-    if (tutorialStepIndicator) tutorialStepIndicator.innerText = `${stepIndex + 1} / ${tutorialSteps.length}`;
-    if (tutorialPrevBtn) tutorialPrevBtn.style.display = stepIndex === 0 ? 'none' : 'block';
-    if (tutorialNextBtn) tutorialNextBtn.innerText = stepIndex === tutorialSteps.length - 1 ? 'Finish' : 'Next';
-
-    // Даем время DOM и анимациям завершиться, затем с двойным таймером точно рассчитываем геометрию
-    setTimeout(() => {
-      setTimeout(() => {
-        const targetEl = step.getElement ? step.getElement() : null;
-        if (targetEl) {
-          targetEl.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' });
-        }
-
-        if (targetEl && tutorialSpotlight && tutorialTooltip) {
-          const rect = targetEl.getBoundingClientRect();
-          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-          const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-          const padding = 12;
-
-          tutorialSpotlight.style.top = `${rect.top + scrollTop - padding}px`;
-          tutorialSpotlight.style.left = `${rect.left + scrollLeft - padding}px`;
-          tutorialSpotlight.style.width = `${rect.width + padding * 2}px`;
-          tutorialSpotlight.style.height = `${rect.height + padding * 2}px`;
-
-          const tooltipWidth = 310;
-          let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2 + scrollLeft;
-          let tooltipTop = rect.bottom + scrollTop + 16;
-
-          if (tooltipLeft < 10) tooltipLeft = 10;
-          if (tooltipLeft + tooltipWidth > window.innerWidth - 10) tooltipLeft = window.innerWidth - tooltipWidth - 10;
-          if (tooltipTop + 190 > window.innerHeight + scrollTop) {
-            tooltipTop = rect.top + scrollTop - 190;
-          }
-
-          tutorialTooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
-          tutorialTooltip.style.top = `${Math.max(10, tooltipTop)}px`;
-        }
-      }, 50);
-    }, 100);
+    if (tutorialModalTitle) tutorialModalTitle.innerText = step.title;
+    if (tutorialModalText) tutorialModalText.innerText = step.text;
+    if (tutorialModalStepIndicator) tutorialModalStepIndicator.innerText = `${stepIndex + 1} / ${tutorialSteps.length}`;
+    if (tutorialModalPrevBtn) tutorialModalPrevBtn.style.display = stepIndex === 0 ? 'none' : 'block';
+    if (tutorialModalNextBtn) tutorialModalNextBtn.innerText = stepIndex === tutorialSteps.length - 1 ? 'Finish' : 'Next';
   }
 
-  if (tutorialNextBtn) {
-    tutorialNextBtn.onclick = () => {
+  if (tutorialModalNextBtn) {
+    tutorialModalNextBtn.onclick = () => {
       playSound(SOUNDS.buttons);
       if (currentTutorialStep < tutorialSteps.length - 1) {
         currentTutorialStep++;
@@ -2947,8 +2863,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  if (tutorialPrevBtn) {
-    tutorialPrevBtn.onclick = () => {
+  if (tutorialModalPrevBtn) {
+    tutorialModalPrevBtn.onclick = () => {
       playSound(SOUNDS.buttons);
       if (currentTutorialStep > 0) {
         currentTutorialStep--;
@@ -2958,10 +2874,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function endTutorial() {
-    document.body.classList.remove('tutorial-active');
-    if (tutorialOverlay) tutorialOverlay.classList.remove('active');
-    const settingsModalEl = document.getElementById('settingsModal');
-    if (settingsModalEl) settingsModalEl.classList.remove('open');
+    if (tutorialModal) tutorialModal.classList.remove('open');
   }
 
   showWelcomeModalIfNeeded();
