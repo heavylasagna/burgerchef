@@ -257,11 +257,11 @@ body {
 .wallet-widget.dimmed { opacity: 0.25 !important; }
 #walletBadge { color: #81c784; font-weight: bold; }
 
-/* Окошко денег без фона, только рамка и цифры */
+/* Позиционирование всплывающих сумм денег (по умолчанию под кошельком на ПК и мобилках) */
 .money-popup-container {
   position: absolute;
-  top: 10px;
-  left: 335px;
+  top: 52px;
+  left: 240px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -269,12 +269,17 @@ body {
   pointer-events: none;
 }
 
+/* Если рецепт закреплен, сдвигаем уведомления о деньгах под рецепт */
+.pinned-recipe-widget.active ~ .money-popup-container {
+  top: 125px !important;
+}
+
 .money-popup {
   font-size: 0.8rem;
   font-weight: bold;
   padding: 3px 8px;
   border-radius: 6px;
-  background: transparent; /* Убран фон */
+  background: transparent;
   backdrop-filter: blur(2px);
   animation: moneyPopupAnim 2.5s forwards ease-in-out;
   box-shadow: 0 3px 10px rgba(0,0,0,0.15);
@@ -366,7 +371,7 @@ body {
 .top-order-widget span { color: var(--accent-color); font-weight: bold; }
 .order-timer-badge { color: #e57373; font-weight: bold; font-family: monospace; display: block; margin-top: 2px; }
 
-/* Оповещения смещены ниже, чтобы не перекрывать таймер */
+/* Оповещения */
 .toast-container {
   position: absolute;
   top: 68px; 
@@ -956,15 +961,10 @@ input[type="range"]::-webkit-slider-thumb {
     margin-bottom: 0 !important;
   }
 
-  /* На мобильных позиционируем контейнер поп-апа денег под кошельком или рецептом */
   .money-popup-container {
     position: absolute !important;
     top: 52px !important;
     left: 10px !important;
-  }
-  .pinned-recipe-widget.active ~ .money-popup-container,
-  body:has(.pinned-recipe-widget.active) .money-popup-container {
-    top: 125px !important;
   }
 
   .toggle-ui-btn {
@@ -988,12 +988,4 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .wallet-widget,
   body.ui-hidden .pinned-recipe-widget { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
-}
-@media (min-width: 901px) {
-  .sauces-group.mobile-sauces { display: none !important; }
-  .money-popup-container {
-    position: absolute;
-    top: 10px;
-    left: 335px;
-  }
 }
