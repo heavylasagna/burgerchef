@@ -1308,7 +1308,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .btn-pin.pinned { background: #689f38; }
 
-/* --- Стили для Туториала --- */
+/* --- Стили для Туториала (ПК) --- */
 .tutorial-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -1551,4 +1551,36 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .pinned-recipe-widget,
   body.ui-hidden .screen-switcher { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
+}
+
+/* --- Стили для адаптивного туториала (модальное окно на телефонах) --- */
+@media (max-width: 900px) {
+  .tutorial-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 4000;
+    align-items: center;
+    justify-content: center;
+  }
+  .tutorial-overlay.active {
+    display: flex !important;
+  }
+  .tutorial-spotlight {
+    display: none !important;
+  }
+  .tutorial-tooltip {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    width: 90% !important;
+    max-width: 380px !important;
+    background: var(--modal-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 16px !important;
+    padding: 20px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+  }
 }
