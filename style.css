@@ -88,7 +88,6 @@ body {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  position: relative;
   transition: opacity 0.3s ease, background 0.3s ease, border-color 0.3s ease;
 }
 .panel.dimmed { opacity: 0.25; }
@@ -182,7 +181,6 @@ body {
   overflow-y: auto; 
   overflow-x: hidden;
   height: 100%;
-  width: 100%;
 }
 
 .burger-wrapper {
@@ -203,6 +201,24 @@ body {
   transition: transform 0.4s ease, opacity 0.4s ease;
 }
 
+.burger-stack.capturing-png {
+  padding: 10px 20px;
+  display: inline-flex;
+  width: max-content;
+}
+
+.burger-stack.eating {
+  animation: eatAnimation 2s forwards ease-in-out;
+}
+
+@keyframes eatAnimation {
+  0% { transform: scale(1) rotate(0deg); opacity: 1; }
+  25% { transform: scale(0.75) rotate(-5deg); }
+  50% { transform: scale(0.5) rotate(5deg); }
+  75% { transform: scale(0.25) rotate(-3deg); }
+  100% { transform: scale(0) rotate(0deg); opacity: 0; }
+}
+
 .burger-layer-img {
   display: block;
   width: auto;
@@ -210,6 +226,19 @@ body {
   max-width: 150px;
   position: relative;
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.burger-layer-img.squeezed {
+  transform: translateY(var(--sq-offset, 8px)) scaleY(0.82) scaleX(1.04);
+}
+
+.burger-layer-img.new-layer {
+  animation: smoothDropIn 0.35s ease-out forwards;
+}
+
+@keyframes smoothDropIn {
+  0% { opacity: 0; transform: translateY(-20px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 .limit-warning {
@@ -246,12 +275,16 @@ body {
   align-items: center;
   gap: 6px;
   cursor: pointer;
+  transition: opacity 0.3s ease, background 0.3s ease, color 0.3s ease;
 }
+.wallet-widget.hidden { display: none !important; }
+.wallet-widget.dimmed { opacity: 0.25 !important; }
 #walletBadge { font-weight: bold; }
 #walletBadge.positive { color: #81c784 !important; }
 #walletBadge.zero { color: rgba(255, 255, 255, 0.6) !important; }
 #walletBadge.negative { color: #e57373 !important; }
 
+/* Контейнер всплывающих денег */
 .money-popup-container {
   position: absolute;
   top: 52px;
@@ -260,8 +293,47 @@ body {
   flex-direction: column;
   gap: 4px;
   z-index: 200;
+  transition: all 0.2s ease;
 }
 
+.money-popup {
+  font-size: 0.8rem;
+  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: var(--modal-bg);
+  backdrop-filter: blur(4px);
+  animation: moneyPopupAnim 2.5s forwards ease-in-out;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+  cursor: pointer;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  width: max-content;
+  text-align: center;
+}
+
+.money-popup.hiding {
+  opacity: 0 !important;
+  transform: scale(0.8) translateY(-10px);
+}
+
+.money-popup.plus {
+  color: #81c784;
+  border: 1px solid #81c784;
+}
+
+.money-popup.minus {
+  color: #e57373;
+  border: 1px solid #e57373;
+}
+
+@keyframes moneyPopupAnim {
+  0% { opacity: 0; transform: translateY(5px) scale(0.9); }
+  15% { opacity: 1; transform: translateY(0) scale(1); }
+  75% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-15px) scale(0.95); }
+}
+
+/* Закрепленный рецепт */
 .pinned-recipe-widget {
   position: absolute;
   top: 52px;
@@ -274,9 +346,34 @@ body {
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   z-index: 50;
   display: none;
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
   width: max-content;
 }
+.pinned-recipe-widget.active { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.pinned-header {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 2px;
+}
+.pinned-recipe-widget .unpin-btn { background: none; border: none; cursor: pointer; font-size: 0.75rem; color: var(--text-color); padding: 0 2px; }
+.pinned-ingredients { 
+  display: flex; 
+  flex-direction: column-reverse; 
+  gap: 0px; 
+  align-items: center; 
+}
+.pinned-ingredients img { 
+  width: 48px; 
+  height: 48px; 
+  object-fit: contain; 
+  margin-bottom: -12px; 
+}
+.pinned-ingredients img:first-child {
+  margin-bottom: 0;
+}
 
+/* Виджет заказа / таймера */
 .top-order-widget {
   position: absolute;
   top: 10px;
@@ -295,9 +392,17 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
+  width: max-content;
+  max-width: 90%;
+  cursor: pointer;
+  transition: opacity 0.3s ease, background 0.3s ease, color 0.3s ease;
 }
+.top-order-widget.hidden { display: none !important; }
+.top-order-widget.dimmed { opacity: 0.25 !important; }
 .top-order-widget span { color: var(--accent-color); font-weight: bold; }
+.order-timer-badge { color: #e57373; font-weight: bold; font-family: monospace; display: block; margin-top: 2px; }
 
+/* Оповещения (Toast) */
 .toast-container {
   position: absolute;
   top: 68px; 
@@ -310,6 +415,38 @@ body {
   width: 380px;
   max-width: 90vw;
   align-items: center;
+}
+.toast-message {
+  background: var(--modal-bg);
+  color: var(--text-color);
+  padding: 8px 14px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: center;
+  font-size: 0.8rem;
+  animation: toastAnim 3.5s forwards ease-in-out;
+  border-width: 2px;
+  border-style: solid;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.toast-message.hiding {
+  opacity: 0 !important;
+  transform: scale(0.8) translateY(-10px);
+}
+.toast-message.success { border-color: #81c784; }
+.toast-message.warning { border-color: #ffb300; }
+.toast-message.error { border-color: #e57373; }
+
+@keyframes toastAnim {
+  0% { opacity: 0; transform: translateY(-10px) scale(0.95); }
+  15% { opacity: 1; transform: translateY(0) scale(1); }
+  85% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-10px) scale(0.95); }
 }
 
 .right-panel {
@@ -325,7 +462,6 @@ body {
   flex: 1;
   padding-right: 2px;
   align-items: center;
-  max-height: 100%;
 }
 
 .ingredient-card {
@@ -339,12 +475,12 @@ body {
   width: 100%;
   cursor: pointer;
   transition: all 0.2s;
-  flex-shrink: 0;
 }
 
 .ingredient-card:hover:not(.disabled) {
   background: var(--modal-bg);
   border-color: var(--accent-color);
+  transform: translateY(-1px);
 }
 
 .ingredient-card.disabled { opacity: 0.4; cursor: not-allowed; }
@@ -374,6 +510,7 @@ body {
   padding: 2px 6px;
   border-radius: 6px;
   color: var(--accent-color);
+  opacity: 0.85;
 }
 
 .bottom-panel {
@@ -389,7 +526,9 @@ body {
   box-shadow: 0 8px 20px rgba(0,0,0,0.2);
   border: 1px solid var(--border-color);
   z-index: 100;
+  transition: opacity 0.3s ease, background 0.3s ease;
 }
+.bottom-panel.dimmed { opacity: 0.25; }
 
 .sauces-group {
   display: flex;
@@ -397,7 +536,6 @@ body {
   gap: 6px;
   overflow-x: auto;
 }
-.sauces-group.hidden-on-grill { display: none !important; }
 
 .sauce-chip {
   background: var(--item-bg);
@@ -409,21 +547,24 @@ body {
   color: var(--text-color);
   cursor: pointer;
   white-space: nowrap;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
+.sauce-chip.disabled { opacity: 0.4; cursor: not-allowed; }
 
 .actions-wrapper {
   display: flex;
   align-items: center;
   gap: 20px;
   margin-left: auto;
-  width: 100%;
-  justify-content: flex-end;
 }
 
 .action-box {
   display: flex;
   align-items: center;
   gap: 6px;
+  background: transparent;
+  border: none;
+  padding: 0;
 }
 
 .btn-action {
@@ -439,29 +580,33 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
   white-space: nowrap;
 }
+
 .btn-action:hover {
   background: var(--modal-bg);
   border-color: var(--accent-color);
+  transform: translateY(-1px);
 }
 
 .btn-outline-danger {
   background: transparent;
-  border: 1.5px solid #d32f2f;
+  border: 2px solid #d32f2f;
   color: #d32f2f;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 0.85rem;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.75rem;
   cursor: pointer;
-  width: 100%;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
 }
 .btn-outline-danger:hover {
   background: rgba(211, 47, 47, 0.2);
 }
 
+/* Переключатель экранов */
 .screen-switcher {
   position: absolute;
   top: 10px;
@@ -470,32 +615,36 @@ body {
   gap: 6px;
   z-index: 1000;
 }
-.screen-switcher .btn-action.active { display: none !important; }
 
 /* Экран гриля */
 .grill-stage {
-  background: radial-gradient(circle at 50% 30%, #2a2a2a, #141414);
-  border-radius: 16px;
-  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  padding: 12px;
+  background: radial-gradient(circle at 50% 30%, #2a2a2a, #121212);
+  height: 100%;
 }
 
 .grill-cooking-area {
   flex: 1;
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 16px;
   align-items: center;
   justify-content: center;
   position: relative;
-  width: 100%;
-  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  padding: 20px;
 }
 
 .grill-slot {
-  width: 130px;
-  height: 130px;
-  background: rgba(20, 15, 12, 0.6);
-  border: 2px solid transparent;
+  width: 120px;
+  height: 120px;
+  background: var(--item-bg);
+  border: 2px dashed var(--border-color);
   border-radius: 16px;
   display: flex;
   flex-direction: column;
@@ -506,19 +655,9 @@ body {
   transition: all 0.2s;
 }
 
-.grill-slot.bin-mode {
-  border: 2px dashed var(--border-color);
-}
-
-.grill-slot.selected-for-bin {
-  border-color: #d32f2f !important;
-  box-shadow: 0 0 14px rgba(211, 47, 47, 0.7);
-  background: rgba(211, 47, 47, 0.15);
-}
-
 .grill-item {
-  width: 80px;
-  height: 80px;
+  width: 75px;
+  height: 75px;
   object-fit: contain;
   animation: grillWobble 1.5s infinite ease-in-out;
   position: relative;
@@ -526,20 +665,20 @@ body {
 }
 
 .grill-item.flipped { transform: scaleX(-1); }
-.grill-item.charred { filter: grayscale(100%) brightness(0.25); animation: none; }
+.grill-item.charred { filter: grayscale(100%) brightness(0.2); }
 
 @keyframes grillWobble {
   0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-3px) rotate(1deg); }
+  50% { transform: translateY(-4px) rotate(1.5deg); }
 }
 
 .oil-splash {
   position: absolute;
-  width: 5px;
-  height: 5px;
-  background: rgba(255, 215, 0, 0.8);
+  width: 6px;
+  height: 6px;
+  background: rgba(255, 215, 0, 0.75);
   border-radius: 50%;
-  animation: splashAnim 0.6s forwards linear;
+  animation: splashAnim 0.7s forwards linear;
   pointer-events: none;
   z-index: 1;
 }
@@ -551,10 +690,10 @@ body {
 
 .grill-progress-container {
   position: absolute;
-  bottom: 8px;
+  bottom: 10px;
   left: 10px;
   right: 10px;
-  height: 7px;
+  height: 8px;
   background: rgba(0,0,0,0.6);
   border-radius: 4px;
   overflow: hidden;
@@ -565,52 +704,21 @@ body {
   height: 100%;
   width: 0%;
   background: #ffb300;
-  transition: width 0.2s linear, background-color 0.3s;
+  transition: width 0.1s linear, background-color 0.3s;
 }
-
-.grill-progress-bar.ready { background: #81c784; }
-.grill-progress-bar.burning { background: #d32f2f; }
 
 .flip-badge {
   position: absolute;
-  top: -10px;
+  top: -8px;
+  right: -8px;
   background: #ffb300;
   color: #000;
-  font-size: 0.7rem;
-  font-weight: 800;
-  padding: 3px 8px;
+  font-size: 0.65rem;
+  font-weight: bold;
+  padding: 3px 7px;
   border-radius: 10px;
   z-index: 10;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-}
-
-.bin-confirm-container {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  display: flex;
-  gap: 8px;
-  z-index: 100;
-}
-
-.btn-bin-confirm {
-  background: #2e7d32 !important;
-  color: #fff !important;
-  border: none !important;
-  width: 38px;
-  height: 38px;
-  font-size: 1.1rem !important;
-  border-radius: 10px !important;
-}
-
-.btn-bin-cancel {
-  background: #c62828 !important;
-  color: #fff !important;
-  border: none !important;
-  width: 38px;
-  height: 38px;
-  font-size: 1.1rem !important;
-  border-radius: 10px !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
 .modal-overlay {
@@ -652,7 +760,7 @@ body {
   border-bottom: 2px solid var(--border-color);
   padding-bottom: 8px;
 }
-
+.modal-header h3 { color: var(--text-color); font-size: 1rem; display: flex; align-items: center; gap: 10px; }
 .close-modal { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--text-color); }
 
 .recipe-tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
@@ -728,6 +836,16 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .speed-btn.active { background: var(--accent-color); color: #fff; border-color: var(--accent-color); }
 
+.recipe-card, .achievement-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--item-bg);
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--item-border);
+}
+
 .mobile-top-bar { display: none; }
 .toggle-ui-btn { display: none; }
 .desktop-sauces { display: flex; }
@@ -744,56 +862,10 @@ input[type="range"]::-webkit-slider-thumb {
     gap: 8px;
     padding-bottom: 75px;
   }
-  .center-stage { order: 1; min-height: 320px; padding-bottom: 10px; }
-  .right-panel, .grill-sidebar {
-    order: 2;
-    height: 120px !important;
-    width: 100%;
-  }
-  .ingredients-menu {
-    flex-direction: row;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    height: 100%;
-  }
-  .ingredient-card {
-    min-width: 100px;
-    height: 60px;
-    padding: 4px 8px;
-    flex-direction: row;
-    justify-content: space-between;
-  }
-  .screen-switcher {
-    position: static !important;
-    order: 0;
-    margin-bottom: 4px;
-    justify-content: center;
-  }
-  .left-panel { order: 3; height: 140px; }
-  .bottom-panel {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    padding: 8px 12px;
-    border-radius: 12px 12px 0 0;
-    z-index: 1000;
-  }
-  .actions-wrapper {
-    margin-left: 0;
-    justify-content: space-between;
-    width: 100%;
-    gap: 8px;
-  }
-  .action-box {
-    flex: 1;
-    justify-content: space-between;
-  }
-  .btn-action {
-    flex: 1;
-    padding: 0;
-  }
-  .bin-confirm-container {
-    top: -45px;
-    bottom: auto;
-    left: 10px;
-  }
+  .center-stage { order: 1; min-height: 350px; padding-bottom: 10px; }
+  .right-panel { order: 2; height: 115px; }
+  .ingredients-menu { flex-direction: row; overflow-x: auto; overflow-y: hidden; }
+  .ingredient-card { min-width: 95px; height: 55px; padding: 2px 6px; flex-direction: row; }
+  .left-panel { order: 4; height: 150px; }
+  .bottom-panel { position: fixed; bottom: 0; left: 0; right: 0; padding: 8px 12px; z-index: 1000; }
 }
