@@ -408,7 +408,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(removeToast, 3500);
   }
 
-  // Заменён порядок булочек: Top Bun идет первой, Bottom Bun второй
   const INGREDIENTS = [
     { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
     { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
@@ -959,7 +958,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const forceOrderBtn = document.getElementById('forceOrderBtn');
   const skipOrderBtn = document.getElementById('skipOrderBtn');
 
-  // Порядок булочек в магазине также изменен (Top Bun первой)
   const SHOP_ITEMS = [
     { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
     { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
@@ -1271,17 +1269,17 @@ document.addEventListener('DOMContentLoaded', () => {
     { name: 'Chicken Burger', category: 'chicken', ids: ['bottom-bun', 'chicken-patty', 'mayo', 'pickles', 'top-bun'] },
     { name: 'Double Burger', category: 'beef', ids: ['bottom-bun', 'beef-patty', 'cheese', 'beef-patty', 'ketchup', 'top-bun'] },
     { name: 'Chicken Delux', category: 'chicken', ids: ['bottom-bun', 'mayo', 'chicken-patty', 'cheese', 'tomato', 'lettuce', 'pickles', 'top-bun'] },
-    { name: 'Stinky Burger', category: 'weird', ids: ['bottom-bun', 'mustard', 'chicken-patty', 'white-onion', 'cheese', 'red-onion', 'mustard', 'top-bun'] },
+    { name: 'Stinky Burger', category: 'secret', ids: ['bottom-bun', 'mustard', 'chicken-patty', 'white-onion', 'cheese', 'red-onion', 'mustard', 'top-bun'] },
     { name: 'Fish Burger', category: 'fish', ids: ['bottom-bun', 'fish-patty', 'mayo', 'pickles', 'lettuce', 'top-bun'] }
   ];
 
   const SECRET_ACHIEVEMENTS = [
-    { id: 'cheeseburgerAch', title: 'Cheezeburger', category: 'weird', desc: 'Ideal Roblox burger', sound: 'cheeseburger', ids: ['bottom-bun', 'beef-patty', 'cheese', 'top-bun'] },
-    { id: 'tomatonatorAch', title: 'Tomatonator', category: 'weird', desc: 'If you don\'t like tomatoes why you even eat burgers?', sound: 'tomatonator', ids: ['bottom-bun', 'beef-patty', 'cheese', 'tomato', 'tomato', 'tomato', 'top-bun'] },
+    { id: 'cheeseburgerAch', title: 'Cheezeburger', category: 'secret', desc: 'Ideal Roblox burger', sound: 'cheeseburger', ids: ['bottom-bun', 'beef-patty', 'cheese', 'top-bun'] },
+    { id: 'tomatonatorAch', title: 'Tomatonator', category: 'secret', desc: 'If you don\'t like tomatoes why you even eat burgers?', sound: 'tomatonator', ids: ['bottom-bun', 'beef-patty', 'cheese', 'tomato', 'tomato', 'tomato', 'top-bun'] },
     { id: 'lilypadAch', title: 'Lilypad', category: 'vegetarian', desc: 'Straight from the swamp', sound: 'lilypad', ids: ['bottom-bun', 'beef-patty', 'cheese', 'lettuce', 'lettuce', 'top-bun'] },
-    { id: 'saturnBurgerAch', title: 'Saturn Burger', category: 'weird', desc: 'Saturn has the most moons of any planet in the solar system.', sound: 'saturnBurger', ids: ['bottom-bun', 'beef-patty', 'white-onion', 'top-bun'] },
-    { id: 'bustanatorAch', title: 'Bustanator', category: 'weird', desc: 'I know you like this one', sound: 'bustanator', ids: ['bottom-bun', 'beef-patty', 'mayo', 'mayo', 'mayo', 'top-bun'] },
-    { id: 'mcPicklePounderAch', title: 'McPickle Pounder', category: 'weird', desc: 'You\'re probably the kind of people who would eat a pickle tiramisu', sound: 'mcPicklePounder', ids: ['bottom-bun', 'beef-patty', 'cheese', 'pickles', 'pickles', 'pickles', 'top-bun'] }
+    { id: 'saturnBurgerAch', title: 'Saturn Burger', category: 'secret', desc: 'Saturn has the most moons of any planet in the solar system.', sound: 'saturnBurger', ids: ['bottom-bun', 'beef-patty', 'white-onion', 'top-bun'] },
+    { id: 'bustanatorAch', title: 'Bustanator', category: 'secret', desc: 'I know you like this one', sound: 'bustanator', ids: ['bottom-bun', 'beef-patty', 'mayo', 'mayo', 'mayo', 'top-bun'] },
+    { id: 'mcPicklePounderAch', title: 'McPickle Pounder', category: 'secret', desc: 'You\'re probably the kind of people who would eat a pickle tiramisu', sound: 'mcPicklePounder', ids: ['bottom-bun', 'beef-patty', 'cheese', 'pickles', 'pickles', 'pickles', 'top-bun'] }
   ];
 
   function unlockAchievement(ach) {
@@ -1293,15 +1291,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  let activeRecipeTab = 'regular';
   let activeRecipeCategory = 'all';
-
-  window.switchRecipeTab = function(tab) {
-    activeRecipeTab = tab;
-    document.getElementById('tabNormal').className = `recipe-tab ${tab === 'regular' ? 'active' : ''}`;
-    document.getElementById('tabSecret').className = `recipe-tab ${tab === 'secret' ? 'active' : ''}`;
-    renderRecipesModal();
-  }
 
   window.switchRecipeCategory = function(cat) {
     activeRecipeCategory = cat;
@@ -1312,49 +1302,66 @@ document.addEventListener('DOMContentLoaded', () => {
     const body = document.getElementById('recipesModalBody');
     if (!body) return;
 
-    const cats = ['all', 'beef', 'chicken', 'fish', 'vegetarian', 'vegan', 'weird'];
-    let tabsHtml = `<div class="recipe-tabs" style="margin-bottom:8px;">`;
+    const cats = [
+      { id: 'all', label: 'All' },
+      { id: 'beef', label: 'Beef' },
+      { id: 'chicken', label: 'Chicken' },
+      { id: 'fish', label: 'Fish' },
+      { id: 'vegetarian', label: 'Vegetarian' },
+      { id: 'vegan', label: 'Vegan' },
+      { id: 'secret', label: 'Secret' }
+    ];
+
+    let tabsHtml = `<div class="recipe-tabs" id="recipe-cats-container" style="margin-bottom:8px; display:flex; gap:6px; overflow-x:auto; flex-wrap:nowrap; scrollbar-width:thin;">`;
     cats.forEach(c => {
-      tabsHtml += `<button class="recipe-tab ${activeRecipeCategory === c ? 'active' : ''}" style="min-width:50px; font-size:0.65rem; padding:4px;" onclick="switchRecipeCategory('${c}')">${c.toUpperCase()}</button>`;
+      tabsHtml += `<button class="recipe-tab ${activeRecipeCategory === c.id ? 'active' : ''}" style="flex:0 0 auto; font-size:0.75rem; padding:6px 10px;" onclick="switchRecipeCategory('${c.id}')">${c.label}</button>`;
     });
     tabsHtml += `</div>`;
 
+    setTimeout(() => {
+      const recipeTabsEl = document.getElementById('recipe-cats-container');
+      bindHorizontalWheelScroll(recipeTabsEl);
+    }, 0);
+
     let itemsHtml = '';
 
-    if (activeRecipeTab === 'regular') {
-      const filtered = activeRecipeCategory === 'all' ? REGULAR_RECIPES : REGULAR_RECIPES.filter(r => r.category === activeRecipeCategory);
-      filtered.forEach(r => {
+    const filterItem = (item) => {
+      if (activeRecipeCategory === 'all') return true;
+      return item.category === activeRecipeCategory;
+    };
+
+    const filteredRegular = REGULAR_RECIPES.filter(filterItem);
+    filteredRegular.forEach(r => {
+      let iconsHtml = '';
+      r.ids.forEach(id => { if (ITEM_IMAGES[id]) iconsHtml += `<img src="${ITEM_IMAGES[id]}" title="${id}">`; });
+      itemsHtml += `
+        <div class="recipe-card">
+          <div class="recipe-info"><h4>${r.name}</h4><div class="recipe-visual">${iconsHtml}</div></div>
+          <button class="btn-pin ${pinnedBurger && pinnedBurger.name === r.name ? 'pinned' : ''}" onclick="pinRecipe('${r.name}')">📌</button>
+        </div>
+      `;
+    });
+
+    const filteredSecrets = SECRET_ACHIEVEMENTS.filter(filterItem);
+    filteredSecrets.forEach(ach => {
+      const isUnlocked = unlockedAchievements[ach.id];
+      if (isUnlocked) {
         let iconsHtml = '';
-        r.ids.forEach(id => { if (ITEM_IMAGES[id]) iconsHtml += `<img src="${ITEM_IMAGES[id]}" title="${id}">`; });
+        ach.ids.forEach(id => { if (ITEM_IMAGES[id]) iconsHtml += `<img src="${ITEM_IMAGES[id]}" title="${id}">`; });
         itemsHtml += `
           <div class="recipe-card">
-            <div class="recipe-info"><h4>${r.name}</h4><div class="recipe-visual">${iconsHtml}</div></div>
-            <button class="btn-pin ${pinnedBurger && pinnedBurger.name === r.name ? 'pinned' : ''}" onclick="pinRecipe('${r.name}')">📌</button>
+            <div class="recipe-info" style="flex:1;"><h4>${ach.title}</h4><div class="recipe-visual">${iconsHtml}</div></div>
+            <button class="btn-pin ${pinnedBurger && pinnedBurger.name === ach.title ? 'pinned' : ''}" onclick="pinRecipe('${ach.title}')">📌</button>
           </div>
         `;
-      });
-    } else {
-      const filtered = activeRecipeCategory === 'all' ? SECRET_ACHIEVEMENTS : SECRET_ACHIEVEMENTS.filter(a => a.category === activeRecipeCategory);
-      filtered.forEach(ach => {
-        const isUnlocked = unlockedAchievements[ach.id];
-        if (isUnlocked) {
-          let iconsHtml = '';
-          ach.ids.forEach(id => { if (ITEM_IMAGES[id]) iconsHtml += `<img src="${ITEM_IMAGES[id]}" title="${id}">`; });
-          itemsHtml += `
-            <div class="recipe-card">
-              <div class="recipe-info" style="flex:1;"><h4>${ach.title}</h4><div class="recipe-visual">${iconsHtml}</div></div>
-              <button class="btn-pin ${pinnedBurger && pinnedBurger.name === ach.title ? 'pinned' : ''}" onclick="pinRecipe('${ach.title}')">📌</button>
-            </div>
-          `;
-        } else {
-          itemsHtml += `
-            <div class="recipe-card locked">
-              <div class="recipe-info" style="flex:1;"><h4>${ach.title}</h4><p style="font-size:0.75rem; opacity:0.6;">Secret recipe locked...</p></div>
-            </div>
-          `;
-        }
-      });
-    }
+      } else {
+        itemsHtml += `
+          <div class="recipe-card locked">
+            <div class="recipe-info" style="flex:1;"><h4>${ach.title}</h4><p style="font-size:0.75rem; opacity:0.6;">Secret recipe locked...</p></div>
+          </div>
+        `;
+      }
+    });
 
     body.innerHTML = tabsHtml + itemsHtml;
   }
