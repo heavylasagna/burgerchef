@@ -679,7 +679,8 @@ body {
   height: 105px;
   object-fit: contain;
   position: relative;
-  z-index: 2;
+  /* Устанавливаем z-index ниже, чем у брызг или элементов интерфейса */
+  z-index: 2; 
 }
 
 .grill-item.flipped {
@@ -690,35 +691,36 @@ body {
   filter: grayscale(100%) brightness(0.2);
 }
 
-/* === МЯГКОЕ И ПЛАВНОЕ ШКВАРЧАНИЕ (ПОКАЧИВАНИЕ) === */
+/* === МЯГКОЕ И ПОСТОЯННОЕ ПОКАЧИВАНИЕ (ШКВАРЧАНИЕ) === */
 @keyframes sizzleWobble {
   0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-2px) rotate(1.2deg); }
+  25% { transform: translateY(-1.5px) rotate(-1deg); }
+  75% { transform: translateY(1.5px) rotate(1deg); }
 }
 
 .sizzling-anim {
-  animation: sizzleWobble 1.2s infinite ease-in-out;
+  animation: sizzleWobble 0.9s infinite ease-in-out;
   transform-origin: bottom center;
 }
 
-/* === БРЫЗГИ МАСЛА (заметные точки) === */
+/* === БРЫЗГИ МАСЛА (теперь под продуктами: z-index: 1) === */
 .oil-splash {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 8px;
-  height: 8px;
-  background: rgba(255, 204, 0, 0.9);
+  width: 7px;
+  height: 7px;
+  background: rgba(255, 204, 0, 0.85);
   border-radius: 50%;
   animation: splashAnim 0.6s forwards ease-out;
   pointer-events: none;
-  z-index: 5;
-  box-shadow: 0 0 6px rgba(255, 179, 0, 0.8);
+  z-index: 1; /* Брызги находятся под картинкой продукта (z-index: 2) */
+  box-shadow: 0 0 5px rgba(255, 179, 0, 0.6);
 }
 
 @keyframes splashAnim {
-  0% { transform: translate(-50%, -50%) scale(0.4); opacity: 1; }
-  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.2); opacity: 0; }
+  0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.1); opacity: 0; }
 }
 
 .grill-progress-container {
