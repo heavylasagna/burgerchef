@@ -2712,7 +2712,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- ПОЛНЫЙ ТУТОРИАЛ (с исправленным позиционированием и блокировкой скролла) ---
+  // --- ПОЛНЫЙ ТУТОРИАЛ (с подсветкой элементов) ---
   const tutorialSteps = [
     {
       title: "Assembly Screen",
@@ -2899,7 +2899,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tutorialPrevBtn) tutorialPrevBtn.style.display = stepIndex === 0 ? 'none' : 'block';
     if (tutorialNextBtn) tutorialNextBtn.innerText = stepIndex === tutorialSteps.length - 1 ? 'Finish' : 'Next';
 
-    // Даем время DOM и анимациям завершиться, затем с двойным таймером точно рассчитываем геометрию
     setTimeout(() => {
       setTimeout(() => {
         const targetEl = step.getElement ? step.getElement() : null;
