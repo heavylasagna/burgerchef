@@ -108,7 +108,6 @@ body {
   flex-shrink: 0;
 }
 
-/* Контейнер категорий с поддержкой колесика мыши */
 .panel-category-tabs {
   display: flex;
   gap: 6px;
@@ -723,18 +722,19 @@ body {
 
 .grill-slot {
   width: 120px;
-  height: 120px;
+  height: 145px; /* Увеличено, чтобы шкала таймера поместилась под продуктом */
   background: transparent;
   border: none;
   border-radius: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start; /* Продукт располагается сверху, освобождая место снизу */
   position: relative;
   cursor: pointer;
   transition: all 0.2s;
   pointer-events: auto;
+  padding-top: 5px;
 }
 
 .grill-slot * {
@@ -788,15 +788,15 @@ body {
 }
 
 .grill-progress-container {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  right: 10px;
+  position: relative; /* Вынесено за пределы слота/продукта */
+  width: 100px;
   height: 8px;
   background: rgba(0,0,0,0.6);
   border-radius: 4px;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,0.15);
+  margin-top: 6px;
+  flex-shrink: 0;
 }
 
 .grill-progress-bar {
@@ -812,8 +812,8 @@ body {
 
 .flip-badge {
   position: absolute;
-  top: -8px;
-  right: -8px;
+  top: 2px;
+  right: 2px;
   background: #ffb300;
   color: #000;
   font-size: 0.65rem;
