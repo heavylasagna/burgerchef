@@ -943,14 +943,15 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function updateActionButtonsVisibility() {
-    if (squeezeBtn) squeezeBtn.style.display = 'flex';
+    const isGrill = currentScreen === 'grill';
+    if (squeezeBtn) squeezeBtn.style.display = isGrill ? 'none' : 'flex';
 
     const currentSpeed = getCurrentSpeed();
     const isNoOrders = currentSpeed === 'no-orders';
     const isSandboxOrCasual = currentGameMode === 'sandbox' || currentGameMode === 'casual';
 
     if (eatBtn) {
-      if (currentGameMode === 'turbo') {
+      if (isGrill || currentGameMode === 'turbo') {
         eatBtn.style.display = 'none';
       } else if (isSandboxOrCasual) {
         eatBtn.style.display = isNoOrders ? 'flex' : 'none';
@@ -960,11 +961,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (submitOrderBtn) {
-      submitOrderBtn.style.display = isNoOrders ? 'none' : 'flex';
+      submitOrderBtn.style.display = (isGrill || isNoOrders) ? 'none' : 'flex';
     }
 
     if (forceOrderBtn) {
-      if (currentGameMode === 'turbo') {
+      if (isGrill || currentGameMode === 'turbo') {
         forceOrderBtn.style.display = 'none';
       } else {
         forceOrderBtn.style.display = 'flex';
@@ -972,7 +973,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (skipOrderBtn) {
-      skipOrderBtn.style.display = 'flex';
+      skipOrderBtn.style.display = isGrill ? 'none' : 'flex';
     }
   }
 
@@ -1717,7 +1718,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGrill();
   }
 
-  // Панель подтверждения без оверлея: красная галочка и крестик с пустым фоном
+  // Панель подтверждения внутри гриля по центру снизу
   function showBinConfirmBar() {
     let bar = document.getElementById('binConfirmBar');
     if (bar) bar.remove();
@@ -1729,7 +1730,10 @@ document.addEventListener('DOMContentLoaded', () => {
       <button class="btn-action btn-confirm" title="Confirm" onclick="confirmBinGrillItems()">✔</button>
       <button class="btn-action btn-cancel" title="Cancel" onclick="exitBinSelectMode()">✖</button>
     `;
-    document.body.appendChild(bar);
+    const grillArea = document.getElementById('grillCookingArea');
+    if (grillArea) {
+      grillArea.appendChild(bar);
+    }
   }
 
   window.confirmBinGrillItems = function() {
