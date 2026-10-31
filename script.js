@@ -133,6 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let timeUntilNextOrder = parseInt(localStorage.getItem('time_until_next_order'), 10);
   if (isNaN(timeUntilNextOrder)) timeUntilNextOrder = 120;
   let currentTurboTimeLeft = 180;
+  let lastOrderReducedReward = false; // Флаг снижения награды на треть
 
   function getCurrentSpeed() {
     if (currentGameMode === 'turbo') return 'turbo';
@@ -287,6 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const squeezeBtn = document.getElementById('squeezeBtn');
   const eatBtn = document.getElementById('eatBtn');
   const submitOrderBtn = document.getElementById('submitOrderBtn');
+  const forceOrderBtn = document.getElementById('forceOrderBtn');
 
   function updateActionButtonsVisibility() {
     if (squeezeBtn) squeezeBtn.style.display = 'flex';
@@ -306,8 +308,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (submitOrderBtn) {
-      // Кнопка подачи отображается во всех скоростях кроме no-orders
       submitOrderBtn.style.display = isNoOrders ? 'none' : 'flex';
+    }
+
+    if (forceOrderBtn) {
+      if (currentGameMode === 'turbo') {
+        forceOrderBtn.style.display = 'none';
+      } else {
+        forceOrderBtn.style.display = 'flex';
+      }
     }
   }
 
@@ -767,6 +776,26 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
+  // Кнопка призыва заказа 🔔
+  if (forceOrderBtn) {
+    forceOrderBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      const speed = getCurrentSpeed();
+      if (currentGameMode === 'turbo' || speed === 'no-orders' || speed === 'turbo') {
+        showToast(null, 'Cannot call order!', 'Order summoning is disabled in this mode/speed.');
+        return;
+      }
+      if (currentActiveOrder !== null) {
+        showToast(null, 'Order active!', 'Finish or submit current order first.');
+        return;
+      }
+      // Мгновенный призыв заказа с пониженной наградой на треть
+      lastOrderReducedReward = true;
+      triggerRandomOrder();
+      showToast(null, 'Order Summoned!', 'Reward reduced by 1/3 for early call!');
+    };
+  }
+
   function updateBurgerDisplay(isNewAdded = false) {
     saveBurgerState();
     if (layersTitle) layersTitle.innerText = `Layers (${currentBurger.length}/${MAX_INGREDIENTS})`;
@@ -957,7 +986,11 @@ document.addEventListener('DOMContentLoaded', () => {
       playSound(SOUNDS.complete);
       if (currentGameMode !== 'sandbox') {
         const cost = ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0);
-        const reward = Math.round(cost * 2 * 100) / 100;
+        let reward = Math.round(cost * 2 * 100) / 100;
+        if (lastOrderReducedReward) {
+          reward = Math.round(reward * (2 / 3) * 100) / 100; // Снижение награды на треть
+          lastOrderReducedReward = false;
+        }
         playerMoney += reward;
         updateMoneyDisplay(reward, true);
       }
@@ -998,7 +1031,11 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(SOUNDS.complete);
         if (currentGameMode !== 'sandbox') {
           const cost = ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0);
-          const reward = Math.round(cost * 2 * 100) / 100;
+          let reward = Math.round(cost * 2 * 100) / 100;
+          if (lastOrderReducedReward) {
+            reward = Math.round(reward * (2 / 3) * 100) / 100;
+            lastOrderReducedReward = false;
+          }
           playerMoney += reward;
           updateMoneyDisplay(reward, true);
         }
