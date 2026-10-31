@@ -2735,9 +2735,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function showWelcomeModalIfNeeded() {
     const hasSeenWelcome = localStorage.getItem('has_seen_welcome');
-    if (!hasSeenWelcome) {
-      const welcomeModal = document.getElementById('welcomeModal');
-      if (welcomeModal) welcomeModal.classList.add('open');
+    const welcomeModal = document.getElementById('welcomeModal');
+    if (!hasSeenWelcome && welcomeModal) {
+      welcomeModal.classList.add('open');
     }
   }
 
