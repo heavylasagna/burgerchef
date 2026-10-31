@@ -413,10 +413,26 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'bbq', name: 'BBQ', category: 'sauce', image: 'images/sauce-bbq.png', isSauce: true }
   ];
 
-  // Логика инвентаря (Рюкзака)
+  // Модальные окна и кнопки
   const inventoryModal = document.getElementById('inventoryModal');
   const openInventoryBtn = document.getElementById('openInventoryBtn');
   const closeInventoryModal = document.getElementById('closeInventoryModal');
+
+  const shopModal = document.getElementById('shopModal');
+  const openShopBtn = document.getElementById('openShopBtn');
+  const closeShopModal = document.getElementById('closeShopModal');
+
+  const recipesModal = document.getElementById('recipesModal');
+  const openRecipesBtn = document.getElementById('openRecipesBtn');
+  const closeRecipesModal = document.getElementById('closeRecipesModal');
+
+  const achievementsModal = document.getElementById('achievementsModal');
+  const openAchievementsBtn = document.getElementById('openAchievementsBtn');
+  const closeAchievementsModal = document.getElementById('closeAchievementsModal');
+
+  const settingsModal = document.getElementById('settingsModal');
+  const openSettingsBtn = document.getElementById('openSettingsBtn');
+  const closeSettingsModal = document.getElementById('closeSettingsModal');
 
   let activeInventoryTab = 'all';
   window.switchInventoryTab = function(tab) {
@@ -477,13 +493,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Единая логика закрытия модальных окон по клику на оверлей (фон) и клавише ESC
+  // Единая логика закрытия модальных окон по клику на оверлей (фон) и клавише ESC (теперь объявлена ПОСЛЕ всех модалок)
   const allModals = [
-    { modal: document.getElementById('recipesModal'), closeBtn: closeRecipesModal },
-    { modal: document.getElementById('shopModal'), closeBtn: closeShopModal },
+    { modal: recipesModal, closeBtn: closeRecipesModal },
+    { modal: shopModal, closeBtn: closeShopModal },
     { modal: inventoryModal, closeBtn: closeInventoryModal },
-    { modal: document.getElementById('achievementsModal'), closeBtn: document.getElementById('closeAchievementsModal') },
-    { modal: document.getElementById('settingsModal'), closeBtn: document.getElementById('closeSettingsModal') }
+    { modal: achievementsModal, closeBtn: closeAchievementsModal },
+    { modal: settingsModal, closeBtn: closeSettingsModal }
   ];
 
   allModals.forEach(item => {
@@ -896,22 +912,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  const shopModal = document.getElementById('shopModal');
-  const openShopBtn = document.getElementById('openShopBtn');
   if (openShopBtn) openShopBtn.onclick = () => { playSound(SOUNDS.buttons); updateShopBalanceHeader(); renderShopModal(); shopModal.classList.add('open'); };
-  
-  const closeShopModal = document.getElementById('closeShopModal');
   if (closeShopModal) closeShopModal.onclick = () => { playSound(SOUNDS.buttons); shopModal.classList.remove('open'); };
 
-  const recipesModal = document.getElementById('recipesModal');
-  const openRecipesBtn = document.getElementById('openRecipesBtn');
   if (openRecipesBtn) openRecipesBtn.onclick = () => { playSound(SOUNDS.buttons); renderRecipesModal(); recipesModal.classList.add('open'); };
-  
-  const closeRecipesModal = document.getElementById('closeRecipesModal');
   if (closeRecipesModal) closeRecipesModal.onclick = () => { playSound(SOUNDS.buttons); recipesModal.classList.remove('open'); };
 
-  const achievementsModal = document.getElementById('achievementsModal');
-  const openAchievementsBtn = document.getElementById('openAchievementsBtn');
   if (openAchievementsBtn) openAchievementsBtn.onclick = () => {
     playSound(SOUNDS.buttons);
     const list = document.getElementById('achievementsList');
@@ -928,8 +934,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     achievementsModal.classList.add('open');
   };
-  
-  const closeAchievementsModal = document.getElementById('closeAchievementsModal');
   if (closeAchievementsModal) closeAchievementsModal.onclick = () => { playSound(SOUNDS.buttons); achievementsModal.classList.remove('open'); };
 
   const resetAchievementsBtn = document.getElementById('resetAchievementsBtn');
@@ -945,11 +949,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  const settingsModal = document.getElementById('settingsModal');
-  const openSettingsBtn = document.getElementById('openSettingsBtn');
   if (openSettingsBtn) openSettingsBtn.onclick = () => { playSound(SOUNDS.buttons); settingsModal.classList.add('open'); };
-  
-  const closeSettingsModal = document.getElementById('closeSettingsModal');
   if (closeSettingsModal) closeSettingsModal.onclick = () => { playSound(SOUNDS.buttons); settingsModal.classList.remove('open'); };
 
   const hardResetBtn = document.getElementById('hardResetBtn');
