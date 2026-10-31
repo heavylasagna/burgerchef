@@ -2712,7 +2712,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- ПОЛНЫЙ ТУТОРИАЛ (с адаптивной подсветкой для ПК и чистым окном для телефонов) ---
+  // --- ПОЛНЫЙ ТУТОРИАЛ (с адаптивной подсветкой для ПК и чисто зафиксированным оверлеем для мобильных) ---
   const tutorialSteps = [
     {
       title: "Assembly Screen",
@@ -2797,13 +2797,16 @@ document.addEventListener('DOMContentLoaded', () => {
       text: "Open Settings to configure volume, themes, game modes (Sandbox, Casual, Turbo), and order frequencies.",
       screen: "assembly",
       action: () => {
-        // На мобильных устройствах не открываем окно настроек физически, чтобы не ломать верстку туториала
         if (window.innerWidth > 900) {
           const modal = document.getElementById('settingsModal');
           if (modal) modal.classList.add('open');
         }
       },
-      getElement: () => document.getElementById('openSettingsBtn')
+      getElement: () => {
+        if (window.innerWidth <= 900) return document.getElementById('openSettingsBtn');
+        const modal = document.getElementById('settingsModal');
+        return modal ? modal.querySelector('.modal-content') : document.body;
+      }
     },
     {
       title: "Reset & Tutorial",
@@ -2819,7 +2822,11 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
       },
-      getElement: () => window.innerWidth > 900 ? document.getElementById('tutorialFinalSection') : document.getElementById('openSettingsBtn')
+      getElement: () => {
+        if (window.innerWidth <= 900) return document.getElementById('openSettingsBtn');
+        const modal = document.getElementById('settingsModal');
+        return modal ? modal.querySelector('.modal-content') : document.body;
+      }
     }
   ];
 
@@ -2887,7 +2894,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const isMobile = window.innerWidth <= 900;
 
-    // На мобилках не переключаем экраны фона во время туториала, чтобы фон был статичным
+    // На мобильных устройствах не переключаем экраны фона во время туториала, чтобы фон был статичным
     if (!isMobile) {
       if (step.screen && currentScreen !== step.screen) {
         switchScreen(step.screen);
