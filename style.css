@@ -675,8 +675,8 @@ body {
 }
 
 .grill-item {
-  width: 75px;
-  height: 75px;
+  width: 105px; /* Увеличили размер с 75px до 105px */
+  height: 105px; /* Увеличили размер с 75px до 105px */
   object-fit: contain;
   animation: grillWobble 1.5s infinite ease-in-out;
   position: relative;
