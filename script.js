@@ -532,15 +532,15 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   const BOARD_SLICED_ITEMS = [
-    { id: 'raw-cheese', name: 'Cheese (Sliced)', category: 'protein', image: 'images/raw-cheese.png' },
-    { id: 'raw-champignons', name: 'Champignons (Sliced)', category: 'vegetables', image: 'images/raw-champignons.png' },
-    { id: 'lettuce', name: 'Lettuce (Sliced)', category: 'vegetables', image: 'images/lettuce.png' },
-    { id: 'tomato', name: 'Tomato (Sliced)', category: 'vegetables', image: 'images/tomato.png' },
-    { id: 'pickles', name: 'Pickles (Sliced)', category: 'vegetables', image: 'images/pickles.png' },
-    { id: 'red-onion', name: 'Red Onion (Sliced)', category: 'vegetables', image: 'images/red-onion.png' },
-    { id: 'white-onion', name: 'White Onion (Sliced)', category: 'vegetables', image: 'images/white-onion.png' }
+    { id: 'raw-cheese', name: 'Cheese', category: 'protein', image: 'images/raw-cheese.png' },
+    { id: 'raw-champignons', name: 'Champignons', category: 'vegetables', image: 'images/raw-champignons.png' },
+    { id: 'lettuce', name: 'Lettuce', category: 'vegetables', image: 'images/lettuce.png' },
+    { id: 'tomato', name: 'Tomato', category: 'vegetables', image: 'images/tomato.png' },
+    { id: 'pickles', name: 'Pickles', category: 'vegetables', image: 'images/pickles.png' },
+    { id: 'red-onion', name: 'Red Onion', category: 'vegetables', image: 'images/red-onion.png' },
+    { id: 'white-onion', name: 'White Onion', category: 'vegetables', image: 'images/white-onion.png' }
   ];
-
+  
   const SAUCES = [
     { id: 'mayo', name: '⚪️ Mayo', image: 'images/sauce-mayo.png' },
     { id: 'ketchup', name: '🔴 Ketchup', image: 'images/sauce-ketchup.png' },
