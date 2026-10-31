@@ -2712,7 +2712,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- ПОЛНЫЙ ТУТОРИАЛ (с вашими подсказками и адаптивной высотой контейнера на ПК) ---
+  // --- ПОЛНЫЙ ТУТОРИАЛ (с корректным смещением подсказок 14 и 15 этапов на ПК) ---
   const tutorialSteps = [
     {
       title: "Assembly Screen",
@@ -2805,7 +2805,8 @@ document.addEventListener('DOMContentLoaded', () => {
       getElement: () => {
         if (window.innerWidth <= 900) return document.getElementById('openSettingsBtn');
         const modal = document.getElementById('settingsModal');
-        return modal ? modal.querySelector('.modal-content') : document.body;
+        // Возвращаем правую часть модального окна или заголовок, чтобы тултип сместился вправо от центра
+        return modal ? modal.querySelector('.modal-header') : document.body;
       }
     },
     {
@@ -2825,7 +2826,8 @@ document.addEventListener('DOMContentLoaded', () => {
       getElement: () => {
         if (window.innerWidth <= 900) return document.getElementById('openSettingsBtn');
         const modal = document.getElementById('settingsModal');
-        return modal ? document.getElementById('tutorialFinalSection') : document.body;
+        // Подсвечиваем верхнюю часть модалки, чтобы подсказка улетела наверх и не перекрывала Danger Zone
+        return modal ? modal.querySelector('.modal-header') : document.body;
       }
     }
   ];
@@ -2911,7 +2913,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (tutorialTitle) tutorialTitle.innerText = step.title;
     
-    // Поддержка корректного отображения переносов строк для объемных подсказок
     if (tutorialText) {
       tutorialText.style.whiteSpace = 'pre-line';
       tutorialText.innerText = step.text;
@@ -2921,7 +2922,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tutorialPrevBtn) tutorialPrevBtn.style.display = stepIndex === 0 ? 'none' : 'block';
     if (tutorialNextBtn) tutorialNextBtn.innerText = stepIndex === tutorialSteps.length - 1 ? 'Finish' : 'Next';
 
-    // Настройка стилей тултипа для ПК, чтобы объемные подсказки не обрезались по высоте
     if (tutorialTooltip) {
       if (!isMobile) {
         tutorialTooltip.style.maxHeight = '80vh';
@@ -2932,7 +2932,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Подсветка элементов только для ПК
     if (!isMobile) {
       setTimeout(() => {
         setTimeout(() => {
@@ -2956,12 +2955,22 @@ document.addEventListener('DOMContentLoaded', () => {
             let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2 + scrollLeft;
             let tooltipTop = rect.bottom + scrollTop + 16;
 
-            if (tooltipLeft < 10) tooltipLeft = 10;
-            if (tooltipLeft + tooltipWidth > window.innerWidth - 10) tooltipLeft = window.innerWidth - tooltipWidth - 10;
-            
-            // Если тултип не помещается снизу, пробуем разместить сверху
-            if (tooltipTop + tutorialTooltip.offsetHeight > window.innerHeight + scrollTop) {
-              tooltipTop = rect.top + scrollTop - tutorialTooltip.offsetHeight - 16;
+            // Специфичное смещение для 14 и 15 этапов на ПК, чтобы не перекрывать настройки и зону сброса
+            if (stepIndex === 13 || stepIndex === 14) {
+              const modalContent = document.querySelector('#settingsModal .modal-content');
+              if (modalContent) {
+                const modalRect = modalContent.getBoundingClientRect();
+                // Принудительно смещаем тултип правее модального окна настроек
+                tooltipLeft = modalRect.right + 20 + scrollLeft;
+                tooltipTop = modalRect.top + scrollTop + 20;
+              }
+            } else {
+              if (tooltipLeft < 10) tooltipLeft = 10;
+              if (tooltipLeft + tooltipWidth > window.innerWidth - 10) tooltipLeft = window.innerWidth - tooltipWidth - 10;
+              
+              if (tooltipTop + tutorialTooltip.offsetHeight > window.innerHeight + scrollTop) {
+                tooltipTop = rect.top + scrollTop - tutorialTooltip.offsetHeight - 16;
+              }
             }
 
             tutorialTooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
