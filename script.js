@@ -1384,45 +1384,20 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
     
     { id: 'raw-beef-patty', name: 'Beef Patty (Raw)', category: 'patty', image: 'images/raw-beef-patty.png' },
-    { id: 'beef-patty', name: 'Beef Patty (Cooked)', category: 'patty', image: 'images/beef-patty.png' },
-    
     { id: 'raw-chicken-patty', name: 'Chicken Patty (Raw)', category: 'patty', image: 'images/raw-chicken-patty.png' },
-    { id: 'chicken-patty', name: 'Chicken Patty (Cooked)', category: 'patty', image: 'images/chicken-patty.png' },
-    
     { id: 'raw-fish-patty', name: 'Fish Patty (Raw)', category: 'patty', image: 'images/raw-fish-patty.png' },
-    { id: 'fish-patty', name: 'Fish Patty (Cooked)', category: 'patty', image: 'images/fish-patty.png' },
-    
     { id: 'raw-hashbrown', name: 'Hashbrown (Raw)', category: 'patty', image: 'images/raw-hashbrown.png' },
-    { id: 'hashbrown', name: 'Hashbrown (Cooked)', category: 'patty', image: 'images/hashbrown.png' },
     
     { id: 'raw-bacon', name: 'Bacon (Raw)', category: 'protein', image: 'images/raw-bacon.png' },
-    { id: 'fried-bacon', name: 'Bacon (Cooked)', category: 'protein', image: 'images/fried-bacon.png' },
-    
     { id: 'raw-egg', name: 'Egg (Raw)', category: 'protein', image: 'images/egg.png' },
-    { id: 'fried-egg', name: 'Egg (Cooked)', category: 'protein', image: 'images/fried-egg.png' },
-    
-    { id: 'uncut-cheese', name: 'Cheese (Uncut)', category: 'protein', image: 'images/uncut-cheese.png' },
-    { id: 'raw-cheese', name: 'Cheese (Sliced)', category: 'protein', image: 'images/raw-cheese.png' },
-    { id: 'cheese', name: 'Cheese (Cooked)', category: 'protein', image: 'images/cheese.png' },
+    { id: 'uncut-cheese', name: 'Cheese (Uncut)', category: 'protein', image: 'images/uncut-cheese.png', isUncut: true },
 
-    { id: 'uncut-champignons', name: 'Champignons (Uncut)', category: 'vegetables', image: 'images/uncut-champignons.png' },
-    { id: 'raw-champignons', name: 'Champignons (Sliced)', category: 'vegetables', image: 'images/raw-champignons.png' },
-    { id: 'champignons', name: 'Champignons (Cooked)', category: 'vegetables', image: 'images/champignons.png' },
-    
-    { id: 'uncut-lettuce', name: 'Lettuce (Uncut)', category: 'vegetables', image: 'images/uncut-lettuce.png' },
-    { id: 'lettuce', name: 'Lettuce (Sliced)', category: 'vegetables', image: 'images/lettuce.png' },
-    
-    { id: 'uncut-tomato', name: 'Tomato (Uncut)', category: 'vegetables', image: 'images/uncut-tomato.png' },
-    { id: 'tomato', name: 'Tomato (Sliced)', category: 'vegetables', image: 'images/tomato.png' },
-    
-    { id: 'uncut-pickles', name: 'Pickles (Uncut)', category: 'vegetables', image: 'images/uncut-pickles.png' },
-    { id: 'pickles', name: 'Pickles (Sliced)', category: 'vegetables', image: 'images/pickles.png' },
-    
-    { id: 'uncut-red-onion', name: 'Red Onion (Uncut)', category: 'vegetables', image: 'images/uncut-red-onion.png' },
-    { id: 'red-onion', name: 'Red Onion (Sliced)', category: 'vegetables', image: 'images/red-onion.png' },
-    
-    { id: 'uncut-white-onion', name: 'White Onion (Uncut)', category: 'vegetables', image: 'images/uncut-white-onion.png' },
-    { id: 'white-onion', name: 'White Onion (Sliced)', category: 'vegetables', image: 'images/white-onion.png' },
+    { id: 'uncut-champignons', name: 'Champignons (Uncut)', category: 'vegetables', image: 'images/uncut-champignons.png', isUncut: true },
+    { id: 'uncut-lettuce', name: 'Lettuce (Uncut)', category: 'vegetables', image: 'images/uncut-lettuce.png', isUncut: true },
+    { id: 'uncut-tomato', name: 'Tomato (Uncut)', category: 'vegetables', image: 'images/uncut-tomato.png', isUncut: true },
+    { id: 'uncut-pickles', name: 'Pickles (Uncut)', category: 'vegetables', image: 'images/uncut-pickles.png', isUncut: true },
+    { id: 'uncut-red-onion', name: 'Red Onion (Uncut)', category: 'vegetables', image: 'images/uncut-red-onion.png', isUncut: true },
+    { id: 'uncut-white-onion', name: 'White Onion (Uncut)', category: 'vegetables', image: 'images/uncut-white-onion.png', isUncut: true },
 
     { id: 'mayo', name: 'Mayo', category: 'sauce', image: 'images/sauce-mayo.png', isSauce: true },
     { id: 'ketchup', name: 'Ketchup', category: 'sauce', image: 'images/sauce-ketchup.png', isSauce: true },
@@ -1466,8 +1441,14 @@ document.addEventListener('DOMContentLoaded', () => {
     body.innerHTML = '';
     const filtered = activeInventoryTab === 'all' ? SHOP_ITEMS : SHOP_ITEMS.filter(i => i.category === activeInventoryTab);
 
+    let hasVisibleItems = false;
+
     filtered.forEach(item => {
       const stockVal = currentGameMode === 'sandbox' ? '∞' : (ingredientStock[item.id] ?? 0);
+      
+      if (currentGameMode !== 'sandbox' && stockVal <= 0) return;
+
+      hasVisibleItems = true;
       const card = document.createElement('div');
       card.className = 'inventory-item-card';
       card.innerHTML = `
@@ -1484,6 +1465,10 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       body.appendChild(card);
     });
+
+    if (!hasVisibleItems) {
+      body.innerHTML = `<div style="text-align: center; opacity: 0.6; padding: 20px;">No items in inventory. Visit the shop!</div>`;
+    }
   }
 
   window.openShopForCategory = function(category) {
