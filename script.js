@@ -452,7 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const listEl = leftPanel.querySelector('.layers-list');
     if (!titleEl || !listEl) return;
 
-    titleEl.innerText = 'Cooked Products';
+    titleEl.innerText = 'Cooked Ingredients';
     listEl.classList.remove('assembly-mode');
     listEl.innerHTML = '';
 
