@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let timeUntilNextOrder = parseInt(localStorage.getItem('time_until_next_order'), 10);
   if (isNaN(timeUntilNextOrder)) timeUntilNextOrder = 120;
   let currentTurboTimeLeft = 180;
-  let lastOrderReducedReward = false; // Флаг снижения награды на треть
+  let lastOrderReducedReward = false;
 
   function getCurrentSpeed() {
     if (currentGameMode === 'turbo') return 'turbo';
@@ -289,6 +289,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const eatBtn = document.getElementById('eatBtn');
   const submitOrderBtn = document.getElementById('submitOrderBtn');
   const forceOrderBtn = document.getElementById('forceOrderBtn');
+  const openInventoryBtn = document.getElementById('openInventoryBtn');
+
+  if (openInventoryBtn) {
+    openInventoryBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      showToast(null, 'Inventory', 'Empty for now');
+    };
+  }
 
   function updateActionButtonsVisibility() {
     if (squeezeBtn) squeezeBtn.style.display = 'flex';
@@ -789,10 +797,10 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast(null, 'Order active!', 'Finish or submit current order first.');
         return;
       }
-      // Мгновенный призыв заказа с пониженной наградой на треть
+      // Призыв заказа с заготовленным описанием "Reward has been reduced"
       lastOrderReducedReward = true;
       triggerRandomOrder();
-      showToast(null, 'Order Summoned!', 'Reward reduced by 1/3 for early call!');
+      showToast(null, 'Order Summoned!', 'Reward has been reduced');
     };
   }
 
@@ -988,7 +996,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const cost = ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0);
         let reward = Math.round(cost * 2 * 100) / 100;
         if (lastOrderReducedReward) {
-          reward = Math.round(reward * (2 / 3) * 100) / 100; // Снижение награды на треть
+          reward = Math.round(reward * (2 / 3) * 100) / 100;
           lastOrderReducedReward = false;
         }
         playerMoney += reward;
