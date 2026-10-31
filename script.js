@@ -123,14 +123,71 @@ document.addEventListener('DOMContentLoaded', () => {
     'raw-bacon': 10, 'raw-egg': 10, 'raw-champignons': 10
   };
 
+  /* ПОКРУТКА И ПОКАЧИВАНИЕ УБРАНЫ. КАРТИНКИ СМЕНЯЮТСЯ ПО ЭТАПАМ */
   const GRILLABLE_ITEMS = {
-    'raw-beef-patty': { name: 'Beef Patty', rawImage: 'images/raw-beef-patty.png', cookedId: 'beef-patty', cookedImage: 'images/beef-patty.png', flippedImage: 'images/beef-patty-flip.png', needsFlip: true, cookTime: 12, burnTime: 8 },
-    'raw-chicken-patty': { name: 'Chicken Patty', rawImage: 'images/raw-chicken-patty.png', cookedId: 'chicken-patty', cookedImage: 'images/chicken-patty.png', flippedImage: 'images/chicken-patty-flip.png', needsFlip: true, cookTime: 12, burnTime: 8 },
-    'raw-fish-patty': { name: 'Fish Patty', rawImage: 'images/raw-fish-patty.png', cookedId: 'fish-patty', cookedImage: 'images/fish-patty.png', flippedImage: 'images/fish-patty-flip.png', needsFlip: true, cookTime: 12, burnTime: 8 },
-    'raw-hashbrown': { name: 'Hashbrown', rawImage: 'images/raw-hashbrown.png', cookedId: 'hashbrown', cookedImage: 'images/hashbrown.png', flippedImage: 'images/hasbrown-flip.png', needsFlip: true, cookTime: 10, burnTime: 7 },
-    'raw-bacon': { name: 'Fried Bacon', rawImage: 'images/raw-bacon.png', cookedId: 'fried-bacon', cookedImage: 'images/fried-bacon.png', needsFlip: false, cookTime: 8, burnTime: 6 },
-    'raw-egg': { name: 'Fried Egg', rawImage: 'images/raw-egg.png', cookedId: 'fried-egg', cookedImage: 'images/fried-egg.png', needsFlip: false, cookTime: 8, burnTime: 6 },
-    'raw-champignons': { name: 'Champignons', rawImage: 'images/raw-champignons.png', cookedId: 'champignons', cookedImage: 'images/champignons.png', needsFlip: false, cookTime: 8, burnTime: 6 }
+    'raw-beef-patty': { 
+      name: 'Beef Patty', 
+      rawImage: 'images/raw-beef-patty.png', 
+      flip1Image: 'images/beef-patty-flip1.png', 
+      flip2Image: 'images/beef-patty-flip2.png', 
+      cookedId: 'beef-patty', 
+      cookedImage: 'images/beef-patty.png', 
+      needsFlip: true, cookTime: 12, burnTime: 8 
+    },
+    'raw-chicken-patty': { 
+      name: 'Chicken Patty', 
+      rawImage: 'images/raw-chicken-patty.png', 
+      flip1Image: 'images/chicken-patty-flip1.png', 
+      flip2Image: 'images/chicken-patty-flip2.png', 
+      cookedId: 'chicken-patty', 
+      cookedImage: 'images/chicken-patty.png', 
+      needsFlip: true, cookTime: 12, burnTime: 8 
+    },
+    'raw-fish-patty': { 
+      name: 'Fish Patty', 
+      rawImage: 'images/raw-fish-patty.png', 
+      flip1Image: 'images/fish-patty-flip1.png', 
+      flip2Image: 'images/fish-patty-flip2.png', 
+      cookedId: 'fish-patty', 
+      cookedImage: 'images/fish-patty.png', 
+      needsFlip: true, cookTime: 12, burnTime: 8 
+    },
+    'raw-hashbrown': { 
+      name: 'Hashbrown', 
+      rawImage: 'images/raw-hashbrown.png', 
+      flip1Image: 'images/hashbrown-flip1.png', 
+      flip2Image: 'images/hashbrown-flip2.png', 
+      cookedId: 'hashbrown', 
+      cookedImage: 'images/hashbrown.png', 
+      needsFlip: true, cookTime: 10, burnTime: 7 
+    },
+    'raw-bacon': { 
+      name: 'Fried Bacon', 
+      rawImage: 'images/raw-bacon.png', 
+      flip1Image: 'images/raw-bacon.png', 
+      flip2Image: 'images/fried-bacon.png', 
+      cookedId: 'fried-bacon', 
+      cookedImage: 'images/fried-bacon.png', 
+      needsFlip: false, cookTime: 8, burnTime: 6 
+    },
+    'raw-egg': { 
+      name: 'Fried Egg', 
+      rawImage: 'images/raw-egg.png', 
+      flip1Image: 'images/raw-egg.png', 
+      flip2Image: 'images/fried-egg.png', 
+      cookedId: 'fried-egg', 
+      cookedImage: 'images/fried-egg.png', 
+      needsFlip: false, cookTime: 8, burnTime: 6 
+    },
+    'raw-champignons': { 
+      name: 'Champignons', 
+      rawImage: 'images/raw-champignons.png', 
+      flip1Image: 'images/raw-champignons.png', 
+      flip2Image: 'images/champignons.png', 
+      cookedId: 'champignons', 
+      cookedImage: 'images/champignons.png', 
+      needsFlip: false, cookTime: 8, burnTime: 6 
+    }
   };
 
   let grillSlots = JSON.parse(localStorage.getItem('burger_grill_slots')) || Array(3).fill(null);
@@ -641,6 +698,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  /* РЕНДЕР СЛОТОВ ГРИЛЯ С ТОЧНОЙ СМЕНОЙ СПРАЙТОВ */
   function renderGrill() {
     updateGrillLogic();
     if (currentScreen !== 'grill') return;
@@ -667,13 +725,19 @@ document.addEventListener('DOMContentLoaded', () => {
         let imgsrc = config.rawImage;
         let extraHtml = '';
 
+        /* СХЕМА СМЕНЫ СПРАЙТОВ ПО ВАШЕМУ ТЗ:
+           - RAW: raw-[n].png
+           - FLIP1 (приготовилась 1 сторона): [n]-flip1.png
+           - FLIP2 (перевернули на 2 сторону): [n]-flip2.png
+           - COOKED (готов): [n].png / fried-[n].png
+        */
         if (slotData.state === 'cooking') {
-          imgsrc = slotData.isFlipped ? config.flippedImage : config.rawImage;
+          imgsrc = slotData.isFlipped ? config.flip2Image : config.rawImage;
         } else if (slotData.state === 'needsFlip') {
-          imgsrc = config.rawImage;
+          imgsrc = config.flip1Image;
           extraHtml = `<div class="flip-badge">Flip!</div>`;
         } else if (slotData.state === 'ready' || slotData.state === 'burning') {
-          imgsrc = slotData.isFlipped ? config.cookedImage : config.cookedImage;
+          imgsrc = config.cookedImage;
         } else if (slotData.state === 'charred') {
           imgsrc = config.cookedImage;
         }
@@ -687,16 +751,13 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         `;
 
-        const isSizzling = slotData.state !== 'charred';
-
         slotEl.innerHTML = `
           ${extraHtml}
           <div class="oil-splash-container" id="splash-container-${index}"></div>
-          <img src="${imgsrc}" class="grill-item ${isSizzling ? 'sizzling-anim' : ''} ${slotData.isFlipped ? 'flipped' : ''} ${slotData.state === 'charred' ? 'charred' : ''}">
+          <img src="${imgsrc}" class="grill-item ${slotData.state === 'charred' ? 'charred' : ''}">
           ${progressHtml}
         `;
 
-        // Брызги летят снизу под продуктом, спавнясь случайно по ширине слота (от 10% до 90%)
         if (Math.random() < 0.35 && slotData.state !== 'charred') {
           const splashContainer = slotEl.querySelector('.oil-splash-container');
           if (splashContainer) {
