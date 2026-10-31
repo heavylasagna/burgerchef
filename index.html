@@ -155,27 +155,30 @@
     <div class="bottom-panel" id="bottomPanel">
       <div class="sauces-group desktop-sauces" id="desktopSaucesGroup"></div>
       
-      <!-- Контейнер 1: Рецепты, Магазин, Инвентарь, Достижения -->
-      <div class="action-box">
-        <button class="btn-action btn-recipes" id="openRecipesBtn" title="Recipes">📋</button>
-        <button class="btn-action btn-shop" id="openShopBtn" title="Shop">🏬</button>
-        <button class="btn-action btn-inventory" id="openInventoryBtn" title="Inventory">🎒</button>
-        <button class="btn-action btn-achievements" id="openAchievementsBtn" title="Achievements">🏆</button>
-      </div>
+      <!-- Общая обертка для групп кнопок справа -->
+      <div class="actions-wrapper">
+        <!-- Контейнер 1: Рецепты, Магазин, Инвентарь, Достижения -->
+        <div class="action-box">
+          <button class="btn-action btn-recipes" id="openRecipesBtn" title="Recipes">📋</button>
+          <button class="btn-action btn-shop" id="openShopBtn" title="Shop">🏬</button>
+          <button class="btn-action btn-inventory" id="openInventoryBtn" title="Inventory">🎒</button>
+          <button class="btn-action btn-achievements" id="openAchievementsBtn" title="Achievements">🏆</button>
+        </div>
 
-      <!-- Контейнер 2: Призыв, Подать, Сжать, Съесть -->
-      <div class="action-box">
-        <button class="btn-action btn-force-order" id="forceOrderBtn" title="Call Order">🔔</button>
-        <button class="btn-action btn-submit-order" id="submitOrderBtn" title="Submit Order" style="display: none;">🍽️</button>
-        <button class="btn-action btn-squeeze" id="squeezeBtn" title="Squeeze">✊</button>
-        <button class="btn-action btn-eat" id="eatBtn" title="Eat">🍔</button>
-        <button class="btn-action btn-reset" id="resetBtn" title="Bin">🗑️</button>
-      </div>
+        <!-- Контейнер 2: Призыв, Подать, Сжать, Съесть, Ведро -->
+        <div class="action-box">
+          <button class="btn-action btn-force-order" id="forceOrderBtn" title="Call Order">🔔</button>
+          <button class="btn-action btn-submit-order" id="submitOrderBtn" title="Submit Order" style="display: none;">🍽️</button>
+          <button class="btn-action btn-squeeze" id="squeezeBtn" title="Squeeze">✊</button>
+          <button class="btn-action btn-eat" id="eatBtn" title="Eat">🍔</button>
+          <button class="btn-action btn-reset" id="resetBtn" title="Bin">🗑️</button>
+        </div>
 
-      <!-- Контейнер 3: Сохранение и Настройки -->
-      <div class="action-box">
-        <button class="btn-action btn-utility" id="downloadPngBtn" title="Download PNG">💾</button>
-        <button class="btn-action btn-settings" id="openSettingsBtn" title="Settings">⚙️</button>
+        <!-- Контейнер 3: Сохранение и Настройки -->
+        <div class="action-box">
+          <button class="btn-action btn-utility" id="downloadPngBtn" title="Download PNG">💾</button>
+          <button class="btn-action btn-settings" id="openSettingsBtn" title="Settings">⚙️</button>
+        </div>
       </div>
     </div>
   </div>
