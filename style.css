@@ -443,7 +443,7 @@ body {
   border: 1px solid var(--border-color);
   z-index: 100;
   transition: opacity 0.3s ease, background 0.3s ease;
-  gap: 8px;
+  gap: 10px; /* Компактный промежуток между блоками */
 }
 .bottom-panel.dimmed { opacity: 0.25; }
 
@@ -468,21 +468,22 @@ body {
 }
 .sauce-chip.disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* Отдельные контейнеры с индивидуальными рамками */
+/* Общий контейнер более прозрачный, чем кнопки внутри */
 .action-box {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: var(--item-bg);
+  background: rgba(45, 30, 22, 0.35); /* Сделали полупрозрачным */
   border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 5px 8px;
 }
 
+/* Сами кнопки внутри имеют более плотный/непрозрачный фон */
 .btn-action {
   padding: 0 10px;
   height: 36px;
-  background: transparent;
+  background: var(--item-bg); /* Плотный фон кнопки */
   border: 1.5px solid var(--border-color);
   color: var(--text-color);
   border-radius: 8px;
