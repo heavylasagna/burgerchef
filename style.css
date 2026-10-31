@@ -1243,7 +1243,6 @@ input[type="range"]::-webkit-slider-thumb {
   border-color: var(--accent-color);
 }
 
-/* Стили кнопки See the tutorial, выровненные под Reset */
 #openTutorialFromSettingsBtn {
   width: 100%;
   margin-top: 4px;
