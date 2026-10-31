@@ -1282,11 +1282,11 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .btn-pin.pinned { background: #689f38; }
 
-/* --- Стили для Туториала --- */
+/* --- Стили для Туториала (с увеличенной подсветкой и рамкой) --- */
 .tutorial-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.85);
   z-index: 4000;
   display: none;
   pointer-events: auto;
@@ -1297,8 +1297,9 @@ input[type="range"]::-webkit-slider-thumb {
 
 .tutorial-spotlight {
   position: absolute;
-  border-radius: 12px;
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75);
+  border-radius: 16px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.82), 0 0 25px rgba(255, 179, 0, 0.6);
+  border: 2px solid var(--accent-color);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
   z-index: 4001;
@@ -1309,10 +1310,10 @@ input[type="range"]::-webkit-slider-thumb {
   background: var(--modal-bg);
   border: 1px solid var(--accent-color);
   border-radius: 14px;
-  padding: 14px;
-  width: 280px;
+  padding: 16px;
+  width: 300px;
   max-width: 90vw;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
   z-index: 4002;
   color: var(--text-color);
   transition: all 0.3s ease;
