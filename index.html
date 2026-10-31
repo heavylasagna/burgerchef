@@ -77,7 +77,6 @@
     </div>
   </div>
 
-  <!-- Модальное окно Инвентаря (Рюкзака) -->
   <div class="modal-overlay" id="inventoryModal">
     <div class="modal-content wide">
       <div class="modal-header">
@@ -154,7 +153,7 @@
 
         <div class="settings-group" style="background: transparent; border-color: rgba(211,47,47,0.3);">
           <label style="color: #d32f2f;">Danger Zone</label>
-          <button class="btn-outline-danger" id="hardResetBtn" style="width: 100%;">Reset</button>
+          <button class="btn-outline-danger" id="hardResetBtn">Reset</button>
         </div>
 
       </div>
@@ -162,6 +161,7 @@
   </div>
 
   <div class="app-container">
+    <!-- Экран сборки -->
     <div class="center-stage" id="centerStage">
       <div class="limit-warning" id="limitWarning">Max 30 ingredients!</div>
       <div class="burger-wrapper">
@@ -172,12 +172,19 @@
     <!-- Экран гриля -->
     <div class="center-stage grill-stage" id="grillStage" style="display: none;">
       <div class="grill-cooking-area" id="grillCookingArea"></div>
-      <div class="panel right-panel grill-sidebar">
-        <div class="panel-title">Raw Ingredients</div>
-        <div class="ingredients-menu" id="grillIngredientsMenu"></div>
+    </div>
+
+    <!-- Панель сырых продуктов (для гриля) -->
+    <div class="panel right-panel grill-sidebar" id="grillRightPanel" style="display: none;">
+      <div class="panel-title">Raw Ingredients</div>
+      <div class="ingredients-menu" id="grillIngredientsMenu"></div>
+      <div class="bin-confirm-container" id="binConfirmContainer" style="display: none;">
+        <button class="btn-action btn-bin-confirm" onclick="confirmBinGrillItems()" title="Confirm Bin">✔</button>
+        <button class="btn-action btn-bin-cancel" onclick="exitBinSelectMode()" title="Cancel">✖</button>
       </div>
     </div>
 
+    <!-- Панель ингредиентов сборки -->
     <div class="panel right-panel" id="rightPanel">
       <div class="panel-title" id="ingredientsTitle">Ingredients</div>
       <div class="ingredients-menu" id="ingredientsMenu"></div>
