@@ -2906,7 +2906,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       const targetEl = step.getElement ? step.getElement() : null;
       if (targetEl) {
-        // Автоматическая прокрутка к элементу на телефоне и ПК
         targetEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
       }
 
