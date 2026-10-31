@@ -2902,52 +2902,38 @@ document.addEventListener('DOMContentLoaded', () => {
     // Даем время DOM и анимациям завершиться, затем с двойным таймером точно рассчитываем геометрию
     setTimeout(() => {
       setTimeout(() => {
-        // Внутри функции showTutorialStep(stepIndex) заменяем блок после скролла:
-const targetEl = step.getElement ? step.getElement() : null;
-if (targetEl) {
-  // Прокручиваем так, чтобы элемент оказался в комфортной зоне видимости
-  targetEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-}
+        const targetEl = step.getElement ? step.getElement() : null;
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' });
+        }
 
-if (targetEl && tutorialSpotlight && tutorialTooltip) {
-  // Даем небольшую паузу на завершение скролла
-  setTimeout(() => {
-    const rect = targetEl.getBoundingClientRect();
-    const padding = 12;
+        if (targetEl && tutorialSpotlight && tutorialTooltip) {
+          const rect = targetEl.getBoundingClientRect();
+          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+          const padding = 12;
 
-    // Используем fixed-позиционирование относительно viewport, так как overlay position: fixed
-    tutorialSpotlight.style.top = `${rect.top - padding}px`;
-    tutorialSpotlight.style.left = `${rect.left - padding}px`;
-    tutorialSpotlight.style.width = `${rect.width + padding * 2}px`;
-    tutorialSpotlight.style.height = `${rect.height + padding * 2}px`;
+          tutorialSpotlight.style.top = `${rect.top + scrollTop - padding}px`;
+          tutorialSpotlight.style.left = `${rect.left + scrollLeft - padding}px`;
+          tutorialSpotlight.style.width = `${rect.width + padding * 2}px`;
+          tutorialSpotlight.style.height = `${rect.height + padding * 2}px`;
 
-    const tooltipWidth = Math.min(310, window.innerWidth - 20);
-    tutorialTooltip.style.width = `${tooltipWidth}px`;
+          const tooltipWidth = 310;
+          let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2 + scrollLeft;
+          let tooltipTop = rect.bottom + scrollTop + 16;
 
-    let tooltipLeft = rect.left + (rect.width / 2) - (tooltipWidth / 2);
-    // Проверяем, чтобы тултип не вылезал за боковые границы экрана
-    if (tooltipLeft < 10) tooltipLeft = 10;
-    if (tooltipLeft + tooltipWidth > window.innerWidth - 10) {
-      tooltipLeft = window.innerWidth - tooltipWidth - 10;
-    }
+          if (tooltipLeft < 10) tooltipLeft = 10;
+          if (tooltipLeft + tooltipWidth > window.innerWidth - 10) tooltipLeft = window.innerWidth - tooltipWidth - 10;
+          if (tooltipTop + 190 > window.innerHeight + scrollTop) {
+            tooltipTop = rect.top + scrollTop - 190;
+          }
 
-    // По умолчанию пытаемся разместить подсказку под элементом
-    let tooltipTop = rect.bottom + 16;
-    
-    // Если снизу экрана недостаточно места (элемент слишком низко), выводим подсказку НАД элементом
-    const estimatedTooltipHeight = 180;
-    if (tooltipTop + estimatedTooltipHeight > window.innerHeight) {
-      tooltipTop = rect.top - estimatedTooltipHeight - 16;
-    }
-    // Если элемент вообще выше экрана, прижимаем к верху
-    if (tooltipTop < 10) {
-      tooltipTop = 10;
-    }
-
-    tutorialTooltip.style.left = `${tooltipLeft}px`;
-    tutorialTooltip.style.top = `${tooltipTop}px`;
-  }, 100);
-}
+          tutorialTooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
+          tutorialTooltip.style.top = `${Math.max(10, tooltipTop)}px`;
+        }
+      }, 50);
+    }, 100);
+  }
 
   if (tutorialNextBtn) {
     tutorialNextBtn.onclick = () => {
