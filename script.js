@@ -2712,7 +2712,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- ТУТОРИАЛ (Адаптивный: ПК — с подсветкой элементов, Мобильные — простое модальное окно без изменений фона) ---
+  // --- ТУТОРИАЛ (Адаптивный: ПК — с подсветкой элементов, Мобильные — строго по центру экрана в модальном окне без изменений фона) ---
   const pcTutorialSteps = [
     {
       title: "Assembly Screen",
@@ -2883,9 +2883,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const isMobile = window.innerWidth <= 900;
     
     if (isMobile) {
-      // Для мобильных не трогаем класс tutorial-active на body, чтобы фон не менялся и элементы не подсвечивались
       if (tutorialOverlay) tutorialOverlay.classList.add('active');
-      if (tutorialSpotlight) tutorialSpotlight.style.display = 'none'; // убираем рамку подсветки на телефоне
+      if (tutorialSpotlight) tutorialSpotlight.style.display = 'none';
     } else {
       document.body.classList.add('tutorial-active');
       if (tutorialOverlay) tutorialOverlay.classList.add('active');
@@ -2905,7 +2904,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // На ПК выполняем переключение экранов/действий, на телефоне — нет (фон остается прежним)
     if (!isMobile) {
       if (step.screen && currentScreen !== step.screen) {
         switchScreen(step.screen);
@@ -2927,16 +2925,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tutorialPrevBtn) tutorialPrevBtn.style.display = stepIndex === 0 ? 'none' : 'block';
     if (tutorialNextBtn) tutorialNextBtn.innerText = stepIndex === stepsList.length - 1 ? 'Finish' : 'Next';
 
-    // Позиционирование подсказки по центру экрана для мобильных, либо с подсветкой для ПК
+    // Исправленное позиционирование подсказки: строго по центру для мобильных устройств
     if (isMobile) {
       if (tutorialTooltip) {
         tutorialTooltip.style.left = '50%';
         tutorialTooltip.style.top = '50%';
         tutorialTooltip.style.transform = 'translate(-50%, -50%)';
+        tutorialTooltip.style.position = 'fixed';
       }
     } else {
       if (tutorialTooltip) {
         tutorialTooltip.style.transform = 'none';
+        tutorialTooltip.style.position = 'absolute';
       }
       setTimeout(() => {
         setTimeout(() => {
