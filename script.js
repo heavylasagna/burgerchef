@@ -1083,7 +1083,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         slotEl.innerHTML = `
           ${extraHtml}
-          <img src="${imgsrc}" class="grill-item">
+          <img src="${imgsrc}" class="grill-item ${slotData.state === 'charred' ? 'charred' : ''}">
+          <div class="oil-splash-container" id="splash-container-${index}"></div>
           ${progressHtml}
         `;
       } else {
