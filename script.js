@@ -150,19 +150,32 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('saved_burger_stack', JSON.stringify(currentBurger));
   }
 
-  // Динамический расчет позиции денег под кошельком или рецептом (универсально для ПК и мобилок)
+  // Позиционирование денег: на ПК под кошельком/рецептом, на телефоне при закрепленном рецепте над ингредиентами снизу
   function updateMoneyPopupPosition() {
     const container = document.getElementById('moneyPopupContainer');
     const pinnedWidget = document.getElementById('pinnedRecipeWidget');
     if (!container) return;
 
-    if (pinnedWidget && pinnedWidget.classList.contains('active')) {
-      const rect = pinnedWidget.getBoundingClientRect();
-      const bottomPos = rect.bottom + 6;
-      container.style.top = `${bottomPos}px`;
-    } else {
-      if (window.innerWidth <= 900) {
+    const isMobile = window.innerWidth <= 900;
+    const isPinned = pinnedWidget && pinnedWidget.classList.contains('active');
+
+    if (isMobile) {
+      if (isPinned) {
+        // На телефоне при закрепленном рецепте ставим над списком ингредиентов (справа/снизу)
+        container.style.top = 'unset';
+        container.style.bottom = '125px';
+        container.style.left = '10px';
+      } else {
+        container.style.bottom = 'unset';
         container.style.top = '52px';
+        container.style.left = '10px';
+      }
+    } else {
+      container.style.bottom = 'unset';
+      container.style.left = '240px';
+      if (isPinned) {
+        const rect = pinnedWidget.getBoundingClientRect();
+        container.style.top = `${rect.bottom + 6}px`;
       } else {
         container.style.top = '52px';
       }
