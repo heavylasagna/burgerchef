@@ -230,6 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentScreen = localStorage.getItem('burger_current_screen') || 'assembly';
   let isBinSelectMode = false;
   let selectedGrillIndicesForBin = [];
+  let selectedBoardIndicesForBin = [];
   let sizzlingAudioInstance = null;
   let cuttingAudioInstance = null;
 
@@ -271,6 +272,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (screen !== 'board') {
       manageCuttingAudio(false);
+    }
+    if (isBinSelectMode) {
+      exitBinSelectMode();
     }
 
     if (switchToAssemblyBtn) switchToAssemblyBtn.classList.toggle('active', screen === 'assembly');
@@ -900,7 +904,11 @@ document.addEventListener('DOMContentLoaded', () => {
       slotEl.dataset.index = index;
       
       slotEl.onclick = () => {
-        handleBoardSlotClick(index);
+        if (isBinSelectMode) {
+          toggleBoardSlotSelectionForBin(index);
+        } else {
+          handleBoardSlotClick(index);
+        }
       };
       area.appendChild(slotEl);
     });
@@ -938,7 +946,7 @@ document.addEventListener('DOMContentLoaded', () => {
     slot.state = 'cutting';
     slot.startTime = Date.now();
     
-    // Перезапускаем звук cutting.mp3 без наслоения
+    // Перезапуск звука cutting.mp3 без наслоения и с проигрыванием ровно один раз
     if (cuttingAudioInstance) {
       try {
         cuttingAudioInstance.pause();
@@ -949,17 +957,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (SOUNDS.cutting) {
       cuttingAudioInstance = SOUNDS.cutting;
-      // Убираем зацикливание, чтобы звук играл один раз
       cuttingAudioInstance.loop = false;
-      
-      // Обработчик окончания звука для корректного сброса ссылки
       cuttingAudioInstance.onended = () => {
         cuttingAudioInstance = null;
       };
-
       playSound(cuttingAudioInstance);
     } else {
-      // Запасной вариант на случай, если cutting.mp3 не загрузился
       playSound(SOUNDS.chop);
     }
 
@@ -968,19 +971,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function manageCuttingAudio(hasActiveCutting) {
-    // Больше не требуется управлять зацикленным звуком здесь, 
-    // так как cutting.mp3 теперь проигрывается одиночным выстрелом при клике.
+    if (!hasActiveCutting && cuttingAudioInstance) {
+      try { 
+        cuttingAudioInstance.pause(); 
+        cuttingAudioInstance.currentTime = 0; 
+      } catch(e){}
+      cuttingAudioInstance = null;
+    }
   }
 
   function updateBoardLogic() {
     const now = Date.now();
     let needsSave = false;
-    let hasActiveCutting = false;
 
     boardSlots.forEach((slot) => {
       if (!slot) return;
       if (slot.state === 'cutting') {
-        hasActiveCutting = true;
         const config = CUTTABLE_ITEMS[slot.uncutId];
         const elapsed = (now - slot.startTime) / 1000;
 
@@ -994,8 +1000,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     });
-
-    manageCuttingAudio(hasActiveCutting);
 
     if (needsSave) {
       saveBoardState();
@@ -1045,7 +1049,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const slotEl = slotElements[index];
       if (!slotEl) return;
 
-      slotEl.className = 'grill-slot';
+      slotEl.className = `grill-slot ${selectedBoardIndicesForBin.includes(index) ? 'selected-for-bin' : ''}`;
 
       if (slotData) {
         const config = CUTTABLE_ITEMS[slotData.uncutId];
@@ -1059,18 +1063,19 @@ document.addEventListener('DOMContentLoaded', () => {
           imgsrc = config.rawImage;
         } else if (slotData.state === 'ready') {
           slotEl.innerHTML = `
-            <div style="position:relative; width:100px; height:100px; display:flex; align-items:center; justify-content:center;">
+            <div style="position:relative; width:100px; height:105px; display:flex; align-items:center; justify-content:center;">
               <img src="${config.slicedImage}" style="width:60px; height:60px; position:absolute; transform: translate(-18px, -12px) rotate(-15deg); object-fit:contain;">
               <img src="${config.slicedImage}" style="width:60px; height:60px; position:absolute; transform: translate(18px, -12px) rotate(15deg); object-fit:contain;">
               <img src="${config.slicedImage}" style="width:60px; height:60px; position:absolute; transform: translate(0px, 12px); object-fit:contain;">
               <div class="flip-badge" style="background:#689f38; color:#fff; top:-4px; right:-4px;">x3 Collect</div>
             </div>
+            <div class="grill-progress-container" style="visibility:hidden;"></div>
           `;
           return;
         }
 
         const progressPercent = getBoardSlotProgress(slotData);
-        const progressHtml = slotData.state === 'uncut' ? '' : `
+        const progressHtml = slotData.state === 'uncut' ? '<div class="grill-progress-container" style="visibility:hidden;"></div>' : `
           <div class="grill-progress-container">
             <div class="grill-progress-bar" style="width: ${progressPercent}%"></div>
           </div>
@@ -1104,14 +1109,6 @@ document.addEventListener('DOMContentLoaded', () => {
       renderBoard();
     }
   }, 50);
-
-  function addAllToBoard() {
-    boardSlots.forEach((slot, idx) => {
-      if (slot && slot.state === 'uncut') {
-        startCuttingSlot(idx);
-      }
-    });
-  }
 
   function addToGrill(rawId) {
     const emptyIndex = grillSlots.findIndex(slot => slot === null);
@@ -2392,6 +2389,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
+      if (currentScreen === 'board') {
+        if (isBinSelectMode) {
+          exitBoardBinSelectMode();
+          return;
+        }
+        enterBoardBinSelectMode();
+        return;
+      }
+
       if (currentBurger.length === 0) {
         showToast('First you need to create a burger', '', 'warning');
         return;
@@ -2431,9 +2437,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function exitBinSelectMode() {
     isBinSelectMode = false;
     selectedGrillIndicesForBin = [];
+    selectedBoardIndicesForBin = [];
     const bar = document.getElementById('binConfirmBar');
     if (bar) bar.remove();
-    renderGrill();
+    if (currentScreen === 'grill') renderGrill();
+    if (currentScreen === 'board') renderBoard();
   }
 
   function toggleGrillSlotSelectionForBin(index) {
@@ -2447,6 +2455,29 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGrill();
   }
 
+  function enterBoardBinSelectMode() {
+    isBinSelectMode = true;
+    selectedBoardIndicesForBin = [];
+    showToast('Select items to bin', '', 'warning');
+    showBoardBinConfirmBar();
+    renderBoard();
+  }
+
+  function exitBoardBinSelectMode() {
+    exitBinSelectMode();
+  }
+
+  function toggleBoardSlotSelectionForBin(index) {
+    if (!boardSlots[index]) return;
+    const pos = selectedBoardIndicesForBin.indexOf(index);
+    if (pos > -1) {
+      selectedBoardIndicesForBin.splice(pos, 1);
+    } else {
+      selectedBoardIndicesForBin.push(index);
+    }
+    renderBoard();
+  }
+
   function showBinConfirmBar() {
     let bar = document.getElementById('binConfirmBar');
     if (bar) bar.remove();
@@ -2455,18 +2486,29 @@ document.addEventListener('DOMContentLoaded', () => {
     bar.id = 'binConfirmBar';
     bar.className = 'bin-confirm-bar';
     bar.innerHTML = `
-      <button class="btn-action btn-confirm" title="Confirm" onclick="confirmBinGrillItems()">✔</button>
+      <button class="btn-action btn-confirm" title="Confirm" onclick="confirmBinActiveItems()">✔</button>
       <button class="btn-action btn-cancel" title="Cancel" onclick="exitBinSelectMode()">✖</button>
     `;
     document.body.appendChild(bar);
   }
 
-  window.confirmBinGrillItems = function() {
+  function showBoardBinConfirmBar() {
+    showBinConfirmBar();
+  }
+
+  window.confirmBinActiveItems = function() {
     playSound(SOUNDS.bin);
-    selectedGrillIndicesForBin.forEach(idx => {
-      grillSlots[idx] = null;
-    });
-    saveGrillState();
+    if (currentScreen === 'grill') {
+      selectedGrillIndicesForBin.forEach(idx => {
+        grillSlots[idx] = null;
+      });
+      saveGrillState();
+    } else if (currentScreen === 'board') {
+      selectedBoardIndicesForBin.forEach(idx => {
+        boardSlots[idx] = null;
+      });
+      saveBoardState();
+    }
     exitBinSelectMode();
     showToast('Items discarded', '', 'success');
   }
