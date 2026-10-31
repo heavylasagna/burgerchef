@@ -247,6 +247,10 @@ body {
   gap: 6px;
   cursor: pointer;
 }
+#walletBadge { font-weight: bold; }
+#walletBadge.positive { color: #81c784 !important; }
+#walletBadge.zero { color: rgba(255, 255, 255, 0.6) !important; }
+#walletBadge.negative { color: #e57373 !important; }
 
 .money-popup-container {
   position: absolute;
@@ -292,6 +296,7 @@ body {
   justify-content: center;
   text-align: center;
 }
+.top-order-widget span { color: var(--accent-color); font-weight: bold; }
 
 .toast-container {
   position: absolute;
@@ -436,6 +441,10 @@ body {
   justify-content: center;
   white-space: nowrap;
 }
+.btn-action:hover {
+  background: var(--modal-bg);
+  border-color: var(--accent-color);
+}
 
 .btn-outline-danger {
   background: transparent;
@@ -463,7 +472,7 @@ body {
 }
 .screen-switcher .btn-action.active { display: none !important; }
 
-/* Экран гриля (Темно-серый фон) */
+/* Экран гриля */
 .grill-stage {
   background: radial-gradient(circle at 50% 30%, #2a2a2a, #141414);
   border-radius: 16px;
@@ -482,7 +491,6 @@ body {
   height: 100%;
 }
 
-/* Слоты гриля */
 .grill-slot {
   width: 130px;
   height: 130px;
@@ -498,7 +506,6 @@ body {
   transition: all 0.2s;
 }
 
-/* Рамка появляется ТОЛЬКО в режиме выбрасывания */
 .grill-slot.bin-mode {
   border: 2px dashed var(--border-color);
 }
@@ -577,7 +584,6 @@ body {
   box-shadow: 0 2px 6px rgba(0,0,0,0.4);
 }
 
-/* Галочка и крестик выбора утилизации */
 .bin-confirm-container {
   position: absolute;
   bottom: 12px;
@@ -607,7 +613,6 @@ body {
   border-radius: 10px !important;
 }
 
-/* Модалки и Настройки */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -728,7 +733,6 @@ input[type="range"]::-webkit-slider-thumb {
 .desktop-sauces { display: flex; }
 .mobile-sauces { display: none !important; }
 
-/* МОБИЛЬНАЯ ВЕРСТКА */
 @media (max-width: 900px) {
   body { overflow: auto; }
   .app-container {
@@ -741,21 +745,17 @@ input[type="range"]::-webkit-slider-thumb {
     padding-bottom: 75px;
   }
   .center-stage { order: 1; min-height: 320px; padding-bottom: 10px; }
-  
-  /* Панель ингредиентов справа опускается над нижним меню */
   .right-panel, .grill-sidebar {
     order: 2;
     height: 120px !important;
     width: 100%;
   }
-  
   .ingredients-menu {
     flex-direction: row;
-    overflow-x: auto !overflow-y: hidden;
+    overflow-x: auto;
     padding-bottom: 4px;
     height: 100%;
   }
-
   .ingredient-card {
     min-width: 100px;
     height: 60px;
@@ -763,17 +763,13 @@ input[type="range"]::-webkit-slider-thumb {
     flex-direction: row;
     justify-content: space-between;
   }
-
-  /* Переключатель экранов на мобиле НЕ зафиксирован */
   .screen-switcher {
     position: static !important;
     order: 0;
     margin-bottom: 4px;
     justify-content: center;
   }
-
   .left-panel { order: 3; height: 140px; }
-
   .bottom-panel {
     position: fixed;
     bottom: 0; left: 0; right: 0;
@@ -781,25 +777,20 @@ input[type="range"]::-webkit-slider-thumb {
     border-radius: 12px 12px 0 0;
     z-index: 1000;
   }
-
   .actions-wrapper {
     margin-left: 0;
     justify-content: space-between;
     width: 100%;
     gap: 8px;
   }
-
   .action-box {
     flex: 1;
     justify-content: space-between;
   }
-
   .btn-action {
     flex: 1;
     padding: 0;
   }
-
-  /* Галочка и крестик над панелью ингредиентов на мобильном */
   .bin-confirm-container {
     top: -45px;
     bottom: auto;
