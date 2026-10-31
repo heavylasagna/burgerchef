@@ -2712,7 +2712,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- ПОЛНЫЙ ТУТОРИАЛ (с корректным смещением подсказок 14 и 15 этапов на ПК) ---
+  // --- ПОЛНЫЙ ТУТОРИАЛ (с точной подсветкой всего модального окна на 14 этапе и See the tutorial + Danger Zone на 15 этапе) ---
   const tutorialSteps = [
     {
       title: "Assembly Screen",
@@ -2805,8 +2805,8 @@ document.addEventListener('DOMContentLoaded', () => {
       getElement: () => {
         if (window.innerWidth <= 900) return document.getElementById('openSettingsBtn');
         const modal = document.getElementById('settingsModal');
-        // Возвращаем правую часть модального окна или заголовок, чтобы тултип сместился вправо от центра
-        return modal ? modal.querySelector('.modal-header') : document.body;
+        // Выделяем всё окно настроек целиком
+        return modal ? modal.querySelector('.modal-content') : document.body;
       }
     },
     {
@@ -2825,9 +2825,8 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       getElement: () => {
         if (window.innerWidth <= 900) return document.getElementById('openSettingsBtn');
-        const modal = document.getElementById('settingsModal');
-        // Подсвечиваем верхнюю часть модалки, чтобы подсказка улетела наверх и не перекрывала Danger Zone
-        return modal ? modal.querySelector('.modal-header') : document.body;
+        // Выделяем только See the tutorial и Danger Zone на 15 этапе
+        return document.getElementById('tutorialFinalSection') || document.body;
       }
     }
   ];
@@ -2955,12 +2954,11 @@ document.addEventListener('DOMContentLoaded', () => {
             let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2 + scrollLeft;
             let tooltipTop = rect.bottom + scrollTop + 16;
 
-            // Специфичное смещение для 14 и 15 этапов на ПК, чтобы не перекрывать настройки и зону сброса
+            // Смещение подсказки правее модального окна для 14 и 15 этапов
             if (stepIndex === 13 || stepIndex === 14) {
               const modalContent = document.querySelector('#settingsModal .modal-content');
               if (modalContent) {
                 const modalRect = modalContent.getBoundingClientRect();
-                // Принудительно смещаем тултип правее модального окна настроек
                 tooltipLeft = modalRect.right + 20 + scrollLeft;
                 tooltipTop = modalRect.top + scrollTop + 20;
               }
