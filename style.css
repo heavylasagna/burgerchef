@@ -255,9 +255,12 @@ body {
 }
 .wallet-widget.hidden { display: none !important; }
 .wallet-widget.dimmed { opacity: 0.25 !important; }
-#walletBadge { color: #81c784; font-weight: bold; }
+#walletBadge { font-weight: bold; }
+#walletBadge.positive { color: #81c784; }
+#walletBadge.zero { color: rgba(255, 255, 255, 0.6); }
+#walletBadge.negative { color: #e57373; }
 
-/* Позиционирование всплывающих сумм денег (по умолчанию под кошельком на ПК и мобилках) */
+/* Динамический контейнер денег */
 .money-popup-container {
   position: absolute;
   top: 52px;
@@ -267,11 +270,7 @@ body {
   gap: 4px;
   z-index: 200;
   pointer-events: none;
-}
-
-/* Если рецепт закреплен, сдвигаем уведомления о деньгах под рецепт */
-.pinned-recipe-widget.active ~ .money-popup-container {
-  top: 125px !important;
+  transition: top 0.2s ease;
 }
 
 .money-popup {
@@ -610,7 +609,12 @@ body {
   border-bottom: 2px solid var(--border-color);
   padding-bottom: 8px;
 }
-.modal-header h3 { color: var(--text-color); font-size: 1rem; }
+.modal-header h3 { color: var(--text-color); font-size: 1rem; display: flex; align-items: center; gap: 10px; }
+.shop-balance-badge { font-size: 0.85rem; font-weight: bold; }
+.shop-balance-badge.positive { color: #81c784; }
+.shop-balance-badge.zero { color: rgba(255, 255, 255, 0.6); }
+.shop-balance-badge.negative { color: #e57373; }
+
 .close-modal { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--text-color); }
 
 .recipe-tabs {
@@ -856,6 +860,10 @@ input[type="range"]::-webkit-slider-thumb {
 .mobile-top-bar { display: none; }
 .toggle-ui-btn { display: none; }
 
+/* Управление видимостью групп соусов в зависимости от платформы */
+.desktop-sauces { display: flex; }
+.mobile-sauces { display: none !important; }
+
 @media (max-width: 900px) {
   body { overflow: auto; }
   .app-container {
@@ -881,8 +889,8 @@ input[type="range"]::-webkit-slider-thumb {
   .ingredient-name { max-width: 50px; font-size: 0.65rem; }
   .ingredient-stock-count { font-size: 0.65rem; padding: 1px 4px; }
 
-  .sauces-group.desktop-sauces { display: none !important; }
-  .sauces-group.mobile-sauces {
+  .desktop-sauces { display: none !important; }
+  .mobile-sauces {
     display: flex !important;
     order: 3;
     background: linear-gradient(145deg, var(--panel-bg-1), var(--panel-bg-2));
