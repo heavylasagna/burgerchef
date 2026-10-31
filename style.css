@@ -887,12 +887,15 @@ body {
   border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  min-height: 480px;
+  height: 520px; /* Фиксированная высота окна */
   max-height: 85vh;
   transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-.modal-content.wide { max-width: 650px; }
+.modal-content.wide { 
+  max-width: 650px; 
+  height: 560px; /* Фиксированная высота для широких окон (рецептов) */
+}
 
 .modal-header {
   display: flex;
@@ -960,8 +963,8 @@ body {
   flex-direction: column;
   gap: 8px;
   padding-right: 2px;
-  margin-bottom: 12px;
-  min-height: 340px;
+  margin-bottom: 0;
+  min-height: 0;
 }
 
 .shop-item-card {
