@@ -495,7 +495,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.handleTabClick = function(cbName, catId) {
-    // Сохраняем текущий скролл табов перед переключением категории для этого конкретного контейнера
     const tabsEl = document.querySelector(`#cat-tabs-${cbName}`);
     const scrollPos = tabsEl ? tabsEl.scrollLeft : 0;
 
@@ -527,6 +526,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (titleEl) titleEl.innerText = 'Ingredients';
 
     if (!ingredientsMenu) return;
+
+    // Захватываем текущий скролл прямо перед перерисовкой, если параметр не передан извне
+    const currentTabsEl = document.getElementById('cat-tabs-setAssemblyCategory');
+    const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
     
     const filtered = assemblyActiveCategory === 'all' ? INGREDIENTS : INGREDIENTS.filter(i => i.category === assemblyActiveCategory);
 
@@ -552,9 +555,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     ingredientsMenu.innerHTML = tabsHtml + cardsHtml;
 
-    if (savedScroll !== null) {
-      const tabsEl = document.getElementById('cat-tabs-setAssemblyCategory');
-      if (tabsEl) tabsEl.scrollLeft = savedScroll;
+    const tabsEl = document.getElementById('cat-tabs-setAssemblyCategory');
+    if (tabsEl) {
+      tabsEl.scrollLeft = actualScroll;
+      requestAnimationFrame(() => { tabsEl.scrollLeft = actualScroll; });
     }
   }
 
@@ -576,6 +580,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!titleEl || !menuEl) return;
 
     titleEl.innerText = 'Raw Ingredients';
+
+    const currentTabsEl = document.getElementById('cat-tabs-setGrillRawCategory');
+    const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
     
     const filtered = grillRawActiveCategory === 'all' ? GRILLABLE_MENU_ITEMS : GRILLABLE_MENU_ITEMS.filter(i => i.category === grillRawActiveCategory);
 
@@ -601,9 +608,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     menuEl.innerHTML = tabsHtml + cardsHtml;
 
-    if (savedScroll !== null) {
-      const tabsEl = document.getElementById('cat-tabs-setGrillRawCategory');
-      if (tabsEl) tabsEl.scrollLeft = savedScroll;
+    const tabsEl = document.getElementById('cat-tabs-setGrillRawCategory');
+    if (tabsEl) {
+      tabsEl.scrollLeft = actualScroll;
+      requestAnimationFrame(() => { tabsEl.scrollLeft = actualScroll; });
     }
   }
 
@@ -623,6 +631,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     titleEl.innerText = 'Cooked Ingredients';
     listEl.classList.remove('assembly-mode');
+
+    const currentTabsEl = document.getElementById('cat-tabs-setGrillCookedCategory');
+    const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
 
     const filtered = grillCookedActiveCategory === 'all' ? COOKED_INVENTORY_ITEMS : COOKED_INVENTORY_ITEMS.filter(i => i.category === grillCookedActiveCategory);
 
@@ -645,9 +656,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     listEl.innerHTML = tabsHtml + itemsContainerHtml;
 
-    if (savedScroll !== null) {
-      const tabsEl = document.getElementById('cat-tabs-setGrillCookedCategory');
-      if (tabsEl) tabsEl.scrollLeft = savedScroll;
+    const tabsEl = document.getElementById('cat-tabs-setGrillCookedCategory');
+    if (tabsEl) {
+      tabsEl.scrollLeft = actualScroll;
+      requestAnimationFrame(() => { tabsEl.scrollLeft = actualScroll; });
     }
   }
 
@@ -1331,6 +1343,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const body = document.getElementById('recipesModalBody');
     if (!body) return;
 
+    const currentRecipeTabsEl = document.getElementById('recipe-cats-container');
+    const actualScroll = savedScroll !== null ? savedScroll : (currentRecipeTabsEl ? currentRecipeTabsEl.scrollLeft : 0);
+
     const cats = [
       { id: 'all', label: 'All' },
       { id: 'beef', label: 'Beef' },
@@ -1396,9 +1411,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     body.innerHTML = tabsHtml + itemsHtml;
 
-    if (savedScroll !== null) {
-      const recipeTabsEl = document.getElementById('recipe-cats-container');
-      if (recipeTabsEl) recipeTabsEl.scrollLeft = savedScroll;
+    const recipeTabsEl = document.getElementById('recipe-cats-container');
+    if (recipeTabsEl) {
+      recipeTabsEl.scrollLeft = actualScroll;
+      requestAnimationFrame(() => { recipeTabsEl.scrollLeft = actualScroll; });
     }
   }
 
