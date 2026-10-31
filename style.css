@@ -887,7 +887,8 @@ body {
   border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  max-height: 80vh;
+  min-height: 480px;
+  max-height: 85vh;
   transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
@@ -955,10 +956,12 @@ body {
 .modal-body {
   overflow-y: auto;
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 8px;
   padding-right: 2px;
   margin-bottom: 12px;
+  min-height: 340px;
 }
 
 .shop-item-card {
