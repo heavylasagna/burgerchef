@@ -176,21 +176,17 @@
     </div>
   </div>
 
-  <!-- Модальное окно пошагового туториала -->
-  <div class="modal-overlay" id="tutorialModal">
-    <div class="modal-content" style="height: auto; max-width: 420px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
-      <div class="modal-header" style="margin-bottom: 8px;">
-        <h3 id="tutorialModalTitle" style="color: var(--accent-color);">Tutorial</h3>
-        <button class="close-modal" id="closeTutorialModalBtn">✕</button>
-      </div>
-      <div class="modal-body" style="overflow-y: visible; max-height: none; padding: 10px 0;">
-        <p id="tutorialModalText" style="font-size: 0.9rem; line-height: 1.5; opacity: 0.95;"></p>
-      </div>
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 12px;">
-        <span id="tutorialModalStepIndicator" style="font-size: 0.75rem; opacity: 0.7;">1 / 15</span>
-        <div style="display: flex; gap: 8px;">
-          <button class="btn-action" id="tutorialModalPrevBtn" style="padding: 6px 14px; font-size: 0.8rem;">Back</button>
-          <button class="btn-action btn-buy" id="tutorialModalNextBtn" style="padding: 6px 16px; font-size: 0.8rem;">Next</button>
+  <!-- Контейнер для подсветки элементов и подсказок туториала -->
+  <div class="tutorial-overlay" id="tutorialOverlay">
+    <div class="tutorial-spotlight" id="tutorialSpotlight"></div>
+    <div class="tutorial-tooltip" id="tutorialTooltip">
+      <h4 id="tutorialTitle" style="color: var(--accent-color); margin-bottom: 6px; font-size: 0.9rem;"></h4>
+      <p id="tutorialText" style="font-size: 0.8rem; margin-bottom: 12px; line-height: 1.4;"></p>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span id="tutorialStepIndicator" style="font-size: 0.7rem; opacity: 0.7;">1 / 5</span>
+        <div style="display: flex; gap: 6px;">
+          <button class="btn-action" id="tutorialPrevBtn" style="padding: 4px 10px; font-size: 0.75rem; height: 28px;">Back</button>
+          <button class="btn-action btn-buy" id="tutorialNextBtn" style="padding: 4px 12px; font-size: 0.75rem; height: 28px;">Next</button>
         </div>
       </div>
     </div>
@@ -255,21 +251,5 @@
   </div>
 
   <script src="script.js"></script>
-
-  <!-- Элементы подсветки туториала для ПК -->
-  <div class="tutorial-overlay" id="tutorialOverlay">
-    <div class="tutorial-spotlight" id="tutorialSpotlight"></div>
-    <div class="tutorial-tooltip" id="tutorialTooltip">
-      <div class="tutorial-tooltip-header">
-        <h4 id="tutorialTitle">Title</h4>
-        <span id="tutorialStepIndicator">1 / 15</span>
-      </div>
-      <p id="tutorialText">Description text...</p>
-      <div class="tutorial-tooltip-footer">
-        <button class="btn-action" id="tutorialPrevBtn" style="padding: 4px 10px; font-size: 0.75rem;">Back</button>
-        <button class="btn-action btn-buy" id="tutorialNextBtn" style="padding: 4px 12px; font-size: 0.75rem;">Next</button>
-      </div>
-    </div>
-  </div>
 </body>
 </html>
