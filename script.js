@@ -527,7 +527,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!ingredientsMenu) return;
 
-    // Захватываем текущий скролл прямо перед перерисовкой, если параметр не передан извне
     const currentTabsEl = document.getElementById('cat-tabs-setAssemblyCategory');
     const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
     
@@ -555,11 +554,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     ingredientsMenu.innerHTML = tabsHtml + cardsHtml;
 
-    const tabsEl = document.getElementById('cat-tabs-setAssemblyCategory');
-    if (tabsEl) {
-      tabsEl.scrollLeft = actualScroll;
-      requestAnimationFrame(() => { tabsEl.scrollLeft = actualScroll; });
-    }
+    requestAnimationFrame(() => {
+      const tabsEl = document.getElementById('cat-tabs-setAssemblyCategory');
+      if (tabsEl) {
+        tabsEl.style.scrollBehavior = 'auto';
+        tabsEl.scrollLeft = actualScroll;
+        requestAnimationFrame(() => {
+          tabsEl.scrollLeft = actualScroll;
+          tabsEl.style.scrollBehavior = '';
+        });
+      }
+    });
   }
 
   window.handleAssemblyClick = function(id) {
@@ -608,11 +613,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     menuEl.innerHTML = tabsHtml + cardsHtml;
 
-    const tabsEl = document.getElementById('cat-tabs-setGrillRawCategory');
-    if (tabsEl) {
-      tabsEl.scrollLeft = actualScroll;
-      requestAnimationFrame(() => { tabsEl.scrollLeft = actualScroll; });
-    }
+    requestAnimationFrame(() => {
+      const tabsEl = document.getElementById('cat-tabs-setGrillRawCategory');
+      if (tabsEl) {
+        tabsEl.style.scrollBehavior = 'auto';
+        tabsEl.scrollLeft = actualScroll;
+        requestAnimationFrame(() => {
+          tabsEl.scrollLeft = actualScroll;
+          tabsEl.style.scrollBehavior = '';
+        });
+      }
+    });
   }
 
   window.handleGrillAddClick = function(id) {
@@ -656,11 +667,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     listEl.innerHTML = tabsHtml + itemsContainerHtml;
 
-    const tabsEl = document.getElementById('cat-tabs-setGrillCookedCategory');
-    if (tabsEl) {
-      tabsEl.scrollLeft = actualScroll;
-      requestAnimationFrame(() => { tabsEl.scrollLeft = actualScroll; });
-    }
+    requestAnimationFrame(() => {
+      const tabsEl = document.getElementById('cat-tabs-setGrillCookedCategory');
+      if (tabsEl) {
+        tabsEl.style.scrollBehavior = 'auto';
+        tabsEl.scrollLeft = actualScroll;
+        requestAnimationFrame(() => {
+          tabsEl.scrollLeft = actualScroll;
+          tabsEl.style.scrollBehavior = '';
+        });
+      }
+    });
   }
 
   function addToGrill(rawId) {
@@ -1411,11 +1428,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     body.innerHTML = tabsHtml + itemsHtml;
 
-    const recipeTabsEl = document.getElementById('recipe-cats-container');
-    if (recipeTabsEl) {
-      recipeTabsEl.scrollLeft = actualScroll;
-      requestAnimationFrame(() => { recipeTabsEl.scrollLeft = actualScroll; });
-    }
+    requestAnimationFrame(() => {
+      const recipeTabsEl = document.getElementById('recipe-cats-container');
+      if (recipeTabsEl) {
+        recipeTabsEl.style.scrollBehavior = 'auto';
+        recipeTabsEl.scrollLeft = actualScroll;
+        requestAnimationFrame(() => {
+          recipeTabsEl.scrollLeft = actualScroll;
+          recipeTabsEl.style.scrollBehavior = '';
+        });
+      }
+    });
   }
 
   window.pinRecipe = function(name) {
