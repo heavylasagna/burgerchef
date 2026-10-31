@@ -2111,13 +2111,16 @@ document.addEventListener('DOMContentLoaded', () => {
   if (closeSettingsModal) closeSettingsModal.onclick = () => { playSound(SOUNDS.buttons); settingsModal.classList.remove('open'); };
 
   const hardResetBtn = document.getElementById('hardResetBtn');
-  if (hardResetBtn) hardResetBtn.onclick = () => {
-    if (confirm("⚠️ WARNING: Wipe all data?")) { 
-      localStorage.clear(); 
-      localStorage.setItem('has_seen_welcome', 'true'); 
-      location.reload(); 
-    }
-  };
+  if (hardResetBtn) {
+    hardResetBtn.onclick = () => {
+      if (confirm("⚠️ WARNING: Wipe all data?")) { 
+        localStorage.clear(); 
+        // Принудительно убираем флаг, чтобы приветствие точно появилось при перезагрузке
+        localStorage.removeItem('has_seen_welcome');
+        location.reload(); 
+      }
+    };
+  }
 
   const toggleUiBtn = document.getElementById('toggleUiBtn');
   if (toggleUiBtn) {
