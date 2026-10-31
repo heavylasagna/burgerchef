@@ -514,10 +514,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const now = Date.now();
     let needsSave = false;
 
-    grillSlots.forEach((slot, index) => {
+    grillSlots.forEach((slot) => {
       if (!slot) return;
       const config = GRILLABLE_ITEMS[slot.rawId];
-      const elapsed = (now - slot.startTime) / 1000; // Прошедшие секунды
+      const elapsed = (now - slot.startTime) / 1000;
 
       const cookSeconds = config.cookTime;
       const burnSeconds = config.burnTime;
@@ -542,8 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
           needsSave = true;
         }
       } else if (slot.state === 'ready') {
-        const totalCookTime = config.needsFlip ? cookSeconds : cookSeconds;
-        if (elapsed >= totalCookTime) {
+        if (elapsed >= cookSeconds) {
           slot.state = 'burning';
           slot.burnStartTime = now;
           needsSave = true;
@@ -593,21 +592,47 @@ document.addEventListener('DOMContentLoaded', () => {
     return 0;
   }
 
-  function renderGrill() {
-    updateGrillLogic();
-
-    if (currentScreen !== 'grill') return;
-    renderGrillIngredientsMenu();
-    renderGrillCookedInventory();
-
+  // Создаем структуру гриля 1 раз, дальше обновляем динамически без перерисовки всей сетки
+  function initGrillStructure() {
     const area = document.getElementById('grillCookingArea');
     if (!area) return;
     area.innerHTML = '';
 
+    grillSlots.forEach((_, index) => {
+      const slotEl = document.createElement('div');
+      slotEl.className = 'grill-slot';
+      slotEl.dataset.index = index;
+      
+      slotEl.onclick = () => {
+        if (isBinSelectMode) {
+          toggleGrillSlotSelectionForBin(index);
+        } else {
+          handleGrillSlotClick(index);
+        }
+      };
+      area.appendChild(slotEl);
+    });
+  }
+
+  function renderGrill() {
+    updateGrillLogic();
+    if (currentScreen !== 'grill') return;
+
+    renderGrillIngredientsMenu();
+    renderGrillCookedInventory();
+
+    const area = document.getElementById('grillCookingArea');
+    if (!area || area.children.length !== grillSlots.length) {
+      initGrillStructure();
+    }
+
     let hasActiveCooking = false;
+    const slotElements = area.querySelectorAll('.grill-slot');
 
     grillSlots.forEach((slotData, index) => {
-      const slotEl = document.createElement('div');
+      const slotEl = slotElements[index];
+      if (!slotEl) return;
+
       slotEl.className = `grill-slot ${selectedGrillIndicesForBin.includes(index) ? 'selected-for-bin' : ''}`;
 
       if (slotData) {
@@ -639,24 +664,12 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         `;
 
-        if (Math.random() < 0.25 && slotData.state !== 'charred') {
+        if (Math.random() < 0.2 && slotData.state !== 'charred' && slotEl.children.length < 4) {
           createOilSplash(slotEl);
         }
-
-        slotEl.onclick = () => {
-          if (isBinSelectMode) {
-            toggleGrillSlotSelectionForBin(index);
-          } else {
-            handleGrillSlotClick(index);
-          }
-        };
       } else {
-        slotEl.onclick = () => {
-          if (isBinSelectMode) toggleGrillSlotSelectionForBin(index);
-        };
+        slotEl.innerHTML = '';
       }
-
-      area.appendChild(slotEl);
     });
 
     manageSizzlingAudio(hasActiveCooking);
@@ -721,7 +734,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentScreen === 'grill') {
       renderGrill();
     }
-  }, 200);
+  }, 100);
 
   function renderSauces() {
     if (desktopSaucesGroup) desktopSaucesGroup.innerHTML = '';
