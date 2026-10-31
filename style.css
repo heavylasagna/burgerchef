@@ -28,7 +28,6 @@ body.light-theme {
   --scrollbar-thumb-hover: rgba(141, 110, 99, 0.65);
 }
 
-/* Кастомные скроллбары для всех прокручиваемых элементов */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -285,7 +284,7 @@ body {
 #walletBadge.zero { color: rgba(255, 255, 255, 0.6); }
 #walletBadge.negative { color: #e57373; }
 
-/* Динамический контейнер денег (ПК) */
+/* Контейнер всплывающих денег */
 .money-popup-container {
   position: absolute;
   top: 52px;
@@ -294,8 +293,7 @@ body {
   flex-direction: column;
   gap: 4px;
   z-index: 200;
-  pointer-events: none;
-  transition: top 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .money-popup {
@@ -303,10 +301,17 @@ body {
   font-weight: bold;
   padding: 3px 8px;
   border-radius: 6px;
-  background: transparent;
-  backdrop-filter: blur(2px);
+  background: var(--modal-bg);
+  backdrop-filter: blur(4px);
   animation: moneyPopupAnim 2.5s forwards ease-in-out;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+  cursor: pointer;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.money-popup.hiding {
+  opacity: 0 !important;
+  transform: scale(0.8) translateY(-10px);
 }
 
 .money-popup.plus {
@@ -1008,7 +1013,8 @@ input[type="range"]::-webkit-slider-thumb {
 
   .money-popup-container {
     position: absolute !important;
-    top: 52px !important;
+    top: unset !important;
+    bottom: 125px !important;
     left: 10px !important;
   }
 
