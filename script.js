@@ -1906,7 +1906,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!currentActiveOrder) {
         triggerRandomOrder();
       } else {
-        updateOrderWidgetsText(currentActiveOrder.name);
+        updateOrderWidgetsTest(currentActiveOrder.name);
       }
       return;
     }
