@@ -123,7 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
     'raw-bacon': 10, 'raw-egg': 10, 'raw-champignons': 10
   };
 
-  /* ПОКРУТКА И ПОКАЧИВАНИЕ УБРАНЫ. КАРТИНКИ СМЕНЯЮТСЯ ПО ЭТАПАМ */
   const GRILLABLE_ITEMS = {
     'raw-beef-patty': { 
       name: 'Beef Patty', 
@@ -216,6 +215,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let resetClickCount = 0;
   let resetClickTimeout = null;
+
+  // Выбранные категории для боковых панелей экрана сборки и гриля
+  let assemblyActiveCategory = 'all';
+  let grillRawActiveCategory = 'all';
+  let grillCookedActiveCategory = 'all';
 
   const switchToAssemblyBtn = document.getElementById('switchToAssemblyBtn');
   const switchToGrillBtn = document.getElementById('switchToGrillBtn');
@@ -405,32 +409,45 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(removeToast, 3500);
   }
 
+  /* Единый список ингредиентов с категориями для экрана сборки (строгий одинаковый порядок) */
   const INGREDIENTS = [
-    { id: 'top-bun', name: 'Top Bun', image: 'images/top-bun.png' },
-    { id: 'cheese', name: 'Cheese', image: 'images/cheese.png' },
-    { id: 'fried-egg', name: 'Fried Egg', image: 'images/fried-egg.png' },
-    { id: 'champignons', name: 'Champignons', image: 'images/champignons.png' },
-    { id: 'fried-bacon', name: 'Fried Bacon', image: 'images/fried-bacon.png' },
-    { id: 'lettuce', name: 'Lettuce', image: 'images/lettuce.png' },
-    { id: 'tomato', name: 'Tomato', image: 'images/tomato.png' },
-    { id: 'pickles', name: 'Pickles', image: 'images/pickles.png' },
-    { id: 'red-onion', name: 'Red Onion', image: 'images/red-onion.png' },
-    { id: 'white-onion', name: 'White Onion', image: 'images/white-onion.png' },
-    { id: 'hashbrown', name: 'Hashbrown', image: 'images/hashbrown.png' },
-    { id: 'beef-patty', name: 'Beef Patty', image: 'images/beef-patty.png' },
-    { id: 'chicken-patty', name: 'Chicken Patty', image: 'images/chicken-patty.png' },
-    { id: 'fish-patty', name: 'Fish Patty', image: 'images/fish-patty.png' },
-    { id: 'bottom-bun', name: 'Bottom Bun', image: 'images/bottom-bun.png' }
+    { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
+    { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
+    { id: 'beef-patty', name: 'Beef Patty', category: 'patty', image: 'images/beef-patty.png' },
+    { id: 'chicken-patty', name: 'Chicken Patty', category: 'patty', image: 'images/chicken-patty.png' },
+    { id: 'fish-patty', name: 'Fish Patty', category: 'patty', image: 'images/fish-patty.png' },
+    { id: 'hashbrown', name: 'Hashbrown', category: 'patty', image: 'images/hashbrown.png' },
+    { id: 'fried-bacon', name: 'Fried Bacon', category: 'protein', image: 'images/fried-bacon.png' },
+    { id: 'fried-egg', name: 'Fried Egg', category: 'protein', image: 'images/fried-egg.png' },
+    { id: 'cheese', name: 'Cheese', category: 'protein', image: 'images/cheese.png' },
+    { id: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/champignons.png' },
+    { id: 'lettuce', name: 'Lettuce', category: 'vegetables', image: 'images/lettuce.png' },
+    { id: 'tomato', name: 'Tomato', category: 'vegetables', image: 'images/tomato.png' },
+    { id: 'pickles', name: 'Pickles', category: 'vegetables', image: 'images/pickles.png' },
+    { id: 'red-onion', name: 'Red Onion', category: 'vegetables', image: 'images/red-onion.png' },
+    { id: 'white-onion', name: 'White Onion', category: 'vegetables', image: 'images/white-onion.png' }
   ];
 
+  /* Сырые продукты для гриля (зеркальный порядок к готовым) */
   const GRILLABLE_MENU_ITEMS = [
-    { id: 'raw-beef-patty', name: 'Beef Patty', image: 'images/raw-beef-patty.png' },
-    { id: 'raw-chicken-patty', name: 'Chicken Patty', image: 'images/raw-chicken-patty.png' },
-    { id: 'raw-fish-patty', name: 'Fish Patty', image: 'images/raw-fish-patty.png' },
-    { id: 'raw-hashbrown', name: 'Hashbrown', image: 'images/raw-hashbrown.png' },
-    { id: 'raw-bacon', name: 'Bacon', image: 'images/raw-bacon.png' },
-    { id: 'raw-egg', name: 'Egg', image: 'images/egg.png' },
-    { id: 'raw-champignons', name: 'Champignons', image: 'images/raw-champignons.png' }
+    { id: 'raw-beef-patty', cookedId: 'beef-patty', name: 'Beef Patty', category: 'patty', image: 'images/raw-beef-patty.png' },
+    { id: 'raw-chicken-patty', cookedId: 'chicken-patty', name: 'Chicken Patty', category: 'patty', image: 'images/raw-chicken-patty.png' },
+    { id: 'raw-fish-patty', cookedId: 'fish-patty', name: 'Fish Patty', category: 'patty', image: 'images/raw-fish-patty.png' },
+    { id: 'raw-hashbrown', cookedId: 'hashbrown', name: 'Hashbrown', category: 'patty', image: 'images/raw-hashbrown.png' },
+    { id: 'raw-bacon', cookedId: 'fried-bacon', name: 'Bacon', category: 'protein', image: 'images/raw-bacon.png' },
+    { id: 'raw-egg', cookedId: 'fried-egg', name: 'Egg', category: 'protein', image: 'images/egg.png' },
+    { id: 'raw-champignons', cookedId: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/raw-champignons.png' }
+  ];
+
+  /* Готовые продукты для инвентаря гриля (соответствуют порядку сырых) */
+  const COOKED_INVENTORY_ITEMS = [
+    { id: 'beef-patty', name: 'Beef Patty', category: 'patty', image: 'images/beef-patty.png' },
+    { id: 'chicken-patty', name: 'Chicken Patty', category: 'patty', image: 'images/chicken-patty.png' },
+    { id: 'fish-patty', name: 'Fish Patty', category: 'patty', image: 'images/fish-patty.png' },
+    { id: 'hashbrown', name: 'Hashbrown', category: 'patty', image: 'images/hashbrown.png' },
+    { id: 'fried-bacon', name: 'Fried Bacon', category: 'protein', image: 'images/fried-bacon.png' },
+    { id: 'fried-egg', name: 'Fried Egg', category: 'protein', image: 'images/fried-egg.png' },
+    { id: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/champignons.png' }
   ];
 
   const SAUCES = [
@@ -441,6 +458,37 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'bbq', name: '🟤 BBQ', image: 'images/sauce-bbq.png' }
   ];
 
+  function renderCategoryTabs(containerEl, activeCat, onSelectCb) {
+    const cats = [
+      { id: 'all', label: 'All' },
+      { id: 'bread', label: 'Bread' },
+      { id: 'patty', label: 'Patty' },
+      { id: 'protein', label: 'Protein' },
+      { id: 'vegetables', label: 'Veg' }
+    ];
+    let tabsHtml = `<div class="panel-category-tabs">`;
+    cats.forEach(c => {
+      tabsHtml += `<button class="panel-tab-btn ${activeCat === c.id ? 'active' : ''}" onclick="(${onSelectCb})('${c.id}')">${c.label}</button>`;
+    });
+    tabsHtml += `</div>`;
+    return tabsHtml;
+  }
+
+  window.setAssemblyCategory = function(cat) {
+    assemblyActiveCategory = cat;
+    renderIngredientsMenu();
+  }
+
+  window.setGrillRawCategory = function(cat) {
+    grillRawActiveCategory = cat;
+    renderGrillIngredientsMenu();
+  }
+
+  window.setGrillCookedCategory = function(cat) {
+    grillCookedActiveCategory = cat;
+    renderGrillCookedInventory();
+  }
+
   function renderIngredientsMenu() {
     if (currentScreen !== 'assembly') return;
     if (!rightPanel) return;
@@ -448,31 +496,37 @@ document.addEventListener('DOMContentLoaded', () => {
     if (titleEl) titleEl.innerText = 'Ingredients';
 
     if (!ingredientsMenu) return;
-    ingredientsMenu.innerHTML = '';
-    INGREDIENTS.forEach(item => {
-      const card = document.createElement('div');
+    
+    const filtered = assemblyActiveCategory === 'all' ? INGREDIENTS : INGREDIENTS.filter(i => i.category === assemblyActiveCategory);
+
+    let html = renderCategoryTabs(rightPanel, assemblyActiveCategory, 'setAssemblyCategory');
+    
+    filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
       const isOut = currentGameMode !== 'sandbox' && stock <= 0;
-
-      card.className = `ingredient-card ${currentBurger.length >= MAX_INGREDIENTS || isEating || isOut ? 'disabled' : ''}`;
-      
-      let infoHtml = `<img src="${item.image}" alt="${item.name}">`;
       const countText = currentGameMode === 'sandbox' ? '∞' : `x${stock}`;
-      infoHtml += `
-        <div class="ingredient-info-row">
-          <span class="ingredient-name" title="${item.name}">${item.name}</span>
-          <span class="ingredient-stock-count">${countText}</span>
-        </div>`;
 
-      card.innerHTML = infoHtml;
-      
-      card.onclick = () => {
-        if (isEating || isAddingInProgress) return;
-        if (isOut) { showToast('Out of stock!', `Buy more ${item.name} in shop.`, 'warning'); return; }
-        addIngredient(item);
-      };
-      ingredientsMenu.appendChild(card);
+      html += `
+        <div class="ingredient-card ${currentBurger.length >= MAX_INGREDIENTS || isEating || isOut ? 'disabled' : ''}" onclick="handleAssemblyClick('${item.id}')">
+          <img src="${item.image}" alt="${item.name}">
+          <div class="ingredient-info-row">
+            <span class="ingredient-name" title="${item.name}">${item.name}</span>
+            <span class="ingredient-stock-count">${countText}</span>
+          </div>
+        </div>
+      `;
     });
+    ingredientsMenu.innerHTML = html;
+  }
+
+  window.handleAssemblyClick = function(id) {
+    if (isEating || isAddingInProgress) return;
+    const item = INGREDIENTS.find(i => i.id === id);
+    if (!item) return;
+    const stock = ingredientStock[item.id] ?? 0;
+    const isOut = currentGameMode !== 'sandbox' && stock <= 0;
+    if (isOut) { showToast('Out of stock!', `Buy more ${item.name} in shop.`, 'warning'); return; }
+    addIngredient(item);
   }
 
   function renderGrillIngredientsMenu() {
@@ -483,30 +537,34 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!titleEl || !menuEl) return;
 
     titleEl.innerText = 'Raw Ingredients';
-    menuEl.innerHTML = '';
+    
+    const filtered = grillRawActiveCategory === 'all' ? GRILLABLE_MENU_ITEMS : GRILLABLE_MENU_ITEMS.filter(i => i.category === grillRawActiveCategory);
 
-    GRILLABLE_MENU_ITEMS.forEach(item => {
-      const card = document.createElement('div');
+    let html = renderCategoryTabs(rightPanel, grillRawActiveCategory, 'setGrillRawCategory');
+
+    filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
       const isOut = currentGameMode !== 'sandbox' && stock <= 0;
-
-      card.className = `ingredient-card ${isOut ? 'disabled' : ''}`;
       const countText = currentGameMode === 'sandbox' ? '∞' : `x${stock}`;
 
-      card.innerHTML = `
-        <div class="ingredient-info-row">
-          <img src="${item.image}" alt="${item.name}">
-          <span class="ingredient-name" title="${item.name}">${item.name}</span>
+      html += `
+        <div class="ingredient-card ${isOut ? 'disabled' : ''}" onclick="handleGrillAddClick('${item.id}')">
+          <div class="ingredient-info-row">
+            <img src="${item.image}" alt="${item.name}">
+            <span class="ingredient-name" title="${item.name}">${item.name}</span>
+          </div>
+          <span class="ingredient-stock-count">${countText}</span>
         </div>
-        <span class="ingredient-stock-count">${countText}</span>
       `;
-
-      card.onclick = () => {
-        if (isOut) { showToast('Out of stock!', `Buy more ${item.name} in shop.`, 'warning'); return; }
-        addToGrill(item.id);
-      };
-      menuEl.appendChild(card);
     });
+    menuEl.innerHTML = html;
+  }
+
+  window.handleGrillAddClick = function(id) {
+    const stock = ingredientStock[id] ?? 0;
+    const isOut = currentGameMode !== 'sandbox' && stock <= 0;
+    if (isOut) { showToast('Out of stock!', `Buy more in shop.`, 'warning'); return; }
+    addToGrill(id);
   }
 
   function renderGrillCookedInventory() {
@@ -518,33 +576,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     titleEl.innerText = 'Cooked Ingredients';
     listEl.classList.remove('assembly-mode');
-    listEl.innerHTML = '';
 
-    const cookedItems = [
-      { id: 'beef-patty', name: 'Beef Patty', image: 'images/beef-patty.png' },
-      { id: 'chicken-patty', name: 'Chicken Patty', image: 'images/chicken-patty.png' },
-      { id: 'fish-patty', name: 'Fish Patty', image: 'images/fish-patty.png' },
-      { id: 'hashbrown', name: 'Hashbrown', image: 'images/hashbrown.png' },
-      { id: 'fried-bacon', name: 'Fried Bacon', image: 'images/fried-bacon.png' },
-      { id: 'fried-egg', name: 'Fried Egg', image: 'images/fried-egg.png' },
-      { id: 'champignons', name: 'Champignons', image: 'images/champignons.png' }
-    ];
+    const filtered = grillCookedActiveCategory === 'all' ? COOKED_INVENTORY_ITEMS : COOKED_INVENTORY_ITEMS.filter(i => i.category === grillCookedActiveCategory);
 
-    cookedItems.forEach(item => {
+    let html = renderCategoryTabs(leftPanel, grillCookedActiveCategory, 'setGrillCookedCategory');
+    let itemsContainerHtml = `<div style="display:flex; flex-direction:column; gap:6px; overflow-y:auto; flex:1;">`;
+
+    filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
-      const card = document.createElement('div');
-      card.className = 'layer-item';
-      card.style.justifyContent = 'space-between';
-      card.style.padding = '6px 10px';
-      card.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <img src="${item.image}" class="layer-preview">
-          <span style="font-size: 0.75rem; color: var(--text-color);">${item.name}</span>
+      itemsContainerHtml += `
+        <div class="layer-item" style="justify-content: space-between; padding: 6px 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <img src="${item.image}" class="layer-preview">
+            <span style="font-size: 0.75rem; color: var(--text-color);">${item.name}</span>
+          </div>
+          <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
         </div>
-        <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
       `;
-      listEl.appendChild(card);
     });
+    itemsContainerHtml += `</div>`;
+
+    listEl.innerHTML = html + itemsContainerHtml;
   }
 
   function addToGrill(rawId) {
@@ -698,7 +750,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* РЕНДЕР СЛОТОВ ГРИЛЯ С ТОЧНОЙ СМЕНОЙ СПРАЙТОВ */
   function renderGrill() {
     updateGrillLogic();
     if (currentScreen !== 'grill') return;
@@ -725,12 +776,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let imgsrc = config.rawImage;
         let extraHtml = '';
 
-        /* СХЕМА СМЕНЫ СПРАЙТОВ ПО ВАШЕМУ ТЗ:
-           - RAW: raw-[n].png
-           - FLIP1 (приготовилась 1 сторона): [n]-flip1.png
-           - FLIP2 (перевернули на 2 сторону): [n]-flip2.png
-           - COOKED (готов): [n].png / fried-[n].png
-        */
         if (slotData.state === 'cooking') {
           imgsrc = slotData.isFlipped ? config.flip2Image : config.rawImage;
         } else if (slotData.state === 'needsFlip') {
@@ -1191,27 +1236,28 @@ document.addEventListener('DOMContentLoaded', () => {
     'spicy': 'images/sauce-spicy.png', 'bbq': 'images/sauce-bbq.png'
   };
 
+  /* Рецепты с категориями (all, beef, chicken, fish, vegetarian, vegan, weird) */
   const REGULAR_RECIPES = [
-    { name: 'Classic Burger', ids: ['bottom-bun', 'beef-patty', 'top-bun'] },
-    { name: 'Cheeseburger', ids: ['bottom-bun', 'beef-patty', 'cheese', 'top-bun'] },
-    { name: 'Vegan Burger', ids: ['bottom-bun', 'hashbrown', 'lettuce', 'tomato', 'red-onion', 'top-bun'] },
-    { name: 'Juicy Burger', ids: ['bottom-bun', 'mayo', 'chicken-patty', 'cheese', 'tomato', 'ketchup', 'top-bun'] },
-    { name: 'Breakfast Burger', ids: ['bottom-bun', 'mayo', 'beef-patty', 'fried-egg', 'fried-bacon', 'top-bun'] },
-    { name: 'Mushroom Burger', ids: ['bottom-bun', 'bbq', 'beef-patty', 'champignons', 'top-bun'] },
-    { name: 'Chicken Burger', ids: ['bottom-bun', 'chicken-patty', 'mayo', 'pickles', 'top-bun'] },
-    { name: 'Double Burger', ids: ['bottom-bun', 'beef-patty', 'cheese', 'beef-patty', 'ketchup', 'top-bun'] },
-    { name: 'Chicken Delux', ids: ['bottom-bun', 'mayo', 'chicken-patty', 'cheese', 'tomato', 'lettuce', 'pickles', 'top-bun'] },
-    { name: 'Stinky Burger', ids: ['bottom-bun', 'mustard', 'chicken-patty', 'white-onion', 'cheese', 'red-onion', 'mustard', 'top-bun'] },
-    { name: 'Fish Burger', ids: ['bottom-bun', 'fish-patty', 'mayo', 'pickles', 'lettuce', 'top-bun'] }
+    { name: 'Classic Burger', category: 'beef', ids: ['bottom-bun', 'beef-patty', 'top-bun'] },
+    { name: 'Cheeseburger', category: 'beef', ids: ['bottom-bun', 'beef-patty', 'cheese', 'top-bun'] },
+    { name: 'Vegan Burger', category: 'vegan', ids: ['bottom-bun', 'hashbrown', 'lettuce', 'tomato', 'red-onion', 'top-bun'] },
+    { name: 'Juicy Burger', category: 'chicken', ids: ['bottom-bun', 'mayo', 'chicken-patty', 'cheese', 'tomato', 'ketchup', 'top-bun'] },
+    { name: 'Breakfast Burger', category: 'beef', ids: ['bottom-bun', 'mayo', 'beef-patty', 'fried-egg', 'fried-bacon', 'top-bun'] },
+    { name: 'Mushroom Burger', category: 'vegetarian', ids: ['bottom-bun', 'bbq', 'beef-patty', 'champignons', 'top-bun'] },
+    { name: 'Chicken Burger', category: 'chicken', ids: ['bottom-bun', 'chicken-patty', 'mayo', 'pickles', 'top-bun'] },
+    { name: 'Double Burger', category: 'beef', ids: ['bottom-bun', 'beef-patty', 'cheese', 'beef-patty', 'ketchup', 'top-bun'] },
+    { name: 'Chicken Delux', category: 'chicken', ids: ['bottom-bun', 'mayo', 'chicken-patty', 'cheese', 'tomato', 'lettuce', 'pickles', 'top-bun'] },
+    { name: 'Stinky Burger', category: 'weird', ids: ['bottom-bun', 'mustard', 'chicken-patty', 'white-onion', 'cheese', 'red-onion', 'mustard', 'top-bun'] },
+    { name: 'Fish Burger', category: 'fish', ids: ['bottom-bun', 'fish-patty', 'mayo', 'pickles', 'lettuce', 'top-bun'] }
   ];
 
   const SECRET_ACHIEVEMENTS = [
-    { id: 'cheeseburgerAch', title: 'Cheezeburger', desc: 'Ideal Roblox burger', sound: 'cheeseburger', ids: ['bottom-bun', 'beef-patty', 'cheese', 'top-bun'] },
-    { id: 'tomatonatorAch', title: 'Tomatonator', desc: 'If you don\'t like tomatoes why you even eat burgers?', sound: 'tomatonator', ids: ['bottom-bun', 'beef-patty', 'cheese', 'tomato', 'tomato', 'tomato', 'top-bun'] },
-    { id: 'lilypadAch', title: 'Lilypad', desc: 'Straight from the swamp', sound: 'lilypad', ids: ['bottom-bun', 'beef-patty', 'cheese', 'lettuce', 'lettuce', 'top-bun'] },
-    { id: 'saturnBurgerAch', title: 'Saturn Burger', desc: 'Saturn has the most moons of any planet in the solar system.', sound: 'saturnBurger', ids: ['bottom-bun', 'beef-patty', 'white-onion', 'top-bun'] },
-    { id: 'bustanatorAch', title: 'Bustanator', desc: 'I know you like this one', sound: 'bustanator', ids: ['bottom-bun', 'beef-patty', 'mayo', 'mayo', 'mayo', 'top-bun'] },
-    { id: 'mcPicklePounderAch', title: 'McPickle Pounder', desc: 'You\'re probably the kind of people who would eat a pickle tiramisu', sound: 'mcPicklePounder', ids: ['bottom-bun', 'beef-patty', 'cheese', 'pickles', 'pickles', 'pickles', 'top-bun'] }
+    { id: 'cheeseburgerAch', title: 'Cheezeburger', category: 'weird', desc: 'Ideal Roblox burger', sound: 'cheeseburger', ids: ['bottom-bun', 'beef-patty', 'cheese', 'top-bun'] },
+    { id: 'tomatonatorAch', title: 'Tomatonator', category: 'weird', desc: 'If you don\'t like tomatoes why you even eat burgers?', sound: 'tomatonator', ids: ['bottom-bun', 'beef-patty', 'cheese', 'tomato', 'tomato', 'tomato', 'top-bun'] },
+    { id: 'lilypadAch', title: 'Lilypad', category: 'vegetarian', desc: 'Straight from the swamp', sound: 'lilypad', ids: ['bottom-bun', 'beef-patty', 'cheese', 'lettuce', 'lettuce', 'top-bun'] },
+    { id: 'saturnBurgerAch', title: 'Saturn Burger', category: 'weird', desc: 'Saturn has the most moons of any planet in the solar system.', sound: 'saturnBurger', ids: ['bottom-bun', 'beef-patty', 'white-onion', 'top-bun'] },
+    { id: 'bustanatorAch', title: 'Bustanator', category: 'weird', desc: 'I know you like this one', sound: 'bustanator', ids: ['bottom-bun', 'beef-patty', 'mayo', 'mayo', 'mayo', 'top-bun'] },
+    { id: 'mcPicklePounderAch', title: 'McPickle Pounder', category: 'weird', desc: 'You\'re probably the kind of people who would eat a pickle tiramisu', sound: 'mcPicklePounder', ids: ['bottom-bun', 'beef-patty', 'cheese', 'pickles', 'pickles', 'pickles', 'top-bun'] }
   ];
 
   function unlockAchievement(ach) {
@@ -1224,6 +1270,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   let activeRecipeTab = 'regular';
+  let activeRecipeCategory = 'all';
+
   window.switchRecipeTab = function(tab) {
     activeRecipeTab = tab;
     document.getElementById('tabNormal').className = `recipe-tab ${tab === 'regular' ? 'active' : ''}`;
@@ -1231,57 +1279,72 @@ document.addEventListener('DOMContentLoaded', () => {
     renderRecipesModal();
   }
 
+  window.switchRecipeCategory = function(cat) {
+    activeRecipeCategory = cat;
+    renderRecipesModal();
+  }
+
   function renderRecipesModal() {
     const body = document.getElementById('recipesModalBody');
     if (!body) return;
-    body.innerHTML = '';
+
+    const cats = ['all', 'beef', 'chicken', 'fish', 'vegetarian', 'vegan', 'weird'];
+    let tabsHtml = `<div class="recipe-tabs" style="margin-bottom:8px;">`;
+    cats.forEach(c => {
+      tabsHtml += `<button class="recipe-tab ${activeRecipeCategory === c ? 'active' : ''}" style="min-width:50px; font-size:0.65rem; padding:4px;" onclick="switchRecipeCategory('${c}')">${c.toUpperCase()}</button>`;
+    });
+    tabsHtml += `</div>`;
+
+    let itemsHtml = '';
 
     if (activeRecipeTab === 'regular') {
-      REGULAR_RECIPES.forEach(r => {
-        const card = document.createElement('div');
-        card.className = 'recipe-card';
+      const filtered = activeRecipeCategory === 'all' ? REGULAR_RECIPES : REGULAR_RECIPES.filter(r => r.category === activeRecipeCategory);
+      filtered.forEach(r => {
         let iconsHtml = '';
         r.ids.forEach(id => { if (ITEM_IMAGES[id]) iconsHtml += `<img src="${ITEM_IMAGES[id]}" title="${id}">`; });
-        card.innerHTML = `<div class="recipe-info"><h4>${r.name}</h4><div class="recipe-visual">${iconsHtml}</div></div>`;
-        const pinBtn = document.createElement('button');
-        pinBtn.className = `btn-pin ${pinnedBurger && pinnedBurger.name === r.name ? 'pinned' : ''}`;
-        pinBtn.innerText = '📌';
-        pinBtn.onclick = () => {
-          pinnedBurger = pinnedBurger && pinnedBurger.name === r.name ? null : { name: r.name, ids: r.ids };
-          if (pinnedBurger) localStorage.setItem('pinned_burger', JSON.stringify(pinnedBurger));
-          else localStorage.removeItem('pinned_burger');
-          renderRecipesModal();
-          updatePinnedWidget();
-        };
-        card.appendChild(pinBtn);
-        body.appendChild(card);
+        itemsHtml += `
+          <div class="recipe-card">
+            <div class="recipe-info"><h4>${r.name}</h4><div class="recipe-visual">${iconsHtml}</div></div>
+            <button class="btn-pin ${pinnedBurger && pinnedBurger.name === r.name ? 'pinned' : ''}" onclick="pinRecipe('${r.name}')">📌</button>
+          </div>
+        `;
       });
     } else {
-      SECRET_ACHIEVEMENTS.forEach(ach => {
+      const filtered = activeRecipeCategory === 'all' ? SECRET_ACHIEVEMENTS : SECRET_ACHIEVEMENTS.filter(a => a.category === activeRecipeCategory);
+      filtered.forEach(ach => {
         const isUnlocked = unlockedAchievements[ach.id];
-        const card = document.createElement('div');
-        card.className = `recipe-card ${isUnlocked ? '' : 'locked'}`;
         if (isUnlocked) {
           let iconsHtml = '';
           ach.ids.forEach(id => { if (ITEM_IMAGES[id]) iconsHtml += `<img src="${ITEM_IMAGES[id]}" title="${id}">`; });
-          card.innerHTML = `<div class="recipe-info" style="flex:1;"><h4>${ach.title}</h4><div class="recipe-visual">${iconsHtml}</div></div>`;
-          const pinBtn = document.createElement('button');
-          pinBtn.className = `btn-pin ${pinnedBurger && pinnedBurger.name === ach.title ? 'pinned' : ''}`;
-          pinBtn.innerText = '📌';
-          pinBtn.onclick = () => {
-            pinnedBurger = pinnedBurger && pinnedBurger.name === ach.title ? null : { name: ach.title, ids: ach.ids };
-            if (pinnedBurger) localStorage.setItem('pinned_burger', JSON.stringify(pinnedBurger));
-            else localStorage.removeItem('pinned_burger');
-            renderRecipesModal();
-            updatePinnedWidget();
-          };
-          card.appendChild(pinBtn);
+          itemsHtml += `
+            <div class="recipe-card">
+              <div class="recipe-info" style="flex:1;"><h4>${ach.title}</h4><div class="recipe-visual">${iconsHtml}</div></div>
+              <button class="btn-pin ${pinnedBurger && pinnedBurger.name === ach.title ? 'pinned' : ''}" onclick="pinRecipe('${ach.title}')">📌</button>
+            </div>
+          `;
         } else {
-          card.innerHTML = `<div class="recipe-info" style="flex:1;"><h4>${ach.title}</h4><p style="font-size:0.75rem; opacity:0.6;">Secret recipe locked...</p></div>`;
+          itemsHtml += `
+            <div class="recipe-card locked">
+              <div class="recipe-info" style="flex:1;"><h4>${ach.title}</h4><p style="font-size:0.75rem; opacity:0.6;">Secret recipe locked...</p></div>
+            </div>
+          `;
         }
-        body.appendChild(card);
       });
     }
+
+    body.innerHTML = tabsHtml + itemsHtml;
+  }
+
+  window.pinRecipe = function(name) {
+    let found = REGULAR_RECIPES.find(r => r.name === name);
+    if (!found) found = SECRET_ACHIEVEMENTS.find(a => a.title === name);
+    if (!found) return;
+
+    pinnedBurger = pinnedBurger && pinnedBurger.name === name ? null : { name: found.name || found.title, ids: found.ids };
+    if (pinnedBurger) localStorage.setItem('pinned_burger', JSON.stringify(pinnedBurger));
+    else localStorage.removeItem('pinned_burger');
+    renderRecipesModal();
+    updatePinnedWidget();
   }
 
   function updatePinnedWidget() {
@@ -1420,6 +1483,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  const openShopBtn = document.getElementById('openShopBtn');
+  const closeShopModal = document.getElementById('closeShopModal');
+  const recipesModal = document.getElementById('recipesModal');
+  const openRecipesBtn = document.getElementById('openRecipesBtn');
+  const closeRecipesModal = document.getElementById('closeRecipesModal');
+  const achievementsModal = document.getElementById('achievementsModal');
+  const openAchievementsBtn = document.getElementById('openAchievementsBtn');
+  const closeAchievementsModal = document.getElementById('closeAchievementsModal');
+  const settingsModal = document.getElementById('settingsModal');
+  const openSettingsBtn = document.getElementById('openSettingsBtn');
+  const closeSettingsModal = document.getElementById('closeSettingsModal');
+
   if (openShopBtn) openShopBtn.onclick = () => { playSound(SOUNDS.buttons); updateShopBalanceHeader(); renderShopModal(); shopModal.classList.add('open'); };
   if (closeShopModal) closeShopModal.onclick = () => { playSound(SOUNDS.buttons); shopModal.classList.remove('open'); };
 
@@ -1443,19 +1518,6 @@ document.addEventListener('DOMContentLoaded', () => {
     achievementsModal.classList.add('open');
   };
   if (closeAchievementsModal) closeAchievementsModal.onclick = () => { playSound(SOUNDS.buttons); achievementsModal.classList.remove('open'); };
-
-  const resetAchievementsBtn = document.getElementById('resetAchievementsBtn');
-  if (resetAchievementsBtn) {
-    resetAchievementsBtn.onclick = () => {
-      if (confirm("⚠️ Are you sure you want to reset all unlocked achievements?")) {
-        unlockedAchievements = {};
-        localStorage.removeItem('unlocked_achievements');
-        playSound(SOUNDS.bin);
-        achievementsModal.classList.remove('open');
-        showToast('Achievements Reset!', 'All secret recipes locked again.', 'warning');
-      }
-    };
-  }
 
   if (openSettingsBtn) openSettingsBtn.onclick = () => { playSound(SOUNDS.buttons); settingsModal.classList.add('open'); };
   if (closeSettingsModal) closeSettingsModal.onclick = () => { playSound(SOUNDS.buttons); settingsModal.classList.remove('open'); };
