@@ -324,6 +324,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (switchToGrillBtn) switchToGrillBtn.onclick = () => switchScreen('grill');
   if (switchToBoardBtn) switchToBoardBtn.onclick = () => switchScreen('board');
 
+  const knifeBtn = document.getElementById('knifeBtn');
+
   function updateBottomPanelForScreen() {
     const isGrill = currentScreen === 'grill';
     const isBoard = currentScreen === 'board';
@@ -1091,7 +1093,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const knifeBtn = document.getElementById('knifeBtn');
   if (knifeBtn) {
     knifeBtn.onclick = () => {
       playSound(SOUNDS.buttons);
@@ -2114,8 +2115,17 @@ document.addEventListener('DOMContentLoaded', () => {
   if (hardResetBtn) hardResetBtn.onclick = () => {
     if (confirm("⚠️ WARNING: Wipe all data?")) { 
       localStorage.clear(); 
-      localStorage.setItem('has_seen_welcome', 'true'); 
+      localStorage.removeItem('has_seen_welcome'); 
       location.reload(); 
+    }
+  };
+
+  const resetAchievementsBtn = document.getElementById('resetAchievementsBtn');
+  if (resetAchievementsBtn) resetAchievementsBtn.onclick = () => {
+    if (confirm("⚠️ Reset all unlocked achievements?")) {
+      localStorage.removeItem('unlocked_achievements');
+      unlockedAchievements = {};
+      showToast('Achievements reset', '', 'success');
     }
   };
 
@@ -2736,7 +2746,7 @@ document.addEventListener('DOMContentLoaded', () => {
       getElement: () => document.getElementById('bottomPanel') || document.querySelector('.bottom-panel')
     },
 
-    // 2. Экран гриля (сначала показываем кнопку переключения на экране сборки)
+    // 2. Экран гриля
     {
       title: "Switch to Grill",
       text: "Click this button to switch to the Grill screen and cook raw ingredients.",
@@ -2762,7 +2772,7 @@ document.addEventListener('DOMContentLoaded', () => {
       getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
     },
 
-    // 3. Экран доски для нарезки (сначала кнопка переключения на сборке)
+    // 3. Экран доски для нарезки
     {
       title: "Switch to Cutting Board",
       text: "Click this button to switch to the Cutting Board screen.",
@@ -2801,15 +2811,15 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       title: "Reset & Tutorial",
-      text: "Scroll down to see the Danger Zone where you can reset data, and the button to restart this tutorial anytime!",
+      text: "Here you can restart this tutorial anytime and access the Danger Zone to wipe data or achievements.",
       screen: "assembly",
       action: () => {
-        const bodyEl = document.getElementById('settingsModalBody');
-        if (bodyEl) {
-          bodyEl.scrollTop = bodyEl.scrollHeight;
+        const finalSec = document.getElementById('tutorialFinalSection');
+        if (finalSec) {
+          finalSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       },
-      getElement: () => document.getElementById('openTutorialFromSettingsBtn') || document.getElementById('hardResetBtn')
+      getElement: () => document.getElementById('tutorialFinalSection')
     }
   ];
 
@@ -2895,6 +2905,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setTimeout(() => {
       const targetEl = step.getElement ? step.getElement() : null;
+      if (targetEl) {
+        // Автоматическая прокрутка к элементу на телефоне и ПК
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+      }
+
       if (targetEl && tutorialSpotlight && tutorialTooltip) {
         const rect = targetEl.getBoundingClientRect();
         const padding = 16;
@@ -2917,7 +2932,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tutorialTooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
         tutorialTooltip.style.top = `${Math.max(10, tooltipTop)}px`;
       }
-    }, 50);
+    }, 100);
   }
 
   if (tutorialNextBtn) {
