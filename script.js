@@ -2794,27 +2794,32 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       title: "Settings & Game Modes",
-      text: "Let's head back to Assembly. Open Settings to configure volume, themes, game modes (Sandbox, Casual, Turbo), and order frequencies.",
+      text: "Open Settings to configure volume, themes, game modes (Sandbox, Casual, Turbo), and order frequencies.",
       screen: "assembly",
       action: () => {
-        const modal = document.getElementById('settingsModal');
-        if (modal) modal.classList.add('open');
+        // На мобильных устройствах не открываем окно настроек физически, чтобы не ломать верстку туториала
+        if (window.innerWidth > 900) {
+          const modal = document.getElementById('settingsModal');
+          if (modal) modal.classList.add('open');
+        }
       },
-      getElement: () => document.getElementById('settingsModal') ? document.getElementById('settingsModal').querySelector('.modal-content') : document.body
+      getElement: () => document.getElementById('openSettingsBtn')
     },
     {
       title: "Reset & Tutorial",
       text: "Here you can restart this tutorial anytime and access the Danger Zone to wipe data or achievements.",
       screen: "assembly",
       action: () => {
-        const modal = document.getElementById('settingsModal');
-        if (modal && !modal.classList.contains('open')) modal.classList.add('open');
-        const finalSec = document.getElementById('tutorialFinalSection');
-        if (finalSec) {
-          finalSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (window.innerWidth > 900) {
+          const modal = document.getElementById('settingsModal');
+          if (modal && !modal.classList.contains('open')) modal.classList.add('open');
+          const finalSec = document.getElementById('tutorialFinalSection');
+          if (finalSec) {
+            finalSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
         }
       },
-      getElement: () => document.getElementById('tutorialFinalSection')
+      getElement: () => window.innerWidth > 900 ? document.getElementById('tutorialFinalSection') : document.getElementById('openSettingsBtn')
     }
   ];
 
