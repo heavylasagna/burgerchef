@@ -2712,35 +2712,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- ПОЛНЫЙ ТУТОРИАЛ (с адаптивной подсветкой для ПК и чисто зафиксированным оверлеем для мобильных) ---
+  // --- ПОЛНЫЙ ТУТОРИАЛ (с вашими подсказками и адаптивной высотой контейнера на ПК) ---
   const tutorialSteps = [
     {
       title: "Assembly Screen",
-      text: "This is your main workplace where you build custom burgers.",
+      text: "This is your main workplace where you assemble orders or create your own burgers.",
       screen: "assembly",
       getElement: () => document.getElementById('centerStage') || document.querySelector('.center-stage')
     },
     {
       title: "Ingredients Menu",
-      text: "Here you can select and add various ingredients (buns, patties, veggies) to your burger stack.",
+      text: "Here you can select what ingredients you want to put in your burger.",
       screen: "assembly",
       getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
     },
     {
       title: "Layers Panel",
-      text: "Here you can see all current layers of your burger, reorder them, or remove individual items.",
+      text: "In there you can see all current layers of your burger, reorder them, or remove individual items.",
       screen: "assembly",
       getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
     },
     {
       title: "Wallet",
-      text: "Shows your current money balance. Earn cash by fulfilling customer orders correctly!",
+      text: "Shows your current balance. Serve orders and try not to get fines!",
       screen: "assembly",
       getElement: () => document.getElementById('walletWidget') || document.querySelector('.wallet-widget')
     },
     {
       title: "Bottom Actions Menu",
-      text: "Quick buttons for recipes, shop, inventory backpack, achievements, eating, squishing, or trashing the burger.",
+      text: "On the lower menu you have a variety of buttons:\n\n📋 List of recipes\n🏬 Groceries shop\n🎒 Your inventory\n🏆 Your achievements\n---\n🔔 Summon new order\n⏩ Skip current order\n🍔 Eat your burger\n🍽 Serve the order\n✊ Squeeze your burger\n🗑 Bin current ingredients\n---\n💾 Save your burger as PNG\n⚙ Settings",
       screen: "assembly",
       getElement: () => document.getElementById('bottomPanel') || document.querySelector('.bottom-panel')
     },
@@ -2752,19 +2752,19 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       title: "Grill Screen",
-      text: "Here you can grill raw patties, bacon, eggs, and mushrooms.",
+      text: "Here you can cook your ingredients. Don't burn them!",
       screen: "grill",
       getElement: () => document.getElementById('grillStage')
     },
     {
       title: "Raw Ingredients Menu",
-      text: "On the right panel, select raw items from your stock to place them onto the grill slots.",
+      text: "On the right panel, select raw items from your stock to place them onto the grill.",
       screen: "grill",
       getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
     },
     {
       title: "Cooked Inventory",
-      text: "On the left panel, you can view your inventory of successfully cooked ingredients ready to use.",
+      text: "On the left panel, you can view your inventory of cooked goods.",
       screen: "grill",
       getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
     },
@@ -2776,25 +2776,25 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       title: "Cutting Board Screen",
-      text: "Here you can chop and slice uncut vegetables and cheeses before using them.",
+      text: "Here you can cut your ingredients before using them.",
       screen: "board",
       getElement: () => document.getElementById('boardStage')
     },
     {
       title: "Uncut Ingredients",
-      text: "Select uncut items on the right panel to place them onto the board and chop them into pieces.",
+      text: "Select items to put them on the board and cut.",
       screen: "board",
       getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
     },
     {
       title: "Sliced Inventory",
-      text: "The left panel displays your stock of freshly sliced ingredients ready for your culinary creations.",
+      text: "The left panel displays your stock of of cut produce.",
       screen: "board",
       getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
     },
     {
       title: "Settings & Game Modes",
-      text: "Open Settings to configure volume, themes, game modes (Sandbox, Casual, Turbo), and order frequencies.",
+      text: "In the settings you can adjust volume and other features:\n\nSandbox. Infinite money and ingredients, chill and be creative\n\nCasual. A career gamemode where you need to manage your finances\n\nTurbo. Orders come without stopping and with an additional patience timer. Don't mess up or you'll get fined!\n---\nThe order frequency tells how fast you will be getting your next order. In \"Turbo\" you won't need to wait a second for the next customer and in \"No orders\" you won't get any at all.",
       screen: "assembly",
       action: () => {
         if (window.innerWidth > 900) {
@@ -2810,7 +2810,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       title: "Reset & Tutorial",
-      text: "Here you can restart this tutorial anytime and access the Danger Zone to wipe data or achievements.",
+      text: "That's the end of the tutorial. In danger zone there are two buttons to reset your achievements and game progress. Be careful with these and enjoy!",
       screen: "assembly",
       action: () => {
         if (window.innerWidth > 900) {
@@ -2894,7 +2894,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const isMobile = window.innerWidth <= 900;
 
-    // На мобильных устройствах не переключаем экраны фона во время туториала, чтобы фон был статичным
     if (!isMobile) {
       if (step.screen && currentScreen !== step.screen) {
         switchScreen(step.screen);
@@ -2911,10 +2910,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (tutorialTitle) tutorialTitle.innerText = step.title;
-    if (tutorialText) tutorialText.innerText = step.text;
+    
+    // Поддержка корректного отображения переносов строк для объемных подсказок
+    if (tutorialText) {
+      tutorialText.style.whiteSpace = 'pre-line';
+      tutorialText.innerText = step.text;
+    }
+
     if (tutorialStepIndicator) tutorialStepIndicator.innerText = `${stepIndex + 1} / ${tutorialSteps.length}`;
     if (tutorialPrevBtn) tutorialPrevBtn.style.display = stepIndex === 0 ? 'none' : 'block';
     if (tutorialNextBtn) tutorialNextBtn.innerText = stepIndex === tutorialSteps.length - 1 ? 'Finish' : 'Next';
+
+    // Настройка стилей тултипа для ПК, чтобы объемные подсказки не обрезались по высоте
+    if (tutorialTooltip) {
+      if (!isMobile) {
+        tutorialTooltip.style.maxHeight = '80vh';
+        tutorialTooltip.style.overflowY = 'auto';
+      } else {
+        tutorialTooltip.style.maxHeight = '';
+        tutorialTooltip.style.overflowY = '';
+      }
+    }
 
     // Подсветка элементов только для ПК
     if (!isMobile) {
@@ -2936,14 +2952,16 @@ document.addEventListener('DOMContentLoaded', () => {
             tutorialSpotlight.style.width = `${rect.width + padding * 2}px`;
             tutorialSpotlight.style.height = `${rect.height + padding * 2}px`;
 
-            const tooltipWidth = 310;
+            const tooltipWidth = 330;
             let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2 + scrollLeft;
             let tooltipTop = rect.bottom + scrollTop + 16;
 
             if (tooltipLeft < 10) tooltipLeft = 10;
             if (tooltipLeft + tooltipWidth > window.innerWidth - 10) tooltipLeft = window.innerWidth - tooltipWidth - 10;
-            if (tooltipTop + 190 > window.innerHeight + scrollTop) {
-              tooltipTop = rect.top + scrollTop - 190;
+            
+            // Если тултип не помещается снизу, пробуем разместить сверху
+            if (tooltipTop + tutorialTooltip.offsetHeight > window.innerHeight + scrollTop) {
+              tooltipTop = rect.top + scrollTop - tutorialTooltip.offsetHeight - 16;
             }
 
             tutorialTooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
