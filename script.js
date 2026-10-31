@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (isNaN(playerMoney)) playerMoney = 100.00;
 
   const ITEM_PRICES = {
-    'bottom-bun': 2, 'top-bun': 2,
+    'top-bun': 2, 'bottom-bun': 2,
     'beef-patty': 5, 'chicken-patty': 4, 'fish-patty': 4, 'fried-bacon': 3, 'fried-egg': 2,
     'cheese': 3, 'hashbrown': 3, 'champignons': 3,
     'lettuce': 1, 'tomato': 1, 'pickles': 1, 'red-onion': 1, 'white-onion': 1,
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   let ingredientStock = JSON.parse(localStorage.getItem('burger_ingredient_stock')) || {
-    'bottom-bun': 20, 'top-bun': 20,
+    'top-bun': 20, 'bottom-bun': 20,
     'beef-patty': 15, 'chicken-patty': 15, 'fish-patty': 15, 'fried-bacon': 10, 'fried-egg': 10,
     'cheese': 15, 'hashbrown': 10, 'champignons': 10,
     'lettuce': 20, 'tomato': 20, 'pickles': 20, 'red-onion': 15, 'white-onion': 15,
@@ -408,9 +408,10 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(removeToast, 3500);
   }
 
+  // Заменён порядок булочек: Top Bun идет первой, Bottom Bun второй
   const INGREDIENTS = [
-    { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
     { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
+    { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
     { id: 'beef-patty', name: 'Beef Patty', category: 'patty', image: 'images/beef-patty.png' },
     { id: 'chicken-patty', name: 'Chicken Patty', category: 'patty', image: 'images/chicken-patty.png' },
     { id: 'fish-patty', name: 'Fish Patty', category: 'patty', image: 'images/fish-patty.png' },
@@ -454,19 +455,40 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'bbq', name: '🟤 BBQ', image: 'images/sauce-bbq.png' }
   ];
 
-  function renderCategoryTabs(containerEl, activeCat, onSelectCb) {
-    const cats = [
+  function bindHorizontalWheelScroll(containerEl) {
+    if (!containerEl) return;
+    containerEl.addEventListener('wheel', (e) => {
+      if (e.deltaY !== 0) {
+        e.preventDefault();
+        containerEl.scrollLeft += e.deltaY;
+      }
+    }, { passive: false });
+  }
+
+  function renderCategoryTabs(containerEl, activeCat, onSelectCb, hideBread = false) {
+    let cats = [
       { id: 'all', label: 'All' },
       { id: 'bread', label: 'Bread' },
       { id: 'patty', label: 'Patty' },
       { id: 'protein', label: 'Protein' },
       { id: 'vegetables', label: 'Veg' }
     ];
-    let tabsHtml = `<div class="panel-category-tabs">`;
+
+    if (hideBread) {
+      cats = cats.filter(c => c.id !== 'bread');
+    }
+
+    let tabsHtml = `<div class="panel-category-tabs" id="cat-tabs-${onSelectCb}">`;
     cats.forEach(c => {
       tabsHtml += `<button class="panel-tab-btn ${activeCat === c.id ? 'active' : ''}" onclick="(${onSelectCb})('${c.id}')">${c.label}</button>`;
     });
     tabsHtml += `</div>`;
+
+    setTimeout(() => {
+      const tabsEl = document.getElementById(`cat-tabs-${onSelectCb}`);
+      bindHorizontalWheelScroll(tabsEl);
+    }, 0);
+
     return tabsHtml;
   }
 
@@ -495,14 +517,15 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const filtered = assemblyActiveCategory === 'all' ? INGREDIENTS : INGREDIENTS.filter(i => i.category === assemblyActiveCategory);
 
-    let html = renderCategoryTabs(rightPanel, assemblyActiveCategory, 'setAssemblyCategory');
+    const tabsHtml = renderCategoryTabs(rightPanel, assemblyActiveCategory, 'setAssemblyCategory', false);
     
+    let cardsHtml = `<div style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1;">`;
     filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
       const isOut = currentGameMode !== 'sandbox' && stock <= 0;
       const countText = currentGameMode === 'sandbox' ? '∞' : `x${stock}`;
 
-      html += `
+      cardsHtml += `
         <div class="ingredient-card ${currentBurger.length >= MAX_INGREDIENTS || isEating || isOut ? 'disabled' : ''}" onclick="handleAssemblyClick('${item.id}')">
           <img src="${item.image}" alt="${item.name}">
           <div class="ingredient-info-row">
@@ -512,7 +535,9 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       `;
     });
-    ingredientsMenu.innerHTML = html;
+    cardsHtml += `</div>`;
+
+    ingredientsMenu.innerHTML = tabsHtml + cardsHtml;
   }
 
   window.handleAssemblyClick = function(id) {
@@ -536,14 +561,15 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const filtered = grillRawActiveCategory === 'all' ? GRILLABLE_MENU_ITEMS : GRILLABLE_MENU_ITEMS.filter(i => i.category === grillRawActiveCategory);
 
-    let html = renderCategoryTabs(rightPanel, grillRawActiveCategory, 'setGrillRawCategory');
+    const tabsHtml = renderCategoryTabs(rightPanel, grillRawActiveCategory, 'setGrillRawCategory', true);
 
+    let cardsHtml = `<div style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1;">`;
     filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
       const isOut = currentGameMode !== 'sandbox' && stock <= 0;
       const countText = currentGameMode === 'sandbox' ? '∞' : `x${stock}`;
 
-      html += `
+      cardsHtml += `
         <div class="ingredient-card ${isOut ? 'disabled' : ''}" onclick="handleGrillAddClick('${item.id}')">
           <div class="ingredient-info-row">
             <img src="${item.image}" alt="${item.name}">
@@ -553,7 +579,9 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       `;
     });
-    menuEl.innerHTML = html;
+    cardsHtml += `</div>`;
+
+    menuEl.innerHTML = tabsHtml + cardsHtml;
   }
 
   window.handleGrillAddClick = function(id) {
@@ -575,7 +603,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const filtered = grillCookedActiveCategory === 'all' ? COOKED_INVENTORY_ITEMS : COOKED_INVENTORY_ITEMS.filter(i => i.category === grillCookedActiveCategory);
 
-    let html = renderCategoryTabs(leftPanel, grillCookedActiveCategory, 'setGrillCookedCategory');
+    const tabsHtml = renderCategoryTabs(leftPanel, grillCookedActiveCategory, 'setGrillCookedCategory', true);
     let itemsContainerHtml = `<div style="display:flex; flex-direction:column; gap:6px; overflow-y:auto; flex:1;">`;
 
     filtered.forEach(item => {
@@ -592,7 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     itemsContainerHtml += `</div>`;
 
-    listEl.innerHTML = html + itemsContainerHtml;
+    listEl.innerHTML = tabsHtml + itemsContainerHtml;
   }
 
   function addToGrill(rawId) {
@@ -931,9 +959,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const forceOrderBtn = document.getElementById('forceOrderBtn');
   const skipOrderBtn = document.getElementById('skipOrderBtn');
 
+  // Порядок булочек в магазине также изменен (Top Bun первой)
   const SHOP_ITEMS = [
-    { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
     { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
+    { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
     { id: 'beef-patty', name: 'Beef Patty', category: 'patty', image: 'images/beef-patty.png' },
     { id: 'chicken-patty', name: 'Chicken Patty', category: 'patty', image: 'images/chicken-patty.png' },
     { id: 'fish-patty', name: 'Fish Patty', category: 'patty', image: 'images/fish-patty.png' },
@@ -1220,7 +1249,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const ITEM_IMAGES = {
-    'bottom-bun': 'images/bottom-bun.png', 'top-bun': 'images/top-bun.png',
+    'top-bun': 'images/top-bun.png', 'bottom-bun': 'images/bottom-bun.png',
     'beef-patty': 'images/beef-patty.png', 'cheese': 'images/cheese.png',
     'hashbrown': 'images/hashbrown.png', 'fried-egg': 'images/fried-egg.png',
     'champignons': 'images/champignons.png', 'fried-bacon': 'images/fried-bacon.png',
