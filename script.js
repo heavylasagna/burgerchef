@@ -45,7 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const leftPanel = document.getElementById('leftPanel');
   const rightPanel = document.getElementById('rightPanel');
-  const grillRightPanel = document.getElementById('grillRightPanel');
   const bottomPanel = document.getElementById('bottomPanel');
   const ingredientsMenu = document.getElementById('ingredientsMenu');
   const desktopSaucesGroup = document.getElementById('desktopSaucesGroup');
@@ -85,21 +84,18 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const GRILLABLE_ITEMS = {
-    'raw-beef-patty': { name: 'Beef Patty', rawImage: 'images/raw-beef-patty.png', cookedId: 'beef-patty', cookedImage: 'images/beef-patty.png', flippedImage: 'images/beef-patty-flip.png', needsFlip: true, sideCookTime: 12, burnTime: 12 },
-    'raw-chicken-patty': { name: 'Chicken Patty', rawImage: 'images/raw-chicken-patty.png', cookedId: 'chicken-patty', cookedImage: 'images/chicken-patty.png', flippedImage: 'images/chicken-patty-flip.png', needsFlip: true, sideCookTime: 10, burnTime: 10 },
-    'raw-fish-patty': { name: 'Fish Patty', rawImage: 'images/raw-fish-patty.png', cookedId: 'fish-patty', cookedImage: 'images/fish-patty.png', flippedImage: 'images/fish-patty-flip.png', needsFlip: true, sideCookTime: 10, burnTime: 10 },
-    'raw-hashbrown': { name: 'Hashbrown', rawImage: 'images/raw-hashbrown.png', cookedId: 'hashbrown', cookedImage: 'images/hashbrown.png', flippedImage: 'images/hasbrown-flip.png', needsFlip: true, sideCookTime: 10, burnTime: 10 },
-    'raw-bacon': { name: 'Bacon', rawImage: 'images/raw-bacon.png', cookedId: 'fried-bacon', cookedImage: 'images/fried-bacon.png', needsFlip: false, sideCookTime: 8, burnTime: 10 },
-    'raw-egg': { name: 'Egg', rawImage: 'images/egg.png', cookedId: 'fried-egg', cookedImage: 'images/fried-egg.png', needsFlip: false, sideCookTime: 8, burnTime: 10 }, // Использование egg.png в меню сырых продуктов гриля
-    'raw-champignons': { name: 'Champignons', rawImage: 'images/raw-champignons.png', cookedId: 'champignons', cookedImage: 'images/champignons.png', needsFlip: false, sideCookTime: 8, burnTime: 10 }
+    'raw-beef-patty': { name: 'Beef Patty', rawImage: 'images/raw-beef-patty.png', cookedId: 'beef-patty', cookedImage: 'images/beef-patty.png', flippedImage: 'images/beef-patty-flip.png', needsFlip: true, cookTime: 6, burnTime: 8 },
+    'raw-chicken-patty': { name: 'Chicken Patty', rawImage: 'images/raw-chicken-patty.png', cookedId: 'chicken-patty', cookedImage: 'images/chicken-patty.png', flippedImage: 'images/chicken-patty-flip.png', needsFlip: true, cookTime: 6, burnTime: 8 },
+    'raw-fish-patty': { name: 'Fish Patty', rawImage: 'images/raw-fish-patty.png', cookedId: 'fish-patty', cookedImage: 'images/fish-patty.png', flippedImage: 'images/fish-patty-flip.png', needsFlip: true, cookTime: 6, burnTime: 8 },
+    'raw-hashbrown': { name: 'Hashbrown', rawImage: 'images/raw-hashbrown.png', cookedId: 'hashbrown', cookedImage: 'images/hashbrown.png', flippedImage: 'images/hasbrown-flip.png', needsFlip: true, cookTime: 5, burnTime: 7 },
+    'raw-bacon': { name: 'Fried Bacon', rawImage: 'images/raw-bacon.png', cookedId: 'fried-bacon', cookedImage: 'images/fried-bacon.png', needsFlip: false, cookTime: 4, burnTime: 4 },
+    'raw-egg': { name: 'Fried Egg', rawImage: 'images/egg.png', cookedId: 'fried-egg', cookedImage: 'images/fried-egg.png', needsFlip: false, cookTime: 4, burnTime: 4 },
+    'raw-champignons': { name: 'Champignons', rawImage: 'images/raw-champignons.png', cookedId: 'champignons', cookedImage: 'images/champignons.png', needsFlip: false, cookTime: 4, burnTime: 4 }
   };
 
   const maxGrillSlots = 3;
   let grillSlots = JSON.parse(localStorage.getItem('burger_grill_slots')) || Array(maxGrillSlots).fill(null);
   let currentScreen = 'assembly';
-  let isBinSelectMode = false;
-  let selectedGrillIndicesForBin = [];
-  let sizzlingAudioInstance = null;
 
   let currentGameMode = localStorage.getItem('burger_game_mode') || 'casual';
   let modeSpeeds = JSON.parse(localStorage.getItem('burger_mode_speeds')) || { 'sandbox': 'no-orders', 'casual': 'no-orders' };
@@ -113,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const switchToAssemblyBtn = document.getElementById('switchToAssemblyBtn');
   const switchToGrillBtn = document.getElementById('switchToGrillBtn');
-  const switchToBoardBtn = document.getElementById('switchToBoardBtn');
 
   function switchScreen(screen) {
     playSound(SOUNDS.buttons);
@@ -121,25 +116,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (switchToAssemblyBtn) switchToAssemblyBtn.classList.toggle('active', screen === 'assembly');
     if (switchToGrillBtn) switchToGrillBtn.classList.toggle('active', screen === 'grill');
-    if (switchToBoardBtn) switchToBoardBtn.classList.toggle('active', screen === 'board');
 
     if (screen === 'assembly') {
       if (centerStage) centerStage.style.display = 'flex';
       if (grillStage) grillStage.style.display = 'none';
       if (rightPanel) rightPanel.style.display = 'flex';
-      if (grillRightPanel) grillRightPanel.style.display = 'none';
       if (leftPanel) leftPanel.style.display = 'flex';
-      if (desktopSaucesGroup) desktopSaucesGroup.classList.remove('hidden-on-grill');
-      if (mobileSaucesGroup) mobileSaucesGroup.classList.remove('hidden-on-grill');
-      exitBinSelectMode();
     } else if (screen === 'grill') {
       if (centerStage) centerStage.style.display = 'none';
       if (grillStage) grillStage.style.display = 'flex';
       if (rightPanel) rightPanel.style.display = 'none';
-      if (grillRightPanel) grillRightPanel.style.display = 'flex';
       if (leftPanel) leftPanel.style.display = 'none';
-      if (desktopSaucesGroup) desktopSaucesGroup.classList.add('hidden-on-grill');
-      if (mobileSaucesGroup) mobileSaucesGroup.classList.add('hidden-on-grill');
       renderGrill();
     }
   }
@@ -149,7 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function saveStock() { localStorage.setItem('burger_ingredient_stock', JSON.stringify(ingredientStock)); }
   function saveBurgerState() { localStorage.setItem('saved_burger_stack', JSON.stringify(currentBurger)); }
-  function saveGrillState() { localStorage.setItem('burger_grill_slots', JSON.stringify(grillSlots)); }
 
   function showToast(title, desc = '', type = 'success') {
     const container = document.getElementById('toastContainer');
@@ -245,13 +231,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const stock = ingredientStock[rawId] ?? 0;
       const isOut = currentGameMode !== 'sandbox' && stock <= 0;
 
-      // Используем rawImage (для яйца это будет egg.png в меню сырых продуктов)
-      const displayImg = rawId === 'raw-egg' ? 'images/egg.png' : itemConfig.rawImage;
-
       const card = document.createElement('div');
       card.className = `ingredient-card ${isOut ? 'disabled' : ''}`;
       card.innerHTML = `
-        <img src="${displayImg}" alt="${itemConfig.name}">
+        <img src="${itemConfig.rawImage}" alt="${itemConfig.name}">
         <div class="ingredient-info-row">
           <span class="ingredient-name" title="${itemConfig.name}">${itemConfig.name}</span>
           <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
@@ -277,17 +260,14 @@ document.addEventListener('DOMContentLoaded', () => {
       saveStock();
     }
 
-    // Когда игрок кладет яйцо на гриль, используем спрайт raw-egg.png («разбитое яйцо»)
     grillSlots[emptyIndex] = {
       rawId: rawId,
-      side: 1,
-      progress: 0,
       state: 'cooking',
+      progress: 0,
       isFlipped: false
     };
 
     playSound(SOUNDS.ingridients);
-    saveGrillState();
     renderGrill();
   }
 
@@ -299,201 +279,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!area) return;
     area.innerHTML = '';
 
-    let hasActiveCooking = false;
-
     grillSlots.forEach((slotData, index) => {
       const slotEl = document.createElement('div');
-      slotEl.className = `grill-slot ${isBinSelectMode ? 'bin-mode' : ''} ${selectedGrillIndicesForBin.includes(index) ? 'selected-for-bin' : ''}`;
+      slotEl.className = 'grill-slot';
 
       if (slotData) {
-        if (slotData.state !== 'charred') hasActiveCooking = true;
         const config = GRILLABLE_ITEMS[slotData.rawId];
-        let imgsrc = config.rawImage; // для яйца это raw-egg.png при жарке
-        let extraHtml = '';
-
-        if (slotData.side === 2) imgsrc = config.flippedImage || config.cookedImage;
-        if (slotData.state === 'ready') imgsrc = config.cookedImage;
-
-        if (slotData.state === 'needsFlip') {
-          extraHtml = `<div class="flip-badge">Flip!</div>`;
-        }
-
-        const progressPercent = Math.min(100, Math.max(0, slotData.progress));
-        const isReadyBar = slotData.state === 'ready';
+        let imgsrc = config.rawImage;
 
         slotEl.innerHTML = `
-          ${extraHtml}
-          <img src="${imgsrc}" class="grill-item ${slotData.isFlipped ? 'flipped' : ''} ${slotData.state === 'charred' ? 'charred' : ''}">
-          <div class="grill-progress-container">
-            <div class="grill-progress-bar ${isReadyBar ? 'ready' : ''}" style="width: ${progressPercent}%"></div>
-          </div>
+          <img src="${imgsrc}" class="grill-item">
         `;
-
-        if (Math.random() < 0.2 && slotData.state !== 'charred') {
-          createOilSplash(slotEl);
-        }
-
-        slotEl.onclick = () => {
-          if (isBinSelectMode) toggleGrillSlotSelectionForBin(index);
-          else handleGrillSlotClick(index);
-        };
-      } else {
-        slotEl.onclick = () => {
-          if (isBinSelectMode) toggleGrillSlotSelectionForBin(index);
-        };
       }
 
       area.appendChild(slotEl);
     });
-
-    manageSizzlingAudio(hasActiveCooking);
   }
 
-  function createOilSplash(parentEl) {
-    const splash = document.createElement('div');
-    splash.className = 'oil-splash';
-    splash.style.setProperty('--dx', `${(Math.random() - 0.5) * 40}px`);
-    splash.style.setProperty('--dy', `${(Math.random() - 0.5) * 40}px`);
-    splash.style.left = '50%'; splash.style.top = '50%';
-    parentEl.appendChild(splash);
-    setTimeout(() => splash.remove(), 600);
-  }
-
-  function manageSizzlingAudio(hasActive) {
-    if (hasActive) {
-      if (!sizzlingAudioInstance && SOUNDS.sizzling) {
-        sizzlingAudioInstance = SOUNDS.sizzling;
-        sizzlingAudioInstance.loop = true;
-        playSound(sizzlingAudioInstance);
-      }
-    } else {
-      if (sizzlingAudioInstance) {
-        try { sizzlingAudioInstance.pause(); sizzlingAudioInstance.currentTime = 0; } catch(e){}
-        sizzlingAudioInstance = null;
-      }
-    }
-  }
-
-  function handleGrillSlotClick(index) {
-    const slot = grillSlots[index];
-    if (!slot) return;
-    const config = GRILLABLE_ITEMS[slot.rawId];
-
-    if (slot.state === 'needsFlip' || (config.needsFlip && slot.side === 1)) {
-      slot.side = 2;
-      slot.isFlipped = true;
-      slot.state = 'cooking';
-      slot.progress = 0;
-      playSound(SOUNDS.buttons);
-      saveGrillState();
-      renderGrill();
-    } else if (slot.state === 'ready') {
-      ingredientStock[config.cookedId] = (ingredientStock[config.cookedId] ?? 0) + 1;
-      saveStock();
-      showToast('Added to inventory!', `${config.name} added to backpack.`, 'success');
-      playSound(SOUNDS.buy);
-      
-      grillSlots[index] = null;
-      saveGrillState();
-      renderGrill();
-      renderIngredientsMenu();
-    }
-  }
-
-  setInterval(() => {
-    if (currentScreen !== 'grill') return;
-    let needsRedraw = false;
-
-    grillSlots.forEach((slot) => {
-      if (!slot || slot.state === 'charred') return;
-      const config = GRILLABLE_ITEMS[slot.rawId];
-
-      if (slot.state === 'cooking') {
-        const step = 100 / (config.sideCookTime * 5);
-        slot.progress += step;
-
-        if (slot.progress >= 100) {
-          slot.progress = 100;
-          if (config.needsFlip && slot.side === 1) {
-            slot.state = 'needsFlip';
-          } else {
-            slot.state = 'ready';
-          }
-        }
-        needsRedraw = true;
-      } else if (slot.state === 'needsFlip' || slot.state === 'ready') {
-        const burnStep = 100 / (config.burnTime * 5);
-        slot.progress -= burnStep;
-
-        if (slot.progress <= 0) {
-          slot.progress = 0;
-          slot.state = 'charred';
-          if (sizzlingAudioInstance) {
-            try { sizzlingAudioInstance.pause(); sizzlingAudioInstance.currentTime = 0; } catch(e){}
-            sizzlingAudioInstance = null;
-          }
-          playSound(SOUNDS.burnt);
-          showToast('Burnt!', `${config.name} burned to charcoal!`, 'error');
-        }
-        needsRedraw = true;
-      }
-    });
-
-    if (needsRedraw) renderGrill();
-  }, 200);
-
-  function enterBinSelectMode() {
-    isBinSelectMode = true;
-    selectedGrillIndicesForBin = [];
-    const container = document.getElementById('binConfirmContainer');
-    if (container) container.style.display = 'flex';
-    showToast('Select items to bin', '', 'warning');
-    renderGrill();
-  }
-
-  function exitBinSelectMode() {
-    isBinSelectMode = false;
-    selectedGrillIndicesForBin = [];
-    const container = document.getElementById('binConfirmContainer');
-    if (container) container.style.display = 'none';
-    renderGrill();
-  }
-
-  function toggleGrillSlotSelectionForBin(index) {
-    if (!grillSlots[index]) return;
-    const pos = selectedGrillIndicesForBin.indexOf(index);
-    if (pos > -1) selectedGrillIndicesForBin.splice(pos, 1);
-    else selectedGrillIndicesForBin.push(index);
-    renderGrill();
-  }
-
-  window.confirmBinGrillItems = function() {
-    playSound(SOUNDS.bin);
-    selectedGrillIndicesForBin.forEach(idx => { grillSlots[idx] = null; });
-    saveGrillState();
-    exitBinSelectMode();
-    showToast('Items discarded', '', 'success');
-  };
-  window.exitBinSelectMode = exitBinSelectMode;
-
-  const resetBtn = document.getElementById('resetBtn');
-  if (resetBtn) {
-    resetBtn.onclick = () => {
-      playSound(SOUNDS.buttons);
-      if (currentScreen === 'grill') {
-        if (!grillSlots.some(s => s !== null)) { showToast('Grill is empty', '', 'warning'); return; }
-        enterBinSelectMode();
-        return;
-      }
-      if (currentBurger.length === 0) { showToast('Burger is empty', '', 'warning'); return; }
-      
-      currentBurger = [];
-      updateBurgerDisplay(false);
-      showToast('Burger discarded', '', 'success');
-    };
-  }
-
-  function updateMoneyDisplay(changeAmount = null, isPlus = true) {
+  function updateMoneyDisplay() {
     const badge = document.getElementById('walletBadge');
     if (!badge) return;
 
@@ -507,38 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (playerMoney === 0) badge.classList.add('zero');
       else badge.classList.add('negative');
     }
-    localStorage.setItem('burger_money', playerMoney);
   }
-
-  function formatTime(seconds) {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  }
-
-  function updateOrderWidgetsText(orderName, timerText = '') {
-    const w1 = document.getElementById('orderStatusText');
-    if (!w1) return;
-    if (timerText) {
-      w1.innerHTML = `<div>🔔 Order: <span>${orderName}</span></div><div class="order-timer-badge">⏱️ ${timerText}</div>`;
-    } else {
-      w1.innerHTML = `🔔 Order: <span>${orderName}</span>`;
-    }
-  }
-
-  setInterval(() => {
-    const currentSpeed = modeSpeeds[currentGameMode] || 'no-orders';
-    if (currentSpeed === 'no-orders' && currentGameMode !== 'turbo') return;
-
-    if (!currentActiveOrder) {
-      if (timeUntilNextOrder > 0) {
-        timeUntilNextOrder--;
-        localStorage.setItem('time_until_next_order', timeUntilNextOrder);
-        const w1 = document.getElementById('orderStatusText');
-        if (w1) w1.innerHTML = `Next order in: <span>${formatTime(timeUntilNextOrder)}</span>`;
-      }
-    }
-  }, 1000);
 
   function addIngredient(item) {
     if (isEating || isAddingInProgress) return;
@@ -583,7 +355,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderIngredientsMenu();
   }
 
-  // Инициализация при запуске
   renderSauces();
   renderIngredientsMenu();
   updateBurgerDisplay();
