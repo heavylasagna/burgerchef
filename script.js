@@ -1730,7 +1730,7 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     const grillArea = document.getElementById('grillCookingArea');
     if (grillArea) {
-      grillArea.appendChild(bar);
+      grillArea.appendChild(bar); // Добавляем в самый низ блока гриля
     }
   }
 
