@@ -101,9 +101,10 @@ body {
   text-shadow: 0 1px 3px rgba(0,0,0,0.2);
   text-transform: uppercase;
   letter-spacing: 0.6px;
+  flex-shrink: 0;
 }
 
-/* Мини-вкладки категорий прямо в боковых панелях */
+/* Контейнер категорий с плавной прокруткой и полным заполнением */
 .panel-category-tabs {
   display: flex;
   gap: 6px;
@@ -114,8 +115,10 @@ body {
   flex-shrink: 0;
   width: 100%;
   box-sizing: border-box;
-  padding-bottom: 4px;
+  padding: 0 2px 4px 2px;
   scrollbar-width: thin;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 .panel-category-tabs::-webkit-scrollbar {
@@ -128,10 +131,10 @@ body {
 }
 
 .panel-category-tabs .panel-tab-btn {
-  flex: 1 1 auto;
+  flex: 1 1 0px;
   text-align: center;
-  min-width: 60px;
-  padding: 5px 8px;
+  min-width: 65px;
+  padding: 6px 8px;
   box-sizing: border-box;
   background: var(--item-bg);
   border: 1px solid var(--item-border);
@@ -141,6 +144,7 @@ body {
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .panel-category-tabs .panel-tab-btn.active {
@@ -160,6 +164,7 @@ body {
   gap: 6px;
   overflow-y: auto;
   flex: 1;
+  min-height: 0;
   padding-right: 2px;
 }
 
@@ -176,6 +181,7 @@ body {
   border-radius: 10px;
   border: 1px solid var(--item-border);
   transition: background 0.3s ease, border-color 0.3s ease;
+  flex-shrink: 0;
 }
 
 .layer-preview {
@@ -506,8 +512,9 @@ body {
   gap: 8px;
   overflow-y: auto;
   flex: 1;
+  min-height: 0;
   padding-right: 2px;
-  align-items: center;
+  align-items: stretch;
 }
 
 .ingredient-card {
@@ -521,6 +528,7 @@ body {
   width: 100%;
   cursor: pointer;
   transition: all 0.2s;
+  flex-shrink: 0;
 }
 
 .ingredient-card:hover:not(.disabled) {
@@ -907,12 +915,29 @@ body {
   display: flex;
   gap: 6px;
   margin-bottom: 10px;
-  flex-wrap: wrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 2px 4px 2px;
+  scrollbar-width: thin;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
+.recipe-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+.recipe-tabs::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 2px;
+}
+
 .recipe-tab {
-  flex: 1;
+  flex: 1 1 0px;
   min-width: 65px;
-  padding: 6px 4px;
+  padding: 6px 8px;
   background: var(--item-bg);
   border: 1px solid var(--item-border);
   border-radius: 8px;
@@ -921,6 +946,8 @@ body {
   cursor: pointer;
   color: var(--text-color);
   text-align: center;
+  white-space: nowrap;
+  box-sizing: border-box;
 }
 .recipe-tab.active {
   background: var(--accent-color);
@@ -1241,18 +1268,18 @@ input[type="range"]::-webkit-slider-thumb {
   .grill-stage {
     flex-direction: column;
   }
-  .right-panel { order: 2; height: 130px; }
+  .right-panel { order: 2; height: 160px; }
   .ingredients-menu {
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
     padding-bottom: 4px;
   }
-  .ingredient-card { min-width: 95px; height: 55px; padding: 2px 6px; flex-direction: row; justify-content: space-between; }
-  .ingredient-card img { width: 30px; height: 30px; }
-  .ingredient-info-row { flex-direction: column; align-items: flex-start; gap: 1px; }
-  .ingredient-name { max-width: 50px; font-size: 0.65rem; }
-  .ingredient-stock-count { font-size: 0.65rem; padding: 1px 4px; }
+  .ingredient-card { min-width: 100%; height: auto; padding: 6px 10px; flex-direction: row; justify-content: space-between; }
+  .ingredient-card img { width: 36px; height: 36px; }
+  .ingredient-info-row { flex-direction: row; align-items: center; gap: 8px; }
+  .ingredient-name { max-width: 120px; font-size: 0.75rem; }
+  .ingredient-stock-count { font-size: 0.75rem; padding: 2px 6px; }
 
   .desktop-sauces { display: none !important; }
   .mobile-sauces {
@@ -1266,7 +1293,7 @@ input[type="range"]::-webkit-slider-thumb {
     overflow-x: auto;
     border: 1px solid var(--border-color);
   }
-  .left-panel { order: 4; height: 165px; }
+  .left-panel { order: 4; height: 180px; }
   
   .bottom-panel {
     position: fixed;
