@@ -508,6 +508,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rawId: rawId,
       state: 'cooking',
       startTime: now,
+      flipStartTime: null,
       isFlipped: false,
       notified: false
     };
@@ -528,9 +529,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const elapsed = (now - slot.startTime) / 1000;
       const halfTime = config.cookTime / 2;
 
-      if (slot.state === 'cooking' || slot.state === 'needsFlip') {
-        if (config.needsFlip && !slot.isFlipped) {
-          if (elapsed >= halfTime && slot.state === 'cooking') {
+      if (slot.state === 'cooking' && !slot.isFlipped) {
+        if (config.needsFlip) {
+          if (elapsed >= halfTime) {
             slot.state = 'needsFlip';
             if (!slot.notified) {
               playSound(SOUNDS.complete);
@@ -538,16 +539,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             needsSave = true;
           }
-          if (elapsed >= config.cookTime + config.burnTime) {
-            slot.state = 'charred';
-            playSound(SOUNDS.burnt);
-            showToast('Burnt!', `${config.name} turned into charcoal!`, 'error');
-            needsSave = true;
-          }
         } else {
-          const activeElapsed = slot.isFlipped ? (now - slot.flipStartTime) / 1000 : elapsed;
-
-          if (activeElapsed >= (config.needsFlip ? halfTime : config.cookTime)) {
+          if (elapsed >= config.cookTime) {
             slot.state = 'ready';
             if (!slot.notified) {
               playSound(SOUNDS.complete);
@@ -556,11 +549,27 @@ document.addEventListener('DOMContentLoaded', () => {
             needsSave = true;
           }
         }
+      } else if (slot.state === 'needsFlip') {
+        const waitElapsed = elapsed - halfTime;
+        if (waitElapsed >= config.burnTime) {
+          slot.state = 'charred';
+          playSound(SOUNDS.burnt);
+          showToast('Burnt!', `${config.name} turned into charcoal!`, 'error');
+          needsSave = true;
+        }
+      } else if (slot.isFlipped && slot.state === 'cooking') {
+        const activeElapsed = (now - slot.flipStartTime) / 1000;
+        if (activeElapsed >= halfTime) {
+          slot.state = 'ready';
+          if (!slot.notified) {
+            playSound(SOUNDS.complete);
+            slot.notified = true;
+          }
+          needsSave = true;
+        }
       } else if (slot.state === 'ready') {
-        const activeElapsed = slot.isFlipped ? (now - slot.flipStartTime) / 1000 : elapsed;
-        const limitTime = config.needsFlip ? (halfTime + config.burnTime) : (config.cookTime + config.burnTime);
-
-        if (activeElapsed >= limitTime) {
+        const activeElapsed = slot.isFlipped ? (now - slot.flipStartTime) / 1000 : (elapsed - config.cookTime);
+        if (activeElapsed >= config.burnTime) {
           slot.state = 'charred';
           playSound(SOUNDS.burnt);
           showToast('Burnt!', `${config.name} turned into charcoal!`, 'error');
@@ -1728,7 +1737,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <button class="btn-action btn-confirm" title="Confirm" onclick="confirmBinGrillItems()">✔</button>
       <button class="btn-action btn-cancel" title="Cancel" onclick="exitBinSelectMode()">✖</button>
     `;
-    document.body.appendChild(bar); // Выносим поверх интерфейса прямо над нижним меню
+    document.body.appendChild(bar);
   }
 
   window.confirmBinGrillItems = function() {
@@ -1903,7 +1912,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!currentActiveOrder) {
         triggerRandomOrder();
       } else {
-        updateOrderWidgetsTest(currentActiveOrder.name);
+        updateOrderWidgetsText(currentActiveOrder.name);
       }
       return;
     }
