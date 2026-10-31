@@ -2712,7 +2712,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- ТУТОРИАЛ (Адаптивный: ПК — с подсветкой элементов, Мобильные — строго по центру экрана в модальном окне без изменений фона) ---
+  // --- ТУТОРИАЛ (Адаптивный: ПК — с подсветкой элементов, Мобильные — строго по центру) ---
   const pcTutorialSteps = [
     {
       title: "Assembly Screen",
@@ -2840,7 +2840,7 @@ Turbo gives you orders without waiting and no orders removes this feature at all
     }
   ];
 
-  // Дублированные обновленные шаги для мобильных устройств (модальное окно по центру без изменения фона)
+  // Независимые шаги для мобильной версии (всегда по центру экрана)
   const mobileTutorialSteps = [
     {
       title: "Assembly Screen",
@@ -3017,7 +3017,6 @@ Turbo gives you orders without waiting and no orders removes this feature at all
 
     if (tutorialTitle) tutorialTitle.innerText = step.title;
     if (tutorialText) {
-      // Сохраняем переносы строк для красивого отображения списков
       tutorialText.style.whiteSpace = 'pre-line';
       tutorialText.innerText = step.text;
     }
@@ -3025,7 +3024,7 @@ Turbo gives you orders without waiting and no orders removes this feature at all
     if (tutorialPrevBtn) tutorialPrevBtn.style.display = stepIndex === 0 ? 'none' : 'block';
     if (tutorialNextBtn) tutorialNextBtn.innerText = stepIndex === stepsList.length - 1 ? 'Finish' : 'Next';
 
-    // Гарантированное центрирование модального окна туториала на мобильных устройствах
+    // Мобильная версия: жестко центрируем окно туториала на экране
     if (isMobile) {
       if (tutorialTooltip) {
         tutorialTooltip.style.left = '50%';
@@ -3036,6 +3035,7 @@ Turbo gives you orders without waiting and no orders removes this feature at all
         tutorialTooltip.style.overflowY = 'auto';
       }
     } else {
+      // ПК-версия: расчет по координатам элемента с исправленным отступом для нижнего меню
       if (tutorialTooltip) {
         tutorialTooltip.style.transform = 'none';
         tutorialTooltip.style.position = 'absolute';
@@ -3062,12 +3062,20 @@ Turbo gives you orders without waiting and no orders removes this feature at all
 
             const tooltipWidth = 310;
             let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2 + scrollLeft;
-            let tooltipTop = rect.bottom + scrollTop + 16;
+            
+            // Если это шаг про нижнее меню, поднимаем окно значительно выше (на 240 пикселей выше верхнего края нижней панели)
+            let tooltipTop;
+            if (step.title === "Bottom Actions Menu") {
+              tooltipTop = rect.top + scrollTop - 240; 
+            } else {
+              tooltipTop = rect.bottom + scrollTop + 16;
+            }
 
             if (tooltipLeft < 10) tooltipLeft = 10;
             if (tooltipLeft + tooltipWidth > window.innerWidth - 10) tooltipLeft = window.innerWidth - tooltipWidth - 10;
-            if (tooltipTop + 190 > window.innerHeight + scrollTop) {
-              tooltipTop = rect.top + scrollTop - 190;
+            
+            if (tooltipTop < 10) {
+              tooltipTop = rect.bottom + scrollTop + 16;
             }
 
             tutorialTooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
