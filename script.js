@@ -2113,7 +2113,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const hardResetBtn = document.getElementById('hardResetBtn');
   if (hardResetBtn) hardResetBtn.onclick = () => {
-    if (confirm("⚠️ WARNING: Wipe all data?")) { localStorage.clear(); location.reload(); }
+    if (confirm("⚠️ WARNING: Wipe all data?")) { 
+      localStorage.clear(); 
+      localStorage.setItem('has_seen_welcome', 'true'); // чтобы не показывалось дважды после сброса
+      location.reload(); 
+    }
   };
 
   const toggleUiBtn = document.getElementById('toggleUiBtn');
@@ -2698,6 +2702,157 @@ document.addEventListener('DOMContentLoaded', () => {
       updateOrderWidgetsText(currentActiveOrder.name);
     }
   }
+
+  // --- ЛОГИКА ТУТОРИАЛА И ПРИВЕТСТВИЯ ---
+  const tutorialSteps = [
+    {
+      title: "Assembly Station",
+      text: "This is your main workplace. Click on ingredients on the right panel to build your burger layer by layer.",
+      getElement: () => document.getElementById('centerStage') || document.querySelector('.center-stage')
+    },
+    {
+      title: "Ingredients Panel",
+      text: "Here you can choose buns, patties, veggies, and sauces. Keep an eye on your stock!",
+      getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
+    },
+    {
+      title: "Grill & Cutting Board",
+      text: "Use these buttons to switch to the Grill or Cutting Board to prepare raw ingredients before assembling.",
+      getElement: () => document.getElementById('switchToGrillBtn') || document.querySelector('.screen-switcher')
+    },
+    {
+      title: "Shop & Inventory",
+      text: "Need more supplies? Open the Shop to purchase ingredients using your earned money.",
+      getElement: () => document.getElementById('openShopBtn') || document.querySelector('.header-buttons')
+    },
+    {
+      title: "Orders & Money",
+      text: "Complete client orders shown at the top to earn cash and become a master chef!",
+      getElement: () => document.getElementById('topOrderWidget') || document.getElementById('walletWidget')
+    }
+  ];
+
+  let currentTutorialStep = 0;
+
+  function showWelcomeModalIfNeeded() {
+    const hasSeenWelcome = localStorage.getItem('has_seen_welcome');
+    if (!hasSeenWelcome) {
+      const welcomeModal = document.getElementById('welcomeModal');
+      if (welcomeModal) welcomeModal.classList.add('open');
+    }
+  }
+
+  const welcomeModal = document.getElementById('welcomeModal');
+  const welcomeNoBtn = document.getElementById('welcomeNoBtn');
+  const welcomeYesBtn = document.getElementById('welcomeYesBtn');
+  const tutorialOverlay = document.getElementById('tutorialOverlay');
+  const tutorialSpotlight = document.getElementById('tutorialSpotlight');
+  const tutorialTooltip = document.getElementById('tutorialTooltip');
+  const tutorialTitle = document.getElementById('tutorialTitle');
+  const tutorialText = document.getElementById('tutorialText');
+  const tutorialStepIndicator = document.getElementById('tutorialStepIndicator');
+  const tutorialPrevBtn = document.getElementById('tutorialPrevBtn');
+  const tutorialNextBtn = document.getElementById('tutorialNextBtn');
+  const openTutorialFromSettingsBtn = document.getElementById('openTutorialFromSettingsBtn');
+
+  if (welcomeNoBtn) {
+    welcomeNoBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      localStorage.setItem('has_seen_welcome', 'true');
+      if (welcomeModal) welcomeModal.classList.remove('open');
+    };
+  }
+
+  if (welcomeYesBtn) {
+    welcomeYesBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      localStorage.setItem('has_seen_welcome', 'true');
+      if (welcomeModal) welcomeModal.classList.remove('open');
+      startTutorial();
+    };
+  }
+
+  if (openTutorialFromSettingsBtn) {
+    openTutorialFromSettingsBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      if (settingsModal) settingsModal.classList.remove('open');
+      startTutorial();
+    };
+  }
+
+  function startTutorial() {
+    currentTutorialStep = 0;
+    if (tutorialOverlay) tutorialOverlay.classList.add('active');
+    showTutorialStep(currentTutorialStep);
+  }
+
+  function showTutorialStep(stepIndex) {
+    const step = tutorialSteps[stepIndex];
+    if (!step) {
+      endTutorial();
+      return;
+    }
+
+    if (tutorialTitle) tutorialTitle.innerText = step.title;
+    if (tutorialText) tutorialText.innerText = step.text;
+    if (tutorialStepIndicator) tutorialStepIndicator.innerText = `${stepIndex + 1} / ${tutorialSteps.length}`;
+    if (tutorialPrevBtn) tutorialPrevBtn.style.display = stepIndex === 0 ? 'none' : 'block';
+    if (tutorialNextBtn) tutorialNextBtn.innerText = stepIndex === tutorialSteps.length - 1 ? 'Finish' : 'Next';
+
+    const targetEl = step.getElement();
+    if (targetEl && tutorialSpotlight && tutorialTooltip) {
+      const rect = targetEl.getBoundingClientRect();
+      const padding = 8;
+
+      tutorialSpotlight.style.top = `${rect.top - padding}px`;
+      tutorialSpotlight.style.left = `${rect.left - padding}px`;
+      tutorialSpotlight.style.width = `${rect.width + padding * 2}px`;
+      tutorialSpotlight.style.height = `${rect.height + padding * 2}px`;
+
+      // Позиционирование подсказки (возле элемента или по центру если элемент не найден)
+      const tooltipWidth = 280;
+      let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2;
+      let tooltipTop = rect.bottom + 12;
+
+      if (tooltipLeft < 10) tooltipLeft = 10;
+      if (tooltipLeft + tooltipWidth > window.innerWidth - 10) tooltipLeft = window.innerWidth - tooltipWidth - 10;
+      if (tooltipTop + 150 > window.innerHeight) {
+        tooltipTop = rect.top - 160; // если внизу нет места, показываем сверху
+      }
+
+      tutorialTooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
+      tutorialTooltip.style.top = `${Math.max(10, tooltipTop)}px`;
+    }
+  }
+
+  if (tutorialNextBtn) {
+    tutorialNextBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      if (currentTutorialStep < tutorialSteps.length - 1) {
+        currentTutorialStep++;
+        showTutorialStep(currentTutorialStep);
+      } else {
+        endTutorial();
+      }
+    };
+  }
+
+  if (tutorialPrevBtn) {
+    tutorialPrevBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      if (currentTutorialStep > 0) {
+        currentTutorialStep--;
+        showTutorialStep(currentTutorialStep);
+      }
+    };
+  }
+
+  function endTutorial() {
+    if (tutorialOverlay) tutorialOverlay.classList.remove('active');
+  }
+
+  // Запуск проверки приветствия при загрузке
+  showWelcomeModalIfNeeded();
 
   switchScreen(currentScreen);
   renderSauces();
