@@ -609,12 +609,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function initGrillStructure() {
     const area = document.getElementById('grillCookingArea');
     if (!area) return;
-    
-    const existingBar = document.getElementById('binConfirmBar');
     area.innerHTML = '';
-    if (existingBar) {
-      area.appendChild(existingBar);
-    }
 
     grillSlots.forEach((_, index) => {
       const slotEl = document.createElement('div');
@@ -637,7 +632,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentScreen !== 'grill') return;
 
     const area = document.getElementById('grillCookingArea');
-    if (!area || area.querySelectorAll('.grill-slot').length !== grillSlots.length) {
+    if (!area || area.children.length !== grillSlots.length) {
       initGrillStructure();
     }
 
@@ -1707,10 +1702,7 @@ document.addEventListener('DOMContentLoaded', () => {
     isBinSelectMode = false;
     selectedGrillIndicesForBin = [];
     const bar = document.getElementById('binConfirmBar');
-    if (bar) {
-      bar.style.display = 'none';
-      bar.classList.remove('active');
-    }
+    if (bar) bar.remove();
     renderGrill();
   }
 
@@ -1726,10 +1718,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function showBinConfirmBar() {
-    const bar = document.getElementById('binConfirmBar');
-    if (bar) {
-      bar.style.display = 'flex';
-      bar.classList.add('active');
+    let bar = document.getElementById('binConfirmBar');
+    if (bar) bar.remove();
+
+    bar = document.createElement('div');
+    bar.id = 'binConfirmBar';
+    bar.className = 'bin-confirm-bar';
+    bar.innerHTML = `
+      <button class="btn-action btn-confirm" title="Confirm" onclick="confirmBinGrillItems()">✔</button>
+      <button class="btn-action btn-cancel" title="Cancel" onclick="exitBinSelectMode()">✖</button>
+    `;
+    const grillArea = document.getElementById('grillCookingArea');
+    if (grillArea) {
+      grillArea.appendChild(bar);
     }
   }
 
