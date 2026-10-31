@@ -324,8 +324,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (switchToGrillBtn) switchToGrillBtn.onclick = () => switchScreen('grill');
   if (switchToBoardBtn) switchToBoardBtn.onclick = () => switchScreen('board');
 
-  const knifeBtn = document.getElementById('knifeBtn');
-
   function updateBottomPanelForScreen() {
     const isGrill = currentScreen === 'grill';
     const isBoard = currentScreen === 'board';
