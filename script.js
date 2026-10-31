@@ -937,27 +937,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     slot.state = 'cutting';
     slot.startTime = Date.now();
-    playSound(SOUNDS.chop);
+    
+    // Перезапускаем звук cutting.mp3 без наслоения
+    if (cuttingAudioInstance) {
+      try {
+        cuttingAudioInstance.pause();
+        cuttingAudioInstance.currentTime = 0;
+      } catch(e) {}
+      cuttingAudioInstance = null;
+    }
+
+    if (SOUNDS.cutting) {
+      cuttingAudioInstance = SOUNDS.cutting;
+      // Убираем зацикливание, чтобы звук играл один раз
+      cuttingAudioInstance.loop = false;
+      
+      // Обработчик окончания звука для корректного сброса ссылки
+      cuttingAudioInstance.onended = () => {
+        cuttingAudioInstance = null;
+      };
+
+      playSound(cuttingAudioInstance);
+    } else {
+      // Запасной вариант на случай, если cutting.mp3 не загрузился
+      playSound(SOUNDS.chop);
+    }
+
     saveBoardState();
     renderBoard();
   }
 
   function manageCuttingAudio(hasActiveCutting) {
-    if (hasActiveCutting) {
-      if (!cuttingAudioInstance && SOUNDS.cutting) {
-        cuttingAudioInstance = SOUNDS.cutting;
-        cuttingAudioInstance.loop = true;
-        playSound(cuttingAudioInstance);
-      }
-    } else {
-      if (cuttingAudioInstance) {
-        try { 
-          cuttingAudioInstance.pause(); 
-          cuttingAudioInstance.currentTime = 0; 
-        } catch(e){}
-        cuttingAudioInstance = null;
-      }
-    }
+    // Больше не требуется управлять зацикленным звуком здесь, 
+    // так как cutting.mp3 теперь проигрывается одиночным выстрелом при клике.
   }
 
   function updateBoardLogic() {
