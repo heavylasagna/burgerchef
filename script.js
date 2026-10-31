@@ -488,10 +488,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const tabsEl = document.getElementById(tabsId);
       if (tabsEl) {
         setupWheelScrollForContainer(tabsEl);
-        const activeBtn = tabsEl.querySelector('.panel-tab-btn.active');
-        if (activeBtn) {
-          tabsEl.scrollLeft = activeBtn.offsetLeft - tabsEl.offsetWidth / 2 + activeBtn.offsetWidth / 2;
-        }
+        // Убрано принудительное автоматическое смещение скролла при рендере,
+        // теперь позиция прокрутки пользователя сохраняется и не дергается.
       }
     }, 0);
 
@@ -1336,10 +1334,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const recipeTabsEl = document.getElementById('recipe-cats-container');
       if (recipeTabsEl) {
         setupWheelScrollForContainer(recipeTabsEl);
-        const activeBtn = recipeTabsEl.querySelector('.recipe-tab.active');
-        if (activeBtn) {
-          recipeTabsEl.scrollLeft = activeBtn.offsetLeft - recipeTabsEl.offsetWidth / 2 + activeBtn.offsetWidth / 2;
-        }
+        // Убрано принудительное автоматическое смещение скролла при рендере.
       }
     }, 0);
 
@@ -1383,7 +1378,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Полностью убраны старые кнопки Regular/Secret. Теперь здесь только табы категорий и рецепты.
     body.innerHTML = tabsHtml + itemsHtml;
   }
 
@@ -2084,7 +2078,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!currentActiveOrder) {
         triggerRandomOrder();
       } else {
-        updateOrderWidgetsText(currentActiveOrder.name);
+        updateOrderWidgetsTest(currentActiveOrder.name);
       }
       return;
     }
