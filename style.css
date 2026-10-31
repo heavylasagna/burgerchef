@@ -762,13 +762,13 @@ body {
 
 .oil-splash-container {
   position: absolute;
-  bottom: 25px;
+  bottom: 8px; /* Опускаем ближе к нижней границе слота */
   left: 50%;
   transform: translateX(-50%);
   width: 100px;
-  height: 10px;
+  height: 15px;
   pointer-events: none;
-  z-index: 1;
+  z-index: 3; /* Размещаем поверх продукта (у которого z-index: 2), но под таймером */
 }
 
 .oil-splash {
