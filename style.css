@@ -669,6 +669,12 @@ body {
   position: relative;
   cursor: pointer;
   transition: all 0.2s;
+  pointer-events: auto; /* Гарантирует отклик по всей ячейке */
+}
+
+/* Отключаем перехват кликов дочерними элементами внутри ячейки */
+.grill-slot * {
+  pointer-events: none;
 }
 
 .grill-slot.selected-for-bin {
