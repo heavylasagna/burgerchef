@@ -185,8 +185,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (screen === 'grill') {
       if (centerStage) centerStage.style.display = 'none';
       if (grillStage) grillStage.style.display = 'flex';
-      if (rightPanel) rightPanel.style.display = 'none';
-      if (leftPanel) leftPanel.style.display = 'flex'; // Показываем левую панель на гриле
+      if (rightPanel) rightPanel.style.display = 'flex'; // Сырые ингредиенты справа
+      if (leftPanel) leftPanel.style.display = 'flex';  // Готовка (приготовленные продукты) слева
       if (desktopSaucesGroup) desktopSaucesGroup.classList.add('hidden-on-grill');
       if (mobileSaucesGroup) mobileSaucesGroup.classList.add('hidden-on-grill');
       renderGrill();
@@ -367,8 +367,8 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'raw-chicken-patty', name: 'Chicken Patty', image: 'images/raw-chicken-patty.png' },
     { id: 'raw-fish-patty', name: 'Fish Patty', image: 'images/raw-fish-patty.png' },
     { id: 'raw-hashbrown', name: 'Hashbrown', image: 'images/raw-hashbrown.png' },
-    { id: 'raw-bacon', name: 'Fried Bacon', image: 'images/raw-bacon.png' },
-    { id: 'raw-egg', name: 'Fried Egg', image: 'images/egg.png' },
+    { id: 'raw-bacon', name: 'Bacon', image: 'images/raw-bacon.png' },
+    { id: 'raw-egg', name: 'Egg', image: 'images/egg.png' },
     { id: 'raw-champignons', name: 'Champignons', image: 'images/raw-champignons.png' }
   ];
 
@@ -410,9 +410,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderGrillIngredientsMenu() {
-    if (!layersList || !layersTitle) return;
-    layersTitle.innerText = 'Raw Ingredients';
-    layersList.innerHTML = '';
+    if (!rightPanel) return;
+    const titleEl = rightPanel.querySelector('.panel-title');
+    const menuEl = rightPanel.querySelector('.ingredients-menu');
+    if (!titleEl || !menuEl) return;
+
+    titleEl.innerText = 'Raw Ingredients';
+    menuEl.innerHTML = '';
 
     GRILLABLE_MENU_ITEMS.forEach(item => {
       const card = document.createElement('div');
@@ -423,18 +427,54 @@ document.addEventListener('DOMContentLoaded', () => {
       const countText = currentGameMode === 'sandbox' ? '∞' : `x${stock}`;
 
       card.innerHTML = `
-        <img src="${item.image}" alt="${item.name}">
         <div class="ingredient-info-row">
+          <img src="${item.image}" alt="${item.name}">
           <span class="ingredient-name" title="${item.name}">${item.name}</span>
-          <span class="ingredient-stock-count">${countText}</span>
         </div>
+        <span class="ingredient-stock-count">${countText}</span>
       `;
 
       card.onclick = () => {
         if (isOut) { showToast('Out of stock!', `Buy more ${item.name} in shop.`, 'warning'); return; }
         addToGrill(item.id);
       };
-      layersList.appendChild(card);
+      menuEl.appendChild(card);
+    });
+  }
+
+  function renderGrillCookedInventory() {
+    if (!leftPanel) return;
+    const titleEl = leftPanel.querySelector('.panel-title');
+    const listEl = leftPanel.querySelector('.layers-list');
+    if (!titleEl || !listEl) return;
+
+    titleEl.innerText = 'Cooked Products';
+    listEl.innerHTML = '';
+
+    const cookedItems = [
+      { id: 'beef-patty', name: 'Beef Patty', image: 'images/beef-patty.png' },
+      { id: 'chicken-patty', name: 'Chicken Patty', image: 'images/chicken-patty.png' },
+      { id: 'fish-patty', name: 'Fish Patty', image: 'images/fish-patty.png' },
+      { id: 'hashbrown', name: 'Hashbrown', image: 'images/hashbrown.png' },
+      { id: 'fried-bacon', name: 'Fried Bacon', image: 'images/fried-bacon.png' },
+      { id: 'fried-egg', name: 'Fried Egg', image: 'images/fried-egg.png' },
+      { id: 'champignons', name: 'Champignons', image: 'images/champignons.png' }
+    ];
+
+    cookedItems.forEach(item => {
+      const stock = ingredientStock[item.id] ?? 0;
+      const card = document.createElement('div');
+      card.className = 'layer-item';
+      card.style.justifyContent = 'space-between';
+      card.style.padding = '6px 10px';
+      card.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <img src="${item.image}" style="width: 30px; height: 30px; object-fit: contain;">
+          <span style="font-size: 0.75rem; color: var(--text-color);">${item.name}</span>
+        </div>
+        <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
+      `;
+      listEl.appendChild(card);
     });
   }
 
@@ -465,6 +505,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderGrill() {
     if (currentScreen !== 'grill') return;
     renderGrillIngredientsMenu();
+    renderGrillCookedInventory();
 
     const area = document.getElementById('grillCookingArea');
     if (!area) return;
