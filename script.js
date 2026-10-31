@@ -1075,16 +1075,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const filtered = activeInventoryTab === 'all' ? SHOP_ITEMS : SHOP_ITEMS.filter(i => i.category === activeInventoryTab);
 
     filtered.forEach(item => {
-      let stockKey = item.id;
-      if (item.isUncut) {
-        // Ненарезанные продукты хранятся под своим id, но пока не имеют функционала нарезки
-        stockKey = item.id;
-      } else if (stockKey.startsWith('raw-')) {
-        stockKey = stockKey.replace('raw-', '');
-        if (stockKey === 'bacon') stockKey = 'fried-bacon';
-        if (stockKey === 'egg') stockKey = 'fried-egg';
-      }
-      const stockVal = currentGameMode === 'sandbox' ? '∞' : (ingredientStock[stockKey] ?? ingredientStock[item.id] ?? 0);
+      const stockVal = currentGameMode === 'sandbox' ? '∞' : (ingredientStock[item.id] ?? 0);
       const card = document.createElement('div');
       card.className = 'inventory-item-card';
       card.innerHTML = `
@@ -1549,17 +1540,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let cardsHtml = '';
     filtered.forEach(item => {
       const unitPrice = ITEM_PRICES[item.id] || 1;
-      let stockKey = item.id;
-      if (item.isUncut) {
-        stockKey = item.id;
-      } else if (stockKey.startsWith('raw-')) {
-        stockKey = stockKey.replace('raw-', '');
-        if (stockKey === 'bacon') stockKey = 'fried-bacon';
-        if (stockKey === 'egg') stockKey = 'fried-egg';
-      }
-      const stockDisplay = currentGameMode === 'sandbox' ? '∞' : (ingredientStock[stockKey] ?? ingredientStock[item.id] ?? 0);
+      const stockDisplay = currentGameMode === 'sandbox' ? '∞' : (ingredientStock[item.id] ?? 0);
       
-      // Если продукт ненарезанный (требует доску для резки), кнопка покупки будет неактивной
       const isDisabledInShop = item.isUncut;
 
       cardsHtml += `
@@ -1628,13 +1610,8 @@ document.addEventListener('DOMContentLoaded', () => {
       updateShopBalanceHeader();
     }
 
-    let stockKey = id;
-    if (stockKey.startsWith('raw-')) {
-      stockKey = stockKey.replace('raw-', '');
-      if (stockKey === 'bacon') stockKey = 'fried-bacon';
-      if (stockKey === 'egg') stockKey = 'fried-egg';
-    }
-    ingredientStock[stockKey] = (ingredientStock[stockKey] ?? ingredientStock[id] ?? 0) + qty;
+    // Сохраняем строго для конкретного ID товара в магазине (без подмены на готовый)
+    ingredientStock[id] = (ingredientStock[id] ?? 0) + qty;
     saveStock();
     renderIngredientsMenu();
     renderSauces();
