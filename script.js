@@ -464,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: false });
   }
 
-  function renderCategoryTabs(containerEl, activeCat, onSelectCb, hideBread = false) {
+  function renderCategoryTabs(activeCat, onSelectCb, hideBread = false) {
     let cats = [
       { id: 'all', label: 'All' },
       { id: 'bread', label: 'Bread' },
@@ -477,18 +477,32 @@ document.addEventListener('DOMContentLoaded', () => {
       cats = cats.filter(c => c.id !== 'bread');
     }
 
-    let tabsHtml = `<div class="panel-category-tabs" id="cat-tabs-${onSelectCb}">`;
+    const tabsId = `cat-tabs-${onSelectCb}`;
+    let tabsHtml = `<div class="panel-category-tabs" id="${tabsId}">`;
     cats.forEach(c => {
-      tabsHtml += `<button class="panel-tab-btn ${activeCat === c.id ? 'active' : ''}" onclick="(${onSelectCb})('${c.id}')">${c.label}</button>`;
+      tabsHtml += `<button class="panel-tab-btn ${activeCat === c.id ? 'active' : ''}" onclick="window.handleTabClick('${onSelectCb}', '${c.id}')">${c.label}</button>`;
     });
     tabsHtml += `</div>`;
 
     setTimeout(() => {
-      const tabsEl = document.getElementById(`cat-tabs-${onSelectCb}`);
-      bindHorizontalWheelScroll(tabsEl);
+      const tabsEl = document.getElementById(tabsId);
+      if (tabsEl) {
+        bindHorizontalWheelScroll(tabsEl);
+        const activeBtn = tabsEl.querySelector('.panel-tab-btn.active');
+        if (activeBtn) {
+          tabsEl.scrollLeft = activeBtn.offsetLeft - tabsEl.offsetWidth / 2 + activeBtn.offsetWidth / 2;
+        }
+      }
     }, 0);
 
     return tabsHtml;
+  }
+
+  window.handleTabClick = function(cbName, catId) {
+    if (cbName === 'setAssemblyCategory') window.setAssemblyCategory(catId);
+    else if (cbName === 'setGrillRawCategory') window.setGrillRawCategory(catId);
+    else if (cbName === 'setGrillCookedCategory') window.setGrillCookedCategory(catId);
+    else if (cbName === 'switchRecipeCategory') window.switchRecipeCategory(catId);
   }
 
   window.setAssemblyCategory = function(cat) {
@@ -516,9 +530,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const filtered = assemblyActiveCategory === 'all' ? INGREDIENTS : INGREDIENTS.filter(i => i.category === assemblyActiveCategory);
 
-    const tabsHtml = renderCategoryTabs(rightPanel, assemblyActiveCategory, 'setAssemblyCategory', false);
+    const tabsHtml = renderCategoryTabs(assemblyActiveCategory, 'setAssemblyCategory', false);
     
-    let cardsHtml = `<div style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1;">`;
+    let cardsHtml = `<div style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
     filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
       const isOut = currentGameMode !== 'sandbox' && stock <= 0;
@@ -560,9 +574,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const filtered = grillRawActiveCategory === 'all' ? GRILLABLE_MENU_ITEMS : GRILLABLE_MENU_ITEMS.filter(i => i.category === grillRawActiveCategory);
 
-    const tabsHtml = renderCategoryTabs(rightPanel, grillRawActiveCategory, 'setGrillRawCategory', true);
+    const tabsHtml = renderCategoryTabs(grillRawActiveCategory, 'setGrillRawCategory', true);
 
-    let cardsHtml = `<div style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1;">`;
+    let cardsHtml = `<div style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
     filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
       const isOut = currentGameMode !== 'sandbox' && stock <= 0;
@@ -602,8 +616,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const filtered = grillCookedActiveCategory === 'all' ? COOKED_INVENTORY_ITEMS : COOKED_INVENTORY_ITEMS.filter(i => i.category === grillCookedActiveCategory);
 
-    const tabsHtml = renderCategoryTabs(leftPanel, grillCookedActiveCategory, 'setGrillCookedCategory', true);
-    let itemsContainerHtml = `<div style="display:flex; flex-direction:column; gap:6px; overflow-y:auto; flex:1;">`;
+    const tabsHtml = renderCategoryTabs(grillCookedActiveCategory, 'setGrillCookedCategory', true);
+    let itemsContainerHtml = `<div style="display:flex; flex-direction:column; gap:6px; overflow-y:auto; flex:1; min-height:0;">`;
 
     filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
@@ -1314,13 +1328,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let tabsHtml = `<div class="recipe-tabs" id="recipe-cats-container">`;
     cats.forEach(c => {
-      tabsHtml += `<button class="recipe-tab ${activeRecipeCategory === c.id ? 'active' : ''}" onclick="switchRecipeCategory('${c.id}')">${c.label}</button>`;
+      tabsHtml += `<button class="recipe-tab ${activeRecipeCategory === c.id ? 'active' : ''}" onclick="window.handleTabClick('switchRecipeCategory', '${c.id}')">${c.label}</button>`;
     });
     tabsHtml += `</div>`;
 
     setTimeout(() => {
       const recipeTabsEl = document.getElementById('recipe-cats-container');
-      bindHorizontalWheelScroll(recipeTabsEl);
+      if (recipeTabsEl) {
+        bindHorizontalWheelScroll(recipeTabsEl);
+        const activeBtn = recipeTabsEl.querySelector('.recipe-tab.active');
+        if (activeBtn) {
+          recipeTabsEl.scrollLeft = activeBtn.offsetLeft - recipeTabsEl.offsetWidth / 2 + activeBtn.offsetWidth / 2;
+        }
+      }
     }, 0);
 
     let itemsHtml = '';
