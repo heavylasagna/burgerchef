@@ -161,7 +161,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (isMobile) {
       if (isPinned) {
-        // На телефоне при закрепленном рецепте ставим над списком ингредиентов (справа/снизу)
         container.style.top = 'unset';
         container.style.bottom = '125px';
         container.style.left = '10px';
@@ -195,8 +194,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const popup = document.createElement('div');
     popup.className = `money-popup ${isPlus ? 'plus' : 'minus'}`;
     popup.innerText = `${isPlus ? '+' : '-'}$${Math.abs(amount).toFixed(2)}`;
+    
+    // Плавное скрытие по клику
+    let isRemoved = false;
+    const removePopup = () => {
+      if (isRemoved) return;
+      isRemoved = true;
+      popup.classList.add('hiding');
+      setTimeout(() => popup.remove(), 300);
+    };
+
+    popup.onclick = removePopup;
+
     container.appendChild(popup);
-    setTimeout(() => popup.remove(), 2500);
+    setTimeout(removePopup, 2500);
   }
 
   function updateMoneyDisplay(changeAmount = null, isPlus = true) {
