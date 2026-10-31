@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('saved_burger_stack', JSON.stringify(currentBurger));
   }
 
-  // Динамически рассчитываем позицию денег под кошельком или закрепленным рецептом
+  // Динамический расчет позиции денег под кошельком или рецептом (универсально для ПК и мобилок)
   function updateMoneyPopupPosition() {
     const container = document.getElementById('moneyPopupContainer');
     const pinnedWidget = document.getElementById('pinnedRecipeWidget');
@@ -161,7 +161,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const bottomPos = rect.bottom + 6;
       container.style.top = `${bottomPos}px`;
     } else {
-      container.style.top = '52px';
+      if (window.innerWidth <= 900) {
+        container.style.top = '52px';
+      } else {
+        container.style.top = '52px';
+      }
     }
   }
 
@@ -177,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const popup = document.createElement('div');
     popup.className = `money-popup ${isPlus ? 'plus' : 'minus'}`;
-    popup.innerText = `${isPlus ? '+' : ''}$${amount.toFixed(2)}`;
+    popup.innerText = `${isPlus ? '+' : '-'}$${Math.abs(amount).toFixed(2)}`;
     container.appendChild(popup);
     setTimeout(() => popup.remove(), 2500);
   }
@@ -192,7 +196,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       badge.innerText = `$${playerMoney.toFixed(2)}`;
       
-      // Установка цвета в зависимости от баланса
       badge.className = '';
       if (playerMoney > 0) {
         badge.classList.add('positive');
@@ -207,6 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     localStorage.setItem('burger_money', playerMoney);
+    updateShopBalanceHeader();
   }
 
   function showToast(title, desc = '', type = 'success') {
@@ -681,14 +685,26 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </div>
         <div class="shop-buy-group">
+          <div class="shop-total-price" id="total-${item.id}">$0.00</div>
           <button class="shop-qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
-          <input type="number" min="0" max="100" value="0" id="qty-${item.id}">
+          <input type="number" min="0" max="100" value="0" id="qty-${item.id}" oninput="updateItemTotal('${item.id}')">
           <button class="shop-qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
           <button class="btn-buy" onclick="buyItem('${item.id}')">Buy</button>
         </div>
       `;
       body.appendChild(card);
+      updateItemTotal(item.id);
     });
+  }
+
+  window.updateItemTotal = function(id) {
+    const input = document.getElementById(`qty-${id}`);
+    const totalDiv = document.getElementById(`total-${id}`);
+    if (!input || !totalDiv) return;
+    let val = parseInt(input.value) || 0;
+    val = Math.max(0, Math.min(100, val));
+    const cost = (ITEM_PRICES[id] || 1) * val;
+    totalDiv.innerText = `$${cost.toFixed(2)}`;
   }
 
   window.changeQty = function(id, delta) {
@@ -697,6 +713,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let val = parseInt(input.value) || 0;
     val = Math.max(0, Math.min(100, val + delta));
     input.value = val;
+    updateItemTotal(id);
   }
 
   window.buyItem = function(id) {
@@ -707,7 +724,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalCost = (ITEM_PRICES[id] || 1) * qty;
 
     if (currentGameMode !== 'sandbox') {
-      if (playerMoney < totalCost) { showToast('Not enough money', 'Not enough money in your wallet!', 'error'); return; }
       playerMoney -= totalCost;
       updateMoneyDisplay(totalCost, false);
       updateShopBalanceHeader();
@@ -721,7 +737,6 @@ document.addEventListener('DOMContentLoaded', () => {
     playSound(SOUNDS.buy);
   }
 
-  // Обновление баланса в заголовке магазина
   function updateShopBalanceHeader() {
     const modalHeader = document.querySelector('#shopModal .modal-header h3');
     if (!modalHeader) return;
@@ -887,7 +902,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (currentGameMode === 'turbo') {
           playSound(SOUNDS.wrongOrder);
-          playerMoney = Math.max(0, playerMoney - 5);
+          playerMoney -= 5;
           updateMoneyDisplay(5, false);
           showToast('Fined! -$5', 'Order skipped with fine', 'error');
           currentTurboTimeLeft = 180;
@@ -1128,7 +1143,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       playSound(SOUNDS.wrongOrder);
       if (currentGameMode !== 'sandbox') {
-        playerMoney = Math.max(0, playerMoney - 3);
+        playerMoney -= 3;
         updateMoneyDisplay(3, false);
       }
       showToast('Wrong order!', '-$3 penalty', 'error');
@@ -1223,7 +1238,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           currentTurboTimeLeft = 180;
           playSound(SOUNDS.wrongOrder);
-          playerMoney = Math.max(0, playerMoney - 5);
+          playerMoney -= 5;
           updateMoneyDisplay(5, false);
           showToast('You ran out of time!', '-$5 penalty', 'error');
           triggerRandomOrder();
