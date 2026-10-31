@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const layersList = document.getElementById('layersList');
   const centerStage = document.getElementById('centerStage');
   const grillStage = document.getElementById('grillStage');
+  const boardStage = document.getElementById('boardStage');
   const limitWarning = document.getElementById('limitWarning');
 
   function initOpacityToggle() {
@@ -242,6 +243,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let assemblyActiveCategory = 'all';
   let grillRawActiveCategory = 'all';
   let grillCookedActiveCategory = 'all';
+  let boardUncutActiveCategory = 'all';
+  let boardSlicedActiveCategory = 'all';
 
   const switchToAssemblyBtn = document.getElementById('switchToAssemblyBtn');
   const switchToGrillBtn = document.getElementById('switchToGrillBtn');
@@ -259,16 +262,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (screen === 'assembly') {
       if (centerStage) centerStage.style.display = 'flex';
       if (grillStage) grillStage.style.display = 'none';
+      if (boardStage) boardStage.style.display = 'none';
       if (rightPanel) rightPanel.style.display = 'flex';
       if (leftPanel) leftPanel.style.display = 'flex';
-      if (desktopSaucesGroup) desktopSaucesGroup.classList.remove('hidden-on-grill');
-      if (mobileSaucesGroup) mobileSaucesGroup.classList.remove('hidden-on-grill');
+      if (desktopSaucesGroup) desktopSaucesGroup.classList.remove('hidden-on-grill', 'hidden-on-board');
+      if (mobileSaucesGroup) mobileSaucesGroup.classList.remove('hidden-on-grill', 'hidden-on-board');
       exitBinSelectMode();
       renderIngredientsMenu();
       updateBurgerDisplay(false);
     } else if (screen === 'grill') {
       if (centerStage) centerStage.style.display = 'none';
       if (grillStage) grillStage.style.display = 'flex';
+      if (boardStage) boardStage.style.display = 'none';
       if (rightPanel) rightPanel.style.display = 'flex'; 
       if (leftPanel) leftPanel.style.display = 'flex';  
       if (desktopSaucesGroup) desktopSaucesGroup.classList.add('hidden-on-grill');
@@ -277,20 +282,32 @@ document.addEventListener('DOMContentLoaded', () => {
       renderGrillCookedInventory();
       initGrillStructure();
       renderGrill();
+    } else if (screen === 'board') {
+      if (centerStage) centerStage.style.display = 'none';
+      if (grillStage) grillStage.style.display = 'none';
+      if (boardStage) boardStage.style.display = 'flex';
+      if (rightPanel) rightPanel.style.display = 'flex';
+      if (leftPanel) leftPanel.style.display = 'flex';
+      if (desktopSaucesGroup) desktopSaucesGroup.classList.add('hidden-on-board');
+      if (mobileSaucesGroup) mobileSaucesGroup.classList.add('hidden-on-board');
+      renderBoardUncutMenu();
+      renderBoardSlicedInventory();
+      initBoardStructure();
     }
     updateBottomPanelForScreen();
   }
 
   if (switchToAssemblyBtn) switchToAssemblyBtn.onclick = () => switchScreen('assembly');
   if (switchToGrillBtn) switchToGrillBtn.onclick = () => switchScreen('grill');
+  if (switchToBoardBtn) switchToBoardBtn.onclick = () => switchScreen('board');
 
   function updateBottomPanelForScreen() {
-    const isGrill = currentScreen === 'grill';
-    if (eatBtn) eatBtn.style.display = isGrill ? 'none' : 'flex';
-    if (squeezeBtn) squeezeBtn.style.display = isGrill ? 'none' : 'flex';
-    if (submitOrderBtn) submitOrderBtn.style.display = isGrill ? 'none' : (getCurrentSpeed() === 'no-orders' ? 'none' : 'flex');
-    if (forceOrderBtn) forceOrderBtn.style.display = isGrill ? 'none' : 'flex';
-    if (skipOrderBtn) skipOrderBtn.style.display = isGrill ? 'none' : 'flex';
+    const isSpecialScreen = currentScreen === 'grill' || currentScreen === 'board';
+    if (eatBtn) eatBtn.style.display = isSpecialScreen ? 'none' : 'flex';
+    if (squeezeBtn) squeezeBtn.style.display = isSpecialScreen ? 'none' : 'flex';
+    if (submitOrderBtn) submitOrderBtn.style.display = isSpecialScreen ? 'none' : (getCurrentSpeed() === 'no-orders' ? 'none' : 'flex');
+    if (forceOrderBtn) forceOrderBtn.style.display = isSpecialScreen ? 'none' : 'flex';
+    if (skipOrderBtn) skipOrderBtn.style.display = isSpecialScreen ? 'none' : 'flex';
   }
 
   function getCurrentSpeed() {
@@ -471,6 +488,26 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/champignons.png' }
   ];
 
+  const BOARD_UNCUT_ITEMS = [
+    { id: 'uncut-cheese', name: 'Cheese', category: 'protein', image: 'images/uncut-cheese.png' },
+    { id: 'uncut-champignons', name: 'Champignons', category: 'vegetables', image: 'images/uncut-champignons.png' },
+    { id: 'uncut-lettuce', name: 'Lettuce', category: 'vegetables', image: 'images/uncut-lettuce.png' },
+    { id: 'uncut-tomato', name: 'Tomato', category: 'vegetables', image: 'images/uncut-tomato.png' },
+    { id: 'uncut-pickles', name: 'Pickles', category: 'vegetables', image: 'images/uncut-pickles.png' },
+    { id: 'uncut-red-onion', name: 'Red Onion', category: 'vegetables', image: 'images/uncut-red-onion.png' },
+    { id: 'uncut-white-onion', name: 'White Onion', category: 'vegetables', image: 'images/uncut-white-onion.png' }
+  ];
+
+  const BOARD_SLICED_ITEMS = [
+    { id: 'raw-cheese', name: 'Cheese (Sliced)', category: 'protein', image: 'images/raw-cheese.png' },
+    { id: 'raw-champignons', name: 'Champignons (Sliced)', category: 'vegetables', image: 'images/raw-champignons.png' },
+    { id: 'lettuce', name: 'Lettuce (Sliced)', category: 'vegetables', image: 'images/lettuce.png' },
+    { id: 'tomato', name: 'Tomato (Sliced)', category: 'vegetables', image: 'images/tomato.png' },
+    { id: 'pickles', name: 'Pickles (Sliced)', category: 'vegetables', image: 'images/pickles.png' },
+    { id: 'red-onion', name: 'Red Onion (Sliced)', category: 'vegetables', image: 'images/red-onion.png' },
+    { id: 'white-onion', name: 'White Onion (Sliced)', category: 'vegetables', image: 'images/white-onion.png' }
+  ];
+
   const SAUCES = [
     { id: 'mayo', name: '⚪️ Mayo', image: 'images/sauce-mayo.png' },
     { id: 'ketchup', name: '🔴 Ketchup', image: 'images/sauce-ketchup.png' },
@@ -526,6 +563,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (cbName === 'setAssemblyCategory') window.setAssemblyCategory(catId, scrollPos);
     else if (cbName === 'setGrillRawCategory') window.setGrillRawCategory(catId, scrollPos);
     else if (cbName === 'setGrillCookedCategory') window.setGrillCookedCategory(catId, scrollPos);
+    else if (cbName === 'setBoardUncutCategory') window.setBoardUncutCategory(catId, scrollPos);
+    else if (cbName === 'setBoardSlicedCategory') window.setBoardSlicedCategory(catId, scrollPos);
     else if (cbName === 'switchRecipeCategory') window.switchRecipeCategory(catId, scrollPos);
   }
 
@@ -542,6 +581,16 @@ document.addEventListener('DOMContentLoaded', () => {
   window.setGrillCookedCategory = function(cat, savedScroll = null) {
     grillCookedActiveCategory = cat;
     renderGrillCookedInventory(savedScroll);
+  }
+
+  window.setBoardUncutCategory = function(cat, savedScroll = null) {
+    boardUncutActiveCategory = cat;
+    renderBoardUncutMenu(savedScroll);
+  }
+
+  window.setBoardSlicedCategory = function(cat, savedScroll = null) {
+    boardSlicedActiveCategory = cat;
+    renderBoardSlicedInventory(savedScroll);
   }
 
   function renderIngredientsMenu(savedScroll = null) {
@@ -703,6 +752,121 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
     });
+  }
+
+  function renderBoardUncutMenu(savedScroll = null) {
+    if (currentScreen !== 'board') return;
+    if (!rightPanel) return;
+    const titleEl = rightPanel.querySelector('.panel-title');
+    const menuEl = rightPanel.querySelector('.ingredients-menu');
+    if (!titleEl || !menuEl) return;
+
+    titleEl.innerText = 'Uncut Ingredients';
+
+    const currentTabsEl = document.getElementById('cat-tabs-setBoardUncutCategory');
+    const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
+    
+    const filtered = boardUncutActiveCategory === 'all' ? BOARD_UNCUT_ITEMS : BOARD_UNCUT_ITEMS.filter(i => i.category === boardUncutActiveCategory);
+
+    const tabsHtml = renderCategoryTabs(boardUncutActiveCategory, 'setBoardUncutCategory', true);
+
+    let cardsHtml = `<div style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
+    filtered.forEach(item => {
+      const stock = ingredientStock[item.id] ?? 0;
+      const isOut = currentGameMode !== 'sandbox' && stock <= 0;
+      const countText = currentGameMode === 'sandbox' ? '∞' : `x${stock}`;
+
+      cardsHtml += `
+        <div class="ingredient-card ${isOut ? 'disabled' : ''}" onclick="handleBoardAddClick('${item.id}')">
+          <div class="ingredient-info-row">
+            <img src="${item.image}" alt="${item.name}">
+            <span class="ingredient-name" title="${item.name}">${item.name}</span>
+          </div>
+          <span class="ingredient-stock-count">${countText}</span>
+        </div>
+      `;
+    });
+    cardsHtml += `</div>`;
+
+    menuEl.innerHTML = tabsHtml + cardsHtml;
+
+    requestAnimationFrame(() => {
+      const tabsEl = document.getElementById('cat-tabs-setBoardUncutCategory');
+      if (tabsEl) {
+        tabsEl.style.scrollBehavior = 'auto';
+        tabsEl.scrollLeft = actualScroll;
+        requestAnimationFrame(() => {
+          tabsEl.scrollLeft = actualScroll;
+          tabsEl.style.scrollBehavior = '';
+        });
+      }
+    });
+  }
+
+  window.handleBoardAddClick = function(id) {
+    const stock = ingredientStock[id] ?? 0;
+    const isOut = currentGameMode !== 'sandbox' && stock <= 0;
+    if (isOut) { showToast('Out of stock!', `Buy more in shop.`, 'warning'); return; }
+    showToast('Cutting board', 'Cutting mechanics coming soon!', 'success');
+  }
+
+  function renderBoardSlicedInventory(savedScroll = null) {
+    if (currentScreen !== 'board') return;
+    if (!leftPanel) return;
+    const titleEl = leftPanel.querySelector('.panel-title');
+    const listEl = leftPanel.querySelector('.layers-list');
+    if (!titleEl || !listEl) return;
+
+    titleEl.innerText = 'Sliced Ingredients';
+    listEl.classList.remove('assembly-mode');
+
+    const currentTabsEl = document.getElementById('cat-tabs-setBoardSlicedCategory');
+    const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
+
+    const filtered = boardSlicedActiveCategory === 'all' ? BOARD_SLICED_ITEMS : BOARD_SLICED_ITEMS.filter(i => i.category === boardSlicedActiveCategory);
+
+    const tabsHtml = renderCategoryTabs(boardSlicedActiveCategory, 'setBoardSlicedCategory', true);
+    let itemsContainerHtml = `<div style="display:flex; flex-direction:column; gap:6px; overflow-y:auto; flex:1; min-height:0;">`;
+
+    filtered.forEach(item => {
+      const stock = ingredientStock[item.id] ?? 0;
+      itemsContainerHtml += `
+        <div class="layer-item" style="justify-content: space-between; padding: 6px 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <img src="${item.image}" class="layer-preview">
+            <span style="font-size: 0.75rem; color: var(--text-color);">${item.name}</span>
+          </div>
+          <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
+        </div>
+      `;
+    });
+    itemsContainerHtml += `</div>`;
+
+    listEl.innerHTML = tabsHtml + itemsContainerHtml;
+
+    requestAnimationFrame(() => {
+      const tabsEl = document.getElementById('cat-tabs-setBoardSlicedCategory');
+      if (tabsEl) {
+        tabsEl.style.scrollBehavior = 'auto';
+        tabsEl.scrollLeft = actualScroll;
+        requestAnimationFrame(() => {
+          tabsEl.scrollLeft = actualScroll;
+          tabsEl.style.scrollBehavior = '';
+        });
+      }
+    });
+  }
+
+  function initBoardStructure() {
+    const area = document.getElementById('boardCookingArea');
+    if (!area) return;
+    area.innerHTML = `
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-color); opacity: 0.7; gap: 10px;">
+        <span style="font-size: 3rem;">🔪</span>
+        <h3 style="font-size: 1.1rem;">Cutting Board</h3>
+        <p style="font-size: 0.85rem; text-align: center; max-width: 250px;">Place uncut vegetables and cheese here to chop them into slices.</p>
+      </div>
+    `;
   }
 
   function addToGrill(rawId) {
@@ -1041,12 +1205,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const forceOrderBtn = document.getElementById('forceOrderBtn');
   const skipOrderBtn = document.getElementById('skipOrderBtn');
 
-  // Упорядоченный список магазина: строгая цепочка (Ненарезанный -> Нарезанный/Сырой -> Готовый/Приготовленный)
   const SHOP_ITEMS = [
     { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
     { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
     
-    // Котлеты и пати (Сырые -> Готовые)
     { id: 'raw-beef-patty', name: 'Beef Patty (Raw)', category: 'patty', image: 'images/raw-beef-patty.png' },
     { id: 'beef-patty', name: 'Beef Patty (Cooked)', category: 'patty', image: 'images/beef-patty.png' },
     
@@ -1059,7 +1221,6 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'raw-hashbrown', name: 'Hashbrown (Raw)', category: 'patty', image: 'images/raw-hashbrown.png' },
     { id: 'hashbrown', name: 'Hashbrown (Cooked)', category: 'patty', image: 'images/hashbrown.png' },
     
-    // Протеины (Бекон, Яйцо, Сыр: Ненарезанный -> Нарезанный/Сырой -> Приготовленный)
     { id: 'raw-bacon', name: 'Bacon (Raw)', category: 'protein', image: 'images/raw-bacon.png' },
     { id: 'fried-bacon', name: 'Bacon (Cooked)', category: 'protein', image: 'images/fried-bacon.png' },
     
@@ -1070,7 +1231,6 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'raw-cheese', name: 'Cheese (Sliced)', category: 'protein', image: 'images/raw-cheese.png' },
     { id: 'cheese', name: 'Cheese (Cooked)', category: 'protein', image: 'images/cheese.png' },
 
-    // Овощи и грибы (Ненарезанный -> Нарезанный/Сырой -> Готовый)
     { id: 'uncut-champignons', name: 'Champignons (Uncut)', category: 'vegetables', image: 'images/uncut-champignons.png', isUncut: true },
     { id: 'raw-champignons', name: 'Champignons (Sliced)', category: 'vegetables', image: 'images/raw-champignons.png' },
     { id: 'champignons', name: 'Champignons (Cooked)', category: 'vegetables', image: 'images/champignons.png' },
@@ -1090,7 +1250,6 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'uncut-white-onion', name: 'White Onion (Uncut)', category: 'vegetables', image: 'images/uncut-white-onion.png', isUncut: true },
     { id: 'white-onion', name: 'White Onion (Sliced)', category: 'vegetables', image: 'images/white-onion.png' },
 
-    // Соусы
     { id: 'mayo', name: 'Mayo', category: 'sauce', image: 'images/sauce-mayo.png', isSauce: true },
     { id: 'ketchup', name: 'Ketchup', category: 'sauce', image: 'images/sauce-ketchup.png', isSauce: true },
     { id: 'mustard', name: 'Mustard', category: 'sauce', image: 'images/sauce-mustard.png', isSauce: true },
@@ -1207,15 +1366,15 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function updateActionButtonsVisibility() {
-    const isGrill = currentScreen === 'grill';
-    if (squeezeBtn) squeezeBtn.style.display = isGrill ? 'none' : 'flex';
+    const isSpecialScreen = currentScreen === 'grill' || currentScreen === 'board';
+    if (squeezeBtn) squeezeBtn.style.display = isSpecialScreen ? 'none' : 'flex';
 
     const currentSpeed = getCurrentSpeed();
     const isNoOrders = currentSpeed === 'no-orders';
     const isSandboxOrCasual = currentGameMode === 'sandbox' || currentGameMode === 'casual';
 
     if (eatBtn) {
-      if (isGrill || currentGameMode === 'turbo') {
+      if (isSpecialScreen || currentGameMode === 'turbo') {
         eatBtn.style.display = 'none';
       } else if (isSandboxOrCasual) {
         eatBtn.style.display = isNoOrders ? 'flex' : 'none';
@@ -1225,11 +1384,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (submitOrderBtn) {
-      submitOrderBtn.style.display = (isGrill || isNoOrders) ? 'none' : 'flex';
+      submitOrderBtn.style.display = (isSpecialScreen || isNoOrders) ? 'none' : 'flex';
     }
 
     if (forceOrderBtn) {
-      if (isGrill || currentGameMode === 'turbo') {
+      if (isSpecialScreen || currentGameMode === 'turbo') {
         forceOrderBtn.style.display = 'none';
       } else {
         forceOrderBtn.style.display = 'flex';
@@ -1237,7 +1396,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (skipOrderBtn) {
-      skipOrderBtn.style.display = isGrill ? 'none' : 'flex';
+      skipOrderBtn.style.display = isSpecialScreen ? 'none' : 'flex';
     }
   }
 
@@ -1307,6 +1466,9 @@ document.addEventListener('DOMContentLoaded', () => {
       renderGrillIngredientsMenu();
       renderGrillCookedInventory();
       renderGrill();
+    } else if (currentScreen === 'board') {
+      renderBoardUncutMenu();
+      renderBoardSlicedInventory();
     }
   }
 
@@ -1677,6 +1839,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentScreen === 'grill') {
       renderGrillIngredientsMenu();
       renderGrillCookedInventory();
+    } else if (currentScreen === 'board') {
+      renderBoardUncutMenu();
+      renderBoardSlicedInventory();
     }
     playSound(SOUNDS.buy);
   }
