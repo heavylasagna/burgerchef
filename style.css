@@ -675,12 +675,15 @@ body {
 }
 
 /* === САМ ПРОДУКТ НА ГРИЛЕ === */
+/* === САМ ПРОДУКТ НА ГРИЛЕ === */
 .grill-item {
   width: 105px;
   height: 105px;
   object-fit: contain;
   position: relative;
   z-index: 2; /* Картинка котлеты/яйца всегда строго над брызгами */
+  display: block !important; /* КРИТИЧЕСКИ ВАЖНО для работы анимации на img */
+  transform-origin: bottom center;
 }
 
 .grill-item.charred {
@@ -702,12 +705,10 @@ body {
 
 .sizzling-anim {
   animation: sizzleWobble 0.7s infinite ease-in-out !important;
-  transform-origin: bottom center;
 }
 
 .sizzling-anim.flipped {
   animation: sizzleWobbleFlipped 0.7s infinite ease-in-out !important;
-  transform-origin: bottom center;
 }
 
 /* === БРЫЗГИ МАСЛА (РАСПРЕДЕЛЕНЫ ПО ВСЕЙ НИЖНЕЙ ШИРИНЕ СЛОТА) === */
