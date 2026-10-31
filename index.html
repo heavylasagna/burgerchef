@@ -15,11 +15,11 @@
     <button class="toggle-ui-btn" id="toggleUiBtn" title="Скрыть/показать окна">👁️</button>
   </div>
 
-  <!-- Кнопки переключения экранов (Сборка / Гриль / Доска) — пока нерабочие для примерки -->
+  <!-- Кнопки переключения экранов (Сборка / Гриль / Доска) -->
   <div class="screen-switcher" id="screenSwitcher">
-    <button class="btn-action active" title="Assembly">🍔</button>
-    <button class="btn-action" title="Grill">🔥</button>
-    <button class="btn-action" title="Cutting Board" style="opacity: 0.5; pointer-events: none;">🔪</button>
+    <button class="btn-action active" id="switchToAssemblyBtn" title="Assembly">🍔</button>
+    <button class="btn-action" id="switchToGrillBtn" title="Grill">🔥</button>
+    <button class="btn-action" id="switchToBoardBtn" title="Cutting Board" style="opacity: 0.5; pointer-events: none;">🔪</button>
   </div>
 
   <div class="toast-container" id="toastContainer"></div>
@@ -169,7 +169,7 @@
       </div>
     </div>
 
-    <!-- Экран гриля (пока скрыт) -->
+    <!-- Экран гриля -->
     <div class="center-stage grill-stage" id="grillStage" style="display: none;">
       <div class="grill-cooking-area" id="grillCookingArea"></div>
       <div class="panel right-panel grill-sidebar">
