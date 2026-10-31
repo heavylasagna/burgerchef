@@ -185,8 +185,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (screen === 'grill') {
       if (centerStage) centerStage.style.display = 'none';
       if (grillStage) grillStage.style.display = 'flex';
-      if (rightPanel) rightPanel.style.display = 'flex'; // Сырые ингредиенты справа
-      if (leftPanel) leftPanel.style.display = 'flex';  // Готовка (приготовленные продукты) слева
+      if (rightPanel) rightPanel.style.display = 'flex'; 
+      if (leftPanel) leftPanel.style.display = 'flex';  
       if (desktopSaucesGroup) desktopSaucesGroup.classList.add('hidden-on-grill');
       if (mobileSaucesGroup) mobileSaucesGroup.classList.add('hidden-on-grill');
       renderGrill();
@@ -381,6 +381,10 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   function renderIngredientsMenu() {
+    if (!rightPanel) return;
+    const titleEl = rightPanel.querySelector('.panel-title');
+    if (titleEl) titleEl.innerText = 'Ingredients';
+
     if (!ingredientsMenu) return;
     ingredientsMenu.innerHTML = '';
     INGREDIENTS.forEach(item => {
@@ -449,6 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!titleEl || !listEl) return;
 
     titleEl.innerText = 'Cooked Products';
+    listEl.classList.remove('assembly-mode');
     listEl.innerHTML = '';
 
     const cookedItems = [
@@ -469,7 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
       card.style.padding = '6px 10px';
       card.innerHTML = `
         <div style="display: flex; align-items: center; gap: 8px;">
-          <img src="${item.image}" style="width: 30px; height: 30px; object-fit: contain;">
+          <img src="${item.image}" class="layer-preview">
           <span style="font-size: 0.75rem; color: var(--text-color);">${item.name}</span>
         </div>
         <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
@@ -1398,9 +1403,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateBurgerDisplay(isNewAdded = false) {
     if (currentScreen !== 'assembly') return;
     saveBurgerState();
-    if (layersTitle) layersTitle.innerText = `Layers (${currentBurger.length}/${MAX_INGREDIENTS})`;
+    
+    if (leftPanel) {
+      const titleEl = leftPanel.querySelector('.panel-title');
+      if (titleEl) titleEl.innerText = `Layers (${currentBurger.length}/${MAX_INGREDIENTS})`;
+    }
 
     if (layersList) {
+      layersList.classList.add('assembly-mode');
       layersList.innerHTML = '';
       currentBurger.forEach((item, index) => {
         const listItem = document.createElement('div');
