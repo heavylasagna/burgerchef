@@ -438,7 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const COOKED_INVENTORY_ITEMS = [
     { id: 'beef-patty', name: 'Beef Patty', category: 'patty', image: 'images/beef-patty.png' },
-    { id: 'chicken-patty', name: 'Chicken Patty', category: 'patty', image: 'images/chicken-patty.png' },
+    { id: 'chicken-patty', name: 'Chicken Patty', category: 'chicken-patty', image: 'images/chicken-patty.png' },
     { id: 'fish-patty', name: 'Fish Patty', category: 'patty', image: 'images/fish-patty.png' },
     { id: 'hashbrown', name: 'Hashbrown', category: 'patty', image: 'images/hashbrown.png' },
     { id: 'fried-bacon', name: 'Fried Bacon', category: 'protein', image: 'images/fried-bacon.png' },
@@ -1328,7 +1328,10 @@ document.addEventListener('DOMContentLoaded', () => {
     { name: 'Double Burger', category: 'beef', ids: ['bottom-bun', 'beef-patty', 'cheese', 'beef-patty', 'ketchup', 'top-bun'] },
     { name: 'Chicken Delux', category: 'chicken', ids: ['bottom-bun', 'mayo', 'chicken-patty', 'cheese', 'tomato', 'lettuce', 'pickles', 'top-bun'] },
     { name: 'Stinky Burger', category: 'chicken', ids: ['bottom-bun', 'mustard', 'chicken-patty', 'white-onion', 'cheese', 'red-onion', 'mustard', 'top-bun'] },
-    { name: 'Fish Burger', category: 'fish', ids: ['bottom-bun', 'fish-patty', 'mayo', 'pickles', 'lettuce', 'top-bun'] }
+    { name: 'Fish Burger', category: 'fish', ids: ['bottom-bun', 'fish-patty', 'mayo', 'pickles', 'lettuce', 'top-bun'] },
+    { name: 'Potato Burger', category: 'hashbrown', ids: ['bottom-bun', 'hashbrown', 'cheese', 'pickles', 'top-bun'] },
+    { name: 'Egg Burger', category: 'egg', ids: ['bottom-bun', 'fried-egg', 'cheese', 'top-bun'] },
+    { name: 'Breakfast Melt', category: 'vegetarian', ids: ['bottom-bun', 'ketchup', 'hashbrown', 'cheese', 'fried-egg', 'top-bun'] }
   ];
 
   const SECRET_ACHIEVEMENTS = [
@@ -1356,54 +1359,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderRecipesModal(savedScroll);
   }
 
-  function checkBurgerCategory(ids, targetCat) {
-    const hasBeef = ids.includes('beef-patty');
-    const hasChicken = ids.includes('chicken-patty');
-    const hasFish = ids.includes('fish-patty');
-    const hasHashbrown = ids.includes('hashbrown');
-    const hasEgg = ids.includes('fried-egg');
-    const hasBacon = ids.includes('fried-bacon');
-    const hasAnyMeatOrFish = hasBeef || hasChicken || hasFish;
-
-    const hasAnimalProducts = hasAnyMeatOrFish || hasEgg || hasBacon || ids.includes('cheese') || ids.includes('mayo');
-    const hasForbiddenVeganSauces = ids.includes('mayo') || ids.includes('spicy'); // Содержит майонез или острый (в зависимости от состава, считаем острый и майонез нефруктовыми/животными/запрещенными для вегана)
-
-    if (targetCat === 'vegan') {
-      // Веганские: нет вообще никаких животных продуктов, включая майонез и острый
-      const hasAnimalOrProhibited = ids.some(id => ['beef-patty', 'chicken-patty', 'fish-patty', 'fried-egg', 'fried-bacon', 'cheese', 'mayo', 'spicy'].includes(id));
-      return !hasAnimalOrProhibited;
-    }
-
-    if (targetCat === 'vegetarian') {
-      // Вегетарианские: нет мясных и рыбных продуктов (котлет или бекона), но могут быть сыр и яйцо
-      const hasMeatOrFish = hasBeef || hasChicken || hasFish || hasBacon;
-      return !hasMeatOrFish;
-    }
-
-    if (targetCat === 'hashbrown') {
-      // Hashbrown: есть hasbrown НО нет других видов котлет или яйца
-      return hasHashbrown && !hasBeef && !hasChicken && !hasFish && !hasEgg;
-    }
-
-    if (targetCat === 'egg') {
-      // Egg: есть яйцо НО нет других видов котлет или драника (hashbrown)
-      return hasEgg && !hasBeef && !hasChicken && !hasFish && !hasHashbrown;
-    }
-
-    // Стандартные категории
-    const allRecipes = [...REGULAR_RECIPES, ...SECRET_ACHIEVEMENTS];
-    const found = allRecipes.find(r => (r.name === targetCat || r.title === targetCat || r.category === targetCat));
-    
-    // Проверка базового совпадения категории, если передана конкретная строковая категория
-    if (targetCat === 'beef') return hasBeef && !hasChicken && !hasFish;
-    if (targetCat === 'chicken') return hasChicken;
-    if (targetCat === 'fish') return hasFish;
-    if (targetCat === 'secret') return SECRET_ACHIEVEMENTS.some(ach => ach.title === targetCat || ach.ids.every((v, i) => v === ids[i]));
-
-    return false;
-  }
-
-  // Расширенная проверка соответствия бургера выбранной вкладке рецептов
+  // Расширенная проверка соответствия бургера выбранной вкладке рецептов с учётом вегетарианских и веганских правил
   function itemMatchesRecipeCategory(item, cat) {
     if (cat === 'all') return true;
     const ids = item.ids;
@@ -1428,16 +1384,17 @@ document.addEventListener('DOMContentLoaded', () => {
       return hasHashbrown && !hasBeef && !hasChicken && !hasFish && !hasEgg;
     }
     if (cat === 'egg') {
+      // Бургер с яйцом подходит сюда, если нет мясных/рыбных котлет или драника
       return hasEgg && !hasBeef && !hasChicken && !hasFish && !hasHashbrown;
     }
     if (cat === 'vegetarian') {
-      // Все бургеры кроме тех где есть говяжья, рыбная или куриная котлеты, бекон
+      // Вегетарианские: нет мясных и рыбных котлет, а также бекона (сыр и яйцо разрешены)
       return !hasBeef && !hasChicken && !hasFish && !hasBacon;
     }
     if (cat === 'vegan') {
-      // Нет говяжьей, рыбной или куриной котлеты, яйца или бекона, а также майонеза/острого
-      const prohibited = ['beef-patty', 'chicken-patty', 'fish-patty', 'fried-egg', 'fried-bacon', 'mayo', 'spicy'];
-      return !ids.some(id => prohibited.includes(id));
+      // Веганские: нет никаких животных продуктов, включая сыр, яйцо, бекон, котлеты, а также майонез и острый соус
+      const animalOrProhibited = ['beef-patty', 'chicken-patty', 'fish-patty', 'fried-egg', 'fried-bacon', 'cheese', 'mayo', 'spicy'];
+      return !ids.some(id => animalOrProhibited.includes(id));
     }
     if (cat === 'secret') {
       return SECRET_ACHIEVEMENTS.some(ach => (ach.title === item.name || ach.title === item.title) && unlockedAchievements[ach.id]);
