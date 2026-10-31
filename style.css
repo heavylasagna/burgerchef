@@ -789,7 +789,7 @@ body {
 }
 .btn-buy:hover { transform: scale(1.03); background: linear-gradient(135deg, #7cb342, #689f38); }
 
-/* Стили карточек инвентаря (рюкзака) */
+/* Стили карточек инвентаря (рюкзака) и кнопки Buy more */
 .inventory-item-card {
   display: flex;
   align-items: center;
@@ -822,11 +822,26 @@ body {
   align-items: center;
   gap: 6px;
 }
-.inventory-item-details p {
-  font-size: 0.75rem;
-  color: var(--accent-color);
-  font-weight: bold;
+.inventory-right-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+.btn-buy-more {
+  background: linear-gradient(135deg, #689f38, #558b2f);
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 0.75rem;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  transition: transform 0.1s;
+  white-space: nowrap;
+}
+.btn-buy-more:hover { transform: scale(1.03); background: linear-gradient(135deg, #7cb342, #689f38); }
+
 .inventory-count-badge {
   font-size: 0.85rem;
   font-weight: bold;
