@@ -181,6 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (desktopSaucesGroup) desktopSaucesGroup.classList.remove('hidden-on-grill');
       if (mobileSaucesGroup) mobileSaucesGroup.classList.remove('hidden-on-grill');
       exitBinSelectMode();
+      renderIngredientsMenu();
       updateBurgerDisplay(false);
     } else if (screen === 'grill') {
       if (centerStage) centerStage.style.display = 'none';
@@ -189,6 +190,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (leftPanel) leftPanel.style.display = 'flex';  
       if (desktopSaucesGroup) desktopSaucesGroup.classList.add('hidden-on-grill');
       if (mobileSaucesGroup) mobileSaucesGroup.classList.add('hidden-on-grill');
+      renderGrillIngredientsMenu();
+      renderGrillCookedInventory();
       initGrillStructure();
       renderGrill();
     }
@@ -382,6 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   function renderIngredientsMenu() {
+    if (currentScreen !== 'assembly') return;
     if (!rightPanel) return;
     const titleEl = rightPanel.querySelector('.panel-title');
     if (titleEl) titleEl.innerText = 'Ingredients';
@@ -415,6 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderGrillIngredientsMenu() {
+    if (currentScreen !== 'grill') return;
     if (!rightPanel) return;
     const titleEl = rightPanel.querySelector('.panel-title');
     const menuEl = rightPanel.querySelector('.ingredients-menu');
@@ -448,6 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderGrillCookedInventory() {
+    if (currentScreen !== 'grill') return;
     if (!leftPanel) return;
     const titleEl = leftPanel.querySelector('.panel-title');
     const listEl = leftPanel.querySelector('.layers-list');
@@ -508,6 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     playSound(SOUNDS.ingridients);
     saveGrillState();
+    renderGrillIngredientsMenu();
     renderGrill();
   }
 
@@ -618,9 +625,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateGrillLogic();
     if (currentScreen !== 'grill') return;
 
-    renderGrillIngredientsMenu();
-    renderGrillCookedInventory();
-
     const area = document.getElementById('grillCookingArea');
     if (!area || area.children.length !== grillSlots.length) {
       initGrillStructure();
@@ -725,11 +729,12 @@ document.addEventListener('DOMContentLoaded', () => {
       
       grillSlots[index] = null;
       saveGrillState();
+      renderGrillCookedInventory();
       renderGrill();
     }
   }
 
-  // Оптимизированный интервал (увеличен до 250мс для разгрузки процессора и устранения мерцания кнопок)
+  // Обновление гриля теперь идет отдельно, не затрагивая меню и не вызывая мерцания кнопок
   setInterval(() => {
     updateGrillLogic();
     if (currentScreen === 'grill') {
@@ -1022,7 +1027,11 @@ document.addEventListener('DOMContentLoaded', () => {
     updateMoneyDisplay();
     renderIngredientsMenu();
     renderSauces();
-    if (currentScreen === 'grill') renderGrill();
+    if (currentScreen === 'grill') {
+      renderGrillIngredientsMenu();
+      renderGrillCookedInventory();
+      renderGrill();
+    }
   }
 
   if(modeSandboxBtn) modeSandboxBtn.onclick = () => applyGameMode('sandbox');
@@ -1291,7 +1300,10 @@ document.addEventListener('DOMContentLoaded', () => {
     renderIngredientsMenu();
     renderSauces();
     renderShopModal();
-    if (currentScreen === 'grill') renderGrill();
+    if (currentScreen === 'grill') {
+      renderGrillIngredientsMenu();
+      renderGrillCookedInventory();
+    }
     playSound(SOUNDS.buy);
   }
 
