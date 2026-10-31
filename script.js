@@ -1717,7 +1717,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGrill();
   }
 
-  // Обновленный вид бара подтверждения: ровно по центру над нижней панелью и только с иконками
+  // Панель подтверждения без оверлея: красная галочка и крестик с пустым фоном
   function showBinConfirmBar() {
     let bar = document.getElementById('binConfirmBar');
     if (bar) bar.remove();
