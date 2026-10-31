@@ -1093,6 +1093,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const knifeBtn = document.getElementById('knifeBtn');
   if (knifeBtn) {
     knifeBtn.onclick = () => {
       playSound(SOUNDS.buttons);
@@ -2115,7 +2116,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (hardResetBtn) hardResetBtn.onclick = () => {
     if (confirm("⚠️ WARNING: Wipe all data?")) { 
       localStorage.clear(); 
-      localStorage.setItem('has_seen_welcome', 'true'); // чтобы не показывалось дважды после сброса
+      localStorage.setItem('has_seen_welcome', 'true'); 
       location.reload(); 
     }
   };
@@ -2718,12 +2719,12 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       title: "Grill & Cutting Board",
       text: "Use these buttons to switch to the Grill or Cutting Board to prepare raw ingredients before assembling.",
-      getElement: () => document.getElementById('switchToGrillBtn') || document.querySelector('.screen-switcher')
+      getElement: () => document.getElementById('screenSwitcher') || document.querySelector('.screen-switcher')
     },
     {
       title: "Shop & Inventory",
       text: "Need more supplies? Open the Shop to purchase ingredients using your earned money.",
-      getElement: () => document.getElementById('openShopBtn') || document.querySelector('.header-buttons')
+      getElement: () => document.getElementById('openShopBtn') || document.querySelector('.actions-wrapper')
     },
     {
       title: "Orders & Money",
@@ -2802,22 +2803,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const targetEl = step.getElement();
     if (targetEl && tutorialSpotlight && tutorialTooltip) {
       const rect = targetEl.getBoundingClientRect();
-      const padding = 8;
+      const padding = 16; // Увеличенный отступ для отличной видимости подсвеченной зоны
 
       tutorialSpotlight.style.top = `${rect.top - padding}px`;
       tutorialSpotlight.style.left = `${rect.left - padding}px`;
       tutorialSpotlight.style.width = `${rect.width + padding * 2}px`;
       tutorialSpotlight.style.height = `${rect.height + padding * 2}px`;
 
-      // Позиционирование подсказки (возле элемента или по центру если элемент не найден)
-      const tooltipWidth = 280;
+      const tooltipWidth = 300;
       let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2;
-      let tooltipTop = rect.bottom + 12;
+      let tooltipTop = rect.bottom + 16;
 
       if (tooltipLeft < 10) tooltipLeft = 10;
       if (tooltipLeft + tooltipWidth > window.innerWidth - 10) tooltipLeft = window.innerWidth - tooltipWidth - 10;
-      if (tooltipTop + 150 > window.innerHeight) {
-        tooltipTop = rect.top - 160; // если внизу нет места, показываем сверху
+      if (tooltipTop + 160 > window.innerHeight) {
+        tooltipTop = rect.top - 170;
       }
 
       tutorialTooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
@@ -2851,7 +2851,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tutorialOverlay) tutorialOverlay.classList.remove('active');
   }
 
-  // Запуск проверки приветствия при загрузке
   showWelcomeModalIfNeeded();
 
   switchScreen(currentScreen);
