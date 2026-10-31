@@ -1728,10 +1728,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <button class="btn-action btn-confirm" title="Confirm" onclick="confirmBinGrillItems()">✔</button>
       <button class="btn-action btn-cancel" title="Cancel" onclick="exitBinSelectMode()">✖</button>
     `;
-    const grillArea = document.getElementById('grillCookingArea');
-    if (grillArea) {
-      grillArea.appendChild(bar); // Добавляем в самый низ блока гриля
-    }
+    document.body.appendChild(bar); // Выносим поверх интерфейса прямо над нижним меню
   }
 
   window.confirmBinGrillItems = function() {
