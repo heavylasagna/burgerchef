@@ -1322,19 +1322,19 @@ document.addEventListener('DOMContentLoaded', () => {
     { name: 'Cheeseburger', category: 'beef', ids: ['bottom-bun', 'beef-patty', 'cheese', 'top-bun'] },
     { name: 'Vegan Burger', category: 'vegan', ids: ['bottom-bun', 'hashbrown', 'lettuce', 'tomato', 'red-onion', 'top-bun'] },
     { name: 'Juicy Burger', category: 'chicken', ids: ['bottom-bun', 'mayo', 'chicken-patty', 'cheese', 'tomato', 'ketchup', 'top-bun'] },
-    { name: 'Breakfast Burger', category: 'beef', ids: ['bottom-bun', 'mayo', 'beef-patty', 'fried-egg', 'fried-bacon', 'top-bun'] },
-    { name: 'Mushroom Burger', category: 'vegetarian', ids: ['bottom-bun', 'bbq', 'beef-patty', 'champignons', 'top-bun'] },
+    { name: 'Breakfast Burger', category: 'egg', ids: ['bottom-bun', 'mayo', 'beef-patty', 'fried-egg', 'fried-bacon', 'top-bun'] },
+    { name: 'Mushroom Burger', category: 'beef', ids: ['bottom-bun', 'bbq', 'beef-patty', 'champignons', 'top-bun'] },
     { name: 'Chicken Burger', category: 'chicken', ids: ['bottom-bun', 'chicken-patty', 'mayo', 'pickles', 'top-bun'] },
     { name: 'Double Burger', category: 'beef', ids: ['bottom-bun', 'beef-patty', 'cheese', 'beef-patty', 'ketchup', 'top-bun'] },
     { name: 'Chicken Delux', category: 'chicken', ids: ['bottom-bun', 'mayo', 'chicken-patty', 'cheese', 'tomato', 'lettuce', 'pickles', 'top-bun'] },
-    { name: 'Stinky Burger', category: 'secret', ids: ['bottom-bun', 'mustard', 'chicken-patty', 'white-onion', 'cheese', 'red-onion', 'mustard', 'top-bun'] },
+    { name: 'Stinky Burger', category: 'chicken', ids: ['bottom-bun', 'mustard', 'chicken-patty', 'white-onion', 'cheese', 'red-onion', 'mustard', 'top-bun'] },
     { name: 'Fish Burger', category: 'fish', ids: ['bottom-bun', 'fish-patty', 'mayo', 'pickles', 'lettuce', 'top-bun'] }
   ];
 
   const SECRET_ACHIEVEMENTS = [
     { id: 'cheeseburgerAch', title: 'Cheezeburger', category: 'secret', desc: 'Ideal Roblox burger', sound: 'cheeseburger', ids: ['bottom-bun', 'beef-patty', 'cheese', 'top-bun'] },
     { id: 'tomatonatorAch', title: 'Tomatonator', category: 'secret', desc: 'If you don\'t like tomatoes why you even eat burgers?', sound: 'tomatonator', ids: ['bottom-bun', 'beef-patty', 'cheese', 'tomato', 'tomato', 'tomato', 'top-bun'] },
-    { id: 'lilypadAch', title: 'Lilypad', category: 'vegetarian', desc: 'Straight from the swamp', sound: 'lilypad', ids: ['bottom-bun', 'beef-patty', 'cheese', 'lettuce', 'lettuce', 'top-bun'] },
+    { id: 'lilypadAch', title: 'Lilypad', category: 'secret', desc: 'Straight from the swamp', sound: 'lilypad', ids: ['bottom-bun', 'beef-patty', 'cheese', 'lettuce', 'lettuce', 'top-bun'] },
     { id: 'saturnBurgerAch', title: 'Saturn Burger', category: 'secret', desc: 'Saturn has the most moons of any planet in the solar system.', sound: 'saturnBurger', ids: ['bottom-bun', 'beef-patty', 'white-onion', 'top-bun'] },
     { id: 'bustanatorAch', title: 'Bustanator', category: 'secret', desc: 'I know you like this one', sound: 'bustanator', ids: ['bottom-bun', 'beef-patty', 'mayo', 'mayo', 'mayo', 'top-bun'] },
     { id: 'mcPicklePounderAch', title: 'McPickle Pounder', category: 'secret', desc: 'You\'re probably the kind of people who would eat a pickle tiramisu', sound: 'mcPicklePounder', ids: ['bottom-bun', 'beef-patty', 'cheese', 'pickles', 'pickles', 'pickles', 'top-bun'] }
@@ -1356,6 +1356,96 @@ document.addEventListener('DOMContentLoaded', () => {
     renderRecipesModal(savedScroll);
   }
 
+  function checkBurgerCategory(ids, targetCat) {
+    const hasBeef = ids.includes('beef-patty');
+    const hasChicken = ids.includes('chicken-patty');
+    const hasFish = ids.includes('fish-patty');
+    const hasHashbrown = ids.includes('hashbrown');
+    const hasEgg = ids.includes('fried-egg');
+    const hasBacon = ids.includes('fried-bacon');
+    const hasAnyMeatOrFish = hasBeef || hasChicken || hasFish;
+
+    const hasAnimalProducts = hasAnyMeatOrFish || hasEgg || hasBacon || ids.includes('cheese') || ids.includes('mayo');
+    const hasForbiddenVeganSauces = ids.includes('mayo') || ids.includes('spicy'); // Содержит майонез или острый (в зависимости от состава, считаем острый и майонез нефруктовыми/животными/запрещенными для вегана)
+
+    if (targetCat === 'vegan') {
+      // Веганские: нет вообще никаких животных продуктов, включая майонез и острый
+      const hasAnimalOrProhibited = ids.some(id => ['beef-patty', 'chicken-patty', 'fish-patty', 'fried-egg', 'fried-bacon', 'cheese', 'mayo', 'spicy'].includes(id));
+      return !hasAnimalOrProhibited;
+    }
+
+    if (targetCat === 'vegetarian') {
+      // Вегетарианские: нет мясных и рыбных продуктов (котлет или бекона), но могут быть сыр и яйцо
+      const hasMeatOrFish = hasBeef || hasChicken || hasFish || hasBacon;
+      return !hasMeatOrFish;
+    }
+
+    if (targetCat === 'hashbrown') {
+      // Hashbrown: есть hasbrown НО нет других видов котлет или яйца
+      return hasHashbrown && !hasBeef && !hasChicken && !hasFish && !hasEgg;
+    }
+
+    if (targetCat === 'egg') {
+      // Egg: есть яйцо НО нет других видов котлет или драника (hashbrown)
+      return hasEgg && !hasBeef && !hasChicken && !hasFish && !hasHashbrown;
+    }
+
+    // Стандартные категории
+    const allRecipes = [...REGULAR_RECIPES, ...SECRET_ACHIEVEMENTS];
+    const found = allRecipes.find(r => (r.name === targetCat || r.title === targetCat || r.category === targetCat));
+    
+    // Проверка базового совпадения категории, если передана конкретная строковая категория
+    if (targetCat === 'beef') return hasBeef && !hasChicken && !hasFish;
+    if (targetCat === 'chicken') return hasChicken;
+    if (targetCat === 'fish') return hasFish;
+    if (targetCat === 'secret') return SECRET_ACHIEVEMENTS.some(ach => ach.title === targetCat || ach.ids.every((v, i) => v === ids[i]));
+
+    return false;
+  }
+
+  // Расширенная проверка соответствия бургера выбранной вкладке рецептов
+  function itemMatchesRecipeCategory(item, cat) {
+    if (cat === 'all') return true;
+    const ids = item.ids;
+    
+    const hasBeef = ids.includes('beef-patty');
+    const hasChicken = ids.includes('chicken-patty');
+    const hasFish = ids.includes('fish-patty');
+    const hasHashbrown = ids.includes('hashbrown');
+    const hasEgg = ids.includes('fried-egg');
+    const hasBacon = ids.includes('fried-bacon');
+
+    if (cat === 'beef') {
+      return (item.category === 'beef' || hasBeef) && !hasChicken && !hasFish;
+    }
+    if (cat === 'chicken') {
+      return item.category === 'chicken' || hasChicken;
+    }
+    if (cat === 'fish') {
+      return item.category === 'fish' || hasFish;
+    }
+    if (cat === 'hashbrown') {
+      return hasHashbrown && !hasBeef && !hasChicken && !hasFish && !hasEgg;
+    }
+    if (cat === 'egg') {
+      return hasEgg && !hasBeef && !hasChicken && !hasFish && !hasHashbrown;
+    }
+    if (cat === 'vegetarian') {
+      // Все бургеры кроме тех где есть говяжья, рыбная или куриная котлеты, бекон
+      return !hasBeef && !hasChicken && !hasFish && !hasBacon;
+    }
+    if (cat === 'vegan') {
+      // Нет говяжьей, рыбной или куриной котлеты, яйца или бекона, а также майонеза/острого
+      const prohibited = ['beef-patty', 'chicken-patty', 'fish-patty', 'fried-egg', 'fried-bacon', 'mayo', 'spicy'];
+      return !ids.some(id => prohibited.includes(id));
+    }
+    if (cat === 'secret') {
+      return SECRET_ACHIEVEMENTS.some(ach => (ach.title === item.name || ach.title === item.title) && unlockedAchievements[ach.id]);
+    }
+
+    return item.category === cat;
+  }
+
   function renderRecipesModal(savedScroll = null) {
     const body = document.getElementById('recipesModalBody');
     if (!body) return;
@@ -1368,6 +1458,8 @@ document.addEventListener('DOMContentLoaded', () => {
       { id: 'beef', label: 'Beef' },
       { id: 'chicken', label: 'Chicken' },
       { id: 'fish', label: 'Fish' },
+      { id: 'hashbrown', label: 'Hashbrown' },
+      { id: 'egg', label: 'Egg' },
       { id: 'vegetarian', label: 'Vegetarian' },
       { id: 'vegan', label: 'Vegan' },
       { id: 'secret', label: 'Secret' }
@@ -1388,45 +1480,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let itemsHtml = '';
 
-    const filterItem = (item) => {
-      if (activeRecipeCategory === 'all') return true;
-      return item.category === activeRecipeCategory;
-    };
+    const combinedList = [
+      ...REGULAR_RECIPES.map(r => ({ ...r, isSecret: false })),
+      ...SECRET_ACHIEVEMENTS.map(a => ({ ...a, name: a.title, isSecret: true }))
+    ];
 
-    const filteredRegular = REGULAR_RECIPES.filter(filterItem);
-    filteredRegular.forEach(r => {
+    const filteredItems = combinedList.filter(item => {
+      if (item.isSecret && !unlockedAchievements[item.id]) return false;
+      return itemMatchesRecipeCategory(item, activeRecipeCategory);
+    });
+
+    filteredItems.forEach(item => {
       let iconsHtml = '';
-      r.ids.forEach(id => { if (ITEM_IMAGES[id]) iconsHtml += `<img src="${ITEM_IMAGES[id]}" title="${id}">`; });
+      item.ids.forEach(id => { if (ITEM_IMAGES[id]) iconsHtml += `<img src="${ITEM_IMAGES[id]}" title="${id}">`; });
       itemsHtml += `
         <div class="recipe-card">
-          <div class="recipe-info"><h4>${r.name}</h4><div class="recipe-visual">${iconsHtml}</div></div>
-          <button class="btn-pin ${pinnedBurger && pinnedBurger.name === r.name ? 'pinned' : ''}" onclick="pinRecipe('${r.name}')">📌</button>
+          <div class="recipe-info"><h4>${item.name}</h4><div class="recipe-visual">${iconsHtml}</div></div>
+          <button class="btn-pin ${pinnedBurger && pinnedBurger.name === item.name ? 'pinned' : ''}" onclick="pinRecipe('${item.name}')">📌</button>
         </div>
       `;
     });
 
-    const filteredSecrets = SECRET_ACHIEVEMENTS.filter(filterItem);
-    filteredSecrets.forEach(ach => {
-      const isUnlocked = unlockedAchievements[ach.id];
-      if (isUnlocked) {
-        let iconsHtml = '';
-        ach.ids.forEach(id => { if (ITEM_IMAGES[id]) iconsHtml += `<img src="${ITEM_IMAGES[id]}" title="${id}">`; });
-        itemsHtml += `
-          <div class="recipe-card">
-            <div class="recipe-info" style="flex:1;"><h4>${ach.title}</h4><div class="recipe-visual">${iconsHtml}</div></div>
-            <button class="btn-pin ${pinnedBurger && pinnedBurger.name === ach.title ? 'pinned' : ''}" onclick="pinRecipe('${ach.title}')">📌</button>
-          </div>
-        `;
-      } else {
-        itemsHtml += `
-          <div class="recipe-card locked">
-            <div class="recipe-info" style="flex:1;"><h4>${ach.title}</h4><p style="font-size:0.75rem; opacity:0.6;">Secret recipe locked...</p></div>
-          </div>
-        `;
-      }
-    });
+    // Добавляем заблокированные секреты, если активна вкладка secret или all
+    if (activeRecipeCategory === 'all' || activeRecipeCategory === 'secret') {
+      SECRET_ACHIEVEMENTS.forEach(ach => {
+        if (!unlockedAchievements[ach.id]) {
+          itemsHtml += `
+            <div class="recipe-card locked">
+              <div class="recipe-info" style="flex:1;"><h4>${ach.title}</h4><p style="font-size:0.75rem; opacity:0.6;">Secret recipe locked...</p></div>
+            </div>
+          `;
+        }
+      });
+    }
 
-    body.innerHTML = tabsHtml + itemsHtml;
+    body.innerHTML = tabsHtml + `<div class="recipe-list-container" style="display:flex; flex-direction:column; gap:8px; min-height: 320px;">${itemsHtml}</div>`;
 
     requestAnimationFrame(() => {
       const recipeTabsEl = document.getElementById('recipe-cats-container');
@@ -1497,30 +1585,32 @@ document.addEventListener('DOMContentLoaded', () => {
     body.innerHTML = '';
     const filtered = activeShopTab === 'all' ? SHOP_ITEMS : SHOP_ITEMS.filter(i => i.category === activeShopTab);
 
+    let cardsHtml = '';
     filtered.forEach(item => {
       const unitPrice = ITEM_PRICES[item.id] || 1;
       const stockDisplay = currentGameMode === 'sandbox' ? '∞' : (ingredientStock[item.id] ?? 0);
-      const card = document.createElement('div');
-      card.className = 'shop-item-card';
-      card.innerHTML = `
-        <div class="shop-item-info">
-          <img src="${item.image}" alt="${item.name}">
-          <div class="shop-item-details">
-            <h4>${item.name} ${item.isSauce ? '<span style="color:#ffb300; font-size:0.7rem;">x10</span>' : ''}</h4>
-            <p>$${unitPrice.toFixed(2)} ${item.isSauce ? 'per pack' : 'each'} | Stock: ${stockDisplay}</p>
+      cardsHtml += `
+        <div class="shop-item-card">
+          <div class="shop-item-info">
+            <img src="${item.image}" alt="${item.name}">
+            <div class="shop-item-details">
+              <h4>${item.name} ${item.isSauce ? '<span style="color:#ffb300; font-size:0.7rem;">x10</span>' : ''}</h4>
+              <p>$${unitPrice.toFixed(2)} ${item.isSauce ? 'per pack' : 'each'} | Stock: ${stockDisplay}</p>
+            </div>
+          </div>
+          <div class="shop-buy-group">
+            <div class="shop-total-price" id="total-${item.id}">$0.00</div>
+            <button class="shop-qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
+            <input type="number" min="0" max="100" value="0" id="qty-${item.id}" oninput="updateItemTotal('${item.id}')">
+            <button class="shop-qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
+            <button class="btn-buy" onclick="buyItem('${item.id}')">Buy</button>
           </div>
         </div>
-        <div class="shop-buy-group">
-          <div class="shop-total-price" id="total-${item.id}">$0.00</div>
-          <button class="shop-qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
-          <input type="number" min="0" max="100" value="0" id="qty-${item.id}" oninput="updateItemTotal('${item.id}')">
-          <button class="shop-qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
-          <button class="btn-buy" onclick="buyItem('${item.id}')">Buy</button>
-        </div>
       `;
-      body.appendChild(card);
-      updateItemTotal(item.id);
     });
+
+    body.innerHTML = `<div style="display:flex; flex-direction:column; gap:8px; min-height: 340px;">${cardsHtml}</div>`;
+    filtered.forEach(item => updateItemTotal(item.id));
   }
 
   window.updateItemTotal = function(id) {
