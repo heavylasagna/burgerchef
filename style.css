@@ -755,19 +755,17 @@ body {
   100% { transform: scale(1.18); }
 }
 
-/* Кнопки удаления ведра в правом нижнем углу зоны гриля */
+/* Кнопки подтверждения ведра: под слотами гриля по центру */
 .bin-confirm-bar {
   position: absolute;
-  bottom: 20px;
-  right: 20px;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   gap: 8px;
-  z-index: 100;
-  background: var(--modal-bg);
-  padding: 6px 8px;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  z-index: 10;
+  background: transparent;
+  padding: 0;
 }
 
 .bin-confirm-bar .btn-action {
@@ -794,7 +792,7 @@ body {
   border: none;
 }
 
-/* Крестик — с прозрачным фоном */
+/* Крестик — с пустым (прозрачным) фоном */
 .bin-confirm-bar .btn-cancel {
   background: transparent;
   color: var(--text-color);
