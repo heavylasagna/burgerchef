@@ -693,6 +693,20 @@ body {
   align-items: center;
   gap: 4px;
 }
+
+/* Окошко расчета общей стоимости продукта в магазине */
+.shop-total-price {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--accent-color);
+  background: rgba(0,0,0,0.3);
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--item-border);
+  min-width: 48px;
+  text-align: center;
+}
+
 .shop-qty-btn {
   background: var(--item-bg);
   border: 1px solid var(--item-border);
@@ -860,7 +874,6 @@ input[type="range"]::-webkit-slider-thumb {
 .mobile-top-bar { display: none; }
 .toggle-ui-btn { display: none; }
 
-/* Управление видимостью групп соусов в зависимости от платформы */
 .desktop-sauces { display: flex; }
 .mobile-sauces { display: none !important; }
 
