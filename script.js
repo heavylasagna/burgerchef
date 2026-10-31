@@ -343,7 +343,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Кнопка пропуска теперь отображается всегда (включая no-orders)
     if (skipOrderBtn) {
       skipOrderBtn.style.display = 'flex';
     }
