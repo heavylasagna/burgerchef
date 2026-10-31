@@ -1306,7 +1306,7 @@ input[type="range"]::-webkit-slider-thumb {
     border: 1px solid var(--border-color);
   }
   
-  /* Нижнее меню на мобилках с прокруткой и правильным размером кнопок */
+  /* Нижняя панель по умолчанию (экран сборки): с прокруткой и группировкой */
   .bottom-panel {
     position: fixed;
     bottom: 0; left: 0; right: 0;
@@ -1354,6 +1354,19 @@ input[type="range"]::-webkit-slider-thumb {
     flex: unset;
   }
 
+  /* Только на экране гриля: растягиваем кнопки на всё нижнее меню и группируем */
+  body.grill-active .bottom-panel {
+    justify-content: space-between;
+  }
+  body.grill-active .bottom-panel .actions-wrapper {
+    width: 100%;
+    justify-content: space-between;
+  }
+  body.grill-active .bottom-panel .btn-action {
+    flex: 1;
+    width: auto;
+  }
+
   .mobile-top-bar {
     position: absolute !important;
     top: 10px !important; 
@@ -1374,10 +1387,10 @@ input[type="range"]::-webkit-slider-thumb {
     flex-direction: column !important;
     gap: 6px !important;
   }
-  /* Возвращаем нормальный размер кнопкам переключения экранов */
+  /* Аккуратный размер кнопок переключения (по размеру глазка) */
   .screen-switcher .btn-action {
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
     padding: 0;
   }
 
