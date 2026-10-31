@@ -435,7 +435,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 15px;
+  padding: 0 10px;
   background: linear-gradient(145deg, var(--panel-bg-1), var(--panel-bg-2));
   backdrop-filter: blur(10px);
   border-radius: 14px;
@@ -443,6 +443,7 @@ body {
   border: 1px solid var(--border-color);
   z-index: 100;
   transition: opacity 0.3s ease, background 0.3s ease;
+  gap: 12px;
 }
 .bottom-panel.dimmed { opacity: 0.25; }
 
@@ -467,28 +468,40 @@ body {
 }
 .sauce-chip.disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* Разделение на два контейнера на ПК */
+/* Общий большой контейнер для кнопок действий с единой рамкой и компактными отступами */
+.actions-master-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--item-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 6px 10px;
+  overflow-x: auto;
+}
+
 .action-group-left, .action-group-right {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
 }
 
 .btn-action {
-  padding: 0 12px;
-  height: 40px;
+  padding: 0 10px;
+  height: 36px;
   background: transparent;
   border: 1.5px solid var(--border-color);
   color: var(--text-color);
   border-radius: 8px;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .btn-action:hover {
@@ -878,13 +891,30 @@ input[type="range"]::-webkit-slider-thumb {
     position: fixed;
     bottom: 0; left: 0; right: 0;
     padding: 8px 12px;
-    justify-content: center;
+    justify-content: flex-start;
     border-radius: 12px 12px 0 0;
     z-index: 1000;
+    overflow-x: auto;
   }
-  .action-group-left { width: 100%; justify-content: space-between; }
-  .action-group-right { display: none !important; } /* На мобилках все кнопки в одном баре */
-  .btn-action { flex: 1; padding: 8px 2px; font-size: 0.75rem; text-align: center; }
+  
+  /* Прокрутка кнопок на мобильной версии */
+  .actions-master-container {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 4px 6px;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .action-group-left, .action-group-right {
+    flex-wrap: nowrap;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .btn-action {
+    flex-shrink: 0;
+    padding: 0 10px;
+    font-size: 0.85rem;
+  }
 
   .mobile-top-bar {
     position: absolute !important;
