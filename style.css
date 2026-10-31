@@ -257,6 +257,7 @@ body {
 .wallet-widget.dimmed { opacity: 0.25 !important; }
 #walletBadge { color: #81c784; font-weight: bold; }
 
+/* Окошко денег без фона, только рамка и цифры */
 .money-popup-container {
   position: absolute;
   top: 10px;
@@ -273,20 +274,19 @@ body {
   font-weight: bold;
   padding: 3px 8px;
   border-radius: 6px;
-  backdrop-filter: blur(4px);
+  background: transparent; /* Убран фон */
+  backdrop-filter: blur(2px);
   animation: moneyPopupAnim 2.5s forwards ease-in-out;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
 }
 
 .money-popup.plus {
-  background: rgba(104, 159, 56, 0.85);
-  color: #fff;
+  color: #81c784;
   border: 1px solid #81c784;
 }
 
 .money-popup.minus {
-  background: rgba(211, 47, 47, 0.85);
-  color: #fff;
+  color: #e57373;
   border: 1px solid #e57373;
 }
 
@@ -366,10 +366,10 @@ body {
 .top-order-widget span { color: var(--accent-color); font-weight: bold; }
 .order-timer-badge { color: #e57373; font-weight: bold; font-family: monospace; display: block; margin-top: 2px; }
 
-/* Тост-контейнер уведомлений строго под виджетом таймера/заказа */
+/* Оповещения смещены ниже, чтобы не перекрывать таймер */
 .toast-container {
   position: absolute;
-  top: 55px; /* Смещен ниже таймера/заказа */
+  top: 68px; 
   left: 50%;
   transform: translateX(-50%);
   z-index: 3000;
@@ -956,6 +956,17 @@ input[type="range"]::-webkit-slider-thumb {
     margin-bottom: 0 !important;
   }
 
+  /* На мобильных позиционируем контейнер поп-апа денег под кошельком или рецептом */
+  .money-popup-container {
+    position: absolute !important;
+    top: 52px !important;
+    left: 10px !important;
+  }
+  .pinned-recipe-widget.active ~ .money-popup-container,
+  body:has(.pinned-recipe-widget.active) .money-popup-container {
+    top: 125px !important;
+  }
+
   .toggle-ui-btn {
     background: var(--modal-bg);
     border: 1px solid var(--border-color);
@@ -980,4 +991,9 @@ input[type="range"]::-webkit-slider-thumb {
 }
 @media (min-width: 901px) {
   .sauces-group.mobile-sauces { display: none !important; }
+  .money-popup-container {
+    position: absolute;
+    top: 10px;
+    left: 335px;
+  }
 }
