@@ -134,8 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'raw-champignons': { name: 'Champignons', rawImage: 'images/raw-champignons.png', cookedId: 'champignons', cookedImage: 'images/champignons.png', needsFlip: false, cookTime: 4, burnTime: 4 }
   };
 
-  const maxGrillSlots = window.innerWidth <= 900 ? 1 : 3;
-  let grillSlots = JSON.parse(localStorage.getItem('burger_grill_slots')) || Array(maxGrillSlots).fill(null);
+  let grillSlots = JSON.parse(localStorage.getItem('burger_grill_slots')) || Array(3).fill(null);
   let currentScreen = 'assembly';
   let isBinSelectMode = false;
   let selectedGrillIndicesForBin = [];
@@ -182,11 +181,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (desktopSaucesGroup) desktopSaucesGroup.classList.remove('hidden-on-grill');
       if (mobileSaucesGroup) mobileSaucesGroup.classList.remove('hidden-on-grill');
       exitBinSelectMode();
+      updateBurgerDisplay(false);
     } else if (screen === 'grill') {
       if (centerStage) centerStage.style.display = 'none';
       if (grillStage) grillStage.style.display = 'flex';
       if (rightPanel) rightPanel.style.display = 'none';
-      if (leftPanel) leftPanel.style.display = 'none';
+      if (leftPanel) leftPanel.style.display = 'flex'; // Показываем левую панель на гриле
       if (desktopSaucesGroup) desktopSaucesGroup.classList.add('hidden-on-grill');
       if (mobileSaucesGroup) mobileSaucesGroup.classList.add('hidden-on-grill');
       renderGrill();
@@ -362,6 +362,16 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'bottom-bun', name: 'Bottom Bun', image: 'images/bottom-bun.png' }
   ];
 
+  const GRILLABLE_MENU_ITEMS = [
+    { id: 'raw-beef-patty', name: 'Beef Patty', image: 'images/raw-beef-patty.png' },
+    { id: 'raw-chicken-patty', name: 'Chicken Patty', image: 'images/raw-chicken-patty.png' },
+    { id: 'raw-fish-patty', name: 'Fish Patty', image: 'images/raw-fish-patty.png' },
+    { id: 'raw-hashbrown', name: 'Hashbrown', image: 'images/raw-hashbrown.png' },
+    { id: 'raw-bacon', name: 'Fried Bacon', image: 'images/raw-bacon.png' },
+    { id: 'raw-egg', name: 'Fried Egg', image: 'images/egg.png' },
+    { id: 'raw-champignons', name: 'Champignons', image: 'images/raw-champignons.png' }
+  ];
+
   const SAUCES = [
     { id: 'mayo', name: '⚪️ Mayo', image: 'images/sauce-mayo.png' },
     { id: 'ketchup', name: '🔴 Ketchup', image: 'images/sauce-ketchup.png' },
@@ -400,30 +410,31 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderGrillIngredientsMenu() {
-    const menu = document.getElementById('grillIngredientsMenu');
-    if (!menu) return;
-    menu.innerHTML = '';
+    if (!layersList || !layersTitle) return;
+    layersTitle.innerText = 'Raw Ingredients';
+    layersList.innerHTML = '';
 
-    Object.keys(GRILLABLE_ITEMS).forEach(rawId => {
-      const itemConfig = GRILLABLE_ITEMS[rawId];
-      const stock = ingredientStock[rawId] ?? 0;
+    GRILLABLE_MENU_ITEMS.forEach(item => {
+      const card = document.createElement('div');
+      const stock = ingredientStock[item.id] ?? 0;
       const isOut = currentGameMode !== 'sandbox' && stock <= 0;
 
-      const card = document.createElement('div');
       card.className = `ingredient-card ${isOut ? 'disabled' : ''}`;
+      const countText = currentGameMode === 'sandbox' ? '∞' : `x${stock}`;
+
       card.innerHTML = `
-        <img src="${itemConfig.rawImage}" alt="${itemConfig.name}">
+        <img src="${item.image}" alt="${item.name}">
         <div class="ingredient-info-row">
-          <span class="ingredient-name" title="${itemConfig.name}">${itemConfig.name}</span>
-          <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
+          <span class="ingredient-name" title="${item.name}">${item.name}</span>
+          <span class="ingredient-stock-count">${countText}</span>
         </div>
       `;
 
       card.onclick = () => {
-        if (isOut) { showToast('Out of stock!', `Buy more ${itemConfig.name} in shop.`, 'warning'); return; }
-        addToGrill(rawId);
+        if (isOut) { showToast('Out of stock!', `Buy more ${item.name} in shop.`, 'warning'); return; }
+        addToGrill(item.id);
       };
-      menu.appendChild(card);
+      layersList.appendChild(card);
     });
   }
 
@@ -566,7 +577,6 @@ document.addEventListener('DOMContentLoaded', () => {
       grillSlots[index] = null;
       saveGrillState();
       renderGrill();
-      renderIngredientsMenu();
     }
   }
 
@@ -901,6 +911,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateMoneyDisplay();
     renderIngredientsMenu();
     renderSauces();
+    if (currentScreen === 'grill') renderGrill();
   }
 
   if(modeSandboxBtn) modeSandboxBtn.onclick = () => applyGameMode('sandbox');
@@ -1169,6 +1180,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderIngredientsMenu();
     renderSauces();
     renderShopModal();
+    if (currentScreen === 'grill') renderGrill();
     playSound(SOUNDS.buy);
   }
 
@@ -1343,6 +1355,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateBurgerDisplay(isNewAdded = false) {
+    if (currentScreen !== 'assembly') return;
     saveBurgerState();
     if (layersTitle) layersTitle.innerText = `Layers (${currentBurger.length}/${MAX_INGREDIENTS})`;
 
