@@ -71,7 +71,6 @@ body {
   transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* Исправленная блокировка прокрутки во время туториала */
 body.tutorial-active {
   overflow: hidden !important;
   height: 100vh;
@@ -1308,7 +1307,6 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .btn-pin.pinned { background: #689f38; }
 
-/* --- Стили для Туториала (ПК) --- */
 .tutorial-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -1552,19 +1550,19 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .screen-switcher { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
   
-  /* Перенос бейджей подсказок (Flip! / Collect / Chop!) на мобилках вниз слота */
+  /* Перенос плашек надписей (Flip! / Collect / Chop!) в правый нижний угол слота на мобилках */
   .grill-slot .flip-badge {
     top: auto !important;
-    bottom: 6px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
+    bottom: 4px !important;
+    right: 4px !important;
+    left: auto !important;
+    transform: none !important;
     font-size: 0.65rem !important;
     padding: 2px 6px !important;
     white-space: nowrap !important;
   }
 }
 
-/* --- Стили для адаптивного туториала (модальное окно на телефонах с фиксацией фона) --- */
 @media (max-width: 900px) {
   .tutorial-overlay {
     display: none;
