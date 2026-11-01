@@ -109,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let playerMoney = parseFloat(localStorage.getItem('burger_money'));
   if (isNaN(playerMoney)) playerMoney = 100.00;
 
+  // Твои обновленные цены
   const ITEM_PRICES = {
     'top-bun': 2, 'bottom-bun': 2,
     'raw-beef-patty': 5, 'raw-chicken-patty': 5, 'raw-fish-patty': 5, 'raw-hashbrown': 4,
@@ -651,7 +652,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!ingredientsMenu) return;
 
-    // Сохраняем текущую прокрутку списка перед обновлением
     const innerContainer = ingredientsMenu.querySelector('.scrollable-items-list');
     const currentListScrollTop = innerContainer ? innerContainer.scrollTop : ingredientsMenu.scrollTop;
 
@@ -682,7 +682,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     ingredientsMenu.innerHTML = tabsHtml + cardsHtml;
 
-    // Восстанавливаем позицию прокрутки
     const newInner = ingredientsMenu.querySelector('.scrollable-items-list');
     if (newInner) newInner.scrollTop = currentListScrollTop;
     ingredientsMenu.scrollTop = currentListScrollTop;
@@ -1085,6 +1084,7 @@ document.addEventListener('DOMContentLoaded', () => {
       saveStock();
       
       playSound(SOUNDS.buttons);
+      trackQuestProgress('slice_items', 1);
       
       boardSlots[index] = null;
       saveBoardState();
@@ -1437,6 +1437,7 @@ document.addEventListener('DOMContentLoaded', () => {
       saveStock();
       
       playSound(SOUNDS.buttons);
+      trackQuestProgress('cook_patties', 1);
       
       grillSlots[index] = null;
       saveGrillState();
@@ -1617,12 +1618,17 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
+  const questsModal = document.getElementById('questsModal');
+  const openQuestsBtn = document.getElementById('openQuestsBtn');
+  const closeQuestsModal = document.getElementById('closeQuestsModal');
+
   const allModals = [
     { modal: recipesModal, closeBtn: closeRecipesModal },
     { modal: shopModal, closeBtn: closeShopModal },
     { modal: inventoryModal, closeBtn: closeInventoryModal },
     { modal: achievementsModal, closeBtn: closeAchievementsModal },
-    { modal: settingsModal, closeBtn: closeSettingsModal }
+    { modal: settingsModal, closeBtn: closeSettingsModal },
+    { modal: questsModal, closeBtn: closeQuestsModal }
   ];
 
   allModals.forEach(item => {
@@ -1856,6 +1862,10 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('unlocked_achievements', JSON.stringify(unlockedAchievements));
       showToast(ach.title, 'Secret recipe unlocked!', 'success');
       playSound(SOUNDS[ach.sound] || SOUNDS.achievement);
+      
+      // Показываем красную точку на ачивках
+      localStorage.setItem('seen_achievements_badge', 'false');
+      updateAchievementsBadge();
     }
   }
 
@@ -2109,6 +2119,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     ingredientStock[id] = (ingredientStock[id] ?? 0) + qty;
     saveStock();
+    trackQuestProgress('buy_items', qty);
+
     renderIngredientsMenu();
     renderSauces();
     renderShopModal();
@@ -2150,23 +2162,243 @@ document.addEventListener('DOMContentLoaded', () => {
   if (openRecipesBtn) openRecipesBtn.onclick = () => { playSound(SOUNDS.buttons); renderRecipesModal(); recipesModal.classList.add('open'); };
   if (closeRecipesModal) closeRecipesModal.onclick = () => { playSound(SOUNDS.buttons); recipesModal.classList.remove('open'); };
 
-  if (openAchievementsBtn) openAchievementsBtn.onclick = () => {
-    playSound(SOUNDS.buttons);
-    const list = document.getElementById('achievementsList');
-    if (list) {
-      list.innerHTML = '';
-      SECRET_ACHIEVEMENTS.forEach(ach => {
-        const isUnlocked = unlockedAchievements[ach.id];
-        const item = document.createElement('div');
-        item.className = 'achievement-item';
-        item.style.opacity = isUnlocked ? '1' : '0.5';
-        item.innerHTML = `<div class="recipe-info" style="flex:1;"><h4>${ach.title}</h4><p>${isUnlocked ? ach.desc : 'Secret locked'}</p></div>`;
-        list.appendChild(item);
-      });
-    }
-    achievementsModal.classList.add('open');
-  };
+  // Логика краных точек для ачивок
+  function updateAchievementsBadge() {
+    const badge = document.getElementById('achievementsBadge');
+    if (!badge) return;
+    const isSeen = localStorage.getItem('seen_achievements_badge') === 'true';
+    const hasUnlocked = Object.keys(unlockedAchievements).length > 0;
+    badge.style.display = (hasUnlocked && !isSeen) ? 'block' : 'none';
+  }
+
+  if (openAchievementsBtn) {
+    openAchievementsBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      localStorage.setItem('seen_achievements_badge', 'true');
+      updateAchievementsBadge();
+
+      const list = document.getElementById('achievementsList');
+      if (list) {
+        list.innerHTML = '';
+        SECRET_ACHIEVEMENTS.forEach(ach => {
+          const isUnlocked = unlockedAchievements[ach.id];
+          const item = document.createElement('div');
+          item.className = 'achievement-item';
+          item.style.opacity = isUnlocked ? '1' : '0.5';
+          item.innerHTML = `<div class="recipe-info" style="flex:1;"><h4>${ach.title}</h4><p>${isUnlocked ? ach.desc : 'Secret locked'}</p></div>`;
+          list.appendChild(item);
+        });
+      }
+      achievementsModal.classList.add('open');
+    };
+  }
   if (closeAchievementsModal) closeAchievementsModal.onclick = () => { playSound(SOUNDS.buttons); achievementsModal.classList.remove('open'); };
+
+  // --- ЛОГИКА ЕЖЕДНЕВНЫХ ЗАДАНИЙ (UTC+5 Казахстан) ---
+  const SIMPLE_QUESTS_POOL = [
+    { id: 'make_burgers_3', title: 'Make 3 burgers', target: 3, reward: 2.50, type: 'make_burgers' },
+    { id: 'make_burgers_5', title: 'Make 5 burgers', target: 5, reward: 5.00, type: 'make_burgers' },
+    { id: 'cook_patties_4', title: 'Cook 4 items on grill', target: 4, reward: 3.00, type: 'cook_patties' },
+    { id: 'slice_items_6', title: 'Slice 6 ingredients', target: 6, reward: 3.00, type: 'slice_items' },
+    { id: 'buy_items_5', title: 'Buy 5 items in shop', target: 5, reward: 2.00, type: 'buy_items' },
+    { id: 'earn_money_30', title: 'Earn $30 from orders', target: 30, reward: 4.00, type: 'earn_money' }
+  ];
+
+  function getKazakhstanDateKey() {
+    const now = new Date();
+    const kzTime = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (5 * 3600000));
+    return `${kzTime.getFullYear()}-${String(kzTime.getMonth() + 1).padStart(2, '0')}-${String(kzTime.getDate()).padStart(2, '0')}`;
+  }
+
+  let dailyQuestsData = JSON.parse(localStorage.getItem('burger_daily_quests')) || null;
+
+  function initDailyQuests() {
+    const todayKey = getKazakhstanDateKey();
+
+    if (!dailyQuestsData || dailyQuestsData.date !== todayKey) {
+      const shuffled = [...SIMPLE_QUESTS_POOL].sort(() => 0.5 - Math.random());
+      const selectedSimple = shuffled.slice(0, 3).map(q => ({
+        id: q.id,
+        title: q.title,
+        target: q.target,
+        reward: q.reward,
+        type: q.type,
+        current: 0,
+        completed: false,
+        claimed: false
+      }));
+
+      const placeholderHard = {
+        id: 'hard_quest_soon',
+        title: 'Hard Quest (Coming Soon)',
+        target: 1,
+        reward: 50.00,
+        type: 'hard',
+        current: 0,
+        completed: false,
+        claimed: true,
+        isPlaceholder: true
+      };
+
+      dailyQuestsData = {
+        date: todayKey,
+        quests: [...selectedSimple, placeholderHard]
+      };
+      saveQuestsState();
+    }
+  }
+
+  function saveQuestsState() {
+    localStorage.setItem('burger_daily_quests', JSON.stringify(dailyQuestsData));
+    updateQuestsBadge();
+  }
+
+  function trackQuestProgress(type, amount = 1) {
+    initDailyQuests();
+    let updated = false;
+
+    dailyQuestsData.quests.forEach(q => {
+      if (q.type === type && !q.completed) {
+        q.current += amount;
+        if (q.current >= q.target) {
+          q.current = q.target;
+          q.completed = true;
+          playSound(SOUNDS.notification);
+          showToast('Quest Completed!', `"${q.title}" is ready to claim!`, 'success');
+        }
+        updated = true;
+      }
+    });
+
+    if (updated) {
+      saveQuestsState();
+      renderQuestsModal();
+    }
+  }
+
+  function updateQuestsBadge() {
+    initDailyQuests();
+    const badge = document.getElementById('questsBadge');
+    if (!badge) return;
+
+    const hasUnclaimed = dailyQuestsData.quests.some(q => q.completed && !q.claimed);
+    badge.style.display = hasUnclaimed ? 'block' : 'none';
+  }
+
+  function updateQuestsResetTimer() {
+    const timerEl = document.getElementById('questsResetTimer');
+    if (!timerEl) return;
+
+    const now = new Date();
+    const kzNow = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (5 * 3600000));
+    
+    const kzMidnight = new Date(kzNow);
+    kzMidnight.setHours(24, 0, 0, 0);
+
+    const diffSec = Math.floor((kzMidnight - kzNow) / 1000);
+    if (diffSec <= 0) {
+      initDailyQuests();
+      renderQuestsModal();
+      return;
+    }
+
+    const hours = Math.floor(diffSec / 3600);
+    const mins = Math.floor((diffSec % 3600) / 60);
+    const secs = diffSec % 60;
+
+    timerEl.innerText = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  }
+
+  function renderQuestsModal() {
+    initDailyQuests();
+    const body = document.getElementById('questsListBody');
+    if (!body) return;
+    body.innerHTML = '';
+
+    dailyQuestsData.quests.forEach((q, index) => {
+      if (q.isPlaceholder) {
+        const card = document.createElement('div');
+        card.className = 'quest-card';
+        card.style.opacity = '0.6';
+        card.innerHTML = `
+          <div class="quest-header">
+            <span class="quest-title">🔒 Hard Daily Quest</span>
+            <span class="quest-reward">$20.00 - $100.00</span>
+          </div>
+          <p style="font-size: 0.75rem; opacity: 0.8; margin-top: 4px;">Complex challenge features will arrive in future updates.</p>
+        `;
+        body.appendChild(card);
+        return;
+      }
+
+      const progressPercent = Math.min(100, (q.current / q.target) * 100);
+      const card = document.createElement('div');
+      card.className = `quest-card ${q.completed ? 'completed' : ''}`;
+
+      let buttonText = 'In progress';
+      let buttonDisabled = true;
+
+      if (q.claimed) {
+        buttonText = 'Claimed ✔';
+      } else if (q.completed) {
+        buttonText = 'Claim Reward';
+        buttonDisabled = false;
+      }
+
+      card.innerHTML = `
+        <div class="quest-header">
+          <span class="quest-title">${q.title}</span>
+          <span class="quest-reward">+$${q.reward.toFixed(2)}</span>
+        </div>
+        <div class="quest-progress-info">
+          <span>Progress</span>
+          <span>${q.current} / ${q.target}</span>
+        </div>
+        <div class="quest-progress-track">
+          <div class="quest-progress-fill" style="width: ${progressPercent}%"></div>
+        </div>
+        <button class="btn-claim-reward" ${buttonDisabled ? 'disabled' : ''} onclick="claimQuestReward(${index})">
+          ${buttonText}
+        </button>
+      `;
+      body.appendChild(card);
+    });
+  }
+
+  window.claimQuestReward = function(index) {
+    if (!dailyQuestsData || !dailyQuestsData.quests[index]) return;
+    const q = dailyQuestsData.quests[index];
+
+    if (q.completed && !q.claimed) {
+      q.claimed = true;
+      saveQuestsState();
+
+      if (currentGameMode !== 'sandbox') {
+        playerMoney += q.reward;
+        updateMoneyDisplay(q.reward, true);
+      }
+
+      playSound(SOUNDS.buy || SOUNDS.buttons);
+      showToast('Reward Claimed!', `+$${q.reward.toFixed(2)}`, 'success');
+      renderQuestsModal();
+      updateQuestsBadge();
+    }
+  };
+
+  if (openQuestsBtn) {
+    openQuestsBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      renderQuestsModal();
+      if (questsModal) questsModal.classList.add('open');
+    };
+  }
+
+  if (closeQuestsModal) {
+    closeQuestsModal.onclick = () => {
+      playSound(SOUNDS.buttons);
+      if (questsModal) questsModal.classList.remove('open');
+    };
+  }
 
   if (openSettingsBtn) openSettingsBtn.onclick = () => { playSound(SOUNDS.buttons); settingsModal.classList.add('open'); };
   if (closeSettingsModal) closeSettingsModal.onclick = () => { playSound(SOUNDS.buttons); settingsModal.classList.remove('open'); };
@@ -2186,6 +2418,7 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.removeItem('unlocked_achievements');
       unlockedAchievements = {};
       showToast('Achievements reset', '', 'success');
+      updateAchievementsBadge();
     }
   };
 
@@ -2600,6 +2833,8 @@ document.addEventListener('DOMContentLoaded', () => {
       playSound(SOUNDS.eating);
       isEating = true; 
       isSqueezed = false;
+      trackQuestProgress('make_burgers', 1);
+
       if (burgerStack) burgerStack.classList.add('eating');
       setTimeout(() => {
         currentBurger = [];
@@ -2619,6 +2854,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (isCorrect) {
       playSound(SOUNDS.complete);
+      trackQuestProgress('make_burgers', 1);
+
       if (currentGameMode !== 'sandbox') {
         const cost = ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0);
         const multiplier = getOrderMultiplier();
@@ -2629,6 +2866,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         playerMoney += reward;
         updateMoneyDisplay(reward, true);
+        trackQuestProgress('earn_money', reward);
       }
       showToast('Order Complete!', `${currentActiveOrder.name} served successfully!`, 'success');
       
@@ -2702,6 +2940,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const targetIds = currentActiveOrder.ids;
       if (ids.length === targetIds.length && ids.every((val, idx) => val === targetIds[idx])) {
         playSound(SOUNDS.complete);
+        trackQuestProgress('make_burgers', 1);
+
         if (currentGameMode !== 'sandbox') {
           const cost = ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0);
           const multiplier = getOrderMultiplier();
@@ -2712,6 +2952,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           playerMoney += reward;
           updateMoneyDisplay(reward, true);
+          trackQuestProgress('earn_money', reward);
         }
         showToast('Order Complete!', `${currentActiveOrder.name} served successfully!`, 'success');
         
@@ -2863,7 +3104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       title: "Bottom Actions Menu",
-      text: "On the lower menu you have a variety of buttons:\n\n📋 List of recipes\n🏬 Groceries shop\n🎒 Your inventory\n🏆 Your achievements\n---\n🔔 Summon new order\n⏩ Skip current order\n🍔 Eat your burger\n🍽 Serve the order\n✊ Squeeze your burger\n🗑 Bin current ingredients\n---\n💾 Save your burger as PNG\n⚙ Settings",
+      text: "On the lower menu you have a variety of buttons:\n\n📋 List of recipes\n🏬 Groceries shop\n🎒 Your inventory\n🏆 Your achievements\n🎯 Daily Quests\n---\n🔔 Summon new order\n⏩ Skip current order\n🍔 Eat your burger\n🍽 Serve the order\n✊ Squeeze your burger\n🗑 Bin current ingredients\n---\n💾 Save your burger as PNG\n⚙ Settings",
       screen: "assembly",
       getElement: () => document.getElementById('bottomPanel') || document.querySelector('.bottom-panel')
     },
@@ -3129,6 +3370,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   showWelcomeModalIfNeeded();
+
+  // Инициализации и запуск функций при первой загрузке
+  updateQuestsBadge();
+  updateAchievementsBadge();
+
+  setInterval(() => {
+    updateQuestsResetTimer();
+  }, 1000);
 
   switchScreen(currentScreen);
   renderSauces();
