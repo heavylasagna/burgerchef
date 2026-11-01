@@ -2378,7 +2378,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateMoneyDisplay(q.reward, true);
       }
 
-      playSound(SOUNDS.buy || SOUNDS.buttons);
+      playSound(SOUNDS.buy || SOUNDS.complete);
       showToast('Reward Claimed!', `+$${q.reward.toFixed(2)}`, 'success');
       renderQuestsModal();
       updateQuestsBadge();
