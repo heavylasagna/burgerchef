@@ -102,6 +102,20 @@
     </div>
   </div>
 
+  <!-- Модальное окно Ежедневных Заданий -->
+  <div class="modal-overlay" id="questsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Daily Quests</h3>
+        <button class="close-modal" id="closeQuestsModal">✕</button>
+      </div>
+      <div class="quests-timer-bar" id="questsTimerBar">
+        Resets at 00:00 (Astana) in: <span id="questsResetTimer">--:--:--</span>
+      </div>
+      <div class="modal-body" id="questsListBody"></div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -230,7 +244,12 @@
           <button class="btn-action btn-recipes" id="openRecipesBtn" title="Recipes">📋</button>
           <button class="btn-action btn-shop" id="openShopBtn" title="Shop">🏬</button>
           <button class="btn-action btn-inventory" id="openInventoryBtn" title="Inventory">🎒</button>
-          <button class="btn-action btn-achievements" id="openAchievementsBtn" title="Achievements">🏆</button>
+          <button class="btn-action btn-achievements" id="openAchievementsBtn" title="Achievements" style="position: relative;">
+            🏆<span class="notification-badge" id="achievementsBadge" style="display: none;"></span>
+          </button>
+          <button class="btn-action btn-quests" id="openQuestsBtn" title="Quests" style="position: relative;">
+            🎯<span class="notification-badge" id="questsBadge" style="display: none;"></span>
+          </button>
         </div>
 
         <div class="action-box">
