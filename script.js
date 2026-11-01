@@ -644,6 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderBoardSlicedInventory(savedScroll);
   }
 
+  /* 1. ЭКРАН СБОРКИ: ИНГРЕДИЕНТЫ (СПРАВА) */
   function renderIngredientsMenu(savedScroll = null) {
     if (currentScreen !== 'assembly') return;
     if (!rightPanel) return;
@@ -652,15 +653,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!ingredientsMenu) return;
 
+    // Сохраняем текущую прокрутку списка перед обновлением
+    const innerContainer = ingredientsMenu.querySelector('.scrollable-items-list');
+    const currentListScrollTop = innerContainer ? innerContainer.scrollTop : ingredientsMenu.scrollTop;
+
     const currentTabsEl = document.getElementById('cat-tabs-setAssemblyCategory');
     const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
-    const menuScrollTop = ingredientsMenu.scrollTop;
     
     const filtered = assemblyActiveCategory === 'all' ? INGREDIENTS : INGREDIENTS.filter(i => i.category === assemblyActiveCategory);
 
     const tabsHtml = renderCategoryTabs(assemblyActiveCategory, 'setAssemblyCategory', false, false);
     
-    let cardsHtml = `<div style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
+    let cardsHtml = `<div class="scrollable-items-list" style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
     filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
       const isOut = currentGameMode !== 'sandbox' && stock <= 0;
@@ -679,9 +683,14 @@ document.addEventListener('DOMContentLoaded', () => {
     cardsHtml += `</div>`;
 
     ingredientsMenu.innerHTML = tabsHtml + cardsHtml;
-    ingredientsMenu.scrollTop = menuScrollTop;
+
+    // Восстанавливаем позицию прокрутки
+    const newInner = ingredientsMenu.querySelector('.scrollable-items-list');
+    if (newInner) newInner.scrollTop = currentListScrollTop;
+    ingredientsMenu.scrollTop = currentListScrollTop;
 
     requestAnimationFrame(() => {
+      if (newInner) newInner.scrollTop = currentListScrollTop;
       const tabsEl = document.getElementById('cat-tabs-setAssemblyCategory');
       if (tabsEl) {
         tabsEl.style.scrollBehavior = 'auto';
@@ -704,6 +713,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addIngredient(item);
   }
 
+  /* 2. ЭКРАН ГРИЛЯ: СЫРЫЕ ИНГРЕДИЕНТЫ (СПРАВА) */
   function renderGrillIngredientsMenu(savedScroll = null) {
     if (currentScreen !== 'grill') return;
     if (!rightPanel) return;
@@ -713,15 +723,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     titleEl.innerText = 'Raw Ingredients';
 
+    const innerContainer = menuEl.querySelector('.scrollable-items-list');
+    const currentListScrollTop = innerContainer ? innerContainer.scrollTop : menuEl.scrollTop;
+
     const currentTabsEl = document.getElementById('cat-tabs-setGrillRawCategory');
     const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
-    const menuScrollTop = menuEl.scrollTop;
     
     const filtered = grillRawActiveCategory === 'all' ? GRILLABLE_MENU_ITEMS : GRILLABLE_MENU_ITEMS.filter(i => i.category === grillRawActiveCategory);
 
     const tabsHtml = renderCategoryTabs(grillRawActiveCategory, 'setGrillRawCategory', true, false);
 
-    let cardsHtml = `<div style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
+    let cardsHtml = `<div class="scrollable-items-list" style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
     filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
       const isOut = currentGameMode !== 'sandbox' && stock <= 0;
@@ -740,9 +752,13 @@ document.addEventListener('DOMContentLoaded', () => {
     cardsHtml += `</div>`;
 
     menuEl.innerHTML = tabsHtml + cardsHtml;
-    menuEl.scrollTop = menuScrollTop;
+
+    const newInner = menuEl.querySelector('.scrollable-items-list');
+    if (newInner) newInner.scrollTop = currentListScrollTop;
+    menuEl.scrollTop = currentListScrollTop;
 
     requestAnimationFrame(() => {
+      if (newInner) newInner.scrollTop = currentListScrollTop;
       const tabsEl = document.getElementById('cat-tabs-setGrillRawCategory');
       if (tabsEl) {
         tabsEl.style.scrollBehavior = 'auto';
@@ -762,6 +778,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addToGrill(id);
   }
 
+  /* 3. ЭКРАН ГРИЛЯ: ГОТОВЫЕ ИНГРЕДИЕНТЫ (СЛЕВА) */
   function renderGrillCookedInventory(savedScroll = null) {
     if (currentScreen !== 'grill') return;
     if (!leftPanel) return;
@@ -772,14 +789,16 @@ document.addEventListener('DOMContentLoaded', () => {
     titleEl.innerText = 'Cooked Ingredients';
     listEl.classList.remove('assembly-mode');
 
+    const innerContainer = listEl.querySelector('.scrollable-items-list');
+    const currentListScrollTop = innerContainer ? innerContainer.scrollTop : listEl.scrollTop;
+
     const currentTabsEl = document.getElementById('cat-tabs-setGrillCookedCategory');
     const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
-    const listScrollTop = listEl.scrollTop;
 
     const filtered = grillCookedActiveCategory === 'all' ? COOKED_INVENTORY_ITEMS : COOKED_INVENTORY_ITEMS.filter(i => i.category === grillCookedActiveCategory);
 
     const tabsHtml = renderCategoryTabs(grillCookedActiveCategory, 'setGrillCookedCategory', true, false);
-    let itemsContainerHtml = `<div style="display:flex; flex-direction:column; gap:6px; overflow-y:auto; flex:1; min-height:0;">`;
+    let itemsContainerHtml = `<div class="scrollable-items-list" style="display:flex; flex-direction:column; gap:6px; overflow-y:auto; flex:1; min-height:0;">`;
 
     filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
@@ -796,9 +815,13 @@ document.addEventListener('DOMContentLoaded', () => {
     itemsContainerHtml += `</div>`;
 
     listEl.innerHTML = tabsHtml + itemsContainerHtml;
-    listEl.scrollTop = listScrollTop;
+
+    const newInner = listEl.querySelector('.scrollable-items-list');
+    if (newInner) newInner.scrollTop = currentListScrollTop;
+    listEl.scrollTop = currentListScrollTop;
 
     requestAnimationFrame(() => {
+      if (newInner) newInner.scrollTop = currentListScrollTop;
       const tabsEl = document.getElementById('cat-tabs-setGrillCookedCategory');
       if (tabsEl) {
         tabsEl.style.scrollBehavior = 'auto';
@@ -811,6 +834,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  /* 4. ЭКРАН ДОСКИ: НЕНАРЕЗАННЫЕ ИНГРЕДИЕНТЫ (СПРАВА) */
   function renderBoardUncutMenu(savedScroll = null) {
     if (currentScreen !== 'board') return;
     if (!rightPanel) return;
@@ -820,15 +844,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     titleEl.innerText = 'Uncut Ingredients';
 
+    const innerContainer = menuEl.querySelector('.scrollable-items-list');
+    const currentListScrollTop = innerContainer ? innerContainer.scrollTop : menuEl.scrollTop;
+
     const currentTabsEl = document.getElementById('cat-tabs-setBoardUncutCategory');
     const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
-    const menuScrollTop = menuEl.scrollTop;
     
     const filtered = boardUncutActiveCategory === 'all' ? BOARD_UNCUT_ITEMS : BOARD_UNCUT_ITEMS.filter(i => i.category === boardUncutActiveCategory);
 
     const tabsHtml = renderCategoryTabs(boardUncutActiveCategory, 'setBoardUncutCategory', true, true);
 
-    let cardsHtml = `<div style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
+    let cardsHtml = `<div class="scrollable-items-list" style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
     filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
       const isOut = currentGameMode !== 'sandbox' && stock <= 0;
@@ -847,9 +873,13 @@ document.addEventListener('DOMContentLoaded', () => {
     cardsHtml += `</div>`;
 
     menuEl.innerHTML = tabsHtml + cardsHtml;
-    menuEl.scrollTop = menuScrollTop;
+
+    const newInner = menuEl.querySelector('.scrollable-items-list');
+    if (newInner) newInner.scrollTop = currentListScrollTop;
+    menuEl.scrollTop = currentListScrollTop;
 
     requestAnimationFrame(() => {
+      if (newInner) newInner.scrollTop = currentListScrollTop;
       const tabsEl = document.getElementById('cat-tabs-setBoardUncutCategory');
       if (tabsEl) {
         tabsEl.style.scrollBehavior = 'auto';
@@ -869,6 +899,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addToBoard(id);
   }
 
+  /* 5. ЭКРАН ДОСКИ: НАРЕЗАННЫЕ ИНГРЕДИЕНТЫ (СЛЕВА) */
   function renderBoardSlicedInventory(savedScroll = null) {
     if (currentScreen !== 'board') return;
     if (!leftPanel) return;
@@ -879,14 +910,16 @@ document.addEventListener('DOMContentLoaded', () => {
     titleEl.innerText = 'Sliced Ingredients';
     listEl.classList.remove('assembly-mode');
 
+    const innerContainer = listEl.querySelector('.scrollable-items-list');
+    const currentListScrollTop = innerContainer ? innerContainer.scrollTop : listEl.scrollTop;
+
     const currentTabsEl = document.getElementById('cat-tabs-setBoardSlicedCategory');
     const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
-    const listScrollTop = listEl.scrollTop;
 
     const filtered = boardSlicedActiveCategory === 'all' ? BOARD_SLICED_ITEMS : BOARD_SLICED_ITEMS.filter(i => i.category === boardSlicedActiveCategory);
 
     const tabsHtml = renderCategoryTabs(boardSlicedActiveCategory, 'setBoardSlicedCategory', true, true);
-    let itemsContainerHtml = `<div style="display:flex; flex-direction:column; gap:6px; overflow-y:auto; flex:1; min-height:0;">`;
+    let itemsContainerHtml = `<div class="scrollable-items-list" style="display:flex; flex-direction:column; gap:6px; overflow-y:auto; flex:1; min-height:0;">`;
 
     filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
@@ -903,9 +936,13 @@ document.addEventListener('DOMContentLoaded', () => {
     itemsContainerHtml += `</div>`;
 
     listEl.innerHTML = tabsHtml + itemsContainerHtml;
-    listEl.scrollTop = listScrollTop;
+
+    const newInner = listEl.querySelector('.scrollable-items-list');
+    if (newInner) newInner.scrollTop = currentListScrollTop;
+    listEl.scrollTop = currentListScrollTop;
 
     requestAnimationFrame(() => {
+      if (newInner) newInner.scrollTop = currentListScrollTop;
       const tabsEl = document.getElementById('cat-tabs-setBoardSlicedCategory');
       if (tabsEl) {
         tabsEl.style.scrollBehavior = 'auto';
@@ -2259,6 +2296,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
+  /* 6. ЭКРАН СБОРКИ: СПИСОК СЛОЁВ (СЛЕВА) */
   function updateBurgerDisplay(isNewAdded = false) {
     if (currentScreen !== 'assembly') return;
     saveBurgerState();
@@ -2269,7 +2307,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (layersList) {
-      const listScrollTop = layersList.scrollTop;
+      const currentListScrollTop = layersList.scrollTop;
       layersList.classList.add('assembly-mode');
       layersList.innerHTML = '';
       currentBurger.forEach((item, index) => {
@@ -2285,7 +2323,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         layersList.appendChild(listItem);
       });
-      layersList.scrollTop = listScrollTop;
+      layersList.scrollTop = currentListScrollTop;
     }
 
     if (burgerStack) {
@@ -2605,7 +2643,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       updateActionButtonsVisibility();
       
-      // Анимация поедания/очистки при успешной подаче
       if (eatBtn && eatBtn.style.display !== 'none') {
         eatBtn.click();
       } else {
@@ -2631,7 +2668,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       showToast('Wrong order!', `-$${penalty.toFixed(2)} penalty`, 'error');
       
-      // Сбрасываем текущий заказ при ошибке
       currentActiveOrder = null;
       localStorage.removeItem('current_active_order');
       if (currentGameMode === 'turbo') {
@@ -2763,7 +2799,6 @@ document.addEventListener('DOMContentLoaded', () => {
           updateMoneyDisplay(activeOrderCost, false);
           showToast('You ran out of time!', `-$${activeOrderCost.toFixed(2)} penalty`, 'error');
           
-          // Сброс просроченного заказа в турбо-режиме
           currentActiveOrder = null;
           localStorage.removeItem('current_active_order');
           triggerRandomOrder();
