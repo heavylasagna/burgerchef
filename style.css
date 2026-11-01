@@ -1551,18 +1551,12 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .center-stage { min-height: 75vh; }
   
   @media (max-width: 900px) {
-  /* Фиксируем плашки четко в правом нижнем углу внутри слота */
   .grill-slot .flip-badge {
-    position: absolute !important;
-    top: auto !important;
-    bottom: 14px !important;
-    right: 4px !important;
+    top: -8px !important;
+    bottom: auto !important;
+    right: 0px !important;
     left: auto !important;
     transform: none !important;
-    font-size: 0.6rem !important;
-    padding: 2px 5px !important;
-    white-space: nowrap !important;
-    z-index: 20 !important;
   }
 }
 
