@@ -344,6 +344,20 @@ document.addEventListener('DOMContentLoaded', () => {
     return modeSpeeds[currentGameMode] || 'no-orders';
   }
 
+  function getOrderMultiplier() {
+    if (currentGameMode === 'turbo') return 1.1;
+    const speed = getCurrentSpeed();
+    switch(speed) {
+      case 'turbo': return 1.1;
+      case 'super-fast': return 1.15;
+      case 'fast': return 1.25;
+      case 'medium': return 1.50;
+      case 'slow': return 1.75;
+      case 'super-slow': return 2.0;
+      case 'no-orders': default: return 1.0;
+    }
+  }
+
   function saveStock() {
     localStorage.setItem('burger_ingredient_stock', JSON.stringify(ingredientStock));
   }
@@ -1023,7 +1037,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (slot.state === 'ready') {
       ingredientStock[config.slicedId] = (ingredientStock[config.slicedId] ?? 0) + 3;
       saveStock();
-      showToast('Added x3 to inventory!', `${config.name} (x3) added to backpack.`, 'success');
+      
       playSound(SOUNDS.buttons);
       
       boardSlots[index] = null;
@@ -1375,7 +1389,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (slot.state === 'ready') {
       ingredientStock[config.cookedId] = (ingredientStock[config.cookedId] ?? 0) + 1;
       saveStock();
-      showToast('Added to inventory!', `${config.name} added to backpack.`, 'success');
+      
       playSound(SOUNDS.buttons);
       
       grillSlots[index] = null;
@@ -2196,6 +2210,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
+      const activeOrderCost = currentActiveOrder && currentActiveOrder.ids ? currentActiveOrder.ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0) : 10;
+
       if (skipOrderClickCount === 0) {
         skipOrderClickCount = 1;
         if (currentGameMode === 'turbo') {
@@ -2211,9 +2227,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (currentGameMode === 'turbo') {
           playSound(SOUNDS.wrongOrder);
-          playerMoney -= 5;
-          updateMoneyDisplay(5, false);
-          showToast('Fined! -$5', 'Order skipped with fine', 'error');
+          playerMoney -= activeOrderCost;
+          updateMoneyDisplay(activeOrderCost, false);
+          showToast('Fined! -$' + activeOrderCost.toFixed(2), 'Order skipped with fine', 'error');
           currentTurboTimeLeft = 180;
           triggerRandomOrder();
         } else {
@@ -2296,7 +2312,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     renderIngredientsMenu();
     renderSauces();
-    if (centerStage) setTimeout(() => { centerStage.scrollTop = centerStage.scrollHeight; }, 50);
+    if (centerStage && window.innerWidth > 900) {
+      setTimeout(() => { centerStage.scrollTop = centerStage.scrollHeight; }, 50);
+    }
   }
 
   function addIngredient(item) {
@@ -2433,7 +2451,8 @@ document.addEventListener('DOMContentLoaded', () => {
           saveStock();
         }
         playSound(SOUNDS.bin);
-        isEating = false; isSqueezed = false;
+        isEating = false; 
+        isSqueezed = false;
         if (burgerStack) burgerStack.classList.remove('eating');
         currentBurger = [];
         updateBurgerDisplay(false);
@@ -2533,7 +2552,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (isEating) return;
       playSound(SOUNDS.eating);
-      isEating = true; isSqueezed = false;
+      isEating = true; 
+      isSqueezed = false;
       if (burgerStack) burgerStack.classList.add('eating');
       setTimeout(() => {
         currentBurger = [];
@@ -2555,7 +2575,8 @@ document.addEventListener('DOMContentLoaded', () => {
       playSound(SOUNDS.complete);
       if (currentGameMode !== 'sandbox') {
         const cost = ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0);
-        let reward = Math.round(cost * 2 * 100) / 100;
+        const multiplier = getOrderMultiplier();
+        let reward = Math.round(cost * multiplier * 100) / 100;
         if (lastOrderReducedReward) {
           reward = Math.round(reward * (2 / 3) * 100) / 100;
           lastOrderReducedReward = false;
@@ -2573,14 +2594,28 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('current_active_order');
       }
       updateActionButtonsVisibility();
-      setTimeout(() => { if (eatBtn && eatBtn.style.display !== 'none') eatBtn.click(); else { currentBurger = []; updateBurgerDisplay(false); } }, 600);
+      setTimeout(() => { 
+        if (eatBtn && eatBtn.style.display !== 'none') {
+          eatBtn.click(); 
+        } else { 
+          isSqueezed = false;
+          currentBurger = []; 
+          updateBurgerDisplay(false); 
+        } 
+      }, 600);
     } else {
       playSound(SOUNDS.wrongOrder);
+      const cost = ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0);
+      const penalty = Math.round((cost / 2) * 100) / 100;
       if (currentGameMode !== 'sandbox') {
-        playerMoney -= 3;
-        updateMoneyDisplay(3, false);
+        playerMoney -= penalty;
+        updateMoneyDisplay(penalty, false);
       }
-      showToast('Wrong order!', '-$3 penalty', 'error');
+      showToast('Wrong order!', `-$${penalty.toFixed(2)} penalty`, 'error');
+      
+      isSqueezed = false;
+      currentBurger = [];
+      updateBurgerDisplay(false);
     }
   }
 
@@ -2600,7 +2635,8 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(SOUNDS.complete);
         if (currentGameMode !== 'sandbox') {
           const cost = ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0);
-          let reward = Math.round(cost * 2 * 100) / 100;
+          const multiplier = getOrderMultiplier();
+          let reward = Math.round(cost * multiplier * 100) / 100;
           if (lastOrderReducedReward) {
             reward = Math.round(reward * (2 / 3) * 100) / 100;
             lastOrderReducedReward = false;
@@ -2614,7 +2650,15 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('current_active_order');
 
         updateActionButtonsVisibility();
-        setTimeout(() => { if (eatBtn && eatBtn.style.display !== 'none') eatBtn.click(); else { currentBurger = []; updateBurgerDisplay(false); } }, 600);
+        setTimeout(() => { 
+          if (eatBtn && eatBtn.style.display !== 'none') {
+            eatBtn.click(); 
+          } else { 
+            isSqueezed = false;
+            currentBurger = []; 
+            updateBurgerDisplay(false); 
+          } 
+        }, 600);
       }
     }
   }
@@ -2672,9 +2716,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           currentTurboTimeLeft = 180;
           playSound(SOUNDS.wrongOrder);
-          playerMoney -= 5;
-          updateMoneyDisplay(5, false);
-          showToast('You ran out of time!', '-$5 penalty', 'error');
+          const activeOrderCost = currentActiveOrder && currentActiveOrder.ids ? currentActiveOrder.ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0) : 10;
+          playerMoney -= activeOrderCost;
+          updateMoneyDisplay(activeOrderCost, false);
+          showToast('You ran out of time!', `-$${activeOrderCost.toFixed(2)} penalty`, 'error');
           triggerRandomOrder();
         }
       }
@@ -2712,7 +2757,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- ПОЛНЫЙ ТУТОРИАЛ (с точной подсветкой всего модального окна на 14 этапе и See the tutorial + Danger Zone на 15 этапе) ---
+  // --- ПОЛНЫЙ ТУТОРИАЛ ---
   const tutorialSteps = [
     {
       title: "Assembly Screen",
@@ -2805,7 +2850,6 @@ document.addEventListener('DOMContentLoaded', () => {
       getElement: () => {
         if (window.innerWidth <= 900) return document.getElementById('openSettingsBtn');
         const modal = document.getElementById('settingsModal');
-        // Выделяем всё окно настроек целиком
         return modal ? modal.querySelector('.modal-content') : document.body;
       }
     },
@@ -2825,7 +2869,6 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       getElement: () => {
         if (window.innerWidth <= 900) return document.getElementById('openSettingsBtn');
-        // Выделяем только See the tutorial и Danger Zone на 15 этапе
         return document.getElementById('tutorialFinalSection') || document.body;
       }
     }
@@ -2954,7 +2997,6 @@ document.addEventListener('DOMContentLoaded', () => {
             let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2 + scrollLeft;
             let tooltipTop = rect.bottom + scrollTop + 16;
 
-            // Смещение подсказки правее модального окна для 14 и 15 этапов
             if (stepIndex === 13 || stepIndex === 14) {
               const modalContent = document.querySelector('#settingsModal .modal-content');
               if (modalContent) {
