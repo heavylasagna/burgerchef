@@ -109,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let playerMoney = parseFloat(localStorage.getItem('burger_money'));
   if (isNaN(playerMoney)) playerMoney = 100.00;
 
-  // Твои обновленные цены
   const ITEM_PRICES = {
     'top-bun': 2, 'bottom-bun': 2,
     'raw-beef-patty': 5, 'raw-chicken-patty': 5, 'raw-fish-patty': 5, 'raw-hashbrown': 4,
@@ -1844,7 +1843,17 @@ document.addEventListener('DOMContentLoaded', () => {
     { name: 'Fish Burger', category: 'fish', ids: ['bottom-bun', 'fish-patty', 'mayo', 'pickles', 'lettuce', 'top-bun'] },
     { name: 'Potato Burger', category: 'hashbrown', ids: ['bottom-bun', 'hashbrown', 'cheese', 'pickles', 'top-bun'] },
     { name: 'Egg Burger', category: 'egg', ids: ['bottom-bun', 'fried-egg', 'cheese', 'top-bun'] },
-    { name: 'Breakfast Melt', category: 'vegetarian', ids: ['bottom-bun', 'ketchup', 'hashbrown', 'cheese', 'fried-egg', 'top-bun'] }
+    { name: 'Breakfast Melt', category: 'vegetarian', ids: ['bottom-bun', 'ketchup', 'hashbrown', 'cheese', 'fried-egg', 'top-bun'] },
+    
+    // Новые рецепты
+    { name: 'Spicy Chicken', category: 'chicken', ids: ['bottom-bun', 'spicy', 'chicken-patty', 'cheese', 'mayo', 'white-onion', 'pickles', 'top-bun'] },
+    { name: 'Chicken Egg', category: 'chicken', ids: ['bottom-bun', 'mustard', 'lettuce', 'chicken-patty', 'fried-egg', 'top-bun'] },
+    { name: 'Spicy Tuna', category: 'fish', ids: ['bottom-bun', 'lettuce', 'spicy', 'fish-patty', 'tomato', 'red-onion', 'pickles', 'top-bun'] },
+    { name: 'Hash Delux', category: 'hashbrown', ids: ['bottom-bun', 'hashbrown', 'lettuce', 'hashbrown', 'mayo', 'cheese', 'top-bun'] },
+    { name: 'Toast', category: 'beef', ids: ['bottom-bun', 'beef-patty', 'cheese', 'bottom-bun'] },
+    { name: 'Green Filed', category: 'vegetarian', ids: ['bottom-bun', 'mustard', 'pickles', 'lettuce', 'pickles', 'lettuce', 'pickles', 'top-bun'] },
+    { name: 'Salad', category: 'vegetarian', ids: ['lettuce', 'hashbrown', 'mustard', 'tomato', 'pickles', 'lettuce'] },
+    { name: 'BBQ Burger', category: 'beef', ids: ['bottom-bun', 'bbq', 'beef-patty', 'cheese', 'fried-bacon', 'fried-egg', 'top-bun'] }
   ];
 
   const SECRET_ACHIEVEMENTS = [
@@ -1863,7 +1872,6 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast(ach.title, 'Secret recipe unlocked!', 'success');
       playSound(SOUNDS[ach.sound] || SOUNDS.achievement);
       
-      // Показываем красную точку на ачивках
       localStorage.setItem('seen_achievements_badge', 'false');
       updateAchievementsBadge();
     }
@@ -2162,7 +2170,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (openRecipesBtn) openRecipesBtn.onclick = () => { playSound(SOUNDS.buttons); renderRecipesModal(); recipesModal.classList.add('open'); };
   if (closeRecipesModal) closeRecipesModal.onclick = () => { playSound(SOUNDS.buttons); recipesModal.classList.remove('open'); };
 
-  // Логика краных точек для ачивок
   function updateAchievementsBadge() {
     const badge = document.getElementById('achievementsBadge');
     if (!badge) return;
@@ -2194,7 +2201,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   if (closeAchievementsModal) closeAchievementsModal.onclick = () => { playSound(SOUNDS.buttons); achievementsModal.classList.remove('open'); };
 
-  // --- ЛОГИКА ЕЖЕДНЕВНЫХ ЗАДАНИЙ (UTC+5 Казахстан) ---
   const SIMPLE_QUESTS_POOL = [
     { id: 'make_burgers_3', title: 'Make 3 burgers', target: 3, reward: 2.50, type: 'make_burgers' },
     { id: 'make_burgers_5', title: 'Make 5 burgers', target: 5, reward: 5.00, type: 'make_burgers' },
@@ -2263,7 +2269,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (q.current >= q.target) {
           q.current = q.target;
           q.completed = true;
-          playSound(SOUNDS.complete);
+          playSound(SOUNDS.complete); // Победный звук при выполнении задания
           showToast('Quest Completed!', `"${q.title}" is ready to claim!`, 'success');
         }
         updated = true;
@@ -3371,7 +3377,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   showWelcomeModalIfNeeded();
 
-  // Инициализации и запуск функций при первой загрузке
   updateQuestsBadge();
   updateAchievementsBadge();
 
