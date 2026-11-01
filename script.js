@@ -111,18 +111,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const ITEM_PRICES = {
     'top-bun': 2, 'bottom-bun': 2,
-    'beef-patty': 5, 'chicken-patty': 4, 'fish-patty': 4, 'fried-bacon': 3, 'fried-egg': 2,
-    'cheese': 3, 'raw-cheese': 3, 'uncut-cheese': 3,
-    'hashbrown': 3,
-    'champignons': 3, 'raw-champignons': 3, 'uncut-champignons': 3,
-    'lettuce': 1, 'uncut-lettuce': 1,
-    'tomato': 1, 'uncut-tomato': 1,
-    'pickles': 1, 'uncut-pickles': 1,
-    'red-onion': 1, 'uncut-red-onion': 1,
-    'white-onion': 1, 'uncut-white-onion': 1,
-    'mayo': 2, 'ketchup': 2, 'mustard': 2, 'spicy': 2, 'bbq': 2,
-    'raw-beef-patty': 5, 'raw-chicken-patty': 5, 'raw-fish-patty': 5, 'raw-hashbrown': 5,
-    'raw-bacon': 5, 'raw-egg': 5
+    'raw-beef-patty': 5, 'raw-chicken-patty': 5, 'raw-fish-patty': 5, 'raw-hashbrown': 4,
+    'raw-bacon': 3, 'raw-egg': 4,
+    'uncut-cheese': 5,
+    'uncut-champignons': 3,
+    'uncut-lettuce': 3,
+    'uncut-tomato': 3,
+    'uncut-pickles': 3,
+    'uncut-red-onion': 3,
+    'uncut-white-onion': 3,
+    'mayo': 5, 'ketchup': 5, 'mustard': 5, 'spicy': 5, 'bbq': 5
   };
 
   let ingredientStock = JSON.parse(localStorage.getItem('burger_ingredient_stock')) || {
