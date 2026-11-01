@@ -2263,7 +2263,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (q.current >= q.target) {
           q.current = q.target;
           q.completed = true;
-          playSound(SOUNDS.notification);
+          playSound(SOUNDS.complete);
           showToast('Quest Completed!', `"${q.title}" is ready to claim!`, 'success');
         }
         updated = true;
