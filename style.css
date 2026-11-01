@@ -1551,6 +1551,17 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .pinned-recipe-widget,
   body.ui-hidden .screen-switcher { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
+  
+  /* Перенос бейджей подсказок (Flip! / Collect / Chop!) на мобилках вниз слота */
+  .grill-slot .flip-badge {
+    top: auto !important;
+    bottom: 6px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    font-size: 0.65rem !important;
+    padding: 2px 6px !important;
+    white-space: nowrap !important;
+  }
 }
 
 /* --- Стили для адаптивного туториала (модальное окно на телефонах с фиксацией фона) --- */
