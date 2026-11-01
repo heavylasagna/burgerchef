@@ -30,7 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
     sizzling: safeAudio('audio/sizzling.mp3'),
     burnt: safeAudio('audio/burnt.mp3'),
     chop: safeAudio('audio/ingridients.mp3'),
-    cutting: safeAudio('audio/cutting.mp3')
+    cutting: safeAudio('audio/cutting.mp3'),
+    notification: safeAudio('audio/notification.mp3')
   };
 
   let volumeLevel = parseFloat(localStorage.getItem('burger_volume'));
@@ -653,6 +654,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const currentTabsEl = document.getElementById('cat-tabs-setAssemblyCategory');
     const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
+    const menuScrollTop = ingredientsMenu.scrollTop;
     
     const filtered = assemblyActiveCategory === 'all' ? INGREDIENTS : INGREDIENTS.filter(i => i.category === assemblyActiveCategory);
 
@@ -677,6 +679,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cardsHtml += `</div>`;
 
     ingredientsMenu.innerHTML = tabsHtml + cardsHtml;
+    ingredientsMenu.scrollTop = menuScrollTop;
 
     requestAnimationFrame(() => {
       const tabsEl = document.getElementById('cat-tabs-setAssemblyCategory');
@@ -712,6 +715,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const currentTabsEl = document.getElementById('cat-tabs-setGrillRawCategory');
     const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
+    const menuScrollTop = menuEl.scrollTop;
     
     const filtered = grillRawActiveCategory === 'all' ? GRILLABLE_MENU_ITEMS : GRILLABLE_MENU_ITEMS.filter(i => i.category === grillRawActiveCategory);
 
@@ -736,6 +740,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cardsHtml += `</div>`;
 
     menuEl.innerHTML = tabsHtml + cardsHtml;
+    menuEl.scrollTop = menuScrollTop;
 
     requestAnimationFrame(() => {
       const tabsEl = document.getElementById('cat-tabs-setGrillRawCategory');
@@ -769,6 +774,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const currentTabsEl = document.getElementById('cat-tabs-setGrillCookedCategory');
     const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
+    const listScrollTop = listEl.scrollTop;
 
     const filtered = grillCookedActiveCategory === 'all' ? COOKED_INVENTORY_ITEMS : COOKED_INVENTORY_ITEMS.filter(i => i.category === grillCookedActiveCategory);
 
@@ -790,6 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
     itemsContainerHtml += `</div>`;
 
     listEl.innerHTML = tabsHtml + itemsContainerHtml;
+    listEl.scrollTop = listScrollTop;
 
     requestAnimationFrame(() => {
       const tabsEl = document.getElementById('cat-tabs-setGrillCookedCategory');
@@ -815,6 +822,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const currentTabsEl = document.getElementById('cat-tabs-setBoardUncutCategory');
     const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
+    const menuScrollTop = menuEl.scrollTop;
     
     const filtered = boardUncutActiveCategory === 'all' ? BOARD_UNCUT_ITEMS : BOARD_UNCUT_ITEMS.filter(i => i.category === boardUncutActiveCategory);
 
@@ -839,6 +847,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cardsHtml += `</div>`;
 
     menuEl.innerHTML = tabsHtml + cardsHtml;
+    menuEl.scrollTop = menuScrollTop;
 
     requestAnimationFrame(() => {
       const tabsEl = document.getElementById('cat-tabs-setBoardUncutCategory');
@@ -872,6 +881,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const currentTabsEl = document.getElementById('cat-tabs-setBoardSlicedCategory');
     const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
+    const listScrollTop = listEl.scrollTop;
 
     const filtered = boardSlicedActiveCategory === 'all' ? BOARD_SLICED_ITEMS : BOARD_SLICED_ITEMS.filter(i => i.category === boardSlicedActiveCategory);
 
@@ -893,6 +903,7 @@ document.addEventListener('DOMContentLoaded', () => {
     itemsContainerHtml += `</div>`;
 
     listEl.innerHTML = tabsHtml + itemsContainerHtml;
+    listEl.scrollTop = listScrollTop;
 
     requestAnimationFrame(() => {
       const tabsEl = document.getElementById('cat-tabs-setBoardSlicedCategory');
@@ -1006,7 +1017,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (elapsed >= config.cutTime) {
           slot.state = 'ready';
           if (!slot.notified) {
-            playSound(SOUNDS.complete);
+            playSound(SOUNDS.notification);
             slot.notified = true;
           }
           needsSave = true;
@@ -1080,7 +1091,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <img src="${config.slicedImage}" style="width:60px; height:60px; position:absolute; transform: translate(-18px, -12px) rotate(-15deg); object-fit:contain;">
               <img src="${config.slicedImage}" style="width:60px; height:60px; position:absolute; transform: translate(18px, -12px) rotate(15deg); object-fit:contain;">
               <img src="${config.slicedImage}" style="width:60px; height:60px; position:absolute; transform: translate(0px, 12px); object-fit:contain;">
-              <div class="flip-badge" style="background:#689f38; color:#fff; top:-4px; right:-4px;">x3 Collect</div>
+              <div class="flip-badge" style="background:#689f38; color:#fff; top:auto; bottom:4px; right:4px; left:auto;">x3 Collect</div>
             </div>
             <div class="grill-progress-container" style="visibility:hidden;"></div>
           `;
@@ -1171,7 +1182,7 @@ document.addEventListener('DOMContentLoaded', () => {
             slot.state = 'needsFlip';
             slot.burnStartTime = now;
             if (!slot.notified) {
-              playSound(SOUNDS.complete);
+              playSound(SOUNDS.notification);
               slot.notified = true;
             }
             needsSave = true;
@@ -1181,7 +1192,7 @@ document.addEventListener('DOMContentLoaded', () => {
             slot.state = 'ready';
             slot.burnStartTime = now;
             if (!slot.notified) {
-              playSound(SOUNDS.complete);
+              playSound(SOUNDS.notification);
               slot.notified = true;
             }
             needsSave = true;
@@ -1201,7 +1212,7 @@ document.addEventListener('DOMContentLoaded', () => {
           slot.state = 'ready';
           slot.burnStartTime = now;
           if (!slot.notified) {
-            playSound(SOUNDS.complete);
+            playSound(SOUNDS.notification);
             slot.notified = true;
           }
           needsSave = true;
@@ -2258,6 +2269,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (layersList) {
+      const listScrollTop = layersList.scrollTop;
       layersList.classList.add('assembly-mode');
       layersList.innerHTML = '';
       currentBurger.forEach((item, index) => {
@@ -2273,6 +2285,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         layersList.appendChild(listItem);
       });
+      layersList.scrollTop = listScrollTop;
     }
 
     if (burgerStack) {
@@ -2312,9 +2325,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     renderIngredientsMenu();
     renderSauces();
-    if (centerStage && window.innerWidth > 900) {
-      setTimeout(() => { centerStage.scrollTop = centerStage.scrollHeight; }, 50);
-    }
   }
 
   function addIngredient(item) {
@@ -2594,15 +2604,23 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('current_active_order');
       }
       updateActionButtonsVisibility();
-      setTimeout(() => { 
-        if (eatBtn && eatBtn.style.display !== 'none') {
-          eatBtn.click(); 
-        } else { 
-          isSqueezed = false;
-          currentBurger = []; 
-          updateBurgerDisplay(false); 
-        } 
-      }, 600);
+      
+      // Анимация поедания/очистки при успешной подаче
+      if (eatBtn && eatBtn.style.display !== 'none') {
+        eatBtn.click();
+      } else {
+        if (isEating) return;
+        playSound(SOUNDS.eating);
+        isEating = true;
+        isSqueezed = false;
+        if (burgerStack) burgerStack.classList.add('eating');
+        setTimeout(() => {
+          currentBurger = [];
+          if (burgerStack) burgerStack.classList.remove('eating');
+          isEating = false;
+          updateBurgerDisplay(false);
+        }, 2000);
+      }
     } else {
       playSound(SOUNDS.wrongOrder);
       const cost = ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0);
@@ -2613,6 +2631,23 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       showToast('Wrong order!', `-$${penalty.toFixed(2)} penalty`, 'error');
       
+      // Сбрасываем текущий заказ при ошибке
+      currentActiveOrder = null;
+      localStorage.removeItem('current_active_order');
+      if (currentGameMode === 'turbo') {
+        currentTurboTimeLeft = 180;
+        triggerRandomOrder();
+      } else {
+        const speed = getCurrentSpeed();
+        if (speed === 'turbo') {
+          triggerRandomOrder();
+        } else if (speed !== 'no-orders') {
+          timeUntilNextOrder = getRandomTimeForSpeed(speed);
+          localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+        }
+      }
+      updateActionButtonsVisibility();
+
       isSqueezed = false;
       currentBurger = [];
       updateBurgerDisplay(false);
@@ -2650,15 +2685,22 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('current_active_order');
 
         updateActionButtonsVisibility();
-        setTimeout(() => { 
-          if (eatBtn && eatBtn.style.display !== 'none') {
-            eatBtn.click(); 
-          } else { 
-            isSqueezed = false;
-            currentBurger = []; 
-            updateBurgerDisplay(false); 
-          } 
-        }, 600);
+        
+        if (eatBtn && eatBtn.style.display !== 'none') {
+          eatBtn.click();
+        } else {
+          if (isEating) return;
+          playSound(SOUNDS.eating);
+          isEating = true;
+          isSqueezed = false;
+          if (burgerStack) burgerStack.classList.add('eating');
+          setTimeout(() => {
+            currentBurger = [];
+            if (burgerStack) burgerStack.classList.remove('eating');
+            isEating = false;
+            updateBurgerDisplay(false);
+          }, 2000);
+        }
       }
     }
   }
@@ -2720,6 +2762,10 @@ document.addEventListener('DOMContentLoaded', () => {
           playerMoney -= activeOrderCost;
           updateMoneyDisplay(activeOrderCost, false);
           showToast('You ran out of time!', `-$${activeOrderCost.toFixed(2)} penalty`, 'error');
+          
+          // Сброс просроченного заказа в турбо-режиме
+          currentActiveOrder = null;
+          localStorage.removeItem('current_active_order');
           triggerRandomOrder();
         }
       }
@@ -2757,7 +2803,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- ПОЛНЫЙ ТУТОРИАЛ ---
   const tutorialSteps = [
     {
       title: "Assembly Screen",
@@ -2833,7 +2878,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       title: "Sliced Inventory",
-      text: "The left panel displays your stock of of cut produce.",
+      text: "The left panel displays your stock of cut produce.",
       screen: "board",
       getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
     },
