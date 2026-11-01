@@ -1307,6 +1307,120 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .btn-pin.pinned { background: #689f38; }
 
+/* Индикатор уведомлений (красная точка) для квестов и ачивок */
+.notification-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  background-color: #d32f2f;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #d32f2f;
+  animation: pulseBadge 1.5s infinite;
+}
+
+@keyframes pulseBadge {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Стили для модального окна и карточек ежедневных заданий */
+.quests-timer-bar {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent-color);
+  background: var(--stock-badge-bg);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--item-border);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.quest-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--item-bg);
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--item-border);
+  transition: all 0.2s ease;
+}
+
+.quest-card.completed {
+  border-color: #81c784;
+  background: rgba(129, 199, 132, 0.1);
+}
+
+.quest-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.quest-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.quest-reward {
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #81c784;
+}
+
+.quest-progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.quest-progress-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.quest-progress-fill {
+  height: 100%;
+  background: var(--accent-color);
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+.quest-card.completed .quest-progress-fill {
+  background: #81c784;
+}
+
+.btn-claim-reward {
+  background: linear-gradient(135deg, #689f38, #558b2f);
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 0.75rem;
+  cursor: pointer;
+  align-self: flex-end;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-claim-reward:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--item-bg);
+  border: 1px solid var(--item-border);
+  color: var(--text-color);
+  box-shadow: none;
+}
+
 .tutorial-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -1549,8 +1663,9 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .pinned-recipe-widget,
   body.ui-hidden .screen-switcher { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
-  
-  @media (max-width: 900px) {
+}
+
+@media (max-width: 900px) {
   .grill-slot .flip-badge {
     top: -8px !important;
     bottom: auto !important;
