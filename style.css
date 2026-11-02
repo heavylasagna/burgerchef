@@ -744,6 +744,26 @@ body.tutorial-active {
   color: #d32f2f;
 }
 
+/* Красная точка-индикатор уведомления на кнопках станций */
+.screen-btn-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.screen-notification-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  background-color: #d32f2f;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #d32f2f;
+  animation: pulseBadge 1.5s infinite;
+  z-index: 10;
+  pointer-events: none;
+}
+
 .screen-switcher {
   position: absolute;
   top: 10px;
@@ -809,7 +829,7 @@ body.tutorial-active {
   height: 100%;
 }
 
-/* Зона раковины */
+/* Зона раковины (без квадратов) */
 .sink-cooking-area {
   flex: 1;
   display: flex;
@@ -826,7 +846,7 @@ body.tutorial-active {
   height: 100%;
 }
 
-/* Эффект погружения с волнистой линией воды и пеной вокруг */
+/* Раковина без резких квадратных рамок и волнистых линий */
 .sink-water-container {
   position: relative;
   width: 95px;
@@ -834,46 +854,40 @@ body.tutorial-active {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  border-radius: 16px;
-  background: rgba(25, 118, 210, 0.25);
-  border: 1px solid rgba(144, 202, 249, 0.4);
+  overflow: visible;
+  border-radius: 50%;
+  background: rgba(25, 118, 210, 0.15);
+  border: none;
 }
 
 .sink-water-submerged {
   width: 75px;
   height: 75px;
   object-fit: contain;
-  /* Волнистое или усеченное маскирование уровня воды снизу вверх */
-  clip-path: polygon(0% 30%, 10% 25%, 20% 30%, 30% 25%, 40% 30%, 50% 25%, 60% 30%, 70% 25%, 80% 30%, 90% 25%, 100% 30%, 100% 100%, 0% 100%);
-  transform: translateY(10px);
+  transform: translateY(4px);
+  transition: filter 0.3s ease;
 }
 
-/* Пена и пузырьки вокруг продукта (по аналогии с маслом на гриле) */
+/* Пузырьки в раковине вокруг продукта */
 .sink-bubble-splash-container {
   position: absolute;
-  bottom: 5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 85px;
-  height: 25px;
+  inset: 0;
   pointer-events: none;
-  z-index: 5;
   overflow: hidden;
+  border-radius: 50%;
 }
 
 .sink-bubble {
   position: absolute;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.85);
+  bottom: 5px;
+  background: rgba(255, 255, 255, 0.6);
   border-radius: 50%;
-  animation: sinkBubbleAnim 0.7s infinite ease-out;
-  box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+  animation: bubbleFloat 1.2s infinite ease-in;
 }
 
-@keyframes sinkBubbleAnim {
-  0% { transform: translateY(0) scale(0.4); opacity: 1; }
-  100% { transform: translateY(-22px) scale(1.3); opacity: 0; }
+@keyframes bubbleFloat {
+  0% { transform: translateY(0) scale(0.6); opacity: 0.8; }
+  100% { transform: translateY(var(--dy, -25px)) scale(1.2); opacity: 0; }
 }
 
 .sparkle-effect {
