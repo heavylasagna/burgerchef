@@ -220,10 +220,11 @@ document.addEventListener('DOMContentLoaded', () => {
       cookedImage: 'images/fried-bacon.png', 
       needsFlip: false, cookTime: 8, burnTime: 6, category: 'protein'
     },
+    // ПРАВКА 1: моделька яйца на гриле теперь egg.png вместо raw-egg.png
     'raw-egg': { 
       name: 'Egg', 
-      rawImage: 'images/raw-egg.png', 
-      flip1Image: 'images/raw-egg.png', 
+      rawImage: 'images/egg.png', 
+      flip1Image: 'images/egg.png', 
       flip2Image: 'images/fried-egg.png', 
       cookedId: 'fried-egg', 
       cookedImage: 'images/fried-egg.png', 
@@ -249,14 +250,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  // ПРАВКА 2: Включаем и немытые, и помытые версии для доски нарезки
   const CUTTABLE_ITEMS = {
-    'uncut-cheese': { name: 'Cheese', rawImage: 'images/uncut-cheese.png', slicedId: 'raw-cheese', slicedImage: 'images/raw-cheese.png', cutTime: 6, category: 'protein' },
-    'uncut-champignons': { name: 'Champignons', rawImage: 'images/uncut-champignons.png', slicedId: 'raw-champignons', slicedImage: 'images/raw-champignons.png', cutTime: 6, category: 'vegetables' },
-    'uncut-lettuce': { name: 'Lettuce', rawImage: 'images/uncut-lettuce.png', slicedId: 'lettuce', slicedImage: 'images/lettuce.png', cutTime: 5, category: 'vegetables' },
-    'uncut-tomato': { name: 'Tomato', rawImage: 'images/uncut-tomato.png', slicedId: 'tomato', slicedImage: 'images/tomato.png', cutTime: 5, category: 'vegetables' },
-    'uncut-pickles': { name: 'Pickles', rawImage: 'images/uncut-pickles.png', slicedId: 'pickles', slicedImage: 'images/pickles.png', cutTime: 5, category: 'vegetables' },
-    'uncut-red-onion': { name: 'Red Onion', rawImage: 'images/uncut-red-onion.png', slicedId: 'red-onion', slicedImage: 'images/red-onion.png', cutTime: 5, category: 'vegetables' },
-    'uncut-white-onion': { name: 'White Onion', rawImage: 'images/uncut-white-onion.png', slicedId: 'white-onion', slicedImage: 'images/white-onion.png', cutTime: 5, category: 'vegetables' }
+    'unwashed-uncut-champignons': { name: 'Champignons (Dirty)', rawImage: 'images/uncut-champignons.png', slicedId: 'raw-champignons', slicedImage: 'images/raw-champignons.png', cutTime: 6, category: 'vegetables', isDirty: true },
+    'uncut-champignons': { name: 'Champignons', rawImage: 'images/uncut-champignons.png', slicedId: 'raw-champignons', slicedImage: 'images/raw-champignons.png', cutTime: 6, category: 'vegetables', isDirty: false },
+    'unwashed-uncut-lettuce': { name: 'Lettuce (Dirty)', rawImage: 'images/uncut-lettuce.png', slicedId: 'lettuce', slicedImage: 'images/lettuce.png', cutTime: 5, category: 'vegetables', isDirty: true },
+    'uncut-lettuce': { name: 'Lettuce', rawImage: 'images/uncut-lettuce.png', slicedId: 'lettuce', slicedImage: 'images/lettuce.png', cutTime: 5, category: 'vegetables', isDirty: false },
+    'unwashed-uncut-tomato': { name: 'Tomato (Dirty)', rawImage: 'images/uncut-tomato.png', slicedId: 'tomato', slicedImage: 'images/tomato.png', cutTime: 5, category: 'vegetables', isDirty: true },
+    'uncut-tomato': { name: 'Tomato', rawImage: 'images/uncut-tomato.png', slicedId: 'tomato', slicedImage: 'images/tomato.png', cutTime: 5, category: 'vegetables', isDirty: false },
+    'unwashed-uncut-pickles': { name: 'Pickles (Dirty)', rawImage: 'images/uncut-pickles.png', slicedId: 'pickles', slicedImage: 'images/pickles.png', cutTime: 5, category: 'vegetables', isDirty: true },
+    'uncut-pickles': { name: 'Pickles', rawImage: 'images/uncut-pickles.png', slicedId: 'pickles', slicedImage: 'images/pickles.png', cutTime: 5, category: 'vegetables', isDirty: false },
+    'unwashed-uncut-red-onion': { name: 'Red Onion (Dirty)', rawImage: 'images/uncut-red-onion.png', slicedId: 'red-onion', slicedImage: 'images/red-onion.png', cutTime: 5, category: 'vegetables', isDirty: true },
+    'uncut-red-onion': { name: 'Red Onion', rawImage: 'images/uncut-red-onion.png', slicedId: 'red-onion', slicedImage: 'images/red-onion.png', cutTime: 5, category: 'vegetables', isDirty: false },
+    'unwashed-uncut-white-onion': { name: 'White Onion (Dirty)', rawImage: 'images/uncut-white-onion.png', slicedId: 'white-onion', slicedImage: 'images/white-onion.png', cutTime: 5, category: 'vegetables', isDirty: true },
+    'uncut-white-onion': { name: 'White Onion', rawImage: 'images/uncut-white-onion.png', slicedId: 'white-onion', slicedImage: 'images/white-onion.png', cutTime: 5, category: 'vegetables', isDirty: false },
+    'uncut-cheese': { name: 'Cheese', rawImage: 'images/uncut-cheese.png', slicedId: 'raw-cheese', slicedImage: 'images/raw-cheese.png', cutTime: 6, category: 'protein', isDirty: false }
   };
 
   const SINK_WASHABLE_ITEMS = {
@@ -352,6 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderSink();
     }
     updateBottomPanelForScreen();
+    updateStationNotificationDots();
   }
 
   if (switchToAssemblyBtn) switchToAssemblyBtn.onclick = () => switchScreen('assembly');
@@ -374,6 +383,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateBottomPanelForScreen() {
     updateActionButtonsVisibility();
+  }
+
+  // ПРАВКА 4: Проверяем, нужны ли действия на станциях (для красных точек на кнопках)
+  function updateStationNotificationDots() {
+    // Проверка гриля: есть ли готовые предметы к сбору (state === 'ready') или требующие переворота (state === 'needsFlip')
+    const grillNeedsAttention = grillSlots.some(slot => slot && (slot.state === 'ready' || slot.state === 'needsFlip'));
+    updateDotOnButton(switchToGrillBtn, grillNeedsAttention);
+
+    // Проверка доски: есть ли готовые нарезки (state === 'ready')
+    const boardNeedsAttention = boardSlots.some(slot => slot && slot.state === 'ready');
+    updateDotOnButton(switchToBoardBtn, boardNeedsAttention);
+
+    // Проверка раковины: есть ли помытые продукты (state === 'ready')
+    const sinkNeedsAttention = sinkSlots.some(slot => slot && slot.state === 'ready');
+    updateDotOnButton(switchToSinkBtn, sinkNeedsAttention);
+  }
+
+  function updateDotOnButton(btnElement, show) {
+    if (!btnElement) return;
+    let wrapper = btnElement.closest('.screen-btn-wrapper');
+    if (!wrapper) {
+      wrapper = document.createElement('div');
+      wrapper.className = 'screen-btn-wrapper';
+      btnElement.parentNode.insertBefore(wrapper, btnElement);
+      wrapper.appendChild(btnElement);
+    }
+    let dot = wrapper.querySelector('.screen-notification-dot');
+    if (show) {
+      if (!dot) {
+        dot = document.createElement('div');
+        dot.className = 'screen-notification-dot';
+        wrapper.appendChild(dot);
+      }
+    } else {
+      if (dot) dot.remove();
+    }
   }
 
   function getCurrentSpeed() {
@@ -405,14 +450,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function saveGrillState() {
     localStorage.setItem(getModeKey('burger_grill_slots'), JSON.stringify(grillSlots));
+    updateStationNotificationDots();
   }
 
   function saveBoardState() {
     localStorage.setItem(getModeKey('burger_board_slots'), JSON.stringify(boardSlots));
+    updateStationNotificationDots();
   }
 
   function saveSinkState() {
     localStorage.setItem(getModeKey('burger_sink_slots'), JSON.stringify(sinkSlots));
+    updateStationNotificationDots();
   }
 
   function updateMoneyPopupPosition() {
@@ -822,7 +870,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- ДОСКА ДЛЯ НАРЕЗКИ МЕНЮ И ИНВЕНТАРЬ ---
+  // --- ДОСКА ДЛЯ НАРЕЗКИ МЕНЮ И ИНВЕНТАРЬ (Правка 2) ---
   function renderBoardUncutMenu(savedScroll = null) {
     if (currentScreen !== 'board') return;
     if (!rightPanel) return;
@@ -847,7 +895,7 @@ document.addEventListener('DOMContentLoaded', () => {
       cardsHtml += `
         <div class="ingredient-card ${isOut ? 'disabled' : ''}" onclick="handleBoardAddClick('${uncutId}')">
           <div class="ingredient-info-row">
-            <img src="${item.rawImage}" alt="${item.name}">
+            <img src="${item.rawImage}" alt="${item.name}" class="${item.isDirty ? 'unwashed-filter' : ''}">
             <span class="ingredient-name">${item.name}</span>
           </div>
           <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
@@ -894,7 +942,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const slicedItemsArray = Object.values(CUTTABLE_ITEMS).map(item => ({
       id: item.slicedId,
-      name: item.name,
+      name: item.name.replace(' (Dirty)', ''),
       category: item.category,
       image: item.slicedImage
     }));
@@ -934,7 +982,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- РАКОВИНА (SINK) ---
+  // --- РАКОВИНА (SINK) с плавной очисткой фильтра и без квадратов ---
   function renderSinkUnwashedMenu(savedScroll = null) {
     if (currentScreen !== 'sink') return;
     if (!rightPanel) return;
@@ -1198,7 +1246,9 @@ document.addEventListener('DOMContentLoaded', () => {
           `;
         } else if (slotData.state === 'washing') {
           hasWashing = true;
-          const progress = getSinkSlotProgress(slotData);
+          const progress = getSinkSlotProgress(slotData); // 0 to 100
+          // ПРАВКА 3: Фильтр грязи постепенно убирается по мере мытья (opacity от 1 до 0)
+          const filterOpacity = Math.max(0, 1 - (progress / 100));
           
           let bubblesHtml = '';
           for (let i = 0; i < 6; i++) {
@@ -1212,7 +1262,10 @@ document.addEventListener('DOMContentLoaded', () => {
           slotEl.innerHTML = `
             <div class="grill-item-wrapper" style="align-items:center; justify-content:center;">
               <div class="sink-water-container">
-                <img src="${config.rawImage}" class="sink-water-submerged unwashed-filter">
+                <div style="position:relative; width:75px; height:75px; display:flex; align-items:center; justify-content:center;">
+                  <img src="${config.rawImage}" style="position:absolute; width:100%; height:100%; object-fit:contain;">
+                  <img src="${config.rawImage}" class="unwashed-filter" style="position:absolute; width:100%; height:100%; object-fit:contain; opacity:${filterOpacity}; transition:opacity 0.1s linear;">
+                </div>
                 <div class="sink-bubble-splash-container">${bubblesHtml}</div>
               </div>
             </div>
@@ -1236,6 +1289,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     manageWashingAudio(hasWashing);
+    updateStationNotificationDots();
   }
 
   setInterval(() => {
@@ -1270,7 +1324,8 @@ document.addEventListener('DOMContentLoaded', () => {
       saveStock();
     }
 
-    boardSlots[emptyIndex] = { uncutId, state: 'uncut', startTime: null, notified: false };
+    const itemConfig = CUTTABLE_ITEMS[uncutId];
+    boardSlots[emptyIndex] = { uncutId, state: 'uncut', startTime: null, notified: false, isDirty: itemConfig ? itemConfig.isDirty : false };
     playSound(SOUNDS.ingridients);
     saveBoardState();
     renderBoardUncutMenu();
@@ -1348,6 +1403,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (slot.state === 'uncut') {
       startCuttingSlot(index);
     } else if (slot.state === 'ready') {
+      // Сохраняем признак грязи/чистоты для полученных нарезанных долек
       ingredientStock[config.slicedId] = (ingredientStock[config.slicedId] ?? 0) + 3;
       saveStock();
       playSound(SOUNDS.buttons);
@@ -1392,6 +1448,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="grill-progress-container" style="visibility:hidden;"></div>
           `;
+          updateStationNotificationDots();
           return;
         }
 
@@ -1404,13 +1461,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         slotEl.innerHTML = `
           ${extraHtml}
-          <div class="grill-item-wrapper"><img src="${imgsrc}" class="grill-item"></div>
+          <div class="grill-item-wrapper"><img src="${imgsrc}" class="grill-item ${slotData.isDirty ? 'unwashed-filter' : ''}"></div>
           ${progressHtml}
         `;
       } else {
         slotEl.innerHTML = '';
       }
     });
+    updateStationNotificationDots();
   }
 
   if (knifeBtn) {
@@ -1594,6 +1652,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     manageSizzlingAudio(hasActiveCooking);
+    updateStationNotificationDots();
   }
 
   function manageSizzlingAudio(hasActive) {
