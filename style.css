@@ -492,23 +492,19 @@ body.tutorial-active {
 .top-order-widget span { color: var(--accent-color); font-weight: bold; }
 .order-timer-badge { color: #e57373; font-weight: bold; font-family: monospace; display: block; margin-top: 2px; }
 
-.btn-floating-serve {
-  position: fixed;
-  z-index: 100;
-  background: transparent;
-  color: var(--text-color);
-  border: 1.5px solid var(--accent-color);
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 0.85rem;
-  cursor: pointer;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-  transition: transform 0.15s, opacity 0.2s, background 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+/* Кнопка Serve на мобилке: фиксируем её над панелью ингредиентов или в правом углу */
+  .btn-floating-serve {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 85px !important; /* Ровно над нижней панелью управления */
+    right: 12px !important;
+    left: auto !important;
+    padding: 6px 14px !important;
+    font-size: 0.8rem !important;
+    height: 34px !important;
+    z-index: 2000 !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important;
+  }
 .btn-floating-serve:hover {
   background: var(--item-bg);
   transform: scale(1.05);
