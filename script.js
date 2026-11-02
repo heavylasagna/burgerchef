@@ -1628,14 +1628,14 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     });
 
-    const listContainer = body.querySelector('.inventory-list-container') || document.createElement('div');
-    listContainer.className = 'inventory-list-container';
-    listContainer.style.cssText = 'display:flex; flex-direction:column; gap:8px; min-height: 280px;';
-    listContainer.innerHTML = cardsHtml;
-
-    if (!body.contains(listContainer)) {
+    let listContainer = body.querySelector('.inventory-list-container');
+    if (!listContainer) {
+      listContainer = document.createElement('div');
+      listContainer.className = 'inventory-list-container';
+      listContainer.style.cssText = 'display:flex; flex-direction:column; gap:8px; min-height: 280px;';
       body.appendChild(listContainer);
     }
+    listContainer.innerHTML = cardsHtml;
   }
 
   window.openShopForCategory = function(category) {
@@ -1663,6 +1663,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (closeInventoryModal) {
     closeInventoryModal.onclick = () => {
       playSound(SOUNDS.buttons);
+      const searchInput = document.getElementById('inventorySearchInput');
+      if (searchInput) searchInput.value = '';
       if (inventoryModal) inventoryModal.classList.remove('open');
       document.body.classList.remove('modal-open');
     };
@@ -1976,12 +1978,22 @@ document.addEventListener('DOMContentLoaded', () => {
     return item.category === cat;
   }
 
+  function initRecipesModalDOM() {
+    const body = document.getElementById('recipesModalBody');
+    if (!body || body.dataset.initialized === 'true') return;
+
+    body.dataset.initialized = 'true';
+    body.innerHTML = `
+      <div class="recipe-tabs" id="recipe-cats-container"></div>
+      <input type="text" id="recipesSearchInput" class="modal-search-input" placeholder="Search recipes..." oninput="renderRecipesModal()">
+      <div class="recipe-list-container" style="display:flex; flex-direction:column; gap:8px; min-height: 280px;"></div>
+    `;
+  }
+
   function renderRecipesModal(savedScroll = null) {
+    initRecipesModalDOM();
     const body = document.getElementById('recipesModalBody');
     if (!body) return;
-
-    let searchInput = document.getElementById('recipesSearchInput');
-    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
     const currentRecipeTabsEl = document.getElementById('recipe-cats-container');
     const actualScroll = savedScroll !== null ? savedScroll : (currentRecipeTabsEl ? currentRecipeTabsEl.scrollLeft : 0);
@@ -1998,30 +2010,20 @@ document.addEventListener('DOMContentLoaded', () => {
       { id: 'secret', label: 'Secret' }
     ];
 
-    let tabsHtml = `<div class="recipe-tabs" id="recipe-cats-container">`;
+    let tabsHtml = '';
     cats.forEach(c => {
       tabsHtml += `<button class="recipe-tab ${activeRecipeCategory === c.id ? 'active' : ''}" onclick="window.handleTabClick('switchRecipeCategory', '${c.id}')">${c.label}</button>`;
     });
-    tabsHtml += `</div>`;
-
-    if (!searchInput) {
-      searchInput = document.createElement('input');
-      searchInput.type = 'text';
-      searchInput.id = 'recipesSearchInput';
-      searchInput.className = 'modal-search-input';
-      searchInput.placeholder = 'Search recipes...';
-      searchInput.oninput = () => renderRecipesModal();
+    
+    if (currentRecipeTabsEl) {
+      currentRecipeTabsEl.innerHTML = tabsHtml;
+      setupWheelScrollForContainer(currentRecipeTabsEl);
     }
 
-    setTimeout(() => {
-      const recipeTabsEl = document.getElementById('recipe-cats-container');
-      if (recipeTabsEl) {
-        setupWheelScrollForContainer(recipeTabsEl);
-      }
-    }, 0);
+    const searchInput = document.getElementById('recipesSearchInput');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
     let itemsHtml = '';
-
     const combinedList = [
       ...REGULAR_RECIPES.map(r => ({ ...r, isSecret: false })),
       ...SECRET_ACHIEVEMENTS.map(a => ({ ...a, name: a.title, isSecret: true }))
@@ -2057,18 +2059,10 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = tabsHtml;
-    tempDiv.appendChild(searchInput);
-
-    const listContainer = document.createElement('div');
-    listContainer.className = 'recipe-list-container';
-    listContainer.style.cssText = 'display:flex; flex-direction:column; gap:8px; min-height: 280px;';
-    listContainer.innerHTML = itemsHtml;
-    tempDiv.appendChild(listContainer);
-
-    body.innerHTML = '';
-    body.appendChild(tempDiv);
+    const listContainer = body.querySelector('.recipe-list-container');
+    if (listContainer) {
+      listContainer.innerHTML = itemsHtml;
+    }
 
     requestAnimationFrame(() => {
       const recipeTabsEl = document.getElementById('recipe-cats-container');
@@ -2222,14 +2216,14 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     });
 
-    const listContainer = body.querySelector('.shop-list-container') || document.createElement('div');
-    listContainer.className = 'shop-list-container';
-    listContainer.style.cssText = 'display:flex; flex-direction:column; gap:8px; min-height: 280px;';
-    listContainer.innerHTML = cardsHtml;
-
-    if (!body.contains(listContainer)) {
+    let listContainer = body.querySelector('.shop-list-container');
+    if (!listContainer) {
+      listContainer = document.createElement('div');
+      listContainer.className = 'shop-list-container';
+      listContainer.style.cssText = 'display:flex; flex-direction:column; gap:8px; min-height: 280px;';
       body.appendChild(listContainer);
     }
+    listContainer.innerHTML = cardsHtml;
 
     SHOP_ITEMS.forEach(item => {
       if (document.getElementById(`total-${item.id}`)) {
@@ -2382,6 +2376,8 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   if (closeShopModal) closeShopModal.onclick = () => { 
     playSound(SOUNDS.buttons); 
+    const searchInput = document.getElementById('shopSearchInput');
+    if (searchInput) searchInput.value = '';
     shopModal.classList.remove('open'); 
     document.body.classList.remove('modal-open');
   };
@@ -2394,6 +2390,8 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   if (closeRecipesModal) closeRecipesModal.onclick = () => { 
     playSound(SOUNDS.buttons); 
+    const searchInput = document.getElementById('recipesSearchInput');
+    if (searchInput) searchInput.value = '';
     recipesModal.classList.remove('open'); 
     document.body.classList.remove('modal-open');
   };
@@ -2692,20 +2690,27 @@ document.addEventListener('DOMContentLoaded', () => {
       const targetElement = document.getElementById('burgerStack');
       if (!targetElement) return;
 
-      targetElement.classList.add('capturing-png');
+      // Создаем скрытый клон для сохранения без подёргивания экрана
+      const clone = targetElement.cloneNode(true);
+      clone.classList.add('capturing-png');
+      clone.style.position = 'fixed';
+      clone.style.left = '-9999px';
+      clone.style.top = '-9999px';
+      clone.style.zIndex = '-1000';
+      document.body.appendChild(clone);
 
-      html2canvas(targetElement, {
+      html2canvas(clone, {
         backgroundColor: null,
         scale: 2
       }).then(canvas => {
-        targetElement.classList.remove('capturing-png');
+        clone.remove();
 
         const link = document.createElement('a');
         link.download = 'my-burger.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
       }).catch(err => {
-        targetElement.classList.remove('capturing-png');
+        clone.remove();
         console.error("Failed to save image:", err);
         showToast('Error', 'Could not save image.', 'error');
       });
