@@ -2138,7 +2138,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="shop-buy-group">
             <div class="shop-total-price" id="total-${item.id}">$0.00</div>
             <button class="shop-qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
-            <input type="number" min="0" max="100" value="0" id="qty-${item.id}" class="shop-qty-input" data-id="${item.id}" oninput="updateItemTotal('${item.id}'); updateShopBuyAllTotal();">
+            <input type="number" inputmode="numeric" min="0" max="100" value="0" id="qty-${item.id}" class="shop-qty-input" data-id="${item.id}" oninput="updateItemTotal('${item.id}'); updateShopBuyAllTotal();">
             <button class="shop-qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
           </div>
         </div>
@@ -2571,7 +2571,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (hardResetBtn) hardResetBtn.onclick = () => {
     if (confirm("⚠️ WARNING: Wipe all data?")) { 
       localStorage.clear(); 
-      localStorage.removeItem('has_seen_welcome'); 
       location.reload(); 
     }
   };
@@ -3382,11 +3381,22 @@ document.addEventListener('DOMContentLoaded', () => {
     tutorialSkipBtn.id = 'tutorialSkipBtn';
     tutorialSkipBtn.className = 'btn-skip-tutorial';
     tutorialSkipBtn.innerText = 'Skip';
-    tutorialSkipBtn.onclick = () => {
+    tutorialSkipBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       playSound(SOUNDS.buttons);
       endTutorial();
     };
     rightControlsContainer.insertBefore(tutorialSkipBtn, rightControlsContainer.firstChild);
+  }
+
+  if (tutorialSkipBtn) {
+    tutorialSkipBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      playSound(SOUNDS.buttons);
+      endTutorial();
+    };
   }
 
   if (welcomeNoBtn) {
