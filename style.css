@@ -1619,7 +1619,7 @@ input[type="range"]::-webkit-slider-thumb {
     flex-direction: column;
   }
   
-  .right-panel { order: 2; height: 190px; position: relative; margin-top: 36px; }
+  .right-panel { order: 2; height: 190px; position: relative; margin-top: 0px; }
   .left-panel { order: 4; height: 190px; }
 
   .ingredients-menu {
@@ -1793,27 +1793,19 @@ input[type="range"]::-webkit-slider-thumb {
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
   }
 
-  /* Кнопка Serve на мобилке при открытом интерфейсе: справа, ровно над панелью ингредиентов */
+  /* Полностью скрываем плавающую кнопку Serve на мобильных устройствах */
   .btn-floating-serve {
-    position: absolute !important;
-    top: -36px !important;
-    right: 0 !important;
-    bottom: auto !important;
-    left: auto !important;
-    padding: 4px 12px !important;
-    font-size: 0.75rem !important;
-    height: 30px !important;
+    display: none !important;
   }
 
-  /* Скрываем кнопку Serve и панели вместе со всем интерфейсом при клике на глазок */
+  /* Скрываем панели вместе со всем интерфейсом при клике на глазок */
   body.ui-hidden .left-panel,
   body.ui-hidden .right-panel,
   body.ui-hidden .sauces-group.mobile-sauces,
   body.ui-hidden .top-order-widget,
   body.ui-hidden .wallet-widget,
   body.ui-hidden .pinned-recipe-widget,
-  body.ui-hidden .screen-switcher,
-  body.ui-hidden .btn-floating-serve { display: none !important; }
+  body.ui-hidden .screen-switcher { display: none !important; }
   
   body.ui-hidden .center-stage { min-height: 75vh; }
 }
