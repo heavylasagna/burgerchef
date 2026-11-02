@@ -101,13 +101,61 @@ document.addEventListener('DOMContentLoaded', () => {
   initOpacityToggle();
 
   const MAX_INGREDIENTS = 30;
-  let currentBurger = JSON.parse(localStorage.getItem('saved_burger_stack')) || [];
+  let currentGameMode = localStorage.getItem('burger_game_mode') || 'casual';
+
+  // Функция для получения префикса ключа в зависимости от режима игры
+  function getModeKey(baseKey) {
+    return `${baseKey}_${currentGameMode}`;
+  }
+
+  let currentBurger = [];
+  let ingredientStock = {};
+  let grillSlots = [];
+  let boardSlots = [];
+  let playerMoney = 100.00;
+  let currentActiveOrder = null;
+  let timeUntilNextOrder = 120;
+  let currentTurboTimeLeft = 180;
+  let dailyQuestsData = null;
+
+  function loadModeData() {
+    currentBurger = JSON.parse(localStorage.getItem(getModeKey('saved_burger_stack'))) || [];
+    
+    let defaultMoney = (currentGameMode === 'sandbox') ? 999999 : 100.00;
+    playerMoney = parseFloat(localStorage.getItem(getModeKey('burger_money')));
+    if (isNaN(playerMoney)) playerMoney = defaultMoney;
+
+    ingredientStock = JSON.parse(localStorage.getItem(getModeKey('burger_ingredient_stock'))) || {
+      'top-bun': 10, 'bottom-bun': 10,
+      'beef-patty': 0, 'chicken-patty': 0, 'fish-patty': 0, 'fried-bacon': 0, 'fried-egg': 0,
+      'cheese': 0, 'raw-cheese': 0, 'uncut-cheese': 5,
+      'hashbrown': 0,
+      'champignons': 0, 'raw-champignons': 0, 'uncut-champignons': 5,
+      'lettuce': 0, 'uncut-lettuce': 5,
+      'tomato': 0, 'uncut-tomato': 5,
+      'pickles': 0, 'uncut-pickles': 5,
+      'red-onion': 0, 'uncut-red-onion': 5,
+      'white-onion': 0, 'uncut-white-onion': 5,
+      'mayo': 20, 'ketchup': 20, 'mustard': 20, 'spicy': 20, 'bbq': 20,
+      'raw-beef-patty': 5, 'raw-chicken-patty': 5, 'raw-fish-patty': 5, 'raw-hashbrown': 5,
+      'raw-bacon': 5, 'raw-egg': 5
+    };
+
+    grillSlots = JSON.parse(localStorage.getItem(getModeKey('burger_grill_slots'))) || Array(3).fill(null);
+    boardSlots = JSON.parse(localStorage.getItem(getModeKey('burger_board_slots'))) || Array(3).fill(null);
+    currentActiveOrder = JSON.parse(localStorage.getItem(getModeKey('current_active_order'))) || null;
+    
+    timeUntilNextOrder = parseInt(localStorage.getItem(getModeKey('time_until_next_order')), 10);
+    if (isNaN(timeUntilNextOrder)) timeUntilNextOrder = 120;
+    
+    dailyQuestsData = JSON.parse(localStorage.getItem(getModeKey('burger_daily_quests'))) || null;
+  }
+
+  loadModeData();
+
   let isEating = false;
   let isSqueezed = false;
   let isAddingInProgress = false;
-
-  let playerMoney = parseFloat(localStorage.getItem('burger_money'));
-  if (isNaN(playerMoney)) playerMoney = 100.00;
 
   const ITEM_PRICES = {
     'top-bun': 2, 'bottom-bun': 2,
@@ -121,22 +169,6 @@ document.addEventListener('DOMContentLoaded', () => {
     'uncut-red-onion': 3,
     'uncut-white-onion': 3,
     'mayo': 5, 'ketchup': 5, 'mustard': 5, 'spicy': 5, 'bbq': 5
-  };
-
-  let ingredientStock = JSON.parse(localStorage.getItem('burger_ingredient_stock')) || {
-    'top-bun': 10, 'bottom-bun': 10,
-    'beef-patty': 0, 'chicken-patty': 0, 'fish-patty': 0, 'fried-bacon': 0, 'fried-egg': 0,
-    'cheese': 0, 'raw-cheese': 0, 'uncut-cheese': 5,
-    'hashbrown': 0,
-    'champignons': 0, 'raw-champignons': 0, 'uncut-champignons': 5,
-    'lettuce': 0, 'uncut-lettuce': 5,
-    'tomato': 0, 'uncut-tomato': 5,
-    'pickles': 0, 'uncut-pickles': 5,
-    'red-onion': 0, 'uncut-red-onion': 5,
-    'white-onion': 0, 'uncut-white-onion': 5,
-    'mayo': 20, 'ketchup': 20, 'mustard': 20, 'spicy': 20, 'bbq': 20,
-    'raw-beef-patty': 5, 'raw-chicken-patty': 5, 'raw-fish-patty': 5, 'raw-hashbrown': 5,
-    'raw-bacon': 5, 'raw-egg': 5
   };
 
   const GRILLABLE_ITEMS = {
@@ -224,16 +256,12 @@ document.addEventListener('DOMContentLoaded', () => {
     'uncut-white-onion': { name: 'White Onion', rawImage: 'images/uncut-white-onion.png', slicedId: 'white-onion', slicedImage: 'images/white-onion.png', cutTime: 5 }
   };
 
-  let grillSlots = JSON.parse(localStorage.getItem('burger_grill_slots')) || Array(3).fill(null);
-  let boardSlots = JSON.parse(localStorage.getItem('burger_board_slots')) || Array(3).fill(null);
   let currentScreen = localStorage.getItem('burger_current_screen') || 'assembly';
   let isBinSelectMode = false;
   let selectedGrillIndicesForBin = [];
   let selectedBoardIndicesForBin = [];
   let sizzlingAudioInstance = null;
   let cuttingAudioInstance = null;
-
-  let currentGameMode = localStorage.getItem('burger_game_mode') || 'casual';
 
   let modeSpeeds = JSON.parse(localStorage.getItem('burger_mode_speeds')) || {
     'sandbox': 'no-orders',
@@ -242,11 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements')) || {};
   let pinnedBurger = JSON.parse(localStorage.getItem('pinned_burger')) || null;
-  let currentActiveOrder = JSON.parse(localStorage.getItem('current_active_order')) || null;
   
-  let timeUntilNextOrder = parseInt(localStorage.getItem('time_until_next_order'), 10);
-  if (isNaN(timeUntilNextOrder)) timeUntilNextOrder = 120;
-  let currentTurboTimeLeft = 180;
   let lastOrderReducedReward = false;
   let skipOrderClickCount = 0;
   let skipOrderTimeout = null;
@@ -360,19 +384,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function saveStock() {
-    localStorage.setItem('burger_ingredient_stock', JSON.stringify(ingredientStock));
+    localStorage.setItem(getModeKey('burger_ingredient_stock'), JSON.stringify(ingredientStock));
   }
 
   function saveBurgerState() {
-    localStorage.setItem('saved_burger_stack', JSON.stringify(currentBurger));
+    localStorage.setItem(getModeKey('saved_burger_stack'), JSON.stringify(currentBurger));
   }
 
   function saveGrillState() {
-    localStorage.setItem('burger_grill_slots', JSON.stringify(grillSlots));
+    localStorage.setItem(getModeKey('burger_grill_slots'), JSON.stringify(grillSlots));
   }
 
   function saveBoardState() {
-    localStorage.setItem('burger_board_slots', JSON.stringify(boardSlots));
+    localStorage.setItem(getModeKey('burger_board_slots'), JSON.stringify(boardSlots));
   }
 
   function updateMoneyPopupPosition() {
@@ -468,7 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showMoneyPopup(changeAmount, isPlus);
       }
     }
-    localStorage.setItem('burger_money', playerMoney);
+    localStorage.setItem(getModeKey('burger_money'), playerMoney);
     updateShopBalanceHeader();
   }
 
@@ -1721,7 +1745,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const hasOrderOrMode = currentActiveOrder !== null || currentSpeed !== 'no-orders';
 
-    // Плавающая кнопка (на ПК)
     if (serveFloatingBtn) {
       if (isMobile) {
         serveFloatingBtn.style.display = 'none';
@@ -1730,7 +1753,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Кнопка тарелки в нижнем меню (на мобилках)
     if (submitOrderBtn) {
       if (isMobile) {
         submitOrderBtn.style.display = (isSpecialScreen || currentScreen !== 'assembly' || !hasOrderOrMode) ? 'none' : 'flex';
@@ -1765,6 +1787,9 @@ document.addEventListener('DOMContentLoaded', () => {
     currentGameMode = mode;
     localStorage.setItem('burger_game_mode', mode);
 
+    // Загружаем данные выбранного режима
+    loadModeData();
+
     if(modeSandboxBtn) modeSandboxBtn.classList.toggle('active', mode === 'sandbox');
     if(modeCasualBtn) modeCasualBtn.classList.toggle('active', mode === 'casual');
     if(modeTurboBtn) modeTurboBtn.classList.toggle('active', mode === 'turbo');
@@ -1773,17 +1798,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const speed = getCurrentSpeed();
 
     if (previousMode !== mode) {
-      currentActiveOrder = null;
-      localStorage.removeItem('current_active_order');
       if (speed !== 'no-orders') {
         if (speed === 'turbo' && mode === 'turbo') {
           currentTurboTimeLeft = 180;
-          triggerRandomOrder();
+          if (!currentActiveOrder) triggerRandomOrder();
         } else if (speed === 'turbo') {
-          triggerRandomOrder();
+          if (!currentActiveOrder) triggerRandomOrder();
         } else {
-          timeUntilNextOrder = getRandomTimeForSpeed(speed);
-          localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+          if (!currentActiveOrder) {
+            timeUntilNextOrder = getRandomTimeForSpeed(speed);
+            localStorage.setItem(getModeKey('time_until_next_order'), timeUntilNextOrder);
+          }
         }
       }
     }
@@ -1794,8 +1819,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (speed === 'no-orders') {
         if(topWidget) topWidget.classList.add('hidden');
-        currentActiveOrder = null;
-        localStorage.removeItem('current_active_order');
       } else if (speed === 'turbo') {
         if(topWidget) topWidget.classList.remove('hidden');
         if (!currentActiveOrder) triggerRandomOrder();
@@ -1803,7 +1826,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(topWidget) topWidget.classList.remove('hidden');
         if (!currentActiveOrder && previousMode !== mode) {
           timeUntilNextOrder = getRandomTimeForSpeed(speed);
-          localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+          localStorage.setItem(getModeKey('time_until_next_order'), timeUntilNextOrder);
         }
       }
     } else if (mode === 'turbo') {
@@ -1816,14 +1839,18 @@ document.addEventListener('DOMContentLoaded', () => {
     updateActionButtonsVisibility();
     updateMoneyDisplay();
     renderIngredientsMenu();
+    updateBurgerDisplay(false);
     renderSauces();
     if (currentScreen === 'grill') {
       renderGrillIngredientsMenu();
       renderGrillCookedInventory();
+      initGrillStructure();
       renderGrill();
     } else if (currentScreen === 'board') {
       renderBoardUncutMenu();
       renderBoardSlicedInventory();
+      initBoardStructure();
+      renderBoard();
     }
   }
 
@@ -1852,7 +1879,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const topWidget = document.getElementById('topOrderWidget');
 
       currentActiveOrder = null;
-      localStorage.removeItem('current_active_order');
+      localStorage.removeItem(getModeKey('current_active_order'));
 
       if (newSpeed === 'no-orders') {
         if (topWidget) topWidget.classList.add('hidden');
@@ -1862,7 +1889,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         if (topWidget) topWidget.classList.remove('hidden');
         timeUntilNextOrder = getRandomTimeForSpeed(newSpeed);
-        localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+        localStorage.setItem(getModeKey('time_until_next_order'), timeUntilNextOrder);
       }
       updateActionButtonsVisibility();
     };
@@ -2458,8 +2485,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return `${kzTime.getFullYear()}-${String(kzTime.getMonth() + 1).padStart(2, '0')}-${String(kzTime.getDate()).padStart(2, '0')}`;
   }
 
-  let dailyQuestsData = JSON.parse(localStorage.getItem('burger_daily_quests')) || null;
-
   function initDailyQuests() {
     const todayKey = getKazakhstanDateKey();
 
@@ -2497,7 +2522,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function saveQuestsState() {
-    localStorage.setItem('burger_daily_quests', JSON.stringify(dailyQuestsData));
+    localStorage.setItem(getModeKey('burger_daily_quests'), JSON.stringify(dailyQuestsData));
     updateQuestsBadge();
   }
 
@@ -2665,8 +2690,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const hardResetBtn = document.getElementById('hardResetBtn');
   if (hardResetBtn) hardResetBtn.onclick = () => {
-    if (confirm("⚠️ WARNING: Wipe all data?")) { 
-      localStorage.clear(); 
+    if (confirm("⚠️ WARNING: Wipe all data for current mode?")) { 
+      localStorage.removeItem(getModeKey('saved_burger_stack'));
+      localStorage.removeItem(getModeKey('burger_money'));
+      localStorage.removeItem(getModeKey('burger_ingredient_stock'));
+      localStorage.removeItem(getModeKey('burger_grill_slots'));
+      localStorage.removeItem(getModeKey('burger_board_slots'));
+      localStorage.removeItem(getModeKey('current_active_order'));
+      localStorage.removeItem(getModeKey('time_until_next_order'));
+      localStorage.removeItem(getModeKey('burger_daily_quests'));
       location.reload(); 
     }
   };
@@ -2779,12 +2811,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           showToast('Order Skipped', 'No reward received', 'warning');
           currentActiveOrder = null;
-          localStorage.removeItem('current_active_order');
+          localStorage.removeItem(getModeKey('current_active_order'));
           if (speed === 'turbo') {
             triggerRandomOrder();
           } else {
             timeUntilNextOrder = getRandomTimeForSpeed(speed);
-            localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+            localStorage.setItem(getModeKey('time_until_next_order'), timeUntilNextOrder);
           }
           updateActionButtonsVisibility();
         }
@@ -3125,7 +3157,7 @@ document.addEventListener('DOMContentLoaded', () => {
         triggerRandomOrder();
       } else {
         currentActiveOrder = null;
-        localStorage.removeItem('current_active_order');
+        localStorage.removeItem(getModeKey('current_active_order'));
       }
       updateActionButtonsVisibility();
       
@@ -3155,7 +3187,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast('Wrong order!', `-$${penalty.toFixed(2)} penalty`, 'error');
       
       currentActiveOrder = null;
-      localStorage.removeItem('current_active_order');
+      localStorage.removeItem(getModeKey('current_active_order'));
       if (currentGameMode === 'turbo') {
         currentTurboTimeLeft = 180;
         triggerRandomOrder();
@@ -3165,7 +3197,7 @@ document.addEventListener('DOMContentLoaded', () => {
           triggerRandomOrder();
         } else if (speed !== 'no-orders') {
           timeUntilNextOrder = getRandomTimeForSpeed(speed);
-          localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+          localStorage.setItem(getModeKey('time_until_next_order'), timeUntilNextOrder);
         }
       }
       updateActionButtonsVisibility();
@@ -3207,7 +3239,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast('Order Complete!', `${currentActiveOrder.name} served successfully!`, 'success');
         
         currentActiveOrder = null;
-        localStorage.removeItem('current_active_order');
+        localStorage.removeItem(getModeKey('current_active_order'));
 
         updateActionButtonsVisibility();
         
@@ -3257,12 +3289,12 @@ document.addEventListener('DOMContentLoaded', () => {
       currentTurboTimeLeft = 180;
     }
     
-    localStorage.setItem('current_active_order', JSON.stringify(currentActiveOrder));
+    localStorage.setItem(getModeKey('current_active_order'), JSON.stringify(currentActiveOrder));
     
     const speed = getCurrentSpeed();
     if (speed !== 'no-orders' && speed !== 'turbo' && currentGameMode !== 'turbo') {
       timeUntilNextOrder = getRandomTimeForSpeed(speed);
-      localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+      localStorage.setItem(getModeKey('time_until_next_order'), timeUntilNextOrder);
     }
     
     playSound(SOUNDS.order);
@@ -3289,7 +3321,7 @@ document.addEventListener('DOMContentLoaded', () => {
           showToast('You ran out of time!', `-$${activeOrderCost.toFixed(2)} penalty`, 'error');
           
           currentActiveOrder = null;
-          localStorage.removeItem('current_active_order');
+          localStorage.removeItem(getModeKey('current_active_order'));
           triggerRandomOrder();
         }
       }
@@ -3308,7 +3340,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!currentActiveOrder) {
       if (timeUntilNextOrder > 0) {
         timeUntilNextOrder--;
-        localStorage.setItem('time_until_next_order', timeUntilNextOrder);
+        localStorage.setItem(getModeKey('time_until_next_order'), timeUntilNextOrder);
         const w1 = document.getElementById('orderStatusText');
         if (w1) w1.innerHTML = `Next order in: <span>${formatTime(timeUntilNextOrder)}</span>`;
       } else {
