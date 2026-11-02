@@ -3354,7 +3354,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       title: "Bottom Actions Menu",
-      text: "On the lower menu you have a variety of buttons:\n\n📋 List of recipes\n🏬 Groceries shop\n🎒 Your inventory\n🏆 Your achievements\n🎯 Daily Quests\n---\n🔔 Summon new order\n⏩ Skip current order\n🍔 Eat your burger\n✊ Squeeze your burger\n🗑 Bin current ingredients\n---\n💾 Save your burger as PNG\n⚙ Settings",
+      text: "On the lower menu you have a variety of buttons:\n\n📋 List of recipes\n🏬 Groceries shop\n🎒 Your inventory\n🏆 Your achievements\n🎯 Daily Quests\n---\n🔔 Summon new order\n⏩ Skip current order\n🍔 Eat your burger\n✊ Squeeze your burger\n🍽 or «Serve» to serve your order\n🗑 Bin current ingredients\n---\n💾 Save your burger as PNG\n⚙ Settings",
       screen: "assembly",
       getElement: () => document.getElementById('bottomPanel') || document.querySelector('.bottom-panel')
     },
