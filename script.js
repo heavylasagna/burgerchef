@@ -3179,13 +3179,13 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       title: "Layers Panel",
-      text: "In there you can see all current layers of your burger, reorder them, or remove individual items.",
+      text: "Here you can see all current layers of your burger, reorder them, or remove individual items.",
       screen: "assembly",
       getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
     },
     {
       title: "Wallet",
-      text: "Shows your current balance. Serve orders and try not to get fines!",
+      text: "This shows your current balance. Serve orders and try not to get fines!",
       screen: "assembly",
       getElement: () => document.getElementById('walletWidget') || document.querySelector('.wallet-widget')
     },
