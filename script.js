@@ -103,7 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const MAX_INGREDIENTS = 30;
   let currentGameMode = localStorage.getItem('burger_game_mode') || 'casual';
 
-  // Функция для получения префикса ключа в зависимости от режима игры
   function getModeKey(baseKey) {
     return `${baseKey}_${currentGameMode}`;
   }
@@ -1787,7 +1786,6 @@ document.addEventListener('DOMContentLoaded', () => {
     currentGameMode = mode;
     localStorage.setItem('burger_game_mode', mode);
 
-    // Загружаем данные выбранного режима
     loadModeData();
 
     if(modeSandboxBtn) modeSandboxBtn.classList.toggle('active', mode === 'sandbox');
@@ -2340,6 +2338,11 @@ document.addEventListener('DOMContentLoaded', () => {
     itemsToBuy.forEach(item => {
       ingredientStock[item.id] = (ingredientStock[item.id] ?? 0) + item.qty;
       totalQtyPurchased += item.qty;
+      const inputEl = document.getElementById(`qty-${item.id}`);
+      if (inputEl) {
+        inputEl.value = 0;
+        updateItemTotal(item.id);
+      }
     });
 
     saveStock();
@@ -2699,6 +2702,10 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.removeItem(getModeKey('current_active_order'));
       localStorage.removeItem(getModeKey('time_until_next_order'));
       localStorage.removeItem(getModeKey('burger_daily_quests'));
+      
+      localStorage.removeItem('has_seen_welcome');
+      localStorage.removeItem('burgerMakerTutorialCompleted');
+
       location.reload(); 
     }
   };
