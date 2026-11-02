@@ -476,6 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
       badge.innerText = '$∞';
       badge.className = 'positive';
     } else {
+      if (isNaN(playerMoney)) playerMoney = 100.00;
       badge.innerText = `$${playerMoney.toFixed(2)}`;
       
       badge.className = '';
@@ -2303,86 +2304,74 @@ document.addEventListener('DOMContentLoaded', () => {
       buyAllBtn.innerText = `Buy All ($${grandTotal.toFixed(2)})`;
       buyAllBtn.disabled = grandTotal <= 0;
     }
-  }
+  };
 
   window.buyAllSelectedShopItems = function() {
-  const inputs = document.querySelectorAll('.shop-qty-input');
-  let grandTotal = 0;
-  let itemsToBuy = [];
+    console.log("Кнопка Buy All нажата!");
+    const inputs = document.querySelectorAll('.shop-qty-input');
+    let grandTotal = 0;
+    let itemsToBuy = [];
 
-  // 1. Считываем данные из инпутов
-  inputs.forEach(input => {
-    const id = input.getAttribute('data-id');
-    const qty = parseInt(input.value, 10) || 0;
-    
-    if (qty > 0 && id) {
-      const price = ITEM_PRICES[id] || 1;
-      const cost = price * qty;
-      itemsToBuy.push({ id, qty, cost });
-      grandTotal += cost;
-    }
-  });
+    inputs.forEach(input => {
+      const id = input.getAttribute('data-id');
+      const qty = parseInt(input.value, 10) || 0;
+      if (qty > 0 && id) {
+        const price = ITEM_PRICES[id] || 1;
+        const cost = price * qty;
+        itemsToBuy.push({ id, qty, cost });
+        grandTotal += cost;
+      }
+    });
 
-  console.log('[Shop Debug] Товары к покупке:', itemsToBuy, 'Итоговая сумма:', grandTotal);
-
-  if (itemsToBuy.length === 0) {
-    showToast('Select items first', 'Select quantity for ingredients!', 'warning');
-    return;
-  }
-
-  // 2. Проверка денег
-  if (currentGameMode !== 'sandbox') {
-    if (isNaN(playerMoney)) playerMoney = 100.00; // Защита от NaN
-    
-    if (playerMoney < grandTotal) {
-      showToast('Not enough money!', '', 'error');
+    if (itemsToBuy.length === 0) {
+      showToast('Select items first', 'Select quantity for ingredients!', 'warning');
       return;
     }
-    playerMoney -= grandTotal;
-    updateMoneyDisplay(grandTotal, false);
-    updateShopBalanceHeader();
-  }
 
-  // 3. Обновление склада и инпутов
-  let totalQtyPurchased = 0;
-  itemsToBuy.forEach(item => {
-    // Защита: если на складе значение было undefined или NaN, сбрасываем в 0
-    const currentStock = parseInt(ingredientStock[item.id], 10) || 0;
-    ingredientStock[item.id] = currentStock + item.qty;
-    totalQtyPurchased += item.qty;
-
-    // Сбрасываем инпут
-    const inputEl = document.getElementById(`qty-${item.id}`);
-    if (inputEl) {
-      inputEl.value = 0;
-      if (typeof updateItemTotal === 'function') {
-        updateItemTotal(item.id);
+    if (currentGameMode !== 'sandbox') {
+      if (isNaN(playerMoney)) playerMoney = 100.00;
+      if (playerMoney < grandTotal) {
+        showToast('Not enough money!', '', 'error');
+        return;
       }
+      playerMoney -= grandTotal;
+      updateMoneyDisplay(grandTotal, false);
+      updateShopBalanceHeader();
     }
-  });
 
-  // 4. Принудительное сохранение и перерисовка
-  saveStock();
-  if (typeof trackQuestProgress === 'function') {
-    trackQuestProgress('buy_items', totalQtyPurchased);
-  }
+    let totalQtyPurchased = 0;
+    itemsToBuy.forEach(item => {
+      const currentStock = parseInt(ingredientStock[item.id], 10) || 0;
+      ingredientStock[item.id] = currentStock + item.qty;
+      totalQtyPurchased += item.qty;
 
-  // Обновляем списки
-  renderIngredientsMenu();
-  renderSauces();
-  renderShopModal();
-  
-  if (currentScreen === 'grill') {
-    renderGrillIngredientsMenu();
-    renderGrillCookedInventory();
-  } else if (currentScreen === 'board') {
-    renderBoardUncutMenu();
-    renderBoardSlicedInventory();
-  }
+      const inputEl = document.getElementById(`qty-${item.id}`);
+      if (inputEl) {
+        inputEl.value = 0;
+        if (typeof updateItemTotal === 'function') {
+          updateItemTotal(item.id);
+        }
+      }
+    });
 
-  playSound(SOUNDS.buy);
-  showToast('Purchase Successful!', `Bought items for $${grandTotal.toFixed(2)}`, 'success');
-};
+    saveStock();
+    if (typeof trackQuestProgress === 'function') {
+      trackQuestProgress('buy_items', totalQtyPurchased);
+    }
+
+    renderIngredientsMenu();
+    renderSauces();
+    renderShopModal();
+    if (currentScreen === 'grill') {
+      renderGrillIngredientsMenu();
+      renderGrillCookedInventory();
+    } else if (currentScreen === 'board') {
+      renderBoardUncutMenu();
+      renderBoardSlicedInventory();
+    }
+    playSound(SOUNDS.buy);
+    showToast('Purchase Successful!', `Bought items for $${grandTotal.toFixed(2)}`, 'success');
+  };
 
   function updateShopBalanceHeader() {
     const modalHeader = document.querySelector('#shopModal .modal-header');
@@ -2402,7 +2391,7 @@ document.addEventListener('DOMContentLoaded', () => {
       buyAllBtn.id = 'shopBuyAllBtn';
       buyAllBtn.className = 'btn-buy-all-shop';
       buyAllBtn.innerText = 'Buy All ($0.00)';
-      buyAllBtn.onclick = () => window.buyAllSelectedShopItems();
+      buyAllBtn.setAttribute('onclick', 'window.buyAllSelectedShopItems()');
 
       rightHeaderGroup.appendChild(buyAllBtn);
       if (closeBtn) rightHeaderGroup.appendChild(closeBtn);
@@ -2422,6 +2411,7 @@ document.addEventListener('DOMContentLoaded', () => {
       badge.innerText = '($∞)';
       badge.className = 'shop-balance-badge positive';
     } else {
+      if (isNaN(playerMoney)) playerMoney = 100.00;
       badge.innerText = `($${playerMoney.toFixed(2)})`;
       badge.className = 'shop-balance-badge';
       if (playerMoney > 0) badge.classList.add('positive');
