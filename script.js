@@ -1509,7 +1509,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const forceOrderBtn = document.getElementById('forceOrderBtn');
   const skipOrderBtn = document.getElementById('skipOrderBtn');
 
-  // ПУНКТ 4: Кнопка подачи без эмодзи, менее яркая
   let serveFloatingBtn = document.getElementById('serveFloatingBtn');
   if (!serveFloatingBtn) {
     serveFloatingBtn = document.createElement('button');
@@ -1994,7 +1993,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     filteredItems.forEach(item => {
       let iconsHtml = '';
-      // ПУНКТ 3: Убраны title из иконок ингредиентов в рецептах
       item.ids.forEach(id => { if (ITEM_IMAGES[id]) iconsHtml += `<img src="${ITEM_IMAGES[id]}">`; });
       itemsHtml += `
         <div class="recipe-card">
@@ -2045,7 +2043,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let pinnedFadeTimer = null;
 
-  // ПУНКТ 3: Отображение названия рецепта по клику с возможностью быстрого закрытия и fade-анимацией
+  // ПУНКТ 5: Отображение названия закреплённого рецепта только по клику с авто-скрытием через 2с и досрочным закрытием по клику
   function updatePinnedWidget() {
     const widget = document.getElementById('pinnedRecipeWidget');
     const container = document.getElementById('pinnedIngredientsContainer');
@@ -2088,7 +2086,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (pinnedFadeTimer) clearTimeout(pinnedFadeTimer);
         pinnedFadeTimer = setTimeout(() => {
           labelEl.classList.remove('show-title');
-        }, 2500);
+        }, 2000);
       };
 
       labelEl.onclick = (e) => {
@@ -3388,7 +3386,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const tutorialNextBtn = document.getElementById('tutorialNextBtn');
   const openTutorialFromSettingsBtn = document.getElementById('openTutorialFromSettingsBtn');
 
-  // ПУНКТ 2: Кнопка пропуска туториала работает корректно и ставит флаг завершения
+  // ПУНКТ 1: Корректный пропуск туториала с сохранением обоих флагов
   let tutorialSkipBtn = document.getElementById('tutorialSkipBtn');
   if (!tutorialSkipBtn && tutorialTooltip) {
     const btnContainer = tutorialTooltip.querySelector('div[style*="justify-content: space-between"]') || tutorialTooltip;
@@ -3565,6 +3563,7 @@ document.addEventListener('DOMContentLoaded', () => {
       settingsModalEl.classList.remove('open');
       document.body.classList.remove('modal-open');
     }
+    localStorage.setItem('has_seen_welcome', 'true');
     localStorage.setItem('burgerMakerTutorialCompleted', 'true');
   }
 
