@@ -33,7 +33,8 @@
   <div id="moneyPopupContainer" class="money-popup-container"></div>
 
   <!-- Закреплённый рецепт -->
-  <div class="pinned-recipe-widget" id="pinnedRecipeWidget">
+  <div class="pinned-recipe-widget" id="pinnedRecipeWidget" title="">
+    <div class="pinned-recipe-title"></div>
     <div class="pinned-header">
       <button class="unpin-btn" id="unpinBtn" title="Unpin">✕</button>
     </div>
@@ -43,6 +44,9 @@
   <div class="top-order-widget" id="topOrderWidget" title="Click to toggle opacity">
     <span id="orderStatusText">Next order in: 05:00</span>
   </div>
+
+  <!-- Плавающая кнопка подачи заказа -->
+  <button class="btn-floating-serve" id="serveFloatingBtn">🍽 Serve</button>
 
   <!-- Модальные окна -->
   <div class="modal-overlay" id="recipesModal">
@@ -59,7 +63,10 @@
     <div class="modal-content wide">
       <div class="modal-header">
         <h3>Shop</h3>
-        <button class="close-modal" id="closeShopModal">✕</button>
+        <div class="shop-header-right-group">
+          <button class="btn-buy-all-shop" id="shopBuyAllBtn" disabled>Buy All ($0.00)</button>
+          <button class="close-modal" id="closeShopModal">✕</button>
+        </div>
       </div>
       <div class="recipe-tabs" id="shopTabs">
         <div class="recipe-tab active" onclick="switchShopTab('all')">All</div>
@@ -194,7 +201,10 @@
   <div class="tutorial-overlay" id="tutorialOverlay" ontouchmove="event.preventDefault()">
     <div class="tutorial-spotlight" id="tutorialSpotlight"></div>
     <div class="tutorial-tooltip" id="tutorialTooltip">
-      <h4 id="tutorialTitle" style="color: var(--accent-color); margin-bottom: 6px; font-size: 0.9rem;"></h4>
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+        <h4 id="tutorialTitle" style="color: var(--accent-color); margin: 0; font-size: 0.9rem;"></h4>
+        <button class="btn-skip-tutorial" id="tutorialSkipBtn">Skip</button>
+      </div>
       <p id="tutorialText" style="font-size: 0.8rem; margin-bottom: 12px; line-height: 1.4;"></p>
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <span id="tutorialStepIndicator" style="font-size: 0.7rem; opacity: 0.7;">1 / 5</span>
