@@ -411,10 +411,11 @@ body.tutorial-active {
   display: none;
   transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
   width: max-content;
+  cursor: pointer;
 }
 .pinned-recipe-widget.active { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 
-/* Кастомное всплывающее название закрепленного рецепта с защитой от вылета за экран */
+/* Кастомное всплывающее название закрепленного рецепта */
 .pinned-recipe-title {
   display: none;
   position: absolute;
@@ -427,13 +428,13 @@ body.tutorial-active {
   border-radius: 4px;
   font-size: 0.75rem;
   white-space: nowrap;
-  pointer-events: none;
+  pointer-events: auto;
   margin-top: 6px;
   z-index: 10;
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   transition: opacity 0.3s ease;
 }
-.pinned-recipe-widget:hover .pinned-recipe-title.show-title {
+.pinned-recipe-title.show-title {
   display: block;
 }
 
@@ -493,19 +494,19 @@ body.modal-open .top-order-widget {
   filter: none !important;
 }
 
-/* Плавающая кнопка подачи заказа с правильным отступом, чтобы не перекрываться нижним меню */
+/* Плавающая кнопка подачи заказа (Serve) — менее яркая, без эмодзи */
 .btn-floating-serve {
   position: fixed;
   z-index: 100;
-  background: linear-gradient(135deg, #ffb300, #ff8f00);
+  background: linear-gradient(135deg, #d49511, #b87c08);
   color: #fff;
   border: none;
-  padding: 10px 18px;
+  padding: 8px 16px;
   border-radius: 10px;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(255, 143, 0, 0.4);
+  box-shadow: 0 3px 10px rgba(184, 124, 8, 0.3);
   transition: transform 0.15s, opacity 0.2s;
   display: flex;
   align-items: center;
@@ -521,13 +522,7 @@ body.modal-open .top-order-widget {
 @media (min-width: 901px) {
   .btn-floating-serve {
     right: 250px;
-    bottom: 95px; /* Выше нижней панели */
-  }
-}
-@media (max-width: 900px) {
-  .btn-floating-serve {
-    right: 16px;
-    bottom: 90px; /* Выше мобильного нижнего бара */
+    bottom: 95px;
   }
 }
 
@@ -741,6 +736,7 @@ body.modal-open .top-order-widget {
   color: #d32f2f;
 }
 
+/* Единый стандарт размера кнопок переключения экранов на ПК */
 .screen-switcher {
   position: absolute;
   top: 10px;
@@ -748,6 +744,15 @@ body.modal-open .top-order-widget {
   display: flex;
   gap: 6px;
   z-index: 1000;
+}
+
+.screen-switcher .btn-action {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .screen-switcher .btn-action.active {
@@ -1074,7 +1079,6 @@ body.modal-open .top-order-widget {
   min-height: 0;
 }
 
-/* Стили общей кнопки покупки «Buy All» в шапке магазина */
 .shop-header-right-group {
   display: flex;
   align-items: center;
@@ -1400,7 +1404,6 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .btn-pin.pinned { background: #689f38; }
 
-/* Индикатор уведомлений (красная точка) для квестов и ачивок */
 .notification-badge {
   position: absolute;
   top: 4px;
@@ -1419,7 +1422,6 @@ input[type="range"]::-webkit-slider-thumb {
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* Стили для модального окна и карточек ежедневных заданий */
 .quests-timer-bar {
   font-size: 0.75rem;
   font-weight: 600;
@@ -1551,7 +1553,6 @@ input[type="range"]::-webkit-slider-thumb {
   pointer-events: auto;
 }
 
-/* Стили кнопки пропуска туториала (без рамки, без фона, приглушенная, слева от Back/Next) */
 .btn-skip-tutorial {
   background: transparent;
   border: none;
@@ -1773,6 +1774,23 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .pinned-recipe-widget,
   body.ui-hidden .screen-switcher { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
+
+  /* На телефоне: кнопка подачи закреплена сверху справа от панели ингредиентов (right-panel) на экране сборки */
+  .btn-floating-serve {
+    position: absolute !important;
+    top: 10px !important;
+    right: 230px !important;
+    bottom: auto !important;
+    left: auto !important;
+  }
+
+  /* Когда интерфейс скрыт (.ui-hidden), опускаем кнопку подачи, чтобы она сидела справа сверху от нижней панели с кнопками */
+  body.ui-hidden .btn-floating-serve {
+    position: fixed !important;
+    bottom: 85px !important;
+    right: 16px !important;
+    top: auto !important;
+  }
 }
 
 @media (max-width: 900px) {
