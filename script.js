@@ -2392,32 +2392,28 @@ document.addEventListener('DOMContentLoaded', () => {
       buyAllBtn.className = 'btn-buy-all-shop';
       buyAllBtn.innerText = 'Buy All ($0.00)';
       
-      // Гарантируем кликабельность на уровне стилей
+      // Жестко задаем стили поверх любых оверлеев
+      buyAllBtn.style.position = 'relative';
+      buyAllBtn.style.zIndex = '999999';
       buyAllBtn.style.pointerEvents = 'auto';
       buyAllBtn.style.cursor = 'pointer';
-      buyAllBtn.style.zIndex = '9999';
-
-      // Надежный обработчик через JS-событие вместо чистого атрибута
-      buyAllBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log("Прямой клик по кнопке Buy All сработал!");
-        if (typeof window.buyAllSelectedShopItems === 'function') {
-          window.buyAllSelectedShopItems();
-        } else {
-          console.error("Функция buyAllSelectedShopItems не найдена в window!");
-        }
-      });
 
       rightHeaderGroup.appendChild(buyAllBtn);
       if (closeBtn) rightHeaderGroup.appendChild(closeBtn);
       modalHeader.appendChild(rightHeaderGroup);
-    } else {
-      // Если группа уже была, на всякий случай обновляем ссылку на кнопку
-      const existingBtn = rightHeaderGroup.querySelector('#shopBuyAllBtn');
-      if (existingBtn) {
-        existingBtn.style.pointerEvents = 'auto';
-      }
+
+      // Глобальный перехватчик кликов по шапке модалки (делегирование)
+      modalHeader.addEventListener('click', (e) => {
+        const targetBtn = e.target.closest('#shopBuyAllBtn');
+        if (targetBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log("Клик по кнопке пойман через делегирование!");
+          if (typeof window.buyAllSelectedShopItems === 'function') {
+            window.buyAllSelectedShopItems();
+          }
+        }
+      });
     }
 
     let badge = document.getElementById('shopBalanceBadge');
