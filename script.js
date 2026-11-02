@@ -1585,28 +1585,57 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderInventoryModal() {
     const body = document.getElementById('inventoryModalBody');
     if (!body) return;
-    body.innerHTML = '';
-    const filtered = activeInventoryTab === 'all' ? SHOP_ITEMS : SHOP_ITEMS.filter(i => i.category === activeInventoryTab);
 
+    let searchInput = document.getElementById('inventorySearchInput');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+    if (!searchInput) {
+      const tabsContainer = document.getElementById('inventoryTabs');
+      if (tabsContainer) {
+        searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.id = 'inventorySearchInput';
+        searchInput.className = 'modal-search-input';
+        searchInput.placeholder = 'Search inventory...';
+        searchInput.oninput = () => renderInventoryModal();
+        tabsContainer.parentNode.insertBefore(searchInput, tabsContainer.nextSibling);
+      }
+    }
+
+    const filtered = SHOP_ITEMS.filter(item => {
+      const matchesTab = activeInventoryTab === 'all' || item.category === activeInventoryTab;
+      const matchesSearch = item.name.toLowerCase().includes(searchTerm);
+      return matchesTab && matchesSearch;
+    });
+
+    let cardsHtml = '';
     filtered.forEach(item => {
       const stockVal = currentGameMode === 'sandbox' ? '∞' : (ingredientStock[item.id] ?? 0);
       const isZero = stockVal === 0 || stockVal === '0';
-      const card = document.createElement('div');
-      card.className = `inventory-item-card ${isZero ? 'zero-stock' : ''}`;
-      card.innerHTML = `
-        <div class="inventory-item-info">
-          <img src="${item.image}" alt="${item.name}">
-          <div class="inventory-item-details">
-            <h4>${item.name}</h4>
+      cardsHtml += `
+        <div class="inventory-item-card ${isZero ? 'zero-stock' : ''}">
+          <div class="inventory-item-info">
+            <img src="${item.image}" alt="${item.name}">
+            <div class="inventory-item-details">
+              <h4>${item.name}</h4>
+            </div>
+          </div>
+          <div class="inventory-right-group">
+            <button class="btn-buy-more" onclick="openShopForCategory('${item.category}')">Buy more</button>
+            <div class="inventory-count-badge">${stockVal}</div>
           </div>
         </div>
-        <div class="inventory-right-group">
-          <button class="btn-buy-more" onclick="openShopForCategory('${item.category}')">Buy more</button>
-          <div class="inventory-count-badge">${stockVal}</div>
-        </div>
       `;
-      body.appendChild(card);
     });
+
+    const listContainer = body.querySelector('.inventory-list-container') || document.createElement('div');
+    listContainer.className = 'inventory-list-container';
+    listContainer.style.cssText = 'display:flex; flex-direction:column; gap:8px; min-height: 280px;';
+    listContainer.innerHTML = cardsHtml;
+
+    if (!body.contains(listContainer)) {
+      body.appendChild(listContainer);
+    }
   }
 
   window.openShopForCategory = function(category) {
@@ -1951,6 +1980,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const body = document.getElementById('recipesModalBody');
     if (!body) return;
 
+    let searchInput = document.getElementById('recipesSearchInput');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
     const currentRecipeTabsEl = document.getElementById('recipe-cats-container');
     const actualScroll = savedScroll !== null ? savedScroll : (currentRecipeTabsEl ? currentRecipeTabsEl.scrollLeft : 0);
 
@@ -1972,6 +2004,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     tabsHtml += `</div>`;
 
+    if (!searchInput) {
+      searchInput = document.createElement('input');
+      searchInput.type = 'text';
+      searchInput.id = 'recipesSearchInput';
+      searchInput.className = 'modal-search-input';
+      searchInput.placeholder = 'Search recipes...';
+      searchInput.oninput = () => renderRecipesModal();
+    }
+
     setTimeout(() => {
       const recipeTabsEl = document.getElementById('recipe-cats-container');
       if (recipeTabsEl) {
@@ -1988,7 +2029,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const filteredItems = combinedList.filter(item => {
       if (item.isSecret && !unlockedAchievements[item.id]) return false;
-      return itemMatchesRecipeCategory(item, activeRecipeCategory);
+      const matchesCat = itemMatchesRecipeCategory(item, activeRecipeCategory);
+      const matchesSearch = item.name.toLowerCase().includes(searchTerm);
+      return matchesCat && matchesSearch;
     });
 
     filteredItems.forEach(item => {
@@ -2002,7 +2045,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     });
 
-    if (activeRecipeCategory === 'all' || activeRecipeCategory === 'secret') {
+    if ((activeRecipeCategory === 'all' || activeRecipeCategory === 'secret') && !searchTerm) {
       SECRET_ACHIEVEMENTS.forEach(ach => {
         if (!unlockedAchievements[ach.id]) {
           itemsHtml += `
@@ -2014,7 +2057,18 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    body.innerHTML = tabsHtml + `<div class="recipe-list-container" style="display:flex; flex-direction:column; gap:8px; min-height: 320px;">${itemsHtml}</div>`;
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = tabsHtml;
+    tempDiv.appendChild(searchInput);
+
+    const listContainer = document.createElement('div');
+    listContainer.className = 'recipe-list-container';
+    listContainer.style.cssText = 'display:flex; flex-direction:column; gap:8px; min-height: 280px;';
+    listContainer.innerHTML = itemsHtml;
+    tempDiv.appendChild(listContainer);
+
+    body.innerHTML = '';
+    body.appendChild(tempDiv);
 
     requestAnimationFrame(() => {
       const recipeTabsEl = document.getElementById('recipe-cats-container');
@@ -2118,13 +2172,36 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderShopModal() {
     const body = document.getElementById('shopModalBody');
     if (!body) return;
-    body.innerHTML = '';
-    const filtered = activeShopTab === 'all' ? SHOP_ITEMS : SHOP_ITEMS.filter(i => i.category === activeShopTab);
+
+    let searchInput = document.getElementById('shopSearchInput');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+    if (!searchInput) {
+      const tabsContainer = document.getElementById('shopTabs');
+      if (tabsContainer) {
+        searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.id = 'shopSearchInput';
+        searchInput.className = 'modal-search-input';
+        searchInput.placeholder = 'Search shop items...';
+        searchInput.oninput = () => renderShopModal();
+        tabsContainer.parentNode.insertBefore(searchInput, tabsContainer.nextSibling);
+      }
+    }
+
+    const filtered = SHOP_ITEMS.filter(item => {
+      const matchesTab = activeShopTab === 'all' || item.category === activeShopTab;
+      const matchesSearch = item.name.toLowerCase().includes(searchTerm);
+      return matchesTab && matchesSearch;
+    });
 
     let cardsHtml = '';
     filtered.forEach(item => {
       const unitPrice = ITEM_PRICES[item.id] || 1;
       const stockDisplay = currentGameMode === 'sandbox' ? '∞' : (ingredientStock[item.id] ?? 0);
+
+      const existingInput = document.getElementById(`qty-${item.id}`);
+      const existingQty = existingInput ? existingInput.value : '0';
 
       cardsHtml += `
         <div class="shop-item-card">
@@ -2138,16 +2215,26 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="shop-buy-group">
             <div class="shop-total-price" id="total-${item.id}">$0.00</div>
             <button class="shop-qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
-            <input type="number" inputmode="numeric" min="0" max="100" value="0" id="qty-${item.id}" class="shop-qty-input" data-id="${item.id}" oninput="updateItemTotal('${item.id}'); updateShopBuyAllTotal();">
+            <input type="number" inputmode="numeric" min="0" max="100" value="${existingQty}" id="qty-${item.id}" class="shop-qty-input" data-id="${item.id}" oninput="updateItemTotal('${item.id}'); updateShopBuyAllTotal();">
             <button class="shop-qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
           </div>
         </div>
       `;
     });
 
-    body.innerHTML = `<div style="display:flex; flex-direction:column; gap:8px; min-height: 340px;">${cardsHtml}</div>`;
-    filtered.forEach(item => {
-      updateItemTotal(item.id);
+    const listContainer = body.querySelector('.shop-list-container') || document.createElement('div');
+    listContainer.className = 'shop-list-container';
+    listContainer.style.cssText = 'display:flex; flex-direction:column; gap:8px; min-height: 280px;';
+    listContainer.innerHTML = cardsHtml;
+
+    if (!body.contains(listContainer)) {
+      body.appendChild(listContainer);
+    }
+
+    SHOP_ITEMS.forEach(item => {
+      if (document.getElementById(`total-${item.id}`)) {
+        updateItemTotal(item.id);
+      }
     });
     updateShopBuyAllTotal();
   }
