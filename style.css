@@ -1191,7 +1191,6 @@ body.tutorial-active {
   color: #fff;
 }
 
-/* Убираем стрелочки выбора числа у полей ввода количества в магазине */
 .shop-buy-group input.shop-qty-input::-webkit-outer-spin-button,
 .shop-buy-group input.shop-qty-input::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -1798,7 +1797,6 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .screen-switcher { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
 
-  /* На мобильных: кнопка подачи аккуратно закреплена прямо над панелью ингредиентов (right-panel) */
   .btn-floating-serve {
     position: absolute !important;
     top: -36px !important;
@@ -1810,7 +1808,6 @@ input[type="range"]::-webkit-slider-thumb {
     height: 30px !important;
   }
 
-  /* Когда интерфейс скрыт (.ui-hidden), опускаем ее чуть ниже к панели управления */
   body.ui-hidden .btn-floating-serve {
     position: fixed !important;
     bottom: 80px !important;
