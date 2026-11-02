@@ -414,7 +414,7 @@ body.tutorial-active {
 }
 .pinned-recipe-widget.active { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 
-/* Всплывающее название закрепленного рецепта */
+/* Кастомное всплывающее название закрепленного рецепта с защитой от вылета за экран */
 .pinned-recipe-title {
   display: none;
   position: absolute;
@@ -431,8 +431,9 @@ body.tutorial-active {
   margin-top: 6px;
   z-index: 10;
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transition: opacity 0.3s ease;
 }
-.pinned-recipe-widget:hover .pinned-recipe-title {
+.pinned-recipe-widget:hover .pinned-recipe-title.show-title {
   display: block;
 }
 
@@ -480,19 +481,19 @@ body.tutorial-active {
   width: max-content;
   max-width: 90%;
   cursor: pointer;
-  transition: opacity 0.3s ease, background 0.3s ease, color 0.3s ease;
+  transition: opacity 0.3s ease, background 0.3s ease, color 0.3s ease, filter 0.3s ease;
 }
 .top-order-widget.hidden { display: none !important; }
 .top-order-widget.dimmed { opacity: 0.25 !important; }
 .top-order-widget span { color: var(--accent-color); font-weight: bold; }
 .order-timer-badge { color: #e57373; font-weight: bold; font-family: monospace; display: block; margin-top: 2px; }
 
-/* Отмена размытия (blur) для верхнего виджета заказа при открытых модалках */
+/* Гарантируем, что виджет заказа НЕ блюрится при открытии модальных окон */
 body.modal-open .top-order-widget {
   filter: none !important;
 }
 
-/* Плавающая кнопка подачи заказа */
+/* Плавающая кнопка подачи заказа с правильным отступом, чтобы не перекрываться нижним меню */
 .btn-floating-serve {
   position: fixed;
   z-index: 100;
@@ -516,16 +517,17 @@ body.modal-open .top-order-widget {
 .btn-floating-serve:active {
   transform: scale(0.95);
 }
+
 @media (min-width: 901px) {
   .btn-floating-serve {
-    right: 280px;
-    bottom: 80px;
+    right: 250px;
+    bottom: 95px; /* Выше нижней панели */
   }
 }
 @media (max-width: 900px) {
   .btn-floating-serve {
     right: 16px;
-    bottom: 75px;
+    bottom: 90px; /* Выше мобильного нижнего бара */
   }
 }
 
@@ -1549,19 +1551,21 @@ input[type="range"]::-webkit-slider-thumb {
   pointer-events: auto;
 }
 
-/* Стили кнопки пропуска туториала */
+/* Стили кнопки пропуска туториала (без рамки, без фона, приглушенная, слева от Back/Next) */
 .btn-skip-tutorial {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid var(--border-color);
+  background: transparent;
+  border: none;
   color: var(--text-color);
-  padding: 4px 10px;
-  border-radius: 6px;
+  opacity: 0.5;
+  padding: 4px 8px;
   cursor: pointer;
   font-size: 0.75rem;
   font-weight: 600;
+  transition: opacity 0.2s;
 }
 .btn-skip-tutorial:hover {
-  background: var(--item-bg);
+  opacity: 0.9;
+  background: transparent;
 }
 
 .mobile-top-bar { display: none; }
