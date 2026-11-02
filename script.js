@@ -1509,12 +1509,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const forceOrderBtn = document.getElementById('forceOrderBtn');
   const skipOrderBtn = document.getElementById('skipOrderBtn');
 
+  // ПУНКТ 4: Кнопка подачи без эмодзи, менее яркая
   let serveFloatingBtn = document.getElementById('serveFloatingBtn');
   if (!serveFloatingBtn) {
     serveFloatingBtn = document.createElement('button');
     serveFloatingBtn.id = 'serveFloatingBtn';
     serveFloatingBtn.className = 'btn-floating-serve';
-    serveFloatingBtn.innerText = '🍽 Serve';
+    serveFloatingBtn.innerText = 'Serve';
     document.body.appendChild(serveFloatingBtn);
   }
 
@@ -1993,7 +1994,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     filteredItems.forEach(item => {
       let iconsHtml = '';
-      // ПУНКТ 1: Убираем браузерные title-плашки из картинок рецептов
+      // ПУНКТ 3: Убраны title из иконок ингредиентов в рецептах
       item.ids.forEach(id => { if (ITEM_IMAGES[id]) iconsHtml += `<img src="${ITEM_IMAGES[id]}">`; });
       itemsHtml += `
         <div class="recipe-card">
@@ -2044,6 +2045,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let pinnedFadeTimer = null;
 
+  // ПУНКТ 3: Отображение названия рецепта по клику с возможностью быстрого закрытия и fade-анимацией
   function updatePinnedWidget() {
     const widget = document.getElementById('pinnedRecipeWidget');
     const container = document.getElementById('pinnedIngredientsContainer');
@@ -2051,7 +2053,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pinnedBurger) {
       container.innerHTML = '';
       
-      // ПУНКТ 1: Убираем widget.title и используем кастомный блок .pinned-recipe-title с исчезновением (fade) по клику и защитой от вылета за экран
+      widget.removeAttribute('title');
       let labelEl = widget.querySelector('.pinned-recipe-title');
       if (!labelEl) {
         labelEl = document.createElement('div');
@@ -2063,9 +2065,14 @@ document.addEventListener('DOMContentLoaded', () => {
       widget.onclick = (e) => {
         if (e.target.id === 'unpinBtn' || e.target.closest('#unpinBtn')) return;
         
+        if (labelEl.classList.contains('show-title')) {
+          labelEl.classList.remove('show-title');
+          if (pinnedFadeTimer) clearTimeout(pinnedFadeTimer);
+          return;
+        }
+
         labelEl.classList.add('show-title');
         
-        // Корректируем позицию чтобы не уходило за границы экрана
         labelEl.style.left = '50%';
         labelEl.style.transform = 'translateX(-50%)';
         const rect = labelEl.getBoundingClientRect();
@@ -2082,6 +2089,12 @@ document.addEventListener('DOMContentLoaded', () => {
         pinnedFadeTimer = setTimeout(() => {
           labelEl.classList.remove('show-title');
         }, 2500);
+      };
+
+      labelEl.onclick = (e) => {
+        e.stopPropagation();
+        labelEl.classList.remove('show-title');
+        if (pinnedFadeTimer) clearTimeout(pinnedFadeTimer);
       };
 
       pinnedBurger.ids.forEach(id => {
@@ -3353,7 +3366,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentTutorialStep = 0;
 
   function showWelcomeModalIfNeeded() {
-    // ПУНКТ 2: Проверяем, завершен ли туториал или показано приветствие ранее, чтобы не сбрасывалось при рефреше
     const hasSeenWelcome = localStorage.getItem('has_seen_welcome');
     const tutorialCompleted = localStorage.getItem('burgerMakerTutorialCompleted');
     const welcomeModal = document.getElementById('welcomeModal');
@@ -3376,7 +3388,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const tutorialNextBtn = document.getElementById('tutorialNextBtn');
   const openTutorialFromSettingsBtn = document.getElementById('openTutorialFromSettingsBtn');
 
-  // ПУНКТ 2: Кнопка пропуска туториала (перенесена слева от Back/Next, без рамки и фона)
+  // ПУНКТ 2: Кнопка пропуска туториала работает корректно и ставит флаг завершения
   let tutorialSkipBtn = document.getElementById('tutorialSkipBtn');
   if (!tutorialSkipBtn && tutorialTooltip) {
     const btnContainer = tutorialTooltip.querySelector('div[style*="justify-content: space-between"]') || tutorialTooltip;
