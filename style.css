@@ -1797,6 +1797,7 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .screen-switcher { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
 
+  /* Кнопка Serve на мобилке: справа, ровно над панелью ингредиентов (right-panel) */
   .btn-floating-serve {
     position: absolute !important;
     top: -36px !important;
