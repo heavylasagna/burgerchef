@@ -324,25 +324,20 @@ document.addEventListener('DOMContentLoaded', () => {
   if (switchToBoardBtn) switchToBoardBtn.onclick = () => switchScreen('board');
 
   const knifeBtn = document.getElementById('knifeBtn');
+  const submitOrderBtn = document.getElementById('submitOrderBtn');
+
+  if (submitOrderBtn) {
+    submitOrderBtn.onclick = () => {
+      if (currentActiveOrder && currentBurger.length > 0) {
+        checkOrderSubmission();
+      } else {
+        showToast('No active order or burger is empty!', '', 'warning');
+      }
+    };
+  }
 
   function updateBottomPanelForScreen() {
-    const isGrill = currentScreen === 'grill';
-    const isBoard = currentScreen === 'board';
-    const isSpecialScreen = isGrill || isBoard;
-
-    if (eatBtn) eatBtn.style.display = isSpecialScreen ? 'none' : 'flex';
-    if (squeezeBtn) squeezeBtn.style.display = isSpecialScreen ? 'none' : 'flex';
-    
-    const serveFloatingBtn = document.getElementById('serveFloatingBtn');
-    if (serveFloatingBtn) {
-      const currentSpeed = getCurrentSpeed();
-      const hasOrderOrMode = currentActiveOrder !== null || currentSpeed !== 'no-orders';
-      serveFloatingBtn.style.display = (isSpecialScreen || currentScreen !== 'assembly' || !hasOrderOrMode) ? 'none' : 'flex';
-    }
-
-    if (forceOrderBtn) forceOrderBtn.style.display = isSpecialScreen ? 'none' : 'flex';
-    if (skipOrderBtn) skipOrderBtn.style.display = isSpecialScreen ? 'none' : 'flex';
-    if (knifeBtn) knifeBtn.style.display = isBoard ? 'flex' : 'none';
+    updateActionButtonsVisibility();
   }
 
   function getCurrentSpeed() {
@@ -1512,21 +1507,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const skipOrderBtn = document.getElementById('skipOrderBtn');
 
   let serveFloatingBtn = document.getElementById('serveFloatingBtn');
-  if (!serveFloatingBtn) {
-    serveFloatingBtn = document.createElement('button');
-    serveFloatingBtn.id = 'serveFloatingBtn';
-    serveFloatingBtn.className = 'btn-floating-serve';
-    serveFloatingBtn.innerText = 'Serve';
-    document.body.appendChild(serveFloatingBtn);
+  if (serveFloatingBtn) {
+    serveFloatingBtn.onclick = () => {
+      if (currentActiveOrder && currentBurger.length > 0) {
+        checkOrderSubmission();
+      } else {
+        showToast('No active order or burger is empty!', '', 'warning');
+      }
+    };
   }
-
-  serveFloatingBtn.onclick = () => {
-    if (currentActiveOrder && currentBurger.length > 0) {
-      checkOrderSubmission();
-    } else {
-      showToast('No active order or burger is empty!', '', 'warning');
-    }
-  };
 
   const SHOP_ITEMS = [
     { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
@@ -1709,9 +1698,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function updateActionButtonsVisibility() {
+    const isMobile = window.innerWidth <= 900;
     const isGrill = currentScreen === 'grill';
     const isBoard = currentScreen === 'board';
     const isSpecialScreen = isGrill || isBoard;
+    
     if (squeezeBtn) squeezeBtn.style.display = isSpecialScreen ? 'none' : 'flex';
 
     const currentSpeed = getCurrentSpeed();
@@ -1728,10 +1719,24 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    const serveFloatingBtn = document.getElementById('serveFloatingBtn');
+    const hasOrderOrMode = currentActiveOrder !== null || currentSpeed !== 'no-orders';
+
+    // Плавающая кнопка (на ПК)
     if (serveFloatingBtn) {
-      const hasOrderOrMode = currentActiveOrder !== null || currentSpeed !== 'no-orders';
-      serveFloatingBtn.style.display = (isSpecialScreen || currentScreen !== 'assembly' || !hasOrderOrMode) ? 'none' : 'flex';
+      if (isMobile) {
+        serveFloatingBtn.style.display = 'none';
+      } else {
+        serveFloatingBtn.style.display = (isSpecialScreen || currentScreen !== 'assembly' || !hasOrderOrMode) ? 'none' : 'flex';
+      }
+    }
+
+    // Кнопка тарелки в нижнем меню (на мобилках)
+    if (submitOrderBtn) {
+      if (isMobile) {
+        submitOrderBtn.style.display = (isSpecialScreen || currentScreen !== 'assembly' || !hasOrderOrMode) ? 'none' : 'flex';
+      } else {
+        submitOrderBtn.style.display = 'none';
+      }
     }
 
     if (forceOrderBtn) {
@@ -3669,6 +3674,10 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(() => {
     updateQuestsResetTimer();
   }, 1000);
+
+  window.addEventListener('resize', () => {
+    updateActionButtonsVisibility();
+  });
 
   switchScreen(currentScreen);
   renderSauces();
