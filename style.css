@@ -1022,10 +1022,27 @@ body.tutorial-active {
 
 .close-modal { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--text-color); }
 
+.modal-search-input {
+  width: 100%;
+  background: var(--modal-bg);
+  color: var(--text-color);
+  border: 1px solid var(--item-border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  outline: none;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+  transition: border-color 0.2s;
+}
+.modal-search-input:focus {
+  border-color: var(--accent-color);
+}
+
 .recipe-tabs {
   display: flex;
   gap: 6px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   overflow-x: auto;
   overflow-y: hidden;
   white-space: nowrap;
@@ -1598,7 +1615,7 @@ input[type="range"]::-webkit-slider-thumb {
     flex-direction: column;
   }
   
-  .right-panel { order: 2; height: 190px; position: relative; }
+  .right-panel { order: 2; height: 190px; position: relative; margin-top: 36px; }
   .left-panel { order: 4; height: 190px; }
 
   .ingredients-menu {
@@ -1781,16 +1798,16 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .screen-switcher { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
 
-  /* На мобильных: кнопка подачи закреплена в правом верхнем углу панели ингредиентов (right-panel) */
+  /* На мобильных: кнопка подачи аккуратно закреплена прямо над панелью ингредиентов (right-panel) */
   .btn-floating-serve {
     position: absolute !important;
-    top: 8px !important;
-    right: 8px !important;
+    top: -36px !important;
+    right: 0 !important;
     bottom: auto !important;
     left: auto !important;
-    padding: 6px 12px !important;
+    padding: 4px 12px !important;
     font-size: 0.75rem !important;
-    height: 28px !important;
+    height: 30px !important;
   }
 
   /* Когда интерфейс скрыт (.ui-hidden), опускаем ее чуть ниже к панели управления */
