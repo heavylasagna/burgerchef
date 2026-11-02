@@ -1619,30 +1619,8 @@ input[type="range"]::-webkit-slider-thumb {
     flex-direction: column;
   }
   
-  /* Правая панель (меню ингредиентов) на мобилке */
-  .right-panel { 
-    order: 2; 
-    height: 190px; 
-    position: relative; 
-    margin-top: 42px; /* Оставляем место под кнопку Serve */
-  }
+  .right-panel { order: 2; height: 190px; position: relative; margin-top: 36px; }
   .left-panel { order: 4; height: 190px; }
-
-  /* Кнопка Serve на мобилке: ровно справа и НАД меню ингредиентов, без фиксации (absolute внутри относительного блока или в потоке) */
-  .btn-floating-serve {
-    position: absolute !important;
-    top: -38px !important;    /* Ровно над правой панелью */
-    right: 0 !important;      /* Выравнивание по правому краю */
-    bottom: auto !important;
-    left: auto !important;
-    padding: 4px 12px !important;
-    font-size: 0.75rem !important;
-    height: 30px !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  }
-
-  /* Остальные мобильные стили остаются без изменений ... */
-}
 
   .ingredients-menu {
     flex-direction: column;
