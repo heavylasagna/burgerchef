@@ -1598,7 +1598,12 @@ input[type="range"]::-webkit-slider-thumb {
 .mobile-sauces { display: none !important; }
 
 @media (max-width: 900px) {
-  body { overflow: auto; }
+  body { 
+    overflow: auto; 
+    min-height: 100vh;
+    min-height: 100dvh;
+    background-attachment: fixed;
+  }
   body.tutorial-active { overflow: hidden !important; }
   .app-container {
     display: flex;
@@ -1788,16 +1793,7 @@ input[type="range"]::-webkit-slider-thumb {
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
   }
 
-  body.ui-hidden .left-panel,
-  body.ui-hidden .right-panel,
-  body.ui-hidden .sauces-group.mobile-sauces,
-  body.ui-hidden .top-order-widget,
-  body.ui-hidden .wallet-widget,
-  body.ui-hidden .pinned-recipe-widget,
-  body.ui-hidden .screen-switcher { display: none !important; }
-  body.ui-hidden .center-stage { min-height: 75vh; }
-
-  /* Кнопка Serve на мобилке: справа, ровно над панелью ингредиентов (right-panel) */
+  /* Кнопка Serve на мобилке при открытом интерфейсе: справа, ровно над панелью ингредиентов */
   .btn-floating-serve {
     position: absolute !important;
     top: -36px !important;
@@ -1809,12 +1805,17 @@ input[type="range"]::-webkit-slider-thumb {
     height: 30px !important;
   }
 
-  body.ui-hidden .btn-floating-serve {
-    position: fixed !important;
-    bottom: 80px !important;
-    right: 16px !important;
-    top: auto !important;
-  }
+  /* Скрываем кнопку Serve и панели вместе со всем интерфейсом при клике на глазок */
+  body.ui-hidden .left-panel,
+  body.ui-hidden .right-panel,
+  body.ui-hidden .sauces-group.mobile-sauces,
+  body.ui-hidden .top-order-widget,
+  body.ui-hidden .wallet-widget,
+  body.ui-hidden .pinned-recipe-widget,
+  body.ui-hidden .screen-switcher,
+  body.ui-hidden .btn-floating-serve { display: none !important; }
+  
+  body.ui-hidden .center-stage { min-height: 75vh; }
 }
 
 @media (max-width: 900px) {
