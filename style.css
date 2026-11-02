@@ -416,7 +416,6 @@ body.tutorial-active {
 }
 .pinned-recipe-widget.active { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 
-/* Название закрепленного рецепта: выровнено по левому краю виджета, чтобы не заезжать на левую панель слоев */
 .pinned-recipe-title {
   display: none;
   position: absolute;
@@ -462,7 +461,6 @@ body.tutorial-active {
   margin-bottom: 0;
 }
 
-/* Виджет заказа защищен от размытия и вынесен на самый верхний слой */
 .top-order-widget {
   position: fixed !important;
   top: 10px;
@@ -494,7 +492,6 @@ body.tutorial-active {
 .top-order-widget span { color: var(--accent-color); font-weight: bold; }
 .order-timer-badge { color: #e57373; font-weight: bold; font-family: monospace; display: block; margin-top: 2px; }
 
-/* Кнопка подачи заказа (Serve) — без фона, с цветной рамкой и текстом внутри */
 .btn-floating-serve {
   position: fixed;
   z-index: 100;
@@ -523,7 +520,7 @@ body.tutorial-active {
 @media (min-width: 901px) {
   .btn-floating-serve {
     right: 250px;
-    bottom: 110px; /* Чуть повыше на ПК */
+    bottom: 110px;
   }
 }
 
@@ -1176,7 +1173,15 @@ body.tutorial-active {
   background: var(--accent-color);
   color: #fff;
 }
-.shop-buy-group input {
+
+/* Убираем стрелочки выбора числа у полей ввода количества в магазине */
+.shop-buy-group input.shop-qty-input::-webkit-outer-spin-button,
+.shop-buy-group input.shop-qty-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.shop-buy-group input.shop-qty-input {
+  -moz-appearance: textfield;
   background: var(--modal-bg);
   color: var(--text-color);
   border: 1px solid var(--item-border);
@@ -1188,6 +1193,7 @@ body.tutorial-active {
   text-align: center;
   font-weight: bold;
 }
+
 .btn-buy {
   background: linear-gradient(135deg, #689f38, #558b2f);
   color: #fff;
@@ -1592,7 +1598,7 @@ input[type="range"]::-webkit-slider-thumb {
     flex-direction: column;
   }
   
-  .right-panel { order: 2; height: 190px; }
+  .right-panel { order: 2; height: 190px; position: relative; }
   .left-panel { order: 4; height: 190px; }
 
   .ingredients-menu {
@@ -1775,13 +1781,16 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .screen-switcher { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
 
-  /* На телефоне: кнопка подачи закреплена сверху справа от панели ингредиентов (right-panel) */
+  /* На мобильных: кнопка подачи закреплена в правом верхнем углу панели ингредиентов (right-panel) */
   .btn-floating-serve {
     position: absolute !important;
-    top: 10px !important;
-    right: 12px !important;
+    top: 8px !important;
+    right: 8px !important;
     bottom: auto !important;
     left: auto !important;
+    padding: 6px 12px !important;
+    font-size: 0.75rem !important;
+    height: 28px !important;
   }
 
   /* Когда интерфейс скрыт (.ui-hidden), опускаем ее чуть ниже к панели управления */
