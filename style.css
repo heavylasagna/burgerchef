@@ -14,6 +14,7 @@
   --scrollbar-thumb-hover: rgba(255, 179, 0, 0.6);
   --stock-badge-bg: rgba(0,0,0,0.3);
   --board-bg: radial-gradient(circle at 50% 30%, #5c3a21, #2d1a0d);
+  --sink-bg: radial-gradient(circle at 50% 30%, #1a3a4b, #0d1e29);
 }
 
 body.light-theme {
@@ -32,6 +33,7 @@ body.light-theme {
   --scrollbar-thumb-hover: rgba(141, 110, 99, 0.65);
   --stock-badge-bg: rgba(141, 110, 99, 0.15);
   --board-bg: radial-gradient(circle at 50% 30%, #c8b9a6, #8c7355);
+  --sink-bg: radial-gradient(circle at 50% 30%, #90caf9, #42a5f5);
 }
 
 * {
@@ -609,6 +611,13 @@ body.tutorial-active {
 .ingredient-card.disabled { opacity: 0.4; cursor: not-allowed; }
 .ingredient-card img { width: 36px; height: 36px; object-fit: contain; }
 
+/* Коричневатый фильтр для немытых ингредиентов */
+.ingredient-card img.unwashed-filter,
+.grill-item.unwashed-filter,
+.layer-preview.unwashed-filter {
+  filter: sepia(0.65) hue-rotate(-30deg) contrast(1.1) brightness(0.85);
+}
+
 .ingredient-info-row {
   display: flex;
   align-items: center;
@@ -661,6 +670,7 @@ body.tutorial-active {
 }
 .sauces-group.hidden-on-grill { display: none !important; }
 .sauces-group.hidden-on-board { display: none !important; }
+.sauces-group.hidden-on-sink { display: none !important; }
 
 .sauce-chip {
   background: var(--item-bg);
@@ -753,7 +763,9 @@ body.tutorial-active {
 }
 
 .screen-switcher .btn-action.active {
-  display: none !important;
+  border-color: var(--accent-color);
+  background: var(--accent-color);
+  color: #fff;
 }
 
 .grill-stage {
@@ -795,6 +807,82 @@ body.tutorial-active {
   padding: 20px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   height: 100%;
+}
+
+/* Зона раковины */
+.sink-cooking-area {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: var(--sink-bg);
+  border-radius: 16px;
+  border: 1px solid rgba(66, 165, 245, 0.4);
+  padding: 20px;
+  box-shadow: 0 8px 25px rgba(0, 150, 255, 0.15);
+  height: 100%;
+}
+
+.sink-water-effect {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: rgba(33, 150, 243, 0.15);
+  border: 2px solid rgba(144, 202, 249, 0.5);
+}
+
+.sink-item-submerged {
+  width: 75px;
+  height: 75px;
+  object-fit: contain;
+  clip-path: inset(0 0 30% 0);
+  transition: transform 0.3s;
+}
+
+.water-bubbles {
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  width: 100%;
+  height: 30px;
+  pointer-events: none;
+}
+
+.bubble {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  animation: bubbleRise 1s infinite ease-in;
+}
+
+@keyframes bubbleRise {
+  0% { transform: translateY(0) scale(0.5); opacity: 0.8; }
+  100% { transform: translateY(-25px) scale(1.2); opacity: 0; }
+}
+
+.sparkle-effect {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+  animation: sparkleAnim 0.6s ease-out forwards;
+}
+
+@keyframes sparkleAnim {
+  0% { transform: translate(-50%, -50%) scale(0.2) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1.4) rotate(45deg); opacity: 0; }
 }
 
 .grill-slot {
@@ -1793,12 +1881,10 @@ input[type="range"]::-webkit-slider-thumb {
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
   }
 
-  /* Полностью скрываем плавающую кнопку Serve на мобильных устройствах */
   .btn-floating-serve {
     display: none !important;
   }
 
-  /* Скрываем панели вместе со всем интерфейсом при клике на глазок */
   body.ui-hidden .left-panel,
   body.ui-hidden .right-panel,
   body.ui-hidden .sauces-group.mobile-sauces,
