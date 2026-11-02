@@ -1905,7 +1905,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { name: 'Breakfast Melt', category: 'vegetarian', ids: ['bottom-bun', 'ketchup', 'hashbrown', 'cheese', 'fried-egg', 'top-bun'] },
     
     { name: 'Spicy Chicken', category: 'chicken', ids: ['bottom-bun', 'spicy', 'chicken-patty', 'cheese', 'mayo', 'white-onion', 'pickles', 'top-bun'] },
-    { name: 'Chicken Egg', category: 'chicken', ids: ['bottom-bun', 'mustard', 'lettuce', 'chicken-patty', 'fried-egg', 'top-bun'] },
+    { name: 'Chicken Nest', category: 'chicken', ids: ['bottom-bun', 'mustard', 'lettuce', 'chicken-patty', 'fried-egg', 'top-bun'] },
     { name: 'Spicy Tuna', category: 'fish', ids: ['bottom-bun', 'lettuce', 'spicy', 'fish-patty', 'tomato', 'red-onion', 'pickles', 'top-bun'] },
     { name: 'Hash Delux', category: 'hashbrown', ids: ['bottom-bun', 'hashbrown', 'lettuce', 'hashbrown', 'mayo', 'cheese', 'top-bun'] },
     { name: 'Toast', category: 'beef', ids: ['bottom-bun', 'beef-patty', 'cheese', 'bottom-bun'] },
