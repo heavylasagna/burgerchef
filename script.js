@@ -332,7 +332,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (eatBtn) eatBtn.style.display = isSpecialScreen ? 'none' : 'flex';
     if (squeezeBtn) squeezeBtn.style.display = isSpecialScreen ? 'none' : 'flex';
-    if (submitOrderBtn) submitOrderBtn.style.display = isSpecialScreen ? 'none' : (getCurrentSpeed() === 'no-orders' ? 'none' : 'flex');
+    
+    // Кнопка Серва вынесена отдельно к правой панели
+    const serveFloatingBtn = document.getElementById('serveFloatingBtn');
+    if (serveFloatingBtn) {
+      serveFloatingBtn.style.display = (isSpecialScreen || currentScreen !== 'assembly' || getCurrentSpeed() === 'no-orders') ? 'none' : 'flex';
+    }
+
     if (forceOrderBtn) forceOrderBtn.style.display = isSpecialScreen ? 'none' : 'flex';
     if (skipOrderBtn) skipOrderBtn.style.display = isSpecialScreen ? 'none' : 'flex';
     if (knifeBtn) knifeBtn.style.display = isBoard ? 'flex' : 'none';
@@ -642,7 +648,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderBoardSlicedInventory(savedScroll);
   }
 
-  /* 1. ЭКРАН СБОРКИ: ИНГРЕДИЕНТЫ (СПРАВА) */
   function renderIngredientsMenu(savedScroll = null) {
     if (currentScreen !== 'assembly') return;
     if (!rightPanel) return;
@@ -709,7 +714,6 @@ document.addEventListener('DOMContentLoaded', () => {
     addIngredient(item);
   }
 
-  /* 2. ЭКРАН ГРИЛЯ: СЫРЫЕ ИНГРЕДИЕНТЫ (СПРАВА) */
   function renderGrillIngredientsMenu(savedScroll = null) {
     if (currentScreen !== 'grill') return;
     if (!rightPanel) return;
@@ -774,7 +778,6 @@ document.addEventListener('DOMContentLoaded', () => {
     addToGrill(id);
   }
 
-  /* 3. ЭКРАН ГРИЛЯ: ГОТОВЫЕ ИНГРЕДИЕНТЫ (СЛЕВА) */
   function renderGrillCookedInventory(savedScroll = null) {
     if (currentScreen !== 'grill') return;
     if (!leftPanel) return;
@@ -830,7 +833,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* 4. ЭКРАН ДОСКИ: НЕНАРЕЗАННЫЕ ИНГРЕДИЕНТЫ (СПРАВА) */
   function renderBoardUncutMenu(savedScroll = null) {
     if (currentScreen !== 'board') return;
     if (!rightPanel) return;
@@ -895,7 +897,6 @@ document.addEventListener('DOMContentLoaded', () => {
     addToBoard(id);
   }
 
-  /* 5. ЭКРАН ДОСКИ: НАРЕЗАННЫЕ ИНГРЕДИЕНТЫ (СЛЕВА) */
   function renderBoardSlicedInventory(savedScroll = null) {
     if (currentScreen !== 'board') return;
     if (!leftPanel) return;
@@ -1506,9 +1507,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const squeezeBtn = document.getElementById('squeezeBtn');
   const eatBtn = document.getElementById('eatBtn');
-  const submitOrderBtn = document.getElementById('submitOrderBtn');
   const forceOrderBtn = document.getElementById('forceOrderBtn');
   const skipOrderBtn = document.getElementById('skipOrderBtn');
+
+  // Плавающая кнопка подачи заказа (вынесена к правой панели)
+  let serveFloatingBtn = document.getElementById('serveFloatingBtn');
+  if (!serveFloatingBtn) {
+    serveFloatingBtn = document.createElement('button');
+    serveFloatingBtn.id = 'serveFloatingBtn';
+    serveFloatingBtn.className = 'btn-floating-serve';
+    serveFloatingBtn.innerText = '🍽 Serve';
+    document.body.appendChild(serveFloatingBtn);
+  }
+
+  serveFloatingBtn.onclick = () => {
+    if (currentActiveOrder && currentBurger.length > 0) {
+      checkOrderSubmission();
+    } else {
+      showToast('No active order or burger is empty!', '', 'warning');
+    }
+  };
 
   const SHOP_ITEMS = [
     { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
@@ -1671,8 +1689,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    if (submitOrderBtn) {
-      submitOrderBtn.style.display = (isSpecialScreen || isNoOrders) ? 'none' : 'flex';
+    if (serveFloatingBtn) {
+      serveFloatingBtn.style.display = (isSpecialScreen || currentScreen !== 'assembly' || isNoOrders) ? 'none' : 'flex';
     }
 
     if (forceOrderBtn) {
@@ -1845,7 +1863,6 @@ document.addEventListener('DOMContentLoaded', () => {
     { name: 'Egg Burger', category: 'egg', ids: ['bottom-bun', 'fried-egg', 'cheese', 'top-bun'] },
     { name: 'Breakfast Melt', category: 'vegetarian', ids: ['bottom-bun', 'ketchup', 'hashbrown', 'cheese', 'fried-egg', 'top-bun'] },
     
-    // Новые рецепты
     { name: 'Spicy Chicken', category: 'chicken', ids: ['bottom-bun', 'spicy', 'chicken-patty', 'cheese', 'mayo', 'white-onion', 'pickles', 'top-bun'] },
     { name: 'Chicken Egg', category: 'chicken', ids: ['bottom-bun', 'mustard', 'lettuce', 'chicken-patty', 'fried-egg', 'top-bun'] },
     { name: 'Spicy Tuna', category: 'fish', ids: ['bottom-bun', 'lettuce', 'spicy', 'fish-patty', 'tomato', 'red-onion', 'pickles', 'top-bun'] },
@@ -2024,6 +2041,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!widget || !container) return;
     if (pinnedBurger) {
       container.innerHTML = '';
+      
+      // Название при наведении/клике (Пункт 2)
+      widget.title = pinnedBurger.name;
+      let labelEl = widget.querySelector('.pinned-recipe-title');
+      if (!labelEl) {
+        labelEl = document.createElement('div');
+        labelEl.className = 'pinned-recipe-title';
+        widget.appendChild(labelEl);
+      }
+      labelEl.innerText = pinnedBurger.name;
+
       pinnedBurger.ids.forEach(id => {
         if (ITEM_IMAGES[id]) {
           const img = document.createElement('img');
@@ -2034,7 +2062,8 @@ document.addEventListener('DOMContentLoaded', () => {
       widget.classList.add('active');
       const unpinBtn = document.getElementById('unpinBtn');
       if (unpinBtn) {
-        unpinBtn.onclick = () => {
+        unpinBtn.onclick = (e) => {
+          e.stopPropagation();
           pinnedBurger = null;
           localStorage.removeItem('pinned_burger');
           updatePinnedWidget();
@@ -2056,6 +2085,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderShopModal();
   }
 
+  /* Пункт 1: Единая кнопка покупки в магазине */
   function renderShopModal() {
     const body = document.getElementById('shopModalBody');
     if (!body) return;
@@ -2079,9 +2109,8 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="shop-buy-group">
             <div class="shop-total-price" id="total-${item.id}">$0.00</div>
             <button class="shop-qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
-            <input type="number" min="0" max="100" value="0" id="qty-${item.id}" oninput="updateItemTotal('${item.id}')">
+            <input type="number" min="0" max="100" value="0" id="qty-${item.id}" class="shop-qty-input" data-id="${item.id}" oninput="updateItemTotal('${item.id}'); updateShopBuyAllTotal();">
             <button class="shop-qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
-            <button class="btn-buy" onclick="buyItem('${item.id}')">Buy</button>
           </div>
         </div>
       `;
@@ -2091,6 +2120,7 @@ document.addEventListener('DOMContentLoaded', () => {
     filtered.forEach(item => {
       updateItemTotal(item.id);
     });
+    updateShopBuyAllTotal();
   }
 
   window.updateItemTotal = function(id) {
@@ -2110,24 +2140,62 @@ document.addEventListener('DOMContentLoaded', () => {
     val = Math.max(0, Math.min(100, val + delta));
     input.value = val;
     updateItemTotal(id);
+    updateShopBuyAllTotal();
   }
 
-  window.buyItem = function(id) {
-    const input = document.getElementById(`qty-${id}`);
-    const qty = parseInt(input.value) || 0;
-    if (qty <= 0) { showToast('Invalid quantity', 'Please select quantity greater than 0!', 'warning'); return; }
-    
-    const totalCost = (ITEM_PRICES[id] || 1) * qty;
+  window.updateShopBuyAllTotal = function() {
+    let grandTotal = 0;
+    const inputs = document.querySelectorAll('.shop-qty-input');
+    inputs.forEach(input => {
+      const id = input.getAttribute('data-id');
+      const qty = parseInt(input.value) || 0;
+      grandTotal += (ITEM_PRICES[id] || 1) * qty;
+    });
+
+    const buyAllBtn = document.getElementById('shopBuyAllBtn');
+    if (buyAllBtn) {
+      buyAllBtn.innerText = `Buy All ($${grandTotal.toFixed(2)})`;
+      buyAllBtn.disabled = grandTotal <= 0;
+    }
+  }
+
+  window.buyAllSelectedShopItems = function() {
+    const inputs = document.querySelectorAll('.shop-qty-input');
+    let grandTotal = 0;
+    let itemsToBuy = [];
+
+    inputs.forEach(input => {
+      const id = input.getAttribute('data-id');
+      const qty = parseInt(input.value) || 0;
+      if (qty > 0) {
+        itemsToBuy.push({ id, qty, cost: (ITEM_PRICES[id] || 1) * qty });
+        grandTotal += (ITEM_PRICES[id] || 1) * qty;
+      }
+    });
+
+    if (itemsToBuy.length === 0) {
+      showToast('Select items first', 'Select quantity for ingredients!', 'warning');
+      return;
+    }
 
     if (currentGameMode !== 'sandbox') {
-      playerMoney -= totalCost;
-      updateMoneyDisplay(totalCost, false);
+      if (playerMoney < grandTotal) {
+        showToast('Not enough money!', '', 'error');
+        return;
+      }
+      playerMoney -= grandTotal;
+      updateMoneyDisplay(grandTotal, false);
       updateShopBalanceHeader();
     }
 
-    ingredientStock[id] = (ingredientStock[id] ?? 0) + qty;
+    let totalQtyPurchased = 0;
+    itemsToBuy.forEach(item => {
+      ingredientStock[item.id] = (ingredientStock[item.id] ?? 0) + item.qty;
+      totalQtyPurchased += item.qty;
+    });
+
     saveStock();
-    trackQuestProgress('buy_items', qty);
+    trackQuestProgress('buy_items', totalQtyPurchased);
 
     renderIngredientsMenu();
     renderSauces();
@@ -2140,18 +2208,43 @@ document.addEventListener('DOMContentLoaded', () => {
       renderBoardSlicedInventory();
     }
     playSound(SOUNDS.buy);
+    showToast('Purchase Successful!', `Bought items for $${grandTotal.toFixed(2)}`, 'success');
   }
 
   function updateShopBalanceHeader() {
-    const modalHeader = document.querySelector('#shopModal .modal-header h3');
+    const modalHeader = document.querySelector('#shopModal .modal-header');
     if (!modalHeader) return;
+
+    let rightHeaderGroup = modalHeader.querySelector('.shop-header-right-group');
+    if (!rightHeaderGroup) {
+      rightHeaderGroup = document.createElement('div');
+      rightHeaderGroup.className = 'shop-header-right-group';
+      rightHeaderGroup.style.display = 'flex';
+      rightHeaderGroup.style.alignItems = 'center';
+      rightHeaderGroup.style.gap = '10px';
+
+      const closeBtn = modalHeader.querySelector('.modal-close');
+
+      const buyAllBtn = document.createElement('button');
+      buyAllBtn.id = 'shopBuyAllBtn';
+      buyAllBtn.className = 'btn-buy-all-shop';
+      buyAllBtn.innerText = 'Buy All ($0.00)';
+      buyAllBtn.onclick = () => window.buyAllSelectedShopItems();
+
+      rightHeaderGroup.appendChild(buyAllBtn);
+      if (closeBtn) rightHeaderGroup.appendChild(closeBtn);
+      modalHeader.appendChild(rightHeaderGroup);
+    }
+
     let badge = document.getElementById('shopBalanceBadge');
     if (!badge) {
       badge = document.createElement('span');
       badge.id = 'shopBalanceBadge';
       badge.className = 'shop-balance-badge';
-      modalHeader.appendChild(badge);
+      const h3 = modalHeader.querySelector('h3');
+      if (h3) h3.appendChild(badge);
     }
+
     if (currentGameMode === 'sandbox') {
       badge.innerText = '($∞)';
       badge.className = 'shop-balance-badge positive';
@@ -2269,7 +2362,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (q.current >= q.target) {
           q.current = q.target;
           q.completed = true;
-          playSound(SOUNDS.complete); // Победный звук при выполнении задания
+          playSound(SOUNDS.complete);
           showToast('Quest Completed!', `"${q.title}" is ready to claim!`, 'success');
         }
         updated = true;
@@ -2533,7 +2626,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  /* 6. ЭКРАН СБОРКИ: СПИСОК СЛОЁВ (СЛЕВА) */
   function updateBurgerDisplay(isNewAdded = false) {
     if (currentScreen !== 'assembly') return;
     saveBurgerState();
@@ -2684,16 +2776,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  if (submitOrderBtn) {
-    submitOrderBtn.onclick = () => {
-      if (currentActiveOrder && currentBurger.length > 0) {
-        checkOrderSubmission();
-      } else {
-        showToast('No active order or burger is empty!', '', 'warning');
-      }
-    };
-  }
-
+  /* Пункт 3: Выкидывание без возврата в инвентарь */
   const resetBtn = document.getElementById('resetBtn');
   if (resetBtn) {
     resetBtn.onclick = () => {
@@ -2731,10 +2814,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resetClickCount = 0;
         clearTimeout(resetClickTimeout);
 
-        if (currentGameMode !== 'sandbox' && currentBurger.length > 0) {
-          currentBurger.forEach(item => { ingredientStock[item.id] = (ingredientStock[item.id] ?? 0) + 1; });
-          saveStock();
-        }
+        // Ингредиенты выкидываются в мусорку без возврата в инвентарь!
         playSound(SOUNDS.bin);
         isEating = false; 
         isSqueezed = false;
@@ -2805,11 +2885,12 @@ document.addEventListener('DOMContentLoaded', () => {
     bar.className = 'bin-confirm-bar';
     bar.innerHTML = `
       <button class="btn-action btn-confirm" title="Confirm" onclick="confirmBinActiveItems()">✔</button>
-      <button class="btn-action btn-cancel" title="Cancel" onclick="exitBinSelectMode()">✖</button>
+      <button class="btn-action btn-cancel" title="Cancel" onclick="exitBinSelectMode()">✕</button>
     `;
     document.body.appendChild(bar);
   }
 
+  /* Выброс элементов с гриля и доски без возврата на склад */
   window.confirmBinActiveItems = function() {
     playSound(SOUNDS.bin);
     if (currentScreen === 'grill') {
@@ -3110,7 +3191,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       title: "Bottom Actions Menu",
-      text: "On the lower menu you have a variety of buttons:\n\n📋 List of recipes\n🏬 Groceries shop\n🎒 Your inventory\n🏆 Your achievements\n🎯 Daily Quests\n---\n🔔 Summon new order\n⏩ Skip current order\n🍔 Eat your burger\n🍽 Serve the order\n✊ Squeeze your burger\n🗑 Bin current ingredients\n---\n💾 Save your burger as PNG\n⚙ Settings",
+      text: "On the lower menu you have a variety of buttons:\n\n📋 List of recipes\n🏬 Groceries shop\n🎒 Your inventory\n🏆 Your achievements\n🎯 Daily Quests\n---\n🔔 Summon new order\n⏩ Skip current order\n🍔 Eat your burger\n✊ Squeeze your burger\n🗑 Bin current ingredients\n---\n💾 Save your burger as PNG\n⚙ Settings",
       screen: "assembly",
       getElement: () => document.getElementById('bottomPanel') || document.querySelector('.bottom-panel')
     },
@@ -3221,6 +3302,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const tutorialPrevBtn = document.getElementById('tutorialPrevBtn');
   const tutorialNextBtn = document.getElementById('tutorialNextBtn');
   const openTutorialFromSettingsBtn = document.getElementById('openTutorialFromSettingsBtn');
+
+  // Пункт 5: Кнопка пропуска туториала
+  let tutorialSkipBtn = document.getElementById('tutorialSkipBtn');
+  if (!tutorialSkipBtn && tutorialTooltip) {
+    const tooltipHeader = tutorialTooltip.querySelector('.tutorial-tooltip-header') || tutorialTooltip;
+    tutorialSkipBtn = document.createElement('button');
+    tutorialSkipBtn.id = 'tutorialSkipBtn';
+    tutorialSkipBtn.className = 'btn-skip-tutorial';
+    tutorialSkipBtn.innerText = 'Skip';
+    tutorialSkipBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      endTutorial();
+    };
+    tooltipHeader.appendChild(tutorialSkipBtn);
+  }
 
   if (welcomeNoBtn) {
     welcomeNoBtn.onclick = () => {
