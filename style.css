@@ -517,19 +517,10 @@ body.tutorial-active {
   transform: scale(0.95);
 }
 
-@media (min-width: 900px) {
- /* Кнопка Serve на мобилке: фиксируем её над панелью ингредиентов или в правом углу */
+@media (min-width: 901px) {
   .btn-floating-serve {
-    position: fixed !important;
-    top: auto !important;
-    bottom: 85px !important; /* Ровно над нижней панелью управления */
-    right: 12px !important;
-    left: auto !important;
-    padding: 6px 14px !important;
-    font-size: 0.8rem !important;
-    height: 34px !important;
-    z-index: 2000 !important;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important;
+    right: 250px;
+    bottom: 110px;
   }
 }
 
