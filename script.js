@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'beef-patty': 0, 'chicken-patty': 0, 'fish-patty': 0, 'fried-bacon': 0, 'fried-egg': 0,
       'cheese': 0, 'raw-cheese': 0, 'uncut-cheese': 5,
       'hashbrown': 0,
-      'champignons': 0, 'raw-champignons': 0, 'uncut-champignons': 5,
+      'champignons': 0, 'raw-champignons': 0, 'uncut-champignons': 0, 'unwashed-uncut-champignons': 5,
       'lettuce': 0, 'uncut-lettuce': 0, 'unwashed-uncut-lettuce': 5,
       'tomato': 0, 'uncut-tomato': 0, 'unwashed-uncut-tomato': 5,
       'pickles': 0, 'uncut-pickles': 0, 'unwashed-uncut-pickles': 5,
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'raw-beef-patty': 5, 'raw-chicken-patty': 5, 'raw-fish-patty': 5, 'raw-hashbrown': 4,
     'raw-bacon': 3, 'raw-egg': 4,
     'uncut-cheese': 5,
-    'uncut-champignons': 3,
+    'unwashed-uncut-champignons': 3, 'uncut-champignons': 3,
     'unwashed-uncut-lettuce': 3, 'uncut-lettuce': 3,
     'unwashed-uncut-tomato': 3, 'uncut-tomato': 3,
     'unwashed-uncut-pickles': 3, 'uncut-pickles': 3,
@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/beef-patty-flip2.png', 
       cookedId: 'beef-patty', 
       cookedImage: 'images/beef-patty.png', 
-      needsFlip: true, cookTime: 12, burnTime: 8 
+      needsFlip: true, cookTime: 12, burnTime: 8, category: 'patty'
     },
     'raw-chicken-patty': { 
       name: 'Chicken Patty', 
@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/chicken-patty-flip2.png', 
       cookedId: 'chicken-patty', 
       cookedImage: 'images/chicken-patty.png', 
-      needsFlip: true, cookTime: 12, burnTime: 8 
+      needsFlip: true, cookTime: 12, burnTime: 8, category: 'patty'
     },
     'raw-fish-patty': { 
       name: 'Fish Patty', 
@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/fish-patty-flip2.png', 
       cookedId: 'fish-patty', 
       cookedImage: 'images/fish-patty.png', 
-      needsFlip: true, cookTime: 12, burnTime: 8 
+      needsFlip: true, cookTime: 12, burnTime: 8, category: 'patty'
     },
     'raw-hashbrown': { 
       name: 'Hashbrown', 
@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/hashbrown-flip2.png', 
       cookedId: 'hashbrown', 
       cookedImage: 'images/hashbrown.png', 
-      needsFlip: true, cookTime: 10, burnTime: 7 
+      needsFlip: true, cookTime: 10, burnTime: 7, category: 'patty'
     },
     'raw-bacon': { 
       name: 'Bacon', 
@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/fried-bacon.png', 
       cookedId: 'fried-bacon', 
       cookedImage: 'images/fried-bacon.png', 
-      needsFlip: false, cookTime: 8, burnTime: 6 
+      needsFlip: false, cookTime: 8, burnTime: 6, category: 'protein'
     },
     'raw-egg': { 
       name: 'Egg', 
@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/fried-egg.png', 
       cookedId: 'fried-egg', 
       cookedImage: 'images/fried-egg.png', 
-      needsFlip: false, cookTime: 8, burnTime: 6 
+      needsFlip: false, cookTime: 8, burnTime: 6, category: 'protein'
     },
     'raw-champignons': { 
       name: 'Champignons', 
@@ -236,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/champignons.png', 
       cookedId: 'champignons', 
       cookedImage: 'images/champignons.png', 
-      needsFlip: false, cookTime: 8, burnTime: 6 
+      needsFlip: false, cookTime: 8, burnTime: 6, category: 'vegetables'
     },
     'raw-cheese': { 
       name: 'Cheese', 
@@ -245,26 +245,27 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/cheese.png', 
       cookedId: 'cheese', 
       cookedImage: 'images/cheese.png', 
-      needsFlip: false, cookTime: 6, burnTime: 5 
+      needsFlip: false, cookTime: 6, burnTime: 5, category: 'protein'
     }
   };
 
   const CUTTABLE_ITEMS = {
-    'uncut-cheese': { name: 'Cheese', rawImage: 'images/uncut-cheese.png', slicedId: 'raw-cheese', slicedImage: 'images/raw-cheese.png', cutTime: 6 },
-    'uncut-champignons': { name: 'Champignons', rawImage: 'images/uncut-champignons.png', slicedId: 'raw-champignons', slicedImage: 'images/raw-champignons.png', cutTime: 6 },
-    'uncut-lettuce': { name: 'Lettuce', rawImage: 'images/uncut-lettuce.png', slicedId: 'lettuce', slicedImage: 'images/lettuce.png', cutTime: 5 },
-    'uncut-tomato': { name: 'Tomato', rawImage: 'images/uncut-tomato.png', slicedId: 'tomato', slicedImage: 'images/tomato.png', cutTime: 5 },
-    'uncut-pickles': { name: 'Pickles', rawImage: 'images/uncut-pickles.png', slicedId: 'pickles', slicedImage: 'images/pickles.png', cutTime: 5 },
-    'uncut-red-onion': { name: 'Red Onion', rawImage: 'images/uncut-red-onion.png', slicedId: 'red-onion', slicedImage: 'images/red-onion.png', cutTime: 5 },
-    'uncut-white-onion': { name: 'White Onion', rawImage: 'images/uncut-white-onion.png', slicedId: 'white-onion', slicedImage: 'images/white-onion.png', cutTime: 5 }
+    'uncut-cheese': { name: 'Cheese', rawImage: 'images/uncut-cheese.png', slicedId: 'raw-cheese', slicedImage: 'images/raw-cheese.png', cutTime: 6, category: 'protein' },
+    'uncut-champignons': { name: 'Champignons', rawImage: 'images/uncut-champignons.png', slicedId: 'raw-champignons', slicedImage: 'images/raw-champignons.png', cutTime: 6, category: 'vegetables' },
+    'uncut-lettuce': { name: 'Lettuce', rawImage: 'images/uncut-lettuce.png', slicedId: 'lettuce', slicedImage: 'images/lettuce.png', cutTime: 5, category: 'vegetables' },
+    'uncut-tomato': { name: 'Tomato', rawImage: 'images/uncut-tomato.png', slicedId: 'tomato', slicedImage: 'images/tomato.png', cutTime: 5, category: 'vegetables' },
+    'uncut-pickles': { name: 'Pickles', rawImage: 'images/uncut-pickles.png', slicedId: 'pickles', slicedImage: 'images/pickles.png', cutTime: 5, category: 'vegetables' },
+    'uncut-red-onion': { name: 'Red Onion', rawImage: 'images/uncut-red-onion.png', slicedId: 'red-onion', slicedImage: 'images/red-onion.png', cutTime: 5, category: 'vegetables' },
+    'uncut-white-onion': { name: 'White Onion', rawImage: 'images/uncut-white-onion.png', slicedId: 'white-onion', slicedImage: 'images/white-onion.png', cutTime: 5, category: 'vegetables' }
   };
 
   const SINK_WASHABLE_ITEMS = {
-    'unwashed-uncut-lettuce': { name: 'Lettuce', rawImage: 'images/uncut-lettuce.png', washedId: 'uncut-lettuce', washedImage: 'images/uncut-lettuce.png', washTime: 5 },
-    'unwashed-uncut-tomato': { name: 'Tomato', rawImage: 'images/uncut-tomato.png', washedId: 'uncut-tomato', washedImage: 'images/uncut-tomato.png', washTime: 5 },
-    'unwashed-uncut-pickles': { name: 'Pickles', rawImage: 'images/uncut-pickles.png', washedId: 'uncut-pickles', washedImage: 'images/uncut-pickles.png', washTime: 5 },
-    'unwashed-uncut-red-onion': { name: 'Red Onion', rawImage: 'images/uncut-red-onion.png', washedId: 'uncut-red-onion', washedImage: 'images/uncut-red-onion.png', washTime: 5 },
-    'unwashed-uncut-white-onion': { name: 'White Onion', rawImage: 'images/uncut-white-onion.png', washedId: 'uncut-white-onion', washedImage: 'images/uncut-white-onion.png', washTime: 5 }
+    'unwashed-uncut-lettuce': { name: 'Lettuce', rawImage: 'images/uncut-lettuce.png', washedId: 'uncut-lettuce', washedImage: 'images/uncut-lettuce.png', washTime: 5, category: 'vegetables' },
+    'unwashed-uncut-tomato': { name: 'Tomato', rawImage: 'images/uncut-tomato.png', washedId: 'uncut-tomato', washedImage: 'images/uncut-tomato.png', washTime: 5, category: 'vegetables' },
+    'unwashed-uncut-pickles': { name: 'Pickles', rawImage: 'images/uncut-pickles.png', washedId: 'uncut-pickles', washedImage: 'images/uncut-pickles.png', washTime: 5, category: 'vegetables' },
+    'unwashed-uncut-red-onion': { name: 'Red Onion', rawImage: 'images/uncut-red-onion.png', washedId: 'uncut-red-onion', washedImage: 'images/uncut-red-onion.png', washTime: 5, category: 'vegetables' },
+    'unwashed-uncut-white-onion': { name: 'White Onion', rawImage: 'images/uncut-white-onion.png', washedId: 'uncut-white-onion', washedImage: 'images/uncut-white-onion.png', washTime: 5, category: 'vegetables' },
+    'unwashed-uncut-champignons': { name: 'Champignons', rawImage: 'images/uncut-champignons.png', washedId: 'uncut-champignons', washedImage: 'images/uncut-champignons.png', washTime: 5, category: 'vegetables' }
   };
 
   let currentScreen = localStorage.getItem('burger_current_screen') || 'assembly';
@@ -554,64 +555,6 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'white-onion', name: 'White Onion', category: 'vegetables', image: 'images/white-onion.png' }
   ];
 
-  const GRILLABLE_MENU_ITEMS = [
-    { id: 'raw-beef-patty', cookedId: 'beef-patty', name: 'Beef Patty', category: 'patty', image: 'images/raw-beef-patty.png' },
-    { id: 'raw-chicken-patty', cookedId: 'chicken-patty', name: 'Chicken Patty', category: 'patty', image: 'images/raw-chicken-patty.png' },
-    { id: 'raw-fish-patty', cookedId: 'fish-patty', name: 'Fish Patty', category: 'patty', image: 'images/raw-fish-patty.png' },
-    { id: 'raw-hashbrown', cookedId: 'hashbrown', name: 'Hashbrown', category: 'patty', image: 'images/raw-hashbrown.png' },
-    { id: 'raw-bacon', cookedId: 'fried-bacon', name: 'Bacon', category: 'protein', image: 'images/raw-bacon.png' },
-    { id: 'raw-egg', cookedId: 'fried-egg', name: 'Egg', category: 'protein', image: 'images/egg.png' },
-    { id: 'raw-champignons', cookedId: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/raw-champignons.png' },
-    { id: 'raw-cheese', cookedId: 'cheese', name: 'Cheese', category: 'protein', image: 'images/raw-cheese.png' }
-  ];
-
-  const COOKED_INVENTORY_ITEMS = [
-    { id: 'beef-patty', name: 'Beef Patty', category: 'patty', image: 'images/beef-patty.png' },
-    { id: 'chicken-patty', name: 'Chicken Patty', category: 'chicken-patty', image: 'images/chicken-patty.png' },
-    { id: 'fish-patty', name: 'Fish Patty', category: 'patty', image: 'images/fish-patty.png' },
-    { id: 'hashbrown', name: 'Hashbrown', category: 'patty', image: 'images/hashbrown.png' },
-    { id: 'fried-bacon', name: 'Fried Bacon', category: 'protein', image: 'images/fried-bacon.png' },
-    { id: 'fried-egg', name: 'Fried Egg', category: 'protein', image: 'images/fried-egg.png' },
-    { id: 'cheese', name: 'Cheese', category: 'protein', image: 'images/cheese.png' },
-    { id: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/champignons.png' }
-  ];
-
-  const BOARD_UNCUT_ITEMS = [
-    { id: 'uncut-cheese', name: 'Cheese', category: 'protein', image: 'images/uncut-cheese.png' },
-    { id: 'uncut-champignons', name: 'Champignons', category: 'vegetables', image: 'images/uncut-champignons.png' },
-    { id: 'uncut-lettuce', name: 'Lettuce', category: 'vegetables', image: 'images/uncut-lettuce.png' },
-    { id: 'uncut-tomato', name: 'Tomato', category: 'vegetables', image: 'images/uncut-tomato.png' },
-    { id: 'uncut-pickles', name: 'Pickles', category: 'vegetables', image: 'images/uncut-pickles.png' },
-    { id: 'uncut-red-onion', name: 'Red Onion', category: 'vegetables', image: 'images/uncut-red-onion.png' },
-    { id: 'uncut-white-onion', name: 'White Onion', category: 'vegetables', image: 'images/uncut-white-onion.png' }
-  ];
-
-  const BOARD_SLICED_ITEMS = [
-    { id: 'raw-cheese', name: 'Cheese', category: 'protein', image: 'images/raw-cheese.png' },
-    { id: 'raw-champignons', name: 'Champignons', category: 'vegetables', image: 'images/raw-champignons.png' },
-    { id: 'lettuce', name: 'Lettuce', category: 'vegetables', image: 'images/lettuce.png' },
-    { id: 'tomato', name: 'Tomato', category: 'vegetables', image: 'images/tomato.png' },
-    { id: 'pickles', name: 'Pickles', category: 'vegetables', image: 'images/pickles.png' },
-    { id: 'red-onion', name: 'Red Onion', category: 'vegetables', image: 'images/red-onion.png' },
-    { id: 'white-onion', name: 'White Onion', category: 'vegetables', image: 'images/white-onion.png' }
-  ];
-
-  const SINK_UNWASHED_ITEMS = [
-    { id: 'unwashed-uncut-lettuce', name: 'Lettuce (Dirty)', category: 'vegetables', image: 'images/uncut-lettuce.png', isUnwashed: true },
-    { id: 'unwashed-uncut-tomato', name: 'Tomato (Dirty)', category: 'vegetables', image: 'images/uncut-tomato.png', isUnwashed: true },
-    { id: 'unwashed-uncut-pickles', name: 'Pickles (Dirty)', category: 'vegetables', image: 'images/uncut-pickles.png', isUnwashed: true },
-    { id: 'unwashed-uncut-red-onion', name: 'Red Onion (Dirty)', category: 'vegetables', image: 'images/uncut-red-onion.png', isUnwashed: true },
-    { id: 'unwashed-uncut-white-onion', name: 'White Onion (Dirty)', category: 'vegetables', image: 'images/uncut-white-onion.png', isUnwashed: true }
-  ];
-
-  const SINK_WASHED_ITEMS = [
-    { id: 'uncut-lettuce', name: 'Lettuce', category: 'vegetables', image: 'images/uncut-lettuce.png' },
-    { id: 'uncut-tomato', name: 'Tomato', category: 'vegetables', image: 'images/uncut-tomato.png' },
-    { id: 'uncut-pickles', name: 'Pickles', category: 'vegetables', image: 'images/uncut-pickles.png' },
-    { id: 'uncut-red-onion', name: 'Red Onion', category: 'vegetables', image: 'images/uncut-red-onion.png' },
-    { id: 'uncut-white-onion', name: 'White Onion', category: 'vegetables', image: 'images/uncut-white-onion.png' }
-  ];
-
   const SAUCES = [
     { id: 'mayo', name: '⚪️ Mayo', image: 'images/sauce-mayo.png' },
     { id: 'ketchup', name: '🔴 Ketchup', image: 'images/sauce-ketchup.png' },
@@ -637,6 +580,28 @@ document.addEventListener('DOMContentLoaded', () => {
         tabsEl.scrollLeft += e.deltaY;
       }
     }, { passive: false });
+  }
+
+  function renderSinkCategoryTabs(activeCat, onSelectCb) {
+    const cats = [
+      { id: 'all', label: 'All' },
+      { id: 'vegetables', label: 'Veg' },
+      { id: 'fruit', label: 'Fruit' }
+    ];
+
+    const tabsId = `cat-tabs-${onSelectCb}`;
+    let tabsHtml = `<div class="panel-category-tabs" id="${tabsId}">`;
+    cats.forEach(c => {
+      tabsHtml += `<button class="panel-tab-btn ${activeCat === c.id ? 'active' : ''}" onclick="window.handleTabClick('${onSelectCb}', '${c.id}')">${c.label}</button>`;
+    });
+    tabsHtml += `</div>`;
+
+    setTimeout(() => {
+      const tabsEl = document.getElementById(tabsId);
+      if (tabsEl) setupWheelScrollForContainer(tabsEl);
+    }, 0);
+
+    return tabsHtml;
   }
 
   function renderCategoryTabs(activeCat, onSelectCb, hideBread = false, hidePatty = false) {
@@ -745,6 +710,230 @@ document.addEventListener('DOMContentLoaded', () => {
     addIngredient(item);
   }
 
+  // --- ГРИЛЬ МЕНЮ И ИНВЕНТАРЬ ---
+  function renderGrillIngredientsMenu(savedScroll = null) {
+    if (currentScreen !== 'grill') return;
+    if (!rightPanel) return;
+    const titleEl = rightPanel.querySelector('.panel-title');
+    const menuEl = rightPanel.querySelector('.ingredients-menu');
+    if (!titleEl || !menuEl) return;
+    titleEl.innerText = 'Raw Grill Items';
+
+    const innerContainer = menuEl.querySelector('.scrollable-items-list');
+    const currentListScrollTop = innerContainer ? innerContainer.scrollTop : menuEl.scrollTop;
+    const currentTabsEl = document.getElementById('cat-tabs-setGrillRawCategory');
+    const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
+
+    const filtered = grillRawActiveCategory === 'all' ? Object.values(GRILLABLE_ITEMS) : Object.values(GRILLABLE_ITEMS).filter(i => i.category === grillRawActiveCategory);
+    const tabsHtml = renderCategoryTabs(grillRawActiveCategory, 'setGrillRawCategory', true, false);
+
+    let cardsHtml = `<div class="scrollable-items-list" style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
+    filtered.forEach(item => {
+      const rawId = Object.keys(GRILLABLE_ITEMS).find(k => GRILLABLE_ITEMS[k] === item);
+      const stock = ingredientStock[rawId] ?? 0;
+      const isOut = currentGameMode !== 'sandbox' && stock <= 0;
+      cardsHtml += `
+        <div class="ingredient-card ${isOut ? 'disabled' : ''}" onclick="handleGrillAddClick('${rawId}')">
+          <div class="ingredient-info-row">
+            <img src="${item.rawImage}" alt="${item.name}">
+            <span class="ingredient-name">${item.name}</span>
+          </div>
+          <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
+        </div>
+      `;
+    });
+    cardsHtml += `</div>`;
+
+    menuEl.innerHTML = tabsHtml + cardsHtml;
+    const newInner = menuEl.querySelector('.scrollable-items-list');
+    if (newInner) newInner.scrollTop = currentListScrollTop;
+
+    requestAnimationFrame(() => {
+      if (newInner) newInner.scrollTop = currentListScrollTop;
+      const tabsEl = document.getElementById('cat-tabs-setGrillRawCategory');
+      if (tabsEl) {
+        tabsEl.style.scrollBehavior = 'auto';
+        tabsEl.scrollLeft = actualScroll;
+        requestAnimationFrame(() => { tabsEl.scrollLeft = actualScroll; tabsEl.style.scrollBehavior = ''; });
+      }
+    });
+  }
+
+  window.handleGrillAddClick = function(rawId) {
+    const stock = ingredientStock[rawId] ?? 0;
+    if (currentGameMode !== 'sandbox' && stock <= 0) { showToast('Out of stock!', 'Buy more in shop.', 'warning'); return; }
+    addToGrill(rawId);
+  }
+
+  function renderGrillCookedInventory(savedScroll = null) {
+    if (currentScreen !== 'grill') return;
+    if (!leftPanel) return;
+    const titleEl = leftPanel.querySelector('.panel-title');
+    const listEl = leftPanel.querySelector('.layers-list');
+    if (!titleEl || !listEl) return;
+
+    titleEl.innerText = 'Cooked Inventory';
+    listEl.classList.remove('assembly-mode');
+
+    const innerContainer = listEl.querySelector('.scrollable-items-list');
+    const currentListScrollTop = innerContainer ? innerContainer.scrollTop : listEl.scrollTop;
+    const currentTabsEl = document.getElementById('cat-tabs-setGrillCookedCategory');
+    const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
+
+    const cookedItemsArray = Object.values(GRILLABLE_ITEMS).map(item => ({
+      id: item.cookedId,
+      name: item.name,
+      category: item.category,
+      image: item.cookedImage
+    }));
+    const uniqueCooked = Array.from(new Set(cookedItemsArray.map(a => a.id)))
+      .map(id => cookedItemsArray.find(a => a.id === id));
+
+    const filtered = grillCookedActiveCategory === 'all' ? uniqueCooked : uniqueCooked.filter(i => i.category === grillCookedActiveCategory);
+    const tabsHtml = renderCategoryTabs(grillCookedActiveCategory, 'setGrillCookedCategory', true, false);
+    let itemsContainerHtml = `<div class="scrollable-items-list" style="display:flex; flex-direction:column; gap:6px; overflow-y:auto; flex:1; min-height:0;">`;
+
+    filtered.forEach(item => {
+      const stock = ingredientStock[item.id] ?? 0;
+      itemsContainerHtml += `
+        <div class="layer-item" style="justify-content: space-between; padding: 6px 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <img src="${item.image}" class="layer-preview">
+            <span style="font-size: 0.75rem; color: var(--text-color);">${item.name}</span>
+          </div>
+          <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
+        </div>
+      `;
+    });
+    itemsContainerHtml += `</div>`;
+
+    listEl.innerHTML = tabsHtml + itemsContainerHtml;
+    const newInner = listEl.querySelector('.scrollable-items-list');
+    if (newInner) newInner.scrollTop = currentListScrollTop;
+
+    requestAnimationFrame(() => {
+      if (newInner) newInner.scrollTop = currentListScrollTop;
+      const tabsEl = document.getElementById('cat-tabs-setGrillCookedCategory');
+      if (tabsEl) {
+        tabsEl.style.scrollBehavior = 'auto';
+        tabsEl.scrollLeft = actualScroll;
+        requestAnimationFrame(() => { tabsEl.scrollLeft = actualScroll; tabsEl.style.scrollBehavior = ''; });
+      }
+    });
+  }
+
+  // --- ДОСКА ДЛЯ НАРЕЗКИ МЕНЮ И ИНВЕНТАРЬ ---
+  function renderBoardUncutMenu(savedScroll = null) {
+    if (currentScreen !== 'board') return;
+    if (!rightPanel) return;
+    const titleEl = rightPanel.querySelector('.panel-title');
+    const menuEl = rightPanel.querySelector('.ingredients-menu');
+    if (!titleEl || !menuEl) return;
+    titleEl.innerText = 'Uncut Produce';
+
+    const innerContainer = menuEl.querySelector('.scrollable-items-list');
+    const currentListScrollTop = innerContainer ? innerContainer.scrollTop : menuEl.scrollTop;
+    const currentTabsEl = document.getElementById('cat-tabs-setBoardUncutCategory');
+    const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
+
+    const filtered = boardUncutActiveCategory === 'all' ? Object.values(CUTTABLE_ITEMS) : Object.values(CUTTABLE_ITEMS).filter(i => i.category === boardUncutActiveCategory);
+    const tabsHtml = renderCategoryTabs(boardUncutActiveCategory, 'setBoardUncutCategory', true, false);
+
+    let cardsHtml = `<div class="scrollable-items-list" style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
+    filtered.forEach(item => {
+      const uncutId = Object.keys(CUTTABLE_ITEMS).find(k => CUTTABLE_ITEMS[k] === item);
+      const stock = ingredientStock[uncutId] ?? 0;
+      const isOut = currentGameMode !== 'sandbox' && stock <= 0;
+      cardsHtml += `
+        <div class="ingredient-card ${isOut ? 'disabled' : ''}" onclick="handleBoardAddClick('${uncutId}')">
+          <div class="ingredient-info-row">
+            <img src="${item.rawImage}" alt="${item.name}">
+            <span class="ingredient-name">${item.name}</span>
+          </div>
+          <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
+        </div>
+      `;
+    });
+    cardsHtml += `</div>`;
+
+    menuEl.innerHTML = tabsHtml + cardsHtml;
+    const newInner = menuEl.querySelector('.scrollable-items-list');
+    if (newInner) newInner.scrollTop = currentListScrollTop;
+
+    requestAnimationFrame(() => {
+      if (newInner) newInner.scrollTop = currentListScrollTop;
+      const tabsEl = document.getElementById('cat-tabs-setBoardUncutCategory');
+      if (tabsEl) {
+        tabsEl.style.scrollBehavior = 'auto';
+        tabsEl.scrollLeft = actualScroll;
+        requestAnimationFrame(() => { tabsEl.scrollLeft = actualScroll; tabsEl.style.scrollBehavior = ''; });
+      }
+    });
+  }
+
+  window.handleBoardAddClick = function(uncutId) {
+    const stock = ingredientStock[uncutId] ?? 0;
+    if (currentGameMode !== 'sandbox' && stock <= 0) { showToast('Out of stock!', 'Buy more in shop.', 'warning'); return; }
+    addToBoard(uncutId);
+  }
+
+  function renderBoardSlicedInventory(savedScroll = null) {
+    if (currentScreen !== 'board') return;
+    if (!leftPanel) return;
+    const titleEl = leftPanel.querySelector('.panel-title');
+    const listEl = leftPanel.querySelector('.layers-list');
+    if (!titleEl || !listEl) return;
+
+    titleEl.innerText = 'Sliced Inventory';
+    listEl.classList.remove('assembly-mode');
+
+    const innerContainer = listEl.querySelector('.scrollable-items-list');
+    const currentListScrollTop = innerContainer ? innerContainer.scrollTop : listEl.scrollTop;
+    const currentTabsEl = document.getElementById('cat-tabs-setBoardSlicedCategory');
+    const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
+
+    const slicedItemsArray = Object.values(CUTTABLE_ITEMS).map(item => ({
+      id: item.slicedId,
+      name: item.name,
+      category: item.category,
+      image: item.slicedImage
+    }));
+    const uniqueSliced = Array.from(new Set(slicedItemsArray.map(a => a.id)))
+      .map(id => slicedItemsArray.find(a => a.id === id));
+
+    const filtered = boardSlicedActiveCategory === 'all' ? uniqueSliced : uniqueSliced.filter(i => i.category === boardSlicedActiveCategory);
+    const tabsHtml = renderCategoryTabs(boardSlicedActiveCategory, 'setBoardSlicedCategory', true, false);
+    let itemsContainerHtml = `<div class="scrollable-items-list" style="display:flex; flex-direction:column; gap:6px; overflow-y:auto; flex:1; min-height:0;">`;
+
+    filtered.forEach(item => {
+      const stock = ingredientStock[item.id] ?? 0;
+      itemsContainerHtml += `
+        <div class="layer-item" style="justify-content: space-between; padding: 6px 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <img src="${item.image}" class="layer-preview">
+            <span style="font-size: 0.75rem; color: var(--text-color);">${item.name}</span>
+          </div>
+          <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
+        </div>
+      `;
+    });
+    itemsContainerHtml += `</div>`;
+
+    listEl.innerHTML = tabsHtml + itemsContainerHtml;
+    const newInner = listEl.querySelector('.scrollable-items-list');
+    if (newInner) newInner.scrollTop = currentListScrollTop;
+
+    requestAnimationFrame(() => {
+      if (newInner) newInner.scrollTop = currentListScrollTop;
+      const tabsEl = document.getElementById('cat-tabs-setBoardSlicedCategory');
+      if (tabsEl) {
+        tabsEl.style.scrollBehavior = 'auto';
+        tabsEl.scrollLeft = actualScroll;
+        requestAnimationFrame(() => { tabsEl.scrollLeft = actualScroll; tabsEl.style.scrollBehavior = ''; });
+      }
+    });
+  }
+
   // --- РАКОВИНА (SINK) ---
   function renderSinkUnwashedMenu(savedScroll = null) {
     if (currentScreen !== 'sink') return;
@@ -759,17 +948,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentTabsEl = document.getElementById('cat-tabs-setSinkUnwashedCategory');
     const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
 
-    const filtered = sinkUnwashedActiveCategory === 'all' ? SINK_UNWASHED_ITEMS : SINK_UNWASHED_ITEMS.filter(i => i.category === sinkUnwashedActiveCategory);
-    const tabsHtml = renderCategoryTabs(sinkUnwashedActiveCategory, 'setSinkUnwashedCategory', true, true);
+    const filtered = sinkUnwashedActiveCategory === 'all' ? Object.values(SINK_WASHABLE_ITEMS) : Object.values(SINK_WASHABLE_ITEMS).filter(i => i.category === sinkUnwashedActiveCategory);
+    const tabsHtml = renderSinkCategoryTabs(sinkUnwashedActiveCategory, 'setSinkUnwashedCategory');
 
     let cardsHtml = `<div class="scrollable-items-list" style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
     filtered.forEach(item => {
-      const stock = ingredientStock[item.id] ?? 0;
+      const unwashedId = Object.keys(SINK_WASHABLE_ITEMS).find(k => SINK_WASHABLE_ITEMS[k] === item);
+      const stock = ingredientStock[unwashedId] ?? 0;
       const isOut = currentGameMode !== 'sandbox' && stock <= 0;
       cardsHtml += `
-        <div class="ingredient-card ${isOut ? 'disabled' : ''}" onclick="handleSinkAddClick('${item.id}')">
+        <div class="ingredient-card ${isOut ? 'disabled' : ''}" onclick="handleSinkAddClick('${unwashedId}')">
           <div class="ingredient-info-row">
-            <img src="${item.image}" alt="${item.name}" class="unwashed-filter">
+            <img src="${item.rawImage}" alt="${item.name}" class="unwashed-filter">
             <span class="ingredient-name">${item.name}</span>
           </div>
           <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
@@ -814,8 +1004,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentTabsEl = document.getElementById('cat-tabs-setSinkWashedCategory');
     const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
 
-    const filtered = sinkWashedActiveCategory === 'all' ? SINK_WASHED_ITEMS : SINK_WASHED_ITEMS.filter(i => i.category === sinkWashedActiveCategory);
-    const tabsHtml = renderCategoryTabs(sinkWashedActiveCategory, 'setSinkWashedCategory', true, true);
+    const washedItemsArray = Object.values(SINK_WASHABLE_ITEMS).map(item => ({
+      id: item.washedId,
+      name: item.name,
+      category: item.category,
+      image: item.washedImage
+    }));
+    const uniqueWashed = Array.from(new Set(washedItemsArray.map(a => a.id)))
+      .map(id => washedItemsArray.find(a => a.id === id));
+
+    const filtered = sinkWashedActiveCategory === 'all' ? uniqueWashed : uniqueWashed.filter(i => i.category === sinkWashedActiveCategory);
+    const tabsHtml = renderSinkCategoryTabs(sinkWashedActiveCategory, 'setSinkWashedCategory');
     let itemsContainerHtml = `<div class="scrollable-items-list" style="display:flex; flex-direction:column; gap:6px; overflow-y:auto; flex:1; min-height:0;">`;
 
     filtered.forEach(item => {
@@ -1000,15 +1199,21 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (slotData.state === 'washing') {
           hasWashing = true;
           const progress = getSinkSlotProgress(slotData);
+          
+          let bubblesHtml = '';
+          for (let i = 0; i < 6; i++) {
+            const leftPos = Math.random() * 80;
+            const animDelay = Math.random() * 0.5;
+            const bubbleSize = 5 + Math.random() * 6;
+            const dy = -(15 + Math.random() * 15);
+            bubblesHtml += `<div class="sink-bubble" style="left: ${leftPos}px; width: ${bubbleSize}px; height: ${bubbleSize}px; animation-delay: ${animDelay}s; --dy: ${dy}px;"></div>`;
+          }
+
           slotEl.innerHTML = `
             <div class="grill-item-wrapper" style="align-items:center; justify-content:center;">
-              <div class="sink-water-effect">
-                <img src="${config.rawImage}" class="sink-item-submerged unwashed-filter">
-                <div class="water-bubbles">
-                  <div class="bubble" style="left:20%; animation-delay:0s; width:8px; height:8px;"></div>
-                  <div class="bubble" style="left:50%; animation-delay:0.3s; width:10px; height:10px;"></div>
-                  <div class="bubble" style="left:75%; animation-delay:0.6s; width:6px; height:6px;"></div>
-                </div>
+              <div class="sink-water-container">
+                <img src="${config.rawImage}" class="sink-water-submerged unwashed-filter">
+                <div class="sink-bubble-splash-container">${bubblesHtml}</div>
               </div>
             </div>
             <div class="grill-progress-container">
@@ -1512,7 +1717,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'raw-bacon', name: 'Bacon (Raw)', category: 'protein', image: 'images/raw-bacon.png' },
     { id: 'raw-egg', name: 'Egg (Raw)', category: 'protein', image: 'images/egg.png' },
     { id: 'uncut-cheese', name: 'Cheese (Uncut)', category: 'protein', image: 'images/uncut-cheese.png' },
-    { id: 'uncut-champignons', name: 'Champignons (Uncut)', category: 'vegetables', image: 'images/uncut-champignons.png' },
+    { id: 'unwashed-uncut-champignons', name: 'Champignons (Dirty)', category: 'vegetables', image: 'images/uncut-champignons.png' },
     { id: 'unwashed-uncut-lettuce', name: 'Lettuce (Dirty)', category: 'vegetables', image: 'images/uncut-lettuce.png' },
     { id: 'unwashed-uncut-tomato', name: 'Tomato (Dirty)', category: 'vegetables', image: 'images/uncut-tomato.png' },
     { id: 'unwashed-uncut-pickles', name: 'Pickles (Dirty)', category: 'vegetables', image: 'images/uncut-pickles.png' },
@@ -2606,7 +2811,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const targetIds = currentActiveOrder.ids;
     const isCorrect = ids.length === targetIds.length && ids.every((val, idx) => val === targetIds[idx]);
 
-    // Проверка на отравление (25% шанс, если есть немытые ингредиенты)
     const hasDirtyIngredients = currentBurger.some(i => i.isDirty);
     const isPoisoned = hasDirtyIngredients && Math.random() < 0.25;
 
@@ -2766,7 +2970,6 @@ document.addEventListener('DOMContentLoaded', () => {
     else updateOrderWidgetsText(currentActiveOrder.name);
   }
 
-  // Туториал и модалки
   const tutorialSteps = [
     { title: "Assembly Screen", text: "Main workplace for assembling orders.", screen: "assembly", getElement: () => document.getElementById('centerStage') },
     { title: "Ingredients", text: "Select what to put in your burger.", screen: "assembly", getElement: () => document.getElementById('rightPanel') },
