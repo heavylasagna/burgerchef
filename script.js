@@ -588,6 +588,16 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'bbq', name: '🟤 BBQ', image: 'images/sauce-bbq.png' }
   ];
 
+  // Объявляем SIMPLE_QUESTS_POOL здесь, строго до функций инциализации заданий
+  const SIMPLE_QUESTS_POOL = [
+    { id: 'make_burgers_3', title: 'Make 3 burgers', target: 3, reward: 2.50, type: 'make_burgers' },
+    { id: 'make_burgers_5', title: 'Make 5 burgers', target: 5, reward: 5.00, type: 'make_burgers' },
+    { id: 'cook_patties_4', title: 'Cook 4 items on grill', target: 4, reward: 3.00, type: 'cook_patties' },
+    { id: 'slice_items_6', title: 'Slice 6 ingredients', target: 6, reward: 3.00, type: 'slice_items' },
+    { id: 'buy_items_5', title: 'Buy 5 items in shop', target: 5, reward: 2.00, type: 'buy_items' },
+    { id: 'earn_money_30', title: 'Earn $30 from orders', target: 30, reward: 4.00, type: 'earn_money' }
+  ];
+
   function setupWheelScrollForContainer(tabsEl) {
     if (!tabsEl) return;
     tabsEl.addEventListener('wheel', (e) => {
@@ -1840,8 +1850,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderIngredientsMenu();
     updateBurgerDisplay(false);
     renderSauces();
-    updateQuestsBadge(); // <--- ОБНОВЛЯЕМ ЗНАЧОК ЗАДАНИЙ ДЛЯ ТЕКУЩЕГО РЕЖИМА
-    
+    updateQuestsBadge(); // Обновляем бейдж заданий под текущий режим
+
     if (currentScreen === 'grill') {
       renderGrillIngredientsMenu();
       renderGrillCookedInventory();
@@ -2309,7 +2319,6 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   window.buyAllSelectedShopItems = function() {
-    console.log("Кнопка Buy All нажата!");
     const inputs = document.querySelectorAll('.shop-qty-input');
     let grandTotal = 0;
     let itemsToBuy = [];
@@ -2376,37 +2385,17 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   function updateShopBalanceHeader() {
-    const modalHeader = document.querySelector('#shopModal .modal-header');
-    if (!modalHeader) return;
-
-    let rightHeaderGroup = modalHeader.querySelector('.shop-header-right-group');
-    if (!rightHeaderGroup) {
-      rightHeaderGroup = document.createElement('div');
-      rightHeaderGroup.className = 'shop-header-right-group';
-      rightHeaderGroup.style.display = 'flex';
-      rightHeaderGroup.style.alignItems = 'center';
-      rightHeaderGroup.style.gap = '10px';
-
-      const closeBtn = modalHeader.querySelector('.modal-close');
-
-      const buyAllBtn = document.createElement('button');
-      buyAllBtn.id = 'shopBuyAllBtn';
-      buyAllBtn.className = 'btn-buy-all-shop';
-      buyAllBtn.innerText = 'Buy All ($0.00)';
-      
-      rightHeaderGroup.appendChild(buyAllBtn);
-      if (closeBtn) rightHeaderGroup.appendChild(closeBtn);
-      modalHeader.appendChild(rightHeaderGroup);
-    }
-
     let badge = document.getElementById('shopBalanceBadge');
     if (!badge) {
-      badge = document.createElement('span');
-      badge.id = 'shopBalanceBadge';
-      badge.className = 'shop-balance-badge';
-      const h3 = modalHeader.querySelector('h3');
-      if (h3) h3.appendChild(badge);
+      const modalHeader = document.querySelector('#shopModal .modal-header h3');
+      if (modalHeader) {
+        badge = document.createElement('span');
+        badge.id = 'shopBalanceBadge';
+        badge.className = 'shop-balance-badge';
+        modalHeader.appendChild(badge);
+      }
     }
+    if (!badge) return;
 
     if (currentGameMode === 'sandbox') {
       badge.innerText = '($∞)';
@@ -2421,21 +2410,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Глобальный перехватчик кликов на уровне всего документа (срабатывает мгновенно)
-  if (!window._shopGlobalClickListenerAdded) {
-    window._shopGlobalClickListenerAdded = true;
-    document.addEventListener('click', (e) => {
-      const targetBtn = e.target.closest('#shopBuyAllBtn');
-      if (targetBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log("Глобальный клик по Buy All перехвачен!");
-        if (typeof window.buyAllSelectedShopItems === 'function') {
-          window.buyAllSelectedShopItems();
-        }
-      }
-    }, true); // true означает фазу перехвата — перехватит до любых оверлеев
-  }
   if (openShopBtn) openShopBtn.onclick = () => { 
     playSound(SOUNDS.buttons); 
     updateShopBalanceHeader(); 
@@ -2500,15 +2474,6 @@ document.addEventListener('DOMContentLoaded', () => {
     achievementsModal.classList.remove('open'); 
     document.body.classList.remove('modal-open');
   };
-
-  const SIMPLE_QUESTS_POOL = [
-    { id: 'make_burgers_3', title: 'Make 3 burgers', target: 3, reward: 2.50, type: 'make_burgers' },
-    { id: 'make_burgers_5', title: 'Make 5 burgers', target: 5, reward: 5.00, type: 'make_burgers' },
-    { id: 'cook_patties_4', title: 'Cook 4 items on grill', target: 4, reward: 3.00, type: 'cook_patties' },
-    { id: 'slice_items_6', title: 'Slice 6 ingredients', target: 6, reward: 3.00, type: 'slice_items' },
-    { id: 'buy_items_5', title: 'Buy 5 items in shop', target: 5, reward: 2.00, type: 'buy_items' },
-    { id: 'earn_money_30', title: 'Earn $30 from orders', target: 30, reward: 4.00, type: 'earn_money' }
-  ];
 
   function getKazakhstanDateKey() {
     const now = new Date();
