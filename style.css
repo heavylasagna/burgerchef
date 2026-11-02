@@ -100,6 +100,7 @@ body.tutorial-active {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  position: relative;
   transition: opacity 0.3s ease, background 0.3s ease, border-color 0.3s ease;
 }
 .panel.dimmed { opacity: 0.25; }
@@ -415,13 +416,13 @@ body.tutorial-active {
 }
 .pinned-recipe-widget.active { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 
-/* Кастомное всплывающее название закрепленного рецепта */
+/* Название закрепленного рецепта: выровнено по левому краю виджета, чтобы не заезжать на левую панель слоев */
 .pinned-recipe-title {
   display: none;
   position: absolute;
   top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  transform: none;
   background: rgba(0, 0, 0, 0.85);
   color: #fff;
   padding: 4px 8px;
@@ -461,20 +462,22 @@ body.tutorial-active {
   margin-bottom: 0;
 }
 
+/* Виджет заказа защищен от размытия и вынесен на самый верхний слой */
 .top-order-widget {
-  position: absolute;
+  position: fixed !important;
   top: 10px;
   left: 50%;
   transform: translateX(-50%);
   background: var(--panel-bg-1);
-  backdrop-filter: blur(8px);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   color: var(--text-color);
   border: 1px solid var(--border-color);
   border-radius: 14px;
   padding: 6px 16px;
   font-size: 0.8rem;
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  z-index: 150;
+  z-index: 3000 !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -482,37 +485,35 @@ body.tutorial-active {
   width: max-content;
   max-width: 90%;
   cursor: pointer;
-  transition: opacity 0.3s ease, background 0.3s ease, color 0.3s ease, filter 0.3s ease;
+  filter: none !important;
+  isolation: isolate;
+  transition: opacity 0.3s ease, background 0.3s ease, color 0.3s ease;
 }
 .top-order-widget.hidden { display: none !important; }
 .top-order-widget.dimmed { opacity: 0.25 !important; }
 .top-order-widget span { color: var(--accent-color); font-weight: bold; }
 .order-timer-badge { color: #e57373; font-weight: bold; font-family: monospace; display: block; margin-top: 2px; }
 
-/* Гарантируем, что виджет заказа НЕ блюрится при открытии модальных окон */
-body.modal-open .top-order-widget {
-  filter: none !important;
-}
-
-/* Плавающая кнопка подачи заказа (Serve) — менее яркая, без эмодзи */
+/* Кнопка подачи заказа (Serve) — без фона, с цветной рамкой и текстом внутри */
 .btn-floating-serve {
   position: fixed;
   z-index: 100;
-  background: linear-gradient(135deg, #d49511, #b87c08);
-  color: #fff;
-  border: none;
+  background: transparent;
+  color: var(--text-color);
+  border: 1.5px solid var(--accent-color);
   padding: 8px 16px;
   border-radius: 10px;
   font-weight: 700;
   font-size: 0.85rem;
   cursor: pointer;
-  box-shadow: 0 3px 10px rgba(184, 124, 8, 0.3);
-  transition: transform 0.15s, opacity 0.2s;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.15s, opacity 0.2s, background 0.2s;
   display: flex;
   align-items: center;
   gap: 6px;
 }
 .btn-floating-serve:hover {
+  background: var(--item-bg);
   transform: scale(1.05);
 }
 .btn-floating-serve:active {
@@ -522,7 +523,7 @@ body.modal-open .top-order-widget {
 @media (min-width: 901px) {
   .btn-floating-serve {
     right: 250px;
-    bottom: 95px;
+    bottom: 110px; /* Чуть повыше на ПК */
   }
 }
 
@@ -736,7 +737,6 @@ body.modal-open .top-order-widget {
   color: #d32f2f;
 }
 
-/* Единый стандарт размера кнопок переключения экранов на ПК */
 .screen-switcher {
   position: absolute;
   top: 10px;
@@ -1775,19 +1775,19 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .screen-switcher { display: none !important; }
   body.ui-hidden .center-stage { min-height: 75vh; }
 
-  /* На телефоне: кнопка подачи закреплена сверху справа от панели ингредиентов (right-panel) на экране сборки */
+  /* На телефоне: кнопка подачи закреплена сверху справа от панели ингредиентов (right-panel) */
   .btn-floating-serve {
     position: absolute !important;
     top: 10px !important;
-    right: 230px !important;
+    right: 12px !important;
     bottom: auto !important;
     left: auto !important;
   }
 
-  /* Когда интерфейс скрыт (.ui-hidden), опускаем кнопку подачи, чтобы она сидела справа сверху от нижней панели с кнопками */
+  /* Когда интерфейс скрыт (.ui-hidden), опускаем ее чуть ниже к панели управления */
   body.ui-hidden .btn-floating-serve {
     position: fixed !important;
-    bottom: 85px !important;
+    bottom: 80px !important;
     right: 16px !important;
     top: auto !important;
   }
