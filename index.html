@@ -12,20 +12,20 @@
 <body>
 
   <div class="mobile-top-bar">
-    <button class="toggle-ui-btn" id="toggleUiBtn" title="Скрыть/показать окна">👁️</button>
+    <button class="toggle-ui-btn" id="toggleUiBtn">👁️</button>
   </div>
 
   <!-- Кнопки переключения экранов (Сборка / Гриль / Доска) -->
   <div class="screen-switcher" id="screenSwitcher">
-    <button class="btn-action active" id="switchToAssemblyBtn" title="Assembly">🍔</button>
-    <button class="btn-action" id="switchToGrillBtn" title="Grill">🔥</button>
-    <button class="btn-action" id="switchToBoardBtn" title="Cutting Board">🔪</button>
+    <button class="btn-action active" id="switchToAssemblyBtn">🍔</button>
+    <button class="btn-action" id="switchToGrillBtn">🔥</button>
+    <button class="btn-action" id="switchToBoardBtn">🔪</button>
   </div>
 
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Кошелёк -->
-  <div class="wallet-widget" id="walletWidget" title="Click to toggle opacity">
+  <div class="wallet-widget" id="walletWidget">
     <span id="walletBadge">$100.00</span>
   </div>
 
@@ -33,15 +33,15 @@
   <div id="moneyPopupContainer" class="money-popup-container"></div>
 
   <!-- Закреплённый рецепт -->
-  <div class="pinned-recipe-widget" id="pinnedRecipeWidget" title="">
-    <div class="pinned-recipe-title"></div>
+  <div class="pinned-recipe-widget" id="pinnedRecipeWidget">
+    <div class="pinned-recipe-title" id="pinnedRecipeTitleText"></div>
     <div class="pinned-header">
-      <button class="unpin-btn" id="unpinBtn" title="Unpin">✕</button>
+      <button class="unpin-btn" id="unpinBtn">✕</button>
     </div>
     <div class="pinned-ingredients" id="pinnedIngredientsContainer"></div>
   </div>
 
-  <div class="top-order-widget" id="topOrderWidget" title="Click to toggle opacity">
+  <div class="top-order-widget" id="topOrderWidget">
     <span id="orderStatusText">Next order in: 05:00</span>
   </div>
 
@@ -201,14 +201,13 @@
   <div class="tutorial-overlay" id="tutorialOverlay" ontouchmove="event.preventDefault()">
     <div class="tutorial-spotlight" id="tutorialSpotlight"></div>
     <div class="tutorial-tooltip" id="tutorialTooltip">
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-        <h4 id="tutorialTitle" style="color: var(--accent-color); margin: 0; font-size: 0.9rem;"></h4>
-        <button class="btn-skip-tutorial" id="tutorialSkipBtn">Skip</button>
-      </div>
+      <h4 id="tutorialTitle" style="color: var(--accent-color); margin-bottom: 6px; font-size: 0.9rem;"></h4>
       <p id="tutorialText" style="font-size: 0.8rem; margin-bottom: 12px; line-height: 1.4;"></p>
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span id="tutorialStepIndicator" style="font-size: 0.7rem; opacity: 0.7;">1 / 5</span>
-        <div style="display: flex; gap: 6px;">
+        <span id="tutorialStepIndicator" style="font-size: 0.7rem; opacity: 0.7;">1 / 15</span>
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <!-- Кнопка пропуска туториала слева от Back/Next, без рамки и фона, приглушенная -->
+          <button class="btn-skip-tutorial" id="tutorialSkipBtn">Skip</button>
           <button class="btn-action" id="tutorialPrevBtn" style="padding: 4px 10px; font-size: 0.75rem; height: 28px;">Back</button>
           <button class="btn-action btn-buy" id="tutorialNextBtn" style="padding: 4px 12px; font-size: 0.75rem; height: 28px;">Next</button>
         </div>
@@ -251,29 +250,29 @@
       
       <div class="actions-wrapper">
         <div class="action-box">
-          <button class="btn-action btn-recipes" id="openRecipesBtn" title="Recipes">📋</button>
-          <button class="btn-action btn-shop" id="openShopBtn" title="Shop">🏬</button>
-          <button class="btn-action btn-inventory" id="openInventoryBtn" title="Inventory">🎒</button>
-          <button class="btn-action btn-achievements" id="openAchievementsBtn" title="Achievements" style="position: relative;">
+          <button class="btn-action btn-recipes" id="openRecipesBtn">📋</button>
+          <button class="btn-action btn-shop" id="openShopBtn">🏬</button>
+          <button class="btn-action btn-inventory" id="openInventoryBtn">🎒</button>
+          <button class="btn-action btn-achievements" id="openAchievementsBtn" style="position: relative;">
             🏆<span class="notification-badge" id="achievementsBadge" style="display: none;"></span>
           </button>
-          <button class="btn-action btn-quests" id="openQuestsBtn" title="Quests" style="position: relative;">
+          <button class="btn-action btn-quests" id="openQuestsBtn" style="position: relative;">
             🎯<span class="notification-badge" id="questsBadge" style="display: none;"></span>
           </button>
         </div>
 
         <div class="action-box">
-          <button class="btn-action btn-force-order" id="forceOrderBtn" title="Call Order">🔔</button>
-          <button class="btn-action btn-skip-order" id="skipOrderBtn" title="Skip Order" style="display: none;">⏩</button>
-          <button class="btn-action btn-submit-order" id="submitOrderBtn" title="Submit Order" style="display: none;">🍽️</button>
-          <button class="btn-action btn-squeeze" id="squeezeBtn" title="Squeeze">✊</button>
-          <button class="btn-action btn-eat" id="eatBtn" title="Eat">🍔</button>
-          <button class="btn-action btn-reset" id="resetBtn" title="Bin">🗑️</button>
+          <button class="btn-action btn-force-order" id="forceOrderBtn">🔔</button>
+          <button class="btn-action btn-skip-order" id="skipOrderBtn" style="display: none;">⏩</button>
+          <button class="btn-action btn-submit-order" id="submitOrderBtn" style="display: none;">🍽️</button>
+          <button class="btn-action btn-squeeze" id="squeezeBtn">✊</button>
+          <button class="btn-action btn-eat" id="eatBtn">🍔</button>
+          <button class="btn-action btn-reset" id="resetBtn">🗑️</button>
         </div>
 
         <div class="action-box">
-          <button class="btn-action btn-utility" id="downloadPngBtn" title="Download PNG">💾</button>
-          <button class="btn-action btn-settings" id="openSettingsBtn" title="Settings">⚙️</button>
+          <button class="btn-action btn-utility" id="downloadPngBtn">💾</button>
+          <button class="btn-action btn-settings" id="openSettingsBtn">⚙️</button>
         </div>
       </div>
     </div>
