@@ -2043,7 +2043,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let pinnedFadeTimer = null;
 
-  // ПУНКТ 5: Отображение названия закреплённого рецепта только по клику с авто-скрытием через 2с и досрочным закрытием по клику
   function updatePinnedWidget() {
     const widget = document.getElementById('pinnedRecipeWidget');
     const container = document.getElementById('pinnedIngredientsContainer');
@@ -2071,18 +2070,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         labelEl.classList.add('show-title');
         
-        labelEl.style.left = '50%';
-        labelEl.style.transform = 'translateX(-50%)';
-        const rect = labelEl.getBoundingClientRect();
-        if (rect.left < 10) {
-          labelEl.style.left = '0';
-          labelEl.style.transform = 'none';
-        } else if (rect.right > window.innerWidth - 10) {
-          labelEl.style.left = 'auto';
-          labelEl.style.right = '0';
-          labelEl.style.transform = 'none';
-        }
-
         if (pinnedFadeTimer) clearTimeout(pinnedFadeTimer);
         pinnedFadeTimer = setTimeout(() => {
           labelEl.classList.remove('show-title');
@@ -3386,7 +3373,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const tutorialNextBtn = document.getElementById('tutorialNextBtn');
   const openTutorialFromSettingsBtn = document.getElementById('openTutorialFromSettingsBtn');
 
-  // ПУНКТ 1: Корректный пропуск туториала с сохранением обоих флагов
   let tutorialSkipBtn = document.getElementById('tutorialSkipBtn');
   if (!tutorialSkipBtn && tutorialTooltip) {
     const btnContainer = tutorialTooltip.querySelector('div[style*="justify-content: space-between"]') || tutorialTooltip;
@@ -3417,6 +3403,7 @@ document.addEventListener('DOMContentLoaded', () => {
     welcomeYesBtn.onclick = () => {
       playSound(SOUNDS.buttons);
       localStorage.setItem('has_seen_welcome', 'true');
+      localStorage.setItem('burgerMakerTutorialCompleted', 'true');
       if (welcomeModal) welcomeModal.classList.remove('open');
       document.body.classList.remove('modal-open');
       startTutorial();
