@@ -335,7 +335,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const serveFloatingBtn = document.getElementById('serveFloatingBtn');
     if (serveFloatingBtn) {
-      serveFloatingBtn.style.display = (isSpecialScreen || currentScreen !== 'assembly' || getCurrentSpeed() === 'no-orders') ? 'none' : 'flex';
+      const currentSpeed = getCurrentSpeed();
+      const hasOrderOrMode = currentActiveOrder !== null || currentSpeed !== 'no-orders';
+      serveFloatingBtn.style.display = (isSpecialScreen || currentScreen !== 'assembly' || !hasOrderOrMode) ? 'none' : 'flex';
     }
 
     if (forceOrderBtn) forceOrderBtn.style.display = isSpecialScreen ? 'none' : 'flex';
@@ -1726,8 +1728,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
+    const serveFloatingBtn = document.getElementById('serveFloatingBtn');
     if (serveFloatingBtn) {
-      serveFloatingBtn.style.display = (isSpecialScreen || currentScreen !== 'assembly' || isNoOrders) ? 'none' : 'flex';
+      const hasOrderOrMode = currentActiveOrder !== null || currentSpeed !== 'no-orders';
+      serveFloatingBtn.style.display = (isSpecialScreen || currentScreen !== 'assembly' || !hasOrderOrMode) ? 'none' : 'flex';
     }
 
     if (forceOrderBtn) {
@@ -2077,7 +2081,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Экспортируем renderRecipesModal глобально, чтобы инлайн oninput="renderRecipesModal()" работал без ошибок
   window.renderRecipesModal = renderRecipesModal;
 
   window.pinRecipe = function(name) {
