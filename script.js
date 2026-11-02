@@ -333,7 +333,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (eatBtn) eatBtn.style.display = isSpecialScreen ? 'none' : 'flex';
     if (squeezeBtn) squeezeBtn.style.display = isSpecialScreen ? 'none' : 'flex';
     
-    // Кнопка Серва вынесена отдельно к правой панели
     const serveFloatingBtn = document.getElementById('serveFloatingBtn');
     if (serveFloatingBtn) {
       serveFloatingBtn.style.display = (isSpecialScreen || currentScreen !== 'assembly' || getCurrentSpeed() === 'no-orders') ? 'none' : 'flex';
@@ -676,7 +675,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="ingredient-card ${currentBurger.length >= MAX_INGREDIENTS || isEating || isOut ? 'disabled' : ''}" onclick="handleAssemblyClick('${item.id}')">
           <img src="${item.image}" alt="${item.name}">
           <div class="ingredient-info-row">
-            <span class="ingredient-name" title="${item.name}">${item.name}</span>
+            <span class="ingredient-name">${item.name}</span>
             <span class="ingredient-stock-count">${countText}</span>
           </div>
         </div>
@@ -743,7 +742,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="ingredient-card ${isOut ? 'disabled' : ''}" onclick="handleGrillAddClick('${item.id}')">
           <div class="ingredient-info-row">
             <img src="${item.image}" alt="${item.name}">
-            <span class="ingredient-name" title="${item.name}">${item.name}</span>
+            <span class="ingredient-name">${item.name}</span>
           </div>
           <span class="ingredient-stock-count">${countText}</span>
         </div>
@@ -862,7 +861,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="ingredient-card ${isOut ? 'disabled' : ''}" onclick="handleBoardAddClick('${item.id}')">
           <div class="ingredient-info-row">
             <img src="${item.image}" alt="${item.name}">
-            <span class="ingredient-name" title="${item.name}">${item.name}</span>
+            <span class="ingredient-name">${item.name}</span>
           </div>
           <span class="ingredient-stock-count">${countText}</span>
         </div>
@@ -1510,7 +1509,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const forceOrderBtn = document.getElementById('forceOrderBtn');
   const skipOrderBtn = document.getElementById('skipOrderBtn');
 
-  // Плавающая кнопка подачи заказа (вынесена к правой панели)
   let serveFloatingBtn = document.getElementById('serveFloatingBtn');
   if (!serveFloatingBtn) {
     serveFloatingBtn = document.createElement('button');
@@ -1614,17 +1612,22 @@ document.addEventListener('DOMContentLoaded', () => {
   window.openShopForCategory = function(category) {
     playSound(SOUNDS.buttons);
     inventoryModal.classList.remove('open');
+    document.body.classList.remove('modal-open');
     updateShopBalanceHeader();
     renderShopModal();
     switchShopTab(category);
     shopModal.classList.add('open');
+    document.body.classList.add('modal-open');
   }
 
   if (openInventoryBtn) {
     openInventoryBtn.onclick = () => {
       playSound(SOUNDS.buttons);
       renderInventoryModal();
-      if (inventoryModal) inventoryModal.classList.add('open');
+      if (inventoryModal) {
+        inventoryModal.classList.add('open');
+        document.body.classList.add('modal-open');
+      }
     };
   }
 
@@ -1632,6 +1635,7 @@ document.addEventListener('DOMContentLoaded', () => {
     closeInventoryModal.onclick = () => {
       playSound(SOUNDS.buttons);
       if (inventoryModal) inventoryModal.classList.remove('open');
+      document.body.classList.remove('modal-open');
     };
   }
 
@@ -1654,6 +1658,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.target === item.modal) {
         playSound(SOUNDS.buttons);
         item.modal.classList.remove('open');
+        document.body.classList.remove('modal-open');
       }
     });
   });
@@ -1664,6 +1669,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (item.modal && item.modal.classList.contains('open')) {
           playSound(SOUNDS.buttons);
           item.modal.classList.remove('open');
+          document.body.classList.remove('modal-open');
         }
       });
     }
@@ -1987,7 +1993,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     filteredItems.forEach(item => {
       let iconsHtml = '';
-      item.ids.forEach(id => { if (ITEM_IMAGES[id]) iconsHtml += `<img src="${ITEM_IMAGES[id]}" title="${id}">`; });
+      // ПУНКТ 1: Убираем браузерные title-плашки из картинок рецептов
+      item.ids.forEach(id => { if (ITEM_IMAGES[id]) iconsHtml += `<img src="${ITEM_IMAGES[id]}">`; });
       itemsHtml += `
         <div class="recipe-card">
           <div class="recipe-info"><h4>${item.name}</h4><div class="recipe-visual">${iconsHtml}</div></div>
@@ -2035,6 +2042,8 @@ document.addEventListener('DOMContentLoaded', () => {
     updatePinnedWidget();
   }
 
+  let pinnedFadeTimer = null;
+
   function updatePinnedWidget() {
     const widget = document.getElementById('pinnedRecipeWidget');
     const container = document.getElementById('pinnedIngredientsContainer');
@@ -2042,8 +2051,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pinnedBurger) {
       container.innerHTML = '';
       
-      // Название при наведении/клике (Пункт 2)
-      widget.title = pinnedBurger.name;
+      // ПУНКТ 1: Убираем widget.title и используем кастомный блок .pinned-recipe-title с исчезновением (fade) по клику и защитой от вылета за экран
       let labelEl = widget.querySelector('.pinned-recipe-title');
       if (!labelEl) {
         labelEl = document.createElement('div');
@@ -2051,6 +2059,30 @@ document.addEventListener('DOMContentLoaded', () => {
         widget.appendChild(labelEl);
       }
       labelEl.innerText = pinnedBurger.name;
+
+      widget.onclick = (e) => {
+        if (e.target.id === 'unpinBtn' || e.target.closest('#unpinBtn')) return;
+        
+        labelEl.classList.add('show-title');
+        
+        // Корректируем позицию чтобы не уходило за границы экрана
+        labelEl.style.left = '50%';
+        labelEl.style.transform = 'translateX(-50%)';
+        const rect = labelEl.getBoundingClientRect();
+        if (rect.left < 10) {
+          labelEl.style.left = '0';
+          labelEl.style.transform = 'none';
+        } else if (rect.right > window.innerWidth - 10) {
+          labelEl.style.left = 'auto';
+          labelEl.style.right = '0';
+          labelEl.style.transform = 'none';
+        }
+
+        if (pinnedFadeTimer) clearTimeout(pinnedFadeTimer);
+        pinnedFadeTimer = setTimeout(() => {
+          labelEl.classList.remove('show-title');
+        }, 2500);
+      };
 
       pinnedBurger.ids.forEach(id => {
         if (ITEM_IMAGES[id]) {
@@ -2085,7 +2117,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderShopModal();
   }
 
-  /* Пункт 1: Единая кнопка покупки в магазине */
   function renderShopModal() {
     const body = document.getElementById('shopModalBody');
     if (!body) return;
@@ -2257,11 +2288,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  if (openShopBtn) openShopBtn.onclick = () => { playSound(SOUNDS.buttons); updateShopBalanceHeader(); renderShopModal(); shopModal.classList.add('open'); };
-  if (closeShopModal) closeShopModal.onclick = () => { playSound(SOUNDS.buttons); shopModal.classList.remove('open'); };
+  if (openShopBtn) openShopBtn.onclick = () => { 
+    playSound(SOUNDS.buttons); 
+    updateShopBalanceHeader(); 
+    renderShopModal(); 
+    shopModal.classList.add('open'); 
+    document.body.classList.add('modal-open');
+  };
+  if (closeShopModal) closeShopModal.onclick = () => { 
+    playSound(SOUNDS.buttons); 
+    shopModal.classList.remove('open'); 
+    document.body.classList.remove('modal-open');
+  };
 
-  if (openRecipesBtn) openRecipesBtn.onclick = () => { playSound(SOUNDS.buttons); renderRecipesModal(); recipesModal.classList.add('open'); };
-  if (closeRecipesModal) closeRecipesModal.onclick = () => { playSound(SOUNDS.buttons); recipesModal.classList.remove('open'); };
+  if (openRecipesBtn) openRecipesBtn.onclick = () => { 
+    playSound(SOUNDS.buttons); 
+    renderRecipesModal(); 
+    recipesModal.classList.add('open'); 
+    document.body.classList.add('modal-open');
+  };
+  if (closeRecipesModal) closeRecipesModal.onclick = () => { 
+    playSound(SOUNDS.buttons); 
+    recipesModal.classList.remove('open'); 
+    document.body.classList.remove('modal-open');
+  };
 
   function updateAchievementsBadge() {
     const badge = document.getElementById('achievementsBadge');
@@ -2290,9 +2340,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
       achievementsModal.classList.add('open');
+      document.body.classList.add('modal-open');
     };
   }
-  if (closeAchievementsModal) closeAchievementsModal.onclick = () => { playSound(SOUNDS.buttons); achievementsModal.classList.remove('open'); };
+  if (closeAchievementsModal) closeAchievementsModal.onclick = () => { 
+    playSound(SOUNDS.buttons); 
+    achievementsModal.classList.remove('open'); 
+    document.body.classList.remove('modal-open');
+  };
 
   const SIMPLE_QUESTS_POOL = [
     { id: 'make_burgers_3', title: 'Make 3 burgers', target: 3, reward: 2.50, type: 'make_burgers' },
@@ -2488,7 +2543,10 @@ document.addEventListener('DOMContentLoaded', () => {
     openQuestsBtn.onclick = () => {
       playSound(SOUNDS.buttons);
       renderQuestsModal();
-      if (questsModal) questsModal.classList.add('open');
+      if (questsModal) {
+        questsModal.classList.add('open');
+        document.body.classList.add('modal-open');
+      }
     };
   }
 
@@ -2496,11 +2554,20 @@ document.addEventListener('DOMContentLoaded', () => {
     closeQuestsModal.onclick = () => {
       playSound(SOUNDS.buttons);
       if (questsModal) questsModal.classList.remove('open');
+      document.body.classList.remove('modal-open');
     };
   }
 
-  if (openSettingsBtn) openSettingsBtn.onclick = () => { playSound(SOUNDS.buttons); settingsModal.classList.add('open'); };
-  if (closeSettingsModal) closeSettingsModal.onclick = () => { playSound(SOUNDS.buttons); settingsModal.classList.remove('open'); };
+  if (openSettingsBtn) openSettingsBtn.onclick = () => { 
+    playSound(SOUNDS.buttons); 
+    settingsModal.classList.add('open'); 
+    document.body.classList.add('modal-open');
+  };
+  if (closeSettingsModal) closeSettingsModal.onclick = () => { 
+    playSound(SOUNDS.buttons); 
+    settingsModal.classList.remove('open'); 
+    document.body.classList.remove('modal-open');
+  };
 
   const hardResetBtn = document.getElementById('hardResetBtn');
   if (hardResetBtn) hardResetBtn.onclick = () => {
@@ -2776,7 +2843,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  /* Пункт 3: Выкидывание без возврата в инвентарь */
   const resetBtn = document.getElementById('resetBtn');
   if (resetBtn) {
     resetBtn.onclick = () => {
@@ -2814,7 +2880,6 @@ document.addEventListener('DOMContentLoaded', () => {
         resetClickCount = 0;
         clearTimeout(resetClickTimeout);
 
-        // Ингредиенты выкидываются в мусорку без возврата в инвентарь!
         playSound(SOUNDS.bin);
         isEating = false; 
         isSqueezed = false;
@@ -2890,7 +2955,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.appendChild(bar);
   }
 
-  /* Выброс элементов с гриля и доски без возврата на склад */
   window.confirmBinActiveItems = function() {
     playSound(SOUNDS.bin);
     if (currentScreen === 'grill') {
@@ -3250,7 +3314,10 @@ document.addEventListener('DOMContentLoaded', () => {
       action: () => {
         if (window.innerWidth > 900) {
           const modal = document.getElementById('settingsModal');
-          if (modal) modal.classList.add('open');
+          if (modal) {
+            modal.classList.add('open');
+            document.body.classList.add('modal-open');
+          }
         }
       },
       getElement: () => {
@@ -3266,7 +3333,10 @@ document.addEventListener('DOMContentLoaded', () => {
       action: () => {
         if (window.innerWidth > 900) {
           const modal = document.getElementById('settingsModal');
-          if (modal && !modal.classList.contains('open')) modal.classList.add('open');
+          if (modal && !modal.classList.contains('open')) {
+            modal.classList.add('open');
+            document.body.classList.add('modal-open');
+          }
           const finalSec = document.getElementById('tutorialFinalSection');
           if (finalSec) {
             finalSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -3283,10 +3353,13 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentTutorialStep = 0;
 
   function showWelcomeModalIfNeeded() {
+    // ПУНКТ 2: Проверяем, завершен ли туториал или показано приветствие ранее, чтобы не сбрасывалось при рефреше
     const hasSeenWelcome = localStorage.getItem('has_seen_welcome');
+    const tutorialCompleted = localStorage.getItem('burgerMakerTutorialCompleted');
     const welcomeModal = document.getElementById('welcomeModal');
-    if (!hasSeenWelcome && welcomeModal) {
+    if (!hasSeenWelcome && !tutorialCompleted && welcomeModal) {
       welcomeModal.classList.add('open');
+      document.body.classList.add('modal-open');
     }
   }
 
@@ -3303,10 +3376,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const tutorialNextBtn = document.getElementById('tutorialNextBtn');
   const openTutorialFromSettingsBtn = document.getElementById('openTutorialFromSettingsBtn');
 
-  // Пункт 5: Кнопка пропуска туториала
+  // ПУНКТ 2: Кнопка пропуска туториала (перенесена слева от Back/Next, без рамки и фона)
   let tutorialSkipBtn = document.getElementById('tutorialSkipBtn');
   if (!tutorialSkipBtn && tutorialTooltip) {
-    const tooltipHeader = tutorialTooltip.querySelector('.tutorial-tooltip-header') || tutorialTooltip;
+    const btnContainer = tutorialTooltip.querySelector('div[style*="justify-content: space-between"]') || tutorialTooltip;
+    const rightControlsContainer = btnContainer.querySelector('div[style*="display: flex; gap: 6px"]') || btnContainer;
+    
     tutorialSkipBtn = document.createElement('button');
     tutorialSkipBtn.id = 'tutorialSkipBtn';
     tutorialSkipBtn.className = 'btn-skip-tutorial';
@@ -3315,14 +3390,16 @@ document.addEventListener('DOMContentLoaded', () => {
       playSound(SOUNDS.buttons);
       endTutorial();
     };
-    tooltipHeader.appendChild(tutorialSkipBtn);
+    rightControlsContainer.insertBefore(tutorialSkipBtn, rightControlsContainer.firstChild);
   }
 
   if (welcomeNoBtn) {
     welcomeNoBtn.onclick = () => {
       playSound(SOUNDS.buttons);
       localStorage.setItem('has_seen_welcome', 'true');
+      localStorage.setItem('burgerMakerTutorialCompleted', 'true');
       if (welcomeModal) welcomeModal.classList.remove('open');
+      document.body.classList.remove('modal-open');
     };
   }
 
@@ -3331,6 +3408,7 @@ document.addEventListener('DOMContentLoaded', () => {
       playSound(SOUNDS.buttons);
       localStorage.setItem('has_seen_welcome', 'true');
       if (welcomeModal) welcomeModal.classList.remove('open');
+      document.body.classList.remove('modal-open');
       startTutorial();
     };
   }
@@ -3338,7 +3416,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (openTutorialFromSettingsBtn) {
     openTutorialFromSettingsBtn.onclick = () => {
       playSound(SOUNDS.buttons);
-      if (settingsModal) settingsModal.classList.remove('open');
+      if (settingsModal) {
+        settingsModal.classList.remove('open');
+        document.body.classList.remove('modal-open');
+      }
       startTutorial();
     };
   }
@@ -3468,7 +3549,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.classList.remove('tutorial-active');
     if (tutorialOverlay) tutorialOverlay.classList.remove('active');
     const settingsModalEl = document.getElementById('settingsModal');
-    if (settingsModalEl) settingsModalEl.classList.remove('open');
+    if (settingsModalEl) {
+      settingsModalEl.classList.remove('open');
+      document.body.classList.remove('modal-open');
+    }
+    localStorage.setItem('burgerMakerTutorialCompleted', 'true');
   }
 
   showWelcomeModalIfNeeded();
