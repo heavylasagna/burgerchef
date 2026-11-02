@@ -2077,6 +2077,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Экспортируем renderRecipesModal глобально, чтобы инлайн oninput="renderRecipesModal()" работал без ошибок
+  window.renderRecipesModal = renderRecipesModal;
+
   window.pinRecipe = function(name) {
     let found = REGULAR_RECIPES.find(r => r.name === name);
     if (!found) found = SECRET_ACHIEVEMENTS.find(a => a.title === name);
@@ -2690,7 +2693,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const targetElement = document.getElementById('burgerStack');
       if (!targetElement) return;
 
-      // Создаем скрытый клон для сохранения без подёргивания экрана
       const clone = targetElement.cloneNode(true);
       clone.classList.add('capturing-png');
       clone.style.position = 'fixed';
