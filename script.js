@@ -2306,61 +2306,83 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.buyAllSelectedShopItems = function() {
-    const inputs = document.querySelectorAll('.shop-qty-input');
-    let grandTotal = 0;
-    let itemsToBuy = [];
+  const inputs = document.querySelectorAll('.shop-qty-input');
+  let grandTotal = 0;
+  let itemsToBuy = [];
 
-    inputs.forEach(input => {
-      const id = input.getAttribute('data-id');
-      const qty = parseInt(input.value) || 0;
-      if (qty > 0) {
-        itemsToBuy.push({ id, qty, cost: (ITEM_PRICES[id] || 1) * qty });
-        grandTotal += (ITEM_PRICES[id] || 1) * qty;
-      }
-    });
+  // 1. Считываем данные из инпутов
+  inputs.forEach(input => {
+    const id = input.getAttribute('data-id');
+    const qty = parseInt(input.value, 10) || 0;
+    
+    if (qty > 0 && id) {
+      const price = ITEM_PRICES[id] || 1;
+      const cost = price * qty;
+      itemsToBuy.push({ id, qty, cost });
+      grandTotal += cost;
+    }
+  });
 
-    if (itemsToBuy.length === 0) {
-      showToast('Select items first', 'Select quantity for ingredients!', 'warning');
+  console.log('[Shop Debug] Товары к покупке:', itemsToBuy, 'Итоговая сумма:', grandTotal);
+
+  if (itemsToBuy.length === 0) {
+    showToast('Select items first', 'Select quantity for ingredients!', 'warning');
+    return;
+  }
+
+  // 2. Проверка денег
+  if (currentGameMode !== 'sandbox') {
+    if (isNaN(playerMoney)) playerMoney = 100.00; // Защита от NaN
+    
+    if (playerMoney < grandTotal) {
+      showToast('Not enough money!', '', 'error');
       return;
     }
+    playerMoney -= grandTotal;
+    updateMoneyDisplay(grandTotal, false);
+    updateShopBalanceHeader();
+  }
 
-    if (currentGameMode !== 'sandbox') {
-      if (playerMoney < grandTotal) {
-        showToast('Not enough money!', '', 'error');
-        return;
-      }
-      playerMoney -= grandTotal;
-      updateMoneyDisplay(grandTotal, false);
-      updateShopBalanceHeader();
-    }
+  // 3. Обновление склада и инпутов
+  let totalQtyPurchased = 0;
+  itemsToBuy.forEach(item => {
+    // Защита: если на складе значение было undefined или NaN, сбрасываем в 0
+    const currentStock = parseInt(ingredientStock[item.id], 10) || 0;
+    ingredientStock[item.id] = currentStock + item.qty;
+    totalQtyPurchased += item.qty;
 
-    let totalQtyPurchased = 0;
-    itemsToBuy.forEach(item => {
-      ingredientStock[item.id] = (ingredientStock[item.id] ?? 0) + item.qty;
-      totalQtyPurchased += item.qty;
-      const inputEl = document.getElementById(`qty-${item.id}`);
-      if (inputEl) {
-        inputEl.value = 0;
+    // Сбрасываем инпут
+    const inputEl = document.getElementById(`qty-${item.id}`);
+    if (inputEl) {
+      inputEl.value = 0;
+      if (typeof updateItemTotal === 'function') {
         updateItemTotal(item.id);
       }
-    });
-
-    saveStock();
-    trackQuestProgress('buy_items', totalQtyPurchased);
-
-    renderIngredientsMenu();
-    renderSauces();
-    renderShopModal();
-    if (currentScreen === 'grill') {
-      renderGrillIngredientsMenu();
-      renderGrillCookedInventory();
-    } else if (currentScreen === 'board') {
-      renderBoardUncutMenu();
-      renderBoardSlicedInventory();
     }
-    playSound(SOUNDS.buy);
-    showToast('Purchase Successful!', `Bought items for $${grandTotal.toFixed(2)}`, 'success');
+  });
+
+  // 4. Принудительное сохранение и перерисовка
+  saveStock();
+  if (typeof trackQuestProgress === 'function') {
+    trackQuestProgress('buy_items', totalQtyPurchased);
   }
+
+  // Обновляем списки
+  renderIngredientsMenu();
+  renderSauces();
+  renderShopModal();
+  
+  if (currentScreen === 'grill') {
+    renderGrillIngredientsMenu();
+    renderGrillCookedInventory();
+  } else if (currentScreen === 'board') {
+    renderBoardUncutMenu();
+    renderBoardSlicedInventory();
+  }
+
+  playSound(SOUNDS.buy);
+  showToast('Purchase Successful!', `Bought items for $${grandTotal.toFixed(2)}`, 'success');
+};
 
   function updateShopBalanceHeader() {
     const modalHeader = document.querySelector('#shopModal .modal-header');
