@@ -611,11 +611,11 @@ body.tutorial-active {
 .ingredient-card.disabled { opacity: 0.4; cursor: not-allowed; }
 .ingredient-card img { width: 36px; height: 36px; object-fit: contain; }
 
-/* Коричневатый фильтр для немытых ингредиентов */
+/* Более темный коричневатый фильтр для грязных ингредиентов */
 .ingredient-card img.unwashed-filter,
 .grill-item.unwashed-filter,
 .layer-preview.unwashed-filter {
-  filter: sepia(0.65) hue-rotate(-30deg) contrast(1.1) brightness(0.85);
+  filter: sepia(0.85) hue-rotate(-35deg) contrast(1.25) brightness(0.55);
 }
 
 .ingredient-info-row {
@@ -826,46 +826,54 @@ body.tutorial-active {
   height: 100%;
 }
 
-.sink-water-effect {
+/* Эффект погружения с волнистой линией воды и пеной вокруг */
+.sink-water-container {
   position: relative;
-  width: 90px;
-  height: 90px;
+  width: 95px;
+  height: 95px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border-radius: 50%;
-  background: rgba(33, 150, 243, 0.15);
-  border: 2px solid rgba(144, 202, 249, 0.5);
+  border-radius: 16px;
+  background: rgba(25, 118, 210, 0.25);
+  border: 1px solid rgba(144, 202, 249, 0.4);
 }
 
-.sink-item-submerged {
+.sink-water-submerged {
   width: 75px;
   height: 75px;
   object-fit: contain;
-  clip-path: inset(0 0 30% 0);
-  transition: transform 0.3s;
+  /* Волнистое или усеченное маскирование уровня воды снизу вверх */
+  clip-path: polygon(0% 30%, 10% 25%, 20% 30%, 30% 25%, 40% 30%, 50% 25%, 60% 30%, 70% 25%, 80% 30%, 90% 25%, 100% 30%, 100% 100%, 0% 100%);
+  transform: translateY(10px);
 }
 
-.water-bubbles {
+/* Пена и пузырьки вокруг продукта (по аналогии с маслом на гриле) */
+.sink-bubble-splash-container {
   position: absolute;
   bottom: 5px;
-  left: 0;
-  width: 100%;
-  height: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 85px;
+  height: 25px;
   pointer-events: none;
+  z-index: 5;
+  overflow: hidden;
 }
 
-.bubble {
+.sink-bubble {
   position: absolute;
-  background: rgba(255, 255, 255, 0.6);
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.85);
   border-radius: 50%;
-  animation: bubbleRise 1s infinite ease-in;
+  animation: sinkBubbleAnim 0.7s infinite ease-out;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
 }
 
-@keyframes bubbleRise {
-  0% { transform: translateY(0) scale(0.5); opacity: 0.8; }
-  100% { transform: translateY(-25px) scale(1.2); opacity: 0; }
+@keyframes sinkBubbleAnim {
+  0% { transform: translateY(0) scale(0.4); opacity: 1; }
+  100% { transform: translateY(-22px) scale(1.3); opacity: 0; }
 }
 
 .sparkle-effect {
