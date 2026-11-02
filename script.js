@@ -2384,6 +2384,8 @@ document.addEventListener('DOMContentLoaded', () => {
       rightHeaderGroup.style.display = 'flex';
       rightHeaderGroup.style.alignItems = 'center';
       rightHeaderGroup.style.gap = '10px';
+      rightHeaderGroup.style.position = 'relative';
+      rightHeaderGroup.style.zIndex = '999999';
 
       const closeBtn = modalHeader.querySelector('.modal-close');
 
@@ -2392,28 +2394,28 @@ document.addEventListener('DOMContentLoaded', () => {
       buyAllBtn.className = 'btn-buy-all-shop';
       buyAllBtn.innerText = 'Buy All ($0.00)';
       
-      // Жестко задаем стили поверх любых оверлеев
+      // Выводим кнопку на самый верхний слой
       buyAllBtn.style.position = 'relative';
-      buyAllBtn.style.zIndex = '999999';
+      buyAllBtn.style.zIndex = '1000000';
       buyAllBtn.style.pointerEvents = 'auto';
       buyAllBtn.style.cursor = 'pointer';
+
+      // Обработчик клика мыши
+      const handleBuyClick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log("Клик мыши по кнопке Buy All зарегистрирован!");
+        if (typeof window.buyAllSelectedShopItems === 'function') {
+          window.buyAllSelectedShopItems();
+        }
+      };
+
+      buyAllBtn.addEventListener('click', handleBuyClick);
+      buyAllBtn.addEventListener('pointerdown', handleBuyClick); // Дублируем для мобильных и кастомных движков
 
       rightHeaderGroup.appendChild(buyAllBtn);
       if (closeBtn) rightHeaderGroup.appendChild(closeBtn);
       modalHeader.appendChild(rightHeaderGroup);
-
-      // Глобальный перехватчик кликов по шапке модалки (делегирование)
-      modalHeader.addEventListener('click', (e) => {
-        const targetBtn = e.target.closest('#shopBuyAllBtn');
-        if (targetBtn) {
-          e.preventDefault();
-          e.stopPropagation();
-          console.log("Клик по кнопке пойман через делегирование!");
-          if (typeof window.buyAllSelectedShopItems === 'function') {
-            window.buyAllSelectedShopItems();
-          }
-        }
-      });
     }
 
     let badge = document.getElementById('shopBalanceBadge');
