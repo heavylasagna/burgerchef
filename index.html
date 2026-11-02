@@ -63,9 +63,9 @@
     <div class="modal-content wide">
       <div class="modal-header">
         <h3>Shop</h3>
-        <div class="shop-header-right-group">
-          <button class="btn-buy-all-shop" id="shopBuyAllBtn" disabled>Buy All ($0.00)</button>
-          <button class="close-modal" id="closeShopModal">✕</button>
+        <div class="shop-header-right-group" style="display: flex; align-items: center; gap: 10px; position: relative; z-index: 999999;">
+          <button class="btn-buy-all-shop" id="shopBuyAllBtn" disabled style="position: relative; z-index: 1000000; pointer-events: auto; cursor: pointer;" onclick="window.buyAllSelectedShopItems()">Buy All ($0.00)</button>
+          <button class="close-modal modal-close" id="closeShopModal">✕</button>
         </div>
       </div>
       <div class="recipe-tabs" id="shopTabs">
