@@ -1840,6 +1840,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderIngredientsMenu();
     updateBurgerDisplay(false);
     renderSauces();
+    updateQuestsBadge(); // <--- ОБНОВЛЯЕМ ЗНАЧОК ЗАДАНИЙ ДЛЯ ТЕКУЩЕГО РЕЖИМА
+    
     if (currentScreen === 'grill') {
       renderGrillIngredientsMenu();
       renderGrillCookedInventory();
