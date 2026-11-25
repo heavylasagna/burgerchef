@@ -611,10 +611,13 @@ body.tutorial-active {
 .ingredient-card.disabled { opacity: 0.4; cursor: not-allowed; }
 .ingredient-card img { width: 36px; height: 36px; object-fit: contain; }
 
-/* Более темный коричневатый фильтр для грязных ингредиентов */
+/* Коричневатый фильтр для грязных ингредиентов */
 .ingredient-card img.unwashed-filter,
 .grill-item.unwashed-filter,
-.layer-preview.unwashed-filter {
+.layer-preview.unwashed-filter,
+.burger-layer-img.unwashed-filter,
+.sink-water-submerged.unwashed-filter,
+.unwashed-filter {
   filter: sepia(0.85) hue-rotate(-35deg) contrast(1.25) brightness(0.55);
 }
 
@@ -747,20 +750,22 @@ body.tutorial-active {
 /* Красная точка-индикатор уведомления на кнопках станций */
 .screen-btn-wrapper {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .screen-notification-dot {
   position: absolute;
-  top: -2px;
-  right: -2px;
+  top: -3px;
+  right: -3px;
   width: 10px;
   height: 10px;
   background-color: #d32f2f;
   border-radius: 50%;
   box-shadow: 0 0 6px #d32f2f;
   animation: pulseBadge 1.5s infinite;
-  z-index: 10;
+  z-index: 20;
   pointer-events: none;
 }
 
@@ -829,7 +834,7 @@ body.tutorial-active {
   height: 100%;
 }
 
-/* Зона раковины (без квадратов) */
+/* Зона раковины */
 .sink-cooking-area {
   flex: 1;
   display: flex;
@@ -846,65 +851,76 @@ body.tutorial-active {
   height: 100%;
 }
 
-/* Раковина без резких квадратных рамок и волнистых линий */
+/* Раковина без рамки и круга вокруг продукта */
 .sink-water-container {
   position: relative;
-  width: 95px;
-  height: 95px;
+  width: 105px;
+  height: 105px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: visible;
-  border-radius: 50%;
-  background: rgba(25, 118, 210, 0.15);
-  border: none;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
 }
 
 .sink-water-submerged {
-  width: 75px;
-  height: 75px;
+  width: 95px;
+  height: 95px;
   object-fit: contain;
-  transform: translateY(4px);
-  transition: filter 0.3s ease;
 }
 
 /* Пузырьки в раковине вокруг продукта */
 .sink-bubble-splash-container {
   position: absolute;
-  inset: 0;
+  inset: -10px;
   pointer-events: none;
-  overflow: hidden;
-  border-radius: 50%;
+  overflow: visible;
+  z-index: 5;
 }
 
 .sink-bubble {
   position: absolute;
   bottom: 5px;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.7);
   border-radius: 50%;
   animation: bubbleFloat 1.2s infinite ease-in;
 }
 
 @keyframes bubbleFloat {
-  0% { transform: translateY(0) scale(0.6); opacity: 0.8; }
+  0% { transform: translateY(0) scale(0.6); opacity: 0.85; }
   100% { transform: translateY(var(--dy, -25px)) scale(1.2); opacity: 0; }
 }
 
+/* Блеск звёздочками/эмодзи поверх продукта */
 .sparkle-effect {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100px;
-  height: 100px;
+  inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
-  animation: sparkleAnim 0.6s ease-out forwards;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-@keyframes sparkleAnim {
-  0% { transform: translate(-50%, -50%) scale(0.2) rotate(0deg); opacity: 1; }
-  100% { transform: translate(-50%, -50%) scale(1.4) rotate(45deg); opacity: 0; }
+.sparkle-star {
+  position: absolute;
+  font-size: 1.05rem;
+  line-height: 1;
+  pointer-events: none;
+  animation: starSparklePop 1.2s infinite ease-in-out;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.85));
+}
+
+.sparkle-star:nth-child(1) { top: 6px; left: 10px; animation-delay: 0s; }
+.sparkle-star:nth-child(2) { top: 10px; right: 8px; font-size: 0.85rem; animation-delay: 0.35s; }
+.sparkle-star:nth-child(3) { bottom: 16px; left: 14px; font-size: 0.9rem; animation-delay: 0.7s; }
+.sparkle-star:nth-child(4) { bottom: 12px; right: 12px; animation-delay: 1s; }
+
+@keyframes starSparklePop {
+  0%, 100% { transform: scale(0.5) rotate(0deg); opacity: 0.2; }
+  50% { transform: scale(1.25) rotate(18deg); opacity: 1; }
 }
 
 .grill-slot {
@@ -1019,7 +1035,7 @@ body.tutorial-active {
   padding: 3px 7px;
   border-radius: 10px;
   animation: pulseFlip 1s infinite alternate;
-  z-index: 10;
+  z-index: 15;
   box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
