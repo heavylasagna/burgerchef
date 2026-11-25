@@ -111,6 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let currentBurger = [];
   let ingredientStock = {};
+  let dirtyStock = {};
   let grillSlots = [];
   let boardSlots = [];
   let sinkSlots = [];
@@ -142,6 +143,8 @@ document.addEventListener('DOMContentLoaded', () => {
       'raw-beef-patty': 5, 'raw-chicken-patty': 5, 'raw-fish-patty': 5, 'raw-hashbrown': 5,
       'raw-bacon': 5, 'raw-egg': 5
     };
+
+    dirtyStock = JSON.parse(localStorage.getItem(getModeKey('burger_dirty_stock'))) || {};
 
     grillSlots = JSON.parse(localStorage.getItem(getModeKey('burger_grill_slots'))) || Array(3).fill(null);
     boardSlots = JSON.parse(localStorage.getItem(getModeKey('burger_board_slots'))) || Array(3).fill(null);
@@ -220,7 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
       cookedImage: 'images/fried-bacon.png', 
       needsFlip: false, cookTime: 8, burnTime: 6, category: 'protein'
     },
-    // ПРАВКА 1: моделька яйца на гриле теперь egg.png вместо raw-egg.png
     'raw-egg': { 
       name: 'Egg', 
       rawImage: 'images/egg.png', 
@@ -250,21 +252,92 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // ПРАВКА 2: Включаем и немытые, и помытые версии для доски нарезки
-  const CUTTABLE_ITEMS = {
-    'unwashed-uncut-champignons': { name: 'Champignons (Dirty)', rawImage: 'images/uncut-champignons.png', slicedId: 'raw-champignons', slicedImage: 'images/raw-champignons.png', cutTime: 6, category: 'vegetables', isDirty: true },
-    'uncut-champignons': { name: 'Champignons', rawImage: 'images/uncut-champignons.png', slicedId: 'raw-champignons', slicedImage: 'images/raw-champignons.png', cutTime: 6, category: 'vegetables', isDirty: false },
-    'unwashed-uncut-lettuce': { name: 'Lettuce (Dirty)', rawImage: 'images/uncut-lettuce.png', slicedId: 'lettuce', slicedImage: 'images/lettuce.png', cutTime: 5, category: 'vegetables', isDirty: true },
-    'uncut-lettuce': { name: 'Lettuce', rawImage: 'images/uncut-lettuce.png', slicedId: 'lettuce', slicedImage: 'images/lettuce.png', cutTime: 5, category: 'vegetables', isDirty: false },
-    'unwashed-uncut-tomato': { name: 'Tomato (Dirty)', rawImage: 'images/uncut-tomato.png', slicedId: 'tomato', slicedImage: 'images/tomato.png', cutTime: 5, category: 'vegetables', isDirty: true },
-    'uncut-tomato': { name: 'Tomato', rawImage: 'images/uncut-tomato.png', slicedId: 'tomato', slicedImage: 'images/tomato.png', cutTime: 5, category: 'vegetables', isDirty: false },
-    'unwashed-uncut-pickles': { name: 'Pickles (Dirty)', rawImage: 'images/uncut-pickles.png', slicedId: 'pickles', slicedImage: 'images/pickles.png', cutTime: 5, category: 'vegetables', isDirty: true },
-    'uncut-pickles': { name: 'Pickles', rawImage: 'images/uncut-pickles.png', slicedId: 'pickles', slicedImage: 'images/pickles.png', cutTime: 5, category: 'vegetables', isDirty: false },
-    'unwashed-uncut-red-onion': { name: 'Red Onion (Dirty)', rawImage: 'images/uncut-red-onion.png', slicedId: 'red-onion', slicedImage: 'images/red-onion.png', cutTime: 5, category: 'vegetables', isDirty: true },
-    'uncut-red-onion': { name: 'Red Onion', rawImage: 'images/uncut-red-onion.png', slicedId: 'red-onion', slicedImage: 'images/red-onion.png', cutTime: 5, category: 'vegetables', isDirty: false },
-    'unwashed-uncut-white-onion': { name: 'White Onion (Dirty)', rawImage: 'images/uncut-white-onion.png', slicedId: 'white-onion', slicedImage: 'images/white-onion.png', cutTime: 5, category: 'vegetables', isDirty: true },
-    'uncut-white-onion': { name: 'White Onion', rawImage: 'images/uncut-white-onion.png', slicedId: 'white-onion', slicedImage: 'images/white-onion.png', cutTime: 5, category: 'vegetables', isDirty: false },
-    'uncut-cheese': { name: 'Cheese', rawImage: 'images/uncut-cheese.png', slicedId: 'raw-cheese', slicedImage: 'images/raw-cheese.png', cutTime: 6, category: 'protein', isDirty: false }
+  // Единые записи для доски: одна кнопка на каждый продукт, с приоритетом чистых над грязными
+  const BOARD_PRODUCE_ITEMS = {
+    'champignons': {
+      key: 'champignons',
+      name: 'Champignons',
+      cleanUncutId: 'uncut-champignons',
+      dirtyUncutId: 'unwashed-uncut-champignons',
+      rawImage: 'images/uncut-champignons.png',
+      slicedId: 'raw-champignons',
+      slicedImage: 'images/raw-champignons.png',
+      cutTime: 6,
+      category: 'vegetables',
+      canBeDirty: true
+    },
+    'lettuce': {
+      key: 'lettuce',
+      name: 'Lettuce',
+      cleanUncutId: 'uncut-lettuce',
+      dirtyUncutId: 'unwashed-uncut-lettuce',
+      rawImage: 'images/uncut-lettuce.png',
+      slicedId: 'lettuce',
+      slicedImage: 'images/lettuce.png',
+      cutTime: 5,
+      category: 'vegetables',
+      canBeDirty: true
+    },
+    'tomato': {
+      key: 'tomato',
+      name: 'Tomato',
+      cleanUncutId: 'uncut-tomato',
+      dirtyUncutId: 'unwashed-uncut-tomato',
+      rawImage: 'images/uncut-tomato.png',
+      slicedId: 'tomato',
+      slicedImage: 'images/tomato.png',
+      cutTime: 5,
+      category: 'vegetables',
+      canBeDirty: true
+    },
+    'pickles': {
+      key: 'pickles',
+      name: 'Pickles',
+      cleanUncutId: 'uncut-pickles',
+      dirtyUncutId: 'unwashed-uncut-pickles',
+      rawImage: 'images/uncut-pickles.png',
+      slicedId: 'pickles',
+      slicedImage: 'images/pickles.png',
+      cutTime: 5,
+      category: 'vegetables',
+      canBeDirty: true
+    },
+    'red-onion': {
+      key: 'red-onion',
+      name: 'Red Onion',
+      cleanUncutId: 'uncut-red-onion',
+      dirtyUncutId: 'unwashed-uncut-red-onion',
+      rawImage: 'images/uncut-red-onion.png',
+      slicedId: 'red-onion',
+      slicedImage: 'images/red-onion.png',
+      cutTime: 5,
+      category: 'vegetables',
+      canBeDirty: true
+    },
+    'white-onion': {
+      key: 'white-onion',
+      name: 'White Onion',
+      cleanUncutId: 'uncut-white-onion',
+      dirtyUncutId: 'unwashed-uncut-white-onion',
+      rawImage: 'images/uncut-white-onion.png',
+      slicedId: 'white-onion',
+      slicedImage: 'images/white-onion.png',
+      cutTime: 5,
+      category: 'vegetables',
+      canBeDirty: true
+    },
+    'cheese': {
+      key: 'cheese',
+      name: 'Cheese',
+      cleanUncutId: 'uncut-cheese',
+      dirtyUncutId: null,
+      rawImage: 'images/uncut-cheese.png',
+      slicedId: 'raw-cheese',
+      slicedImage: 'images/raw-cheese.png',
+      cutTime: 6,
+      category: 'protein',
+      canBeDirty: false
+    }
   };
 
   const SINK_WASHABLE_ITEMS = {
@@ -313,8 +386,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const switchToBoardBtn = document.getElementById('switchToBoardBtn');
   const switchToSinkBtn = document.getElementById('switchToSinkBtn');
 
-  function switchScreen(screen) {
-    playSound(SOUNDS.buttons);
+  function switchScreen(screen, silent = false) {
+    if (!silent) playSound(SOUNDS.buttons);
     currentScreen = screen;
     localStorage.setItem('burger_current_screen', screen);
 
@@ -385,18 +458,15 @@ document.addEventListener('DOMContentLoaded', () => {
     updateActionButtonsVisibility();
   }
 
-  // ПРАВКА 4: Проверяем, нужны ли действия на станциях (для красных точек на кнопках)
+  // Индикаторы уведомлений (красные точки) на кнопках гриля, доски и раковины
   function updateStationNotificationDots() {
-    // Проверка гриля: есть ли готовые предметы к сбору (state === 'ready') или требующие переворота (state === 'needsFlip')
     const grillNeedsAttention = grillSlots.some(slot => slot && (slot.state === 'ready' || slot.state === 'needsFlip'));
     updateDotOnButton(switchToGrillBtn, grillNeedsAttention);
 
-    // Проверка доски: есть ли готовые нарезки (state === 'ready')
-    const boardNeedsAttention = boardSlots.some(slot => slot && slot.state === 'ready');
+    const boardNeedsAttention = boardSlots.some(slot => slot && (slot.state === 'ready' || slot.state === 'uncut'));
     updateDotOnButton(switchToBoardBtn, boardNeedsAttention);
 
-    // Проверка раковины: есть ли помытые продукты (state === 'ready')
-    const sinkNeedsAttention = sinkSlots.some(slot => slot && slot.state === 'ready');
+    const sinkNeedsAttention = sinkSlots.some(slot => slot && (slot.state === 'ready' || slot.state === 'idle'));
     updateDotOnButton(switchToSinkBtn, sinkNeedsAttention);
   }
 
@@ -444,6 +514,10 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem(getModeKey('burger_ingredient_stock'), JSON.stringify(ingredientStock));
   }
 
+  function saveDirtyStock() {
+    localStorage.setItem(getModeKey('burger_dirty_stock'), JSON.stringify(dirtyStock));
+  }
+
   function saveBurgerState() {
     localStorage.setItem(getModeKey('saved_burger_stack'), JSON.stringify(currentBurger));
   }
@@ -461,6 +535,56 @@ document.addEventListener('DOMContentLoaded', () => {
   function saveSinkState() {
     localStorage.setItem(getModeKey('burger_sink_slots'), JSON.stringify(sinkSlots));
     updateStationNotificationDots();
+  }
+
+  // Вспомогательная функция: расходует сначала чистый овощ, потом грязный
+  function consumeBoardProducePreferClean(itemConfig) {
+    if (currentGameMode === 'sandbox') {
+      return { isDirty: false };
+    }
+    const cleanId = itemConfig.cleanUncutId;
+    const dirtyId = itemConfig.dirtyUncutId;
+
+    const cleanCount = ingredientStock[cleanId] ?? 0;
+    if (cleanCount > 0) {
+      ingredientStock[cleanId] = cleanCount - 1;
+      saveStock();
+      return { isDirty: false };
+    }
+
+    if (dirtyId) {
+      const dirtyCount = ingredientStock[dirtyId] ?? 0;
+      if (dirtyCount > 0) {
+        ingredientStock[dirtyId] = dirtyCount - 1;
+        saveStock();
+        return { isDirty: true };
+      }
+    }
+
+    return null;
+  }
+
+  // Вспомогательная функция: расходует готовый ингредиент (сначала чистый, потом грязный)
+  function consumePreparedItemPreferClean(itemId) {
+    if (currentGameMode === 'sandbox') {
+      return { isDirty: false };
+    }
+    const total = ingredientStock[itemId] ?? 0;
+    if (total <= 0) return null;
+
+    const dirtyCount = dirtyStock[itemId] ?? 0;
+    const cleanCount = Math.max(0, total - dirtyCount);
+
+    ingredientStock[itemId] = total - 1;
+    saveStock();
+
+    if (cleanCount > 0) {
+      return { isDirty: false };
+    } else {
+      dirtyStock[itemId] = Math.max(0, dirtyCount - 1);
+      saveDirtyStock();
+      return { isDirty: true };
+    }
   }
 
   function updateMoneyPopupPosition() {
@@ -719,12 +843,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let cardsHtml = `<div class="scrollable-items-list" style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
     filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
+      const dirtyCount = dirtyStock[item.id] ?? 0;
+      const cleanCount = Math.max(0, stock - dirtyCount);
       const isOut = currentGameMode !== 'sandbox' && stock <= 0;
       const countText = currentGameMode === 'sandbox' ? '∞' : `x${stock}`;
+      const showDirtyPreview = currentGameMode !== 'sandbox' && stock > 0 && cleanCount === 0 && dirtyCount > 0;
 
       cardsHtml += `
         <div class="ingredient-card ${currentBurger.length >= MAX_INGREDIENTS || isEating || isOut ? 'disabled' : ''}" onclick="handleAssemblyClick('${item.id}')">
-          <img src="${item.image}" alt="${item.name}">
+          <img src="${item.image}" alt="${item.name}" class="${showDirtyPreview ? 'unwashed-filter' : ''}">
           <div class="ingredient-info-row">
             <span class="ingredient-name">${item.name}</span>
             <span class="ingredient-stock-count">${countText}</span>
@@ -779,11 +906,15 @@ document.addEventListener('DOMContentLoaded', () => {
     filtered.forEach(item => {
       const rawId = Object.keys(GRILLABLE_ITEMS).find(k => GRILLABLE_ITEMS[k] === item);
       const stock = ingredientStock[rawId] ?? 0;
+      const dirtyCount = dirtyStock[rawId] ?? 0;
+      const cleanCount = Math.max(0, stock - dirtyCount);
       const isOut = currentGameMode !== 'sandbox' && stock <= 0;
+      const showDirtyPreview = currentGameMode !== 'sandbox' && stock > 0 && cleanCount === 0 && dirtyCount > 0;
+
       cardsHtml += `
         <div class="ingredient-card ${isOut ? 'disabled' : ''}" onclick="handleGrillAddClick('${rawId}')">
           <div class="ingredient-info-row">
-            <img src="${item.rawImage}" alt="${item.name}">
+            <img src="${item.rawImage}" alt="${item.name}" class="${showDirtyPreview ? 'unwashed-filter' : ''}">
             <span class="ingredient-name">${item.name}</span>
           </div>
           <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
@@ -843,10 +974,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
+      const dirtyCount = dirtyStock[item.id] ?? 0;
+      const cleanCount = Math.max(0, stock - dirtyCount);
+      const showDirtyPreview = currentGameMode !== 'sandbox' && stock > 0 && cleanCount === 0 && dirtyCount > 0;
+
       itemsContainerHtml += `
         <div class="layer-item" style="justify-content: space-between; padding: 6px 10px;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <img src="${item.image}" class="layer-preview">
+            <img src="${item.image}" class="layer-preview ${showDirtyPreview ? 'unwashed-filter' : ''}">
             <span style="font-size: 0.75rem; color: var(--text-color);">${item.name}</span>
           </div>
           <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
@@ -870,7 +1005,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- ДОСКА ДЛЯ НАРЕЗКИ МЕНЮ И ИНВЕНТАРЬ (Правка 2) ---
+  // --- ДОСКА ДЛЯ НАРЕЗКИ МЕНЮ И ИНВЕНТАРЬ (одна кнопка на продукт, приоритет чистых над грязными) ---
   function renderBoardUncutMenu(savedScroll = null) {
     if (currentScreen !== 'board') return;
     if (!rightPanel) return;
@@ -884,21 +1019,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentTabsEl = document.getElementById('cat-tabs-setBoardUncutCategory');
     const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
 
-    const filtered = boardUncutActiveCategory === 'all' ? Object.values(CUTTABLE_ITEMS) : Object.values(CUTTABLE_ITEMS).filter(i => i.category === boardUncutActiveCategory);
+    const filtered = boardUncutActiveCategory === 'all'
+      ? Object.values(BOARD_PRODUCE_ITEMS)
+      : Object.values(BOARD_PRODUCE_ITEMS).filter(i => i.category === boardUncutActiveCategory);
     const tabsHtml = renderCategoryTabs(boardUncutActiveCategory, 'setBoardUncutCategory', true, false);
 
     let cardsHtml = `<div class="scrollable-items-list" style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
     filtered.forEach(item => {
-      const uncutId = Object.keys(CUTTABLE_ITEMS).find(k => CUTTABLE_ITEMS[k] === item);
-      const stock = ingredientStock[uncutId] ?? 0;
-      const isOut = currentGameMode !== 'sandbox' && stock <= 0;
+      const cleanCount = ingredientStock[item.cleanUncutId] ?? 0;
+      const dirtyCount = item.dirtyUncutId ? (ingredientStock[item.dirtyUncutId] ?? 0) : 0;
+      const totalStock = cleanCount + dirtyCount;
+      const isOut = currentGameMode !== 'sandbox' && totalStock <= 0;
+      const showDirtyPreview = currentGameMode !== 'sandbox' && cleanCount <= 0 && dirtyCount > 0;
+
       cardsHtml += `
-        <div class="ingredient-card ${isOut ? 'disabled' : ''}" onclick="handleBoardAddClick('${uncutId}')">
+        <div class="ingredient-card ${isOut ? 'disabled' : ''}" onclick="handleBoardAddClick('${item.key}')">
           <div class="ingredient-info-row">
-            <img src="${item.rawImage}" alt="${item.name}" class="${item.isDirty ? 'unwashed-filter' : ''}">
+            <img src="${item.rawImage}" alt="${item.name}" class="${showDirtyPreview ? 'unwashed-filter' : ''}">
             <span class="ingredient-name">${item.name}</span>
           </div>
-          <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
+          <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + totalStock}</span>
         </div>
       `;
     });
@@ -919,10 +1059,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  window.handleBoardAddClick = function(uncutId) {
-    const stock = ingredientStock[uncutId] ?? 0;
-    if (currentGameMode !== 'sandbox' && stock <= 0) { showToast('Out of stock!', 'Buy more in shop.', 'warning'); return; }
-    addToBoard(uncutId);
+  window.handleBoardAddClick = function(produceKey) {
+    const itemConfig = BOARD_PRODUCE_ITEMS[produceKey];
+    if (!itemConfig) return;
+    const cleanCount = ingredientStock[itemConfig.cleanUncutId] ?? 0;
+    const dirtyCount = itemConfig.dirtyUncutId ? (ingredientStock[itemConfig.dirtyUncutId] ?? 0) : 0;
+    if (currentGameMode !== 'sandbox' && (cleanCount + dirtyCount) <= 0) {
+      showToast('Out of stock!', 'Buy more in shop.', 'warning');
+      return;
+    }
+    addToBoard(produceKey);
   }
 
   function renderBoardSlicedInventory(savedScroll = null) {
@@ -940,9 +1086,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentTabsEl = document.getElementById('cat-tabs-setBoardSlicedCategory');
     const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
 
-    const slicedItemsArray = Object.values(CUTTABLE_ITEMS).map(item => ({
+    const slicedItemsArray = Object.values(BOARD_PRODUCE_ITEMS).map(item => ({
       id: item.slicedId,
-      name: item.name.replace(' (Dirty)', ''),
+      name: item.name,
       category: item.category,
       image: item.slicedImage
     }));
@@ -955,10 +1101,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
+      const dirtyCount = dirtyStock[item.id] ?? 0;
+      const cleanCount = Math.max(0, stock - dirtyCount);
+      const showDirtyPreview = currentGameMode !== 'sandbox' && stock > 0 && cleanCount === 0 && dirtyCount > 0;
+
       itemsContainerHtml += `
         <div class="layer-item" style="justify-content: space-between; padding: 6px 10px;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <img src="${item.image}" class="layer-preview">
+            <img src="${item.image}" class="layer-preview ${showDirtyPreview ? 'unwashed-filter' : ''}">
             <span style="font-size: 0.75rem; color: var(--text-color);">${item.name}</span>
           </div>
           <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
@@ -982,7 +1132,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- РАКОВИНА (SINK) с плавной очисткой фильтра и без квадратов ---
+  // --- РАКОВИНА (SINK) ---
   function renderSinkUnwashedMenu(savedScroll = null) {
     if (currentScreen !== 'sink') return;
     if (!rightPanel) return;
@@ -1217,7 +1367,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderSink() {
     updateSinkLogic();
-    if (currentScreen !== 'sink') return;
+    if (currentScreen !== 'sink') {
+      updateStationNotificationDots();
+      return;
+    }
 
     const area = document.getElementById('sinkCookingArea');
     if (!area || area.children.length !== sinkSlots.length) initSinkStructure();
@@ -1246,26 +1399,22 @@ document.addEventListener('DOMContentLoaded', () => {
           `;
         } else if (slotData.state === 'washing') {
           hasWashing = true;
-          const progress = getSinkSlotProgress(slotData); // 0 to 100
-          // ПРАВКА 3: Фильтр грязи постепенно убирается по мере мытья (opacity от 1 до 0)
-          const filterOpacity = Math.max(0, 1 - (progress / 100));
-          
+          const progress = getSinkSlotProgress(slotData);
+
           let bubblesHtml = '';
           for (let i = 0; i < 6; i++) {
-            const leftPos = Math.random() * 80;
+            const leftPos = 10 + Math.random() * 80;
             const animDelay = Math.random() * 0.5;
             const bubbleSize = 5 + Math.random() * 6;
             const dy = -(15 + Math.random() * 15);
             bubblesHtml += `<div class="sink-bubble" style="left: ${leftPos}px; width: ${bubbleSize}px; height: ${bubbleSize}px; animation-delay: ${animDelay}s; --dy: ${dy}px;"></div>`;
           }
 
+          // Коричневый фильтр сохраняется до конца помывки, лишняя рамка убрана
           slotEl.innerHTML = `
-            <div class="grill-item-wrapper" style="align-items:center; justify-content:center;">
+            <div class="grill-item-wrapper">
               <div class="sink-water-container">
-                <div style="position:relative; width:75px; height:75px; display:flex; align-items:center; justify-content:center;">
-                  <img src="${config.rawImage}" style="position:absolute; width:100%; height:100%; object-fit:contain;">
-                  <img src="${config.rawImage}" class="unwashed-filter" style="position:absolute; width:100%; height:100%; object-fit:contain; opacity:${filterOpacity}; transition:opacity 0.1s linear;">
-                </div>
+                <img src="${config.rawImage}" class="grill-item unwashed-filter">
                 <div class="sink-bubble-splash-container">${bubblesHtml}</div>
               </div>
             </div>
@@ -1275,9 +1424,14 @@ document.addEventListener('DOMContentLoaded', () => {
           `;
         } else if (slotData.state === 'ready') {
           slotEl.innerHTML = `
-            <div class="sparkle-effect"></div>
             <div class="grill-item-wrapper">
               <img src="${config.washedImage}" class="grill-item">
+              <div class="sparkle-effect">
+                <span class="sparkle-star">✨</span>
+                <span class="sparkle-star">⭐</span>
+                <span class="sparkle-star">✨</span>
+                <span class="sparkle-star">⭐</span>
+              </div>
               <div class="flip-badge" style="background:#689f38; color:#fff; top:auto; bottom:4px; right:4px; left:auto;">Collect!</div>
             </div>
             <div class="grill-progress-container" style="visibility:hidden;"></div>
@@ -1295,6 +1449,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(() => {
     updateSinkLogic();
     if (currentScreen === 'sink') renderSink();
+    else updateStationNotificationDots();
   }, 50);
 
   // --- РАЗДЕЛОЧНАЯ ДОСКА (BOARD) ---
@@ -1315,17 +1470,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function addToBoard(uncutId) {
+  function addToBoard(produceKey) {
     const emptyIndex = boardSlots.findIndex(slot => slot === null);
     if (emptyIndex === -1) { showToast('Board is full!', '', 'warning'); return; }
 
-    if (currentGameMode !== 'sandbox') {
-      ingredientStock[uncutId] = (ingredientStock[uncutId] ?? 0) - 1;
-      saveStock();
+    const itemConfig = BOARD_PRODUCE_ITEMS[produceKey];
+    if (!itemConfig) return;
+
+    const consumed = consumeBoardProducePreferClean(itemConfig);
+    if (!consumed) {
+      showToast('Out of stock!', 'Buy more in shop.', 'warning');
+      return;
     }
 
-    const itemConfig = CUTTABLE_ITEMS[uncutId];
-    boardSlots[emptyIndex] = { uncutId, state: 'uncut', startTime: null, notified: false, isDirty: itemConfig ? itemConfig.isDirty : false };
+    boardSlots[emptyIndex] = {
+      produceKey,
+      state: 'uncut',
+      startTime: null,
+      notified: false,
+      isDirty: consumed.isDirty
+    };
     playSound(SOUNDS.ingridients);
     saveBoardState();
     renderBoardUncutMenu();
@@ -1364,6 +1528,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function getBoardItemConfig(slot) {
+    if (!slot) return null;
+    if (slot.produceKey && BOARD_PRODUCE_ITEMS[slot.produceKey]) {
+      return BOARD_PRODUCE_ITEMS[slot.produceKey];
+    }
+    // Совместимость со старыми сохранениями
+    if (slot.uncutId) {
+      const cleanName = slot.uncutId.replace('unwashed-uncut-', '').replace('uncut-', '');
+      return BOARD_PRODUCE_ITEMS[cleanName] || null;
+    }
+    return null;
+  }
+
   function updateBoardLogic() {
     const now = Date.now();
     let needsSave = false;
@@ -1371,7 +1548,8 @@ document.addEventListener('DOMContentLoaded', () => {
     boardSlots.forEach((slot) => {
       if (!slot) return;
       if (slot.state === 'cutting') {
-        const config = CUTTABLE_ITEMS[slot.uncutId];
+        const config = getBoardItemConfig(slot);
+        if (!config) return;
         const elapsed = (now - slot.startTime) / 1000;
         if (elapsed >= config.cutTime) {
           slot.state = 'ready';
@@ -1389,7 +1567,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function getBoardSlotProgress(slot) {
     if (!slot || slot.state !== 'cutting') return 0;
-    const config = CUTTABLE_ITEMS[slot.uncutId];
+    const config = getBoardItemConfig(slot);
+    if (!config) return 0;
     const now = Date.now();
     const elapsed = (now - slot.startTime) / 1000;
     return Math.min(100, (elapsed / config.cutTime) * 100);
@@ -1398,13 +1577,17 @@ document.addEventListener('DOMContentLoaded', () => {
   function handleBoardSlotClick(index) {
     const slot = boardSlots[index];
     if (!slot) return;
-    const config = CUTTABLE_ITEMS[slot.uncutId];
+    const config = getBoardItemConfig(slot);
+    if (!config) return;
 
     if (slot.state === 'uncut') {
       startCuttingSlot(index);
     } else if (slot.state === 'ready') {
-      // Сохраняем признак грязи/чистоты для полученных нарезанных долек
       ingredientStock[config.slicedId] = (ingredientStock[config.slicedId] ?? 0) + 3;
+      if (slot.isDirty) {
+        dirtyStock[config.slicedId] = (dirtyStock[config.slicedId] ?? 0) + 3;
+        saveDirtyStock();
+      }
       saveStock();
       playSound(SOUNDS.buttons);
       trackQuestProgress('slice_items', 1);
@@ -1416,9 +1599,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function toggleBoardSlotSelectionForBin(index) {
+    if (!boardSlots[index]) return;
+    const pos = selectedBoardIndicesForBin.indexOf(index);
+    if (pos > -1) selectedBoardIndicesForBin.splice(pos, 1);
+    else selectedBoardIndicesForBin.push(index);
+    renderBoard();
+  }
+
   function renderBoard() {
     updateBoardLogic();
-    if (currentScreen !== 'board') return;
+    if (currentScreen !== 'board') {
+      updateStationNotificationDots();
+      return;
+    }
 
     const area = document.getElementById('boardCookingArea');
     if (!area || area.children.length !== boardSlots.length) initBoardStructure();
@@ -1432,7 +1626,9 @@ document.addEventListener('DOMContentLoaded', () => {
       slotEl.className = `grill-slot ${selectedBoardIndicesForBin.includes(index) ? 'selected-for-bin' : ''}`;
 
       if (slotData) {
-        const config = CUTTABLE_ITEMS[slotData.uncutId];
+        const config = getBoardItemConfig(slotData);
+        if (!config) return;
+        const dirtyClass = slotData.isDirty ? 'unwashed-filter' : '';
         let imgsrc = config.rawImage;
         let extraHtml = '';
 
@@ -1441,9 +1637,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (slotData.state === 'ready') {
           slotEl.innerHTML = `
             <div style="position:relative; width:100px; height:105px; display:flex; align-items:center; justify-content:center;">
-              <img src="${config.slicedImage}" style="width:60px; height:60px; position:absolute; transform: translate(-18px, -12px) rotate(-15deg); object-fit:contain;">
-              <img src="${config.slicedImage}" style="width:60px; height:60px; position:absolute; transform: translate(18px, -12px) rotate(15deg); object-fit:contain;">
-              <img src="${config.slicedImage}" style="width:60px; height:60px; position:absolute; transform: translate(0px, 12px); object-fit:contain;">
+              <img src="${config.slicedImage}" class="${dirtyClass}" style="width:60px; height:60px; position:absolute; transform: translate(-18px, -12px) rotate(-15deg); object-fit:contain;">
+              <img src="${config.slicedImage}" class="${dirtyClass}" style="width:60px; height:60px; position:absolute; transform: translate(18px, -12px) rotate(15deg); object-fit:contain;">
+              <img src="${config.slicedImage}" class="${dirtyClass}" style="width:60px; height:60px; position:absolute; transform: translate(0px, 12px); object-fit:contain;">
               <div class="flip-badge" style="background:#689f38; color:#fff; top:auto; bottom:4px; right:4px; left:auto;">x3 Collect</div>
             </div>
             <div class="grill-progress-container" style="visibility:hidden;"></div>
@@ -1461,7 +1657,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         slotEl.innerHTML = `
           ${extraHtml}
-          <div class="grill-item-wrapper"><img src="${imgsrc}" class="grill-item ${slotData.isDirty ? 'unwashed-filter' : ''}"></div>
+          <div class="grill-item-wrapper"><img src="${imgsrc}" class="grill-item ${dirtyClass}"></div>
           ${progressHtml}
         `;
       } else {
@@ -1483,6 +1679,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(() => {
     updateBoardLogic();
     if (currentScreen === 'board') renderBoard();
+    else updateStationNotificationDots();
   }, 50);
 
   // --- ГРИЛЬ (GRILL) ---
@@ -1490,14 +1687,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const emptyIndex = grillSlots.findIndex(slot => slot === null);
     if (emptyIndex === -1) { showToast('Grill is full!', '', 'warning'); return; }
 
+    let isDirty = false;
     if (currentGameMode !== 'sandbox') {
-      ingredientStock[rawId] = (ingredientStock[rawId] ?? 0) - 1;
-      saveStock();
+      const consumed = consumePreparedItemPreferClean(rawId);
+      if (!consumed) { showToast('Out of stock!', 'Buy more in shop.', 'warning'); return; }
+      isDirty = consumed.isDirty;
     }
 
     grillSlots[emptyIndex] = {
-      rawId, state: 'cooking', startTime: Date.now(),
-      flipStartTime: null, burnStartTime: null, isFlipped: false, notified: false
+      rawId,
+      isDirty,
+      state: 'cooking',
+      startTime: Date.now(),
+      flipStartTime: null,
+      burnStartTime: null,
+      isFlipped: false,
+      notified: false
     };
 
     playSound(SOUNDS.ingridients);
@@ -1606,9 +1811,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function toggleGrillSlotSelectionForBin(index) {
+    if (!grillSlots[index]) return;
+    const pos = selectedGrillIndicesForBin.indexOf(index);
+    if (pos > -1) selectedGrillIndicesForBin.splice(pos, 1);
+    else selectedGrillIndicesForBin.push(index);
+    renderGrill();
+  }
+
   function renderGrill() {
     updateGrillLogic();
-    if (currentScreen !== 'grill') return;
+    if (currentScreen !== 'grill') {
+      updateStationNotificationDots();
+      return;
+    }
 
     const area = document.getElementById('grillCookingArea');
     if (!area || area.children.length !== grillSlots.length) initGrillStructure();
@@ -1635,11 +1851,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const progressPercent = getSlotProgress(slotData);
         const isBurningBar = slotData.state === 'ready' || slotData.state === 'needsFlip';
+        const stateFilterClass = slotData.state === 'charred'
+          ? 'charred'
+          : (slotData.isDirty ? 'unwashed-filter' : '');
 
         slotEl.innerHTML = `
           ${extraHtml}
           <div class="grill-item-wrapper">
-            <img src="${imgsrc}" class="grill-item ${slotData.state === 'charred' ? 'charred' : ''}">
+            <img src="${imgsrc}" class="grill-item ${stateFilterClass}">
             <div class="oil-splash-container" id="splash-container-${index}"></div>
           </div>
           <div class="grill-progress-container">
@@ -1687,6 +1906,10 @@ document.addEventListener('DOMContentLoaded', () => {
       renderGrill();
     } else if (slot.state === 'ready') {
       ingredientStock[config.cookedId] = (ingredientStock[config.cookedId] ?? 0) + 1;
+      if (slot.isDirty) {
+        dirtyStock[config.cookedId] = (dirtyStock[config.cookedId] ?? 0) + 1;
+        saveDirtyStock();
+      }
       saveStock();
       playSound(SOUNDS.buttons);
       trackQuestProgress('cook_patties', 1);
@@ -1701,6 +1924,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(() => {
     updateGrillLogic();
     if (currentScreen === 'grill') renderGrill();
+    else updateStationNotificationDots();
   }, 50);
 
   function renderSauces() {
@@ -2137,6 +2361,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentRecipeTabsEl) {
       currentRecipeTabsEl.innerHTML = tabsHtml;
       setupWheelScrollForContainer(currentRecipeTabsEl);
+      currentRecipeTabsEl.scrollLeft = actualScroll;
     }
 
     const searchInput = document.getElementById('recipesSearchInput');
@@ -2537,19 +2762,53 @@ document.addEventListener('DOMContentLoaded', () => {
   if (openSettingsBtn) openSettingsBtn.onclick = () => { settingsModal.classList.add('open'); document.body.classList.add('modal-open'); };
   if (closeSettingsModal) closeSettingsModal.onclick = () => { settingsModal.classList.remove('open'); document.body.classList.remove('modal-open'); };
 
+  // Полный сброс игры: режим, скорость по умолчанию, экран сборки и приветственное окно
   const hardResetBtn = document.getElementById('hardResetBtn');
   if (hardResetBtn) hardResetBtn.onclick = () => {
-    if (confirm("⚠️ WARNING: Wipe all data for current mode?")) {
-      localStorage.removeItem(getModeKey('saved_burger_stack'));
-      localStorage.removeItem(getModeKey('burger_money'));
-      localStorage.removeItem(getModeKey('burger_ingredient_stock'));
-      localStorage.removeItem(getModeKey('burger_grill_slots'));
-      localStorage.removeItem(getModeKey('burger_board_slots'));
-      localStorage.removeItem(getModeKey('burger_sink_slots'));
-      localStorage.removeItem(getModeKey('current_active_order'));
-      localStorage.removeItem(getModeKey('time_until_next_order'));
-      localStorage.removeItem(getModeKey('burger_daily_quests'));
-      location.reload();
+    if (confirm("⚠️ WARNING: Reset all data, settings, screen and show welcome screen?")) {
+      const modes = ['sandbox', 'casual', 'turbo'];
+      const modeKeys = [
+        'saved_burger_stack',
+        'burger_money',
+        'burger_ingredient_stock',
+        'burger_dirty_stock',
+        'burger_grill_slots',
+        'burger_board_slots',
+        'burger_sink_slots',
+        'current_active_order',
+        'time_until_next_order',
+        'burger_daily_quests'
+      ];
+
+      modes.forEach(m => {
+        modeKeys.forEach(k => localStorage.removeItem(`${k}_${m}`));
+      });
+
+      localStorage.removeItem('burger_game_mode');
+      localStorage.removeItem('burger_mode_speeds');
+      localStorage.removeItem('burger_current_screen');
+      localStorage.removeItem('has_seen_welcome');
+      localStorage.removeItem('burgerMakerTutorialCompleted');
+      localStorage.removeItem('pinned_burger');
+
+      pinnedBurger = null;
+      currentActiveOrder = null;
+      isEating = false;
+      isSqueezed = false;
+      modeSpeeds = { sandbox: 'no-orders', casual: 'no-orders' };
+      currentGameMode = 'casual';
+      currentScreen = 'assembly';
+
+      if (settingsModal) {
+        settingsModal.classList.remove('open');
+        document.body.classList.remove('modal-open');
+      }
+
+      applyGameMode('casual');
+      switchScreen('assembly', true);
+      updatePinnedWidget();
+      showWelcomeModalIfNeeded();
+      showToast('Game Reset!', 'Default mode, speed and assembly view restored.', 'success');
     }
   };
 
@@ -2701,15 +2960,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (limitWarning) { limitWarning.classList.add('show'); setTimeout(() => limitWarning.classList.remove('show'), 2000); }
       return;
     }
+    let isDirty = false;
     if (currentGameMode !== 'sandbox') {
-      if ((ingredientStock[item.id] ?? 0) <= 0) return;
-      ingredientStock[item.id]--;
-      saveStock();
+      const consumed = consumePreparedItemPreferClean(item.id);
+      if (!consumed) return;
+      isDirty = consumed.isDirty;
     }
 
     isAddingInProgress = true;
     playSound(SOUNDS.ingridients);
-    currentBurger.push({ ...item, isDirty: false });
+    currentBurger.push({ ...item, isDirty });
     checkSpecialCombos();
     updateBurgerDisplay(true);
     setTimeout(() => { isAddingInProgress = false; }, 150);
@@ -2738,6 +2998,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentGameMode !== 'sandbox' && removed) {
       ingredientStock[removed.id] = (ingredientStock[removed.id] ?? 0) + 1;
       saveStock();
+      if (removed.isDirty) {
+        dirtyStock[removed.id] = (dirtyStock[removed.id] ?? 0) + 1;
+        saveDirtyStock();
+      }
     }
     playSound(SOUNDS.buttons);
     currentBurger.splice(index, 1);
@@ -3052,6 +3316,23 @@ document.addEventListener('DOMContentLoaded', () => {
   if (welcomeNoBtn) welcomeNoBtn.onclick = () => { localStorage.setItem('has_seen_welcome', 'true'); localStorage.setItem('burgerMakerTutorialCompleted', 'true'); welcomeModal.classList.remove('open'); document.body.classList.remove('modal-open'); };
   if (welcomeYesBtn) welcomeYesBtn.onclick = () => { localStorage.setItem('has_seen_welcome', 'true'); localStorage.setItem('burgerMakerTutorialCompleted', 'true'); welcomeModal.classList.remove('open'); document.body.classList.remove('modal-open'); startTutorial(); };
 
+  const openTutorialFromSettingsBtn = document.getElementById('openTutorialFromSettingsBtn');
+  if (openTutorialFromSettingsBtn) {
+    openTutorialFromSettingsBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      if (settingsModal) { settingsModal.classList.remove('open'); document.body.classList.remove('modal-open'); }
+      startTutorial();
+    };
+  }
+
+  const tutorialSkipBtn = document.getElementById('tutorialSkipBtn');
+  if (tutorialSkipBtn) {
+    tutorialSkipBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      endTutorial();
+    };
+  }
+
   function startTutorial() {
     currentTutorialStep = 0;
     document.body.classList.add('tutorial-active');
@@ -3085,11 +3366,12 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(() => updateQuestsResetTimer(), 1000);
   window.addEventListener('resize', () => updateActionButtonsVisibility());
 
-  switchScreen(currentScreen);
+  switchScreen(currentScreen, true);
   renderSauces();
   renderIngredientsMenu();
   updateBurgerDisplay(false);
   updatePinnedWidget();
   updateMoneyDisplay();
   updateActionButtonsVisibility();
+  updateStationNotificationDots();
 });
