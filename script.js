@@ -260,7 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Единые записи для доски: одна кнопка на каждый продукт, с приоритетом чистых над грязными
   const BOARD_PRODUCE_ITEMS = {
     'champignons': {
       key: 'champignons',
@@ -473,10 +472,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateActionButtonsVisibility();
   }
 
-  // Индикаторы уведомлений (красные точки):
-  // - Гриль: когда готово (ready) или нужно перевернуть (needsFlip)
-  // - Доска: только когда нарезка завершена (ready)
-  // - Раковина: только когда мытьё завершено (ready)
   function updateStationNotificationDots() {
     const grillNeedsAttention = grillSlots.some(slot => slot && (slot.state === 'ready' || slot.state === 'needsFlip'));
     updateDotOnButton(switchToGrillBtn, grillNeedsAttention);
@@ -555,7 +550,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateStationNotificationDots();
   }
 
-  // Вспомогательная функция: расходует сначала чистый овощ, потом грязный
   function consumeBoardProducePreferClean(itemConfig) {
     if (currentGameMode === 'sandbox') {
       return { isDirty: false };
@@ -582,7 +576,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return null;
   }
 
-  // Вспомогательная функция: расходует готовый ингредиент (сначала чистый, потом грязный)
   function consumePreparedItemPreferClean(itemId) {
     if (currentGameMode === 'sandbox') {
       return { isDirty: false };
@@ -864,7 +857,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const isOut = currentGameMode !== 'sandbox' && stock <= 0;
       const countText = currentGameMode === 'sandbox' ? '∞' : `x${stock}`;
 
-      // Иконки в списке продуктов всегда отображаются чистыми
       cardsHtml += `
         <div class="ingredient-card ${currentBurger.length >= MAX_INGREDIENTS || isEating || isOut ? 'disabled' : ''}" onclick="handleAssemblyClick('${item.id}')">
           <img src="${item.image}" alt="${item.name}">
@@ -889,6 +881,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tabsEl.scrollLeft = actualScroll;
         requestAnimationFrame(() => { tabsEl.scrollLeft = actualScroll; tabsEl.style.scrollBehavior = ''; });
       }
+      positionServeButtonOnMobile();
     });
   }
 
@@ -901,7 +894,6 @@ document.addEventListener('DOMContentLoaded', () => {
     addIngredient(item);
   }
 
-  // --- ГРИЛЬ МЕНЮ И ИНВЕНТАРЬ ---
   function renderGrillIngredientsMenu(savedScroll = null) {
     if (currentScreen !== 'grill') return;
     if (!rightPanel) return;
@@ -925,7 +917,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const isOut = currentGameMode !== 'sandbox' && stock <= 0;
       const displayImg = item.menuImage || item.rawImage;
 
-      // Иконки в списке продуктов всегда чистые; Egg показывается с egg.png
       cardsHtml += `
         <div class="ingredient-card ${isOut ? 'disabled' : ''}" onclick="handleGrillAddClick('${rawId}')">
           <div class="ingredient-info-row">
@@ -950,6 +941,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tabsEl.scrollLeft = actualScroll;
         requestAnimationFrame(() => { tabsEl.scrollLeft = actualScroll; tabsEl.style.scrollBehavior = ''; });
       }
+      positionServeButtonOnMobile();
     });
   }
 
@@ -990,7 +982,6 @@ document.addEventListener('DOMContentLoaded', () => {
     filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
 
-      // Иконки в списке всегда отображаются чистыми
       itemsContainerHtml += `
         <div class="layer-item" style="justify-content: space-between; padding: 6px 10px;">
           <div style="display: flex; align-items: center; gap: 8px;">
@@ -1018,7 +1009,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- ДОСКА ДЛЯ НАРЕЗКИ МЕНЮ И ИНВЕНТАРЬ ---
   function renderBoardUncutMenu(savedScroll = null) {
     if (currentScreen !== 'board') return;
     if (!rightPanel) return;
@@ -1044,7 +1034,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const totalStock = cleanCount + dirtyCount;
       const isOut = currentGameMode !== 'sandbox' && totalStock <= 0;
 
-      // Иконки в списке продуктов всегда чистые
       cardsHtml += `
         <div class="ingredient-card ${isOut ? 'disabled' : ''}" onclick="handleBoardAddClick('${item.key}')">
           <div class="ingredient-info-row">
@@ -1069,6 +1058,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tabsEl.scrollLeft = actualScroll;
         requestAnimationFrame(() => { tabsEl.scrollLeft = actualScroll; tabsEl.style.scrollBehavior = ''; });
       }
+      positionServeButtonOnMobile();
     });
   }
 
@@ -1115,7 +1105,6 @@ document.addEventListener('DOMContentLoaded', () => {
     filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
 
-      // Иконки в списке всегда отображаются чистыми
       itemsContainerHtml += `
         <div class="layer-item" style="justify-content: space-between; padding: 6px 10px;">
           <div style="display: flex; align-items: center; gap: 8px;">
@@ -1143,7 +1132,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- РАКОВИНА (SINK) ---
   function renderSinkUnwashedMenu(savedScroll = null) {
     if (currentScreen !== 'sink') return;
     if (!rightPanel) return;
@@ -1189,6 +1177,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tabsEl.scrollLeft = actualScroll;
         requestAnimationFrame(() => { tabsEl.scrollLeft = actualScroll; tabsEl.style.scrollBehavior = ''; });
       }
+      positionServeButtonOnMobile();
     });
   }
 
@@ -1421,7 +1410,6 @@ document.addEventListener('DOMContentLoaded', () => {
             bubblesHtml += `<div class="sink-bubble" style="left: ${leftPos}px; width: ${bubbleSize}px; height: ${bubbleSize}px; animation-delay: ${animDelay}s; --dy: ${dy}px;"></div>`;
           }
 
-          // Коричневый фильтр сохраняется до конца помывки, рамки вокруг продукта нет
           slotEl.innerHTML = `
             <div class="grill-item-wrapper">
               <div class="sink-water-container">
@@ -1434,7 +1422,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
           `;
         } else if (slotData.state === 'ready') {
-          // Просто чистый продукт без эффектов и звёздочек
           slotEl.innerHTML = `
             <div class="grill-item-wrapper">
               <img src="${config.washedImage}" class="grill-item">
@@ -1458,7 +1445,6 @@ document.addEventListener('DOMContentLoaded', () => {
     else updateStationNotificationDots();
   }, 50);
 
-  // --- РАЗДЕЛОЧНАЯ ДОСКА (BOARD) ---
   function initBoardStructure() {
     const area = document.getElementById('boardCookingArea');
     if (!area) return;
@@ -1687,7 +1673,6 @@ document.addEventListener('DOMContentLoaded', () => {
     else updateStationNotificationDots();
   }, 50);
 
-  // --- ГРИЛЬ (GRILL) ---
   function addToGrill(rawId) {
     const emptyIndex = grillSlots.findIndex(slot => slot === null);
     if (emptyIndex === -1) { showToast('Grill is full!', '', 'warning'); return; }
@@ -1989,10 +1974,34 @@ document.addEventListener('DOMContentLoaded', () => {
   let serveFloatingBtn = document.getElementById('serveFloatingBtn');
 
   if (serveFloatingBtn) {
+    serveFloatingBtn.classList.add('serve-btn-above-ingredients');
     serveFloatingBtn.onclick = () => {
       if (currentActiveOrder && currentBurger.length > 0) checkOrderSubmission();
       else showToast('No active order or burger is empty!', '', 'warning');
     };
+  }
+
+  function positionServeButtonOnMobile() {
+    if (!serveFloatingBtn) return;
+    if (window.innerWidth > 900) {
+      serveFloatingBtn.style.top = '';
+      serveFloatingBtn.classList.remove('hidden-serve-btn');
+      return;
+    }
+
+    const hasOrderOrMode = currentActiveOrder !== null || getCurrentSpeed() !== 'no-orders';
+    const shouldShow = currentScreen === 'assembly' && hasOrderOrMode && !document.body.classList.contains('ui-hidden');
+
+    if (!shouldShow || !rightPanel) {
+      serveFloatingBtn.classList.add('hidden-serve-btn');
+      return;
+    }
+
+    serveFloatingBtn.classList.remove('hidden-serve-btn');
+    const panelRect = rightPanel.getBoundingClientRect();
+    const btnHeight = serveFloatingBtn.offsetHeight || 32;
+    const topPos = Math.max(8, panelRect.top - btnHeight - 6);
+    serveFloatingBtn.style.top = `${topPos}px`;
   }
 
   const SHOP_ITEMS = [
@@ -2155,7 +2164,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const hasOrderOrMode = currentActiveOrder !== null || currentSpeed !== 'no-orders';
 
-    if (serveFloatingBtn) serveFloatingBtn.style.display = (isMobile || isSpecialScreen || currentScreen !== 'assembly' || !hasOrderOrMode) ? 'none' : 'flex';
+    if (serveFloatingBtn) {
+      if (isMobile) {
+        serveFloatingBtn.style.display = '';
+        positionServeButtonOnMobile();
+      } else {
+        serveFloatingBtn.classList.remove('hidden-serve-btn');
+        serveFloatingBtn.style.display = (isSpecialScreen || currentScreen !== 'assembly' || !hasOrderOrMode) ? 'none' : 'flex';
+      }
+    }
+
     if (submitOrderBtn) submitOrderBtn.style.display = (!isMobile || isSpecialScreen || currentScreen !== 'assembly' || !hasOrderOrMode) ? 'none' : 'flex';
     if (forceOrderBtn) forceOrderBtn.style.display = (isSpecialScreen || currentGameMode === 'turbo') ? 'none' : 'flex';
     if (skipOrderBtn) skipOrderBtn.style.display = isSpecialScreen ? 'none' : 'flex';
@@ -2767,7 +2785,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (openSettingsBtn) openSettingsBtn.onclick = () => { settingsModal.classList.add('open'); document.body.classList.add('modal-open'); };
   if (closeSettingsModal) closeSettingsModal.onclick = () => { settingsModal.classList.remove('open'); document.body.classList.remove('modal-open'); };
 
-  // Полный сброс игры: останавливает звуки станций, сбрасывает режим, скорость, экран и открывает приветственное окно без уведомления
   const hardResetBtn = document.getElementById('hardResetBtn');
   if (hardResetBtn) hardResetBtn.onclick = () => {
     if (confirm("⚠️ WARNING: Reset all data, settings, screen and show welcome screen?")) {
@@ -2825,7 +2842,11 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const toggleUiBtn = document.getElementById('toggleUiBtn');
-  if (toggleUiBtn) toggleUiBtn.onclick = () => { document.body.classList.toggle('ui-hidden'); toggleUiBtn.innerText = document.body.classList.contains('ui-hidden') ? '👁️‍🗨️' : '👁️'; };
+  if (toggleUiBtn) toggleUiBtn.onclick = () => {
+    document.body.classList.toggle('ui-hidden');
+    toggleUiBtn.innerText = document.body.classList.contains('ui-hidden') ? '👁️‍🗨️' : '👁️';
+    positionServeButtonOnMobile();
+  };
 
   const downloadPngBtn = document.getElementById('downloadPngBtn');
   if (downloadPngBtn) {
@@ -3371,7 +3392,13 @@ document.addEventListener('DOMContentLoaded', () => {
   updateAchievementsBadge();
 
   setInterval(() => updateQuestsResetTimer(), 1000);
-  window.addEventListener('resize', () => updateActionButtonsVisibility());
+  window.addEventListener('resize', () => {
+    updateActionButtonsVisibility();
+    positionServeButtonOnMobile();
+  });
+  window.addEventListener('scroll', () => {
+    positionServeButtonOnMobile();
+  }, { passive: true });
 
   switchScreen(currentScreen, true);
   renderSauces();
@@ -3381,4 +3408,5 @@ document.addEventListener('DOMContentLoaded', () => {
   updateMoneyDisplay();
   updateActionButtonsVisibility();
   updateStationNotificationDots();
+  positionServeButtonOnMobile();
 });
