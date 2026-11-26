@@ -1671,6 +1671,12 @@ input[type="range"]::-webkit-slider-thumb {
   pointer-events: auto;
 }
 
+.tutorial-tooltip p {
+  white-space: pre-line;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
 .btn-skip-tutorial {
   background: transparent;
   border: none;
