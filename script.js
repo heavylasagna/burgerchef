@@ -3342,7 +3342,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       title: "Wallet",
-      text: "Shows your current balance. Serve orders and try not to get fined!",
+      text: "It shows your current balance. Serve orders and try not to get fined!",
       screen: "assembly",
       getElement: () => document.getElementById('walletWidget') || document.querySelector('.wallet-widget')
     },
