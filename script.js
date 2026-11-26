@@ -35,8 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
     notification: safeAudio('audio/notification.mp3')
   };
 
-  let volumeLevel = parseFloat(localStorage.getItem('burger_volume'));
-  if (isNaN(volumeLevel)) volumeLevel = 1.0;
+  let savedSfxVol = parseFloat(localStorage.getItem('burger_sfx_volume'));
+  if (isNaN(savedSfxVol)) {
+    const legacyVol = parseFloat(localStorage.getItem('burger_volume'));
+    savedSfxVol = isNaN(legacyVol) ? 0.5 : legacyVol;
+  }
+  let volumeLevel = savedSfxVol;
 
   function playSound(audio) {
     if (!audio) return;
@@ -45,6 +49,219 @@ document.addEventListener('DOMContentLoaded', () => {
       audio.volume = volumeLevel;
       audio.play().catch(() => {});
     } catch(e) {}
+  }
+
+  // --- Фоновая музыка и плеер ---
+  const MUSIC_TRACKS = [
+    { title: 'Drift Away Ambient Texture', artist: '9jackjack8', src: 'music/9jackjack8-drift-away-ambient-texture-619612.mp3' },
+    { title: 'Angelic Frutiger Aero', artist: 'mewwwwwww', src: 'music/mewwwwwww-angelic-frutiger-aero-554728.mp3' },
+    { title: 'Frutiger Aero', artist: 'mewwwwwww', src: 'music/mewwwwwww-frutiger-aero-472282.mp3' },
+    { title: 'Technozen', artist: 'mewwwwwww', src: 'music/mewwwwwww-technozen-554729.mp3' },
+    { title: 'White Space Aerowave Ambient Nostalgic', artist: '9jackjack8', src: 'music/9jackjack8-white-space-aerowave-ambient-nostalgic-600046.mp3' },
+    { title: 'Dreamy Glass Aerowave', artist: '9jackjack8', src: 'music/9jackjack8-dreamy-glass-aerowave-556871.mp3' },
+    { title: 'Future Office Frutiger Aero Chill Nostalgic', artist: '9jackjack8', src: 'music/9jackjack8-future-office-frutiger-aero-chill-nostalgic-624710.mp3' },
+    { title: 'Ocean Bubbles Frutiger Aqua Game', artist: '9jackjack8', src: 'music/9jackjack8-ocean-bubbles-frutiger-aqua-game-550245.mp3' },
+    { title: 'Petal Frutiger Aero Ambient', artist: '9jackjack8', src: 'music/9jackjack8-petal-frutiger-aero-ambient-587794.mp3' },
+    { title: 'Aqua Frutiger Aero Chillwave', artist: '9jackjack8', src: 'music/9jackjack8-aqua-frutiger-aero-chillwave-532669.mp3' }
+  ];
+
+  function formatTrackLabel(track) {
+    if (!track) return '–';
+    if (track.title && track.artist) {
+      return `${track.title} – ${track.artist}`;
+    }
+    const rawName = (track.src || '').split('/').pop().replace(/\.mp3$/i, '');
+    const parts = rawName.split('-').filter(Boolean);
+    if (parts.length >= 3) {
+      const artist = parts[0];
+      const titleParts = parts.slice(1, -1).map(w => w.charAt(0).toUpperCase() + w.slice(1));
+      return `${titleParts.join(' ')} – ${artist}`;
+    }
+    return rawName || '–';
+  }
+
+  let musicVolumeLevel = parseFloat(localStorage.getItem('burger_music_volume'));
+  if (isNaN(musicVolumeLevel)) musicVolumeLevel = 0.3;
+
+  const musicAudio = new Audio();
+  musicAudio.preload = 'auto';
+  musicAudio.volume = musicVolumeLevel;
+
+  let shuffledIndices = [];
+  let currentQueuePos = 0;
+  let isMusicPausedByUser = false;
+  let musicToastHideTimer = null;
+  let musicToastRemoveTimer = null;
+
+  function buildShuffledQueue(excludeTrackIndex = null) {
+    const indices = MUSIC_TRACKS.map((_, idx) => idx);
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    if (excludeTrackIndex !== null && indices.length > 1 && indices[0] === excludeTrackIndex) {
+      const swapIdx = 1 + Math.floor(Math.random() * (indices.length - 1));
+      [indices[0], indices[swapIdx]] = [indices[swapIdx], indices[0]];
+    }
+    shuffledIndices = indices;
+    currentQueuePos = 0;
+  }
+
+  function getCurrentTrack() {
+    if (!MUSIC_TRACKS.length || !shuffledIndices.length) return null;
+    return MUSIC_TRACKS[shuffledIndices[currentQueuePos]];
+  }
+
+  function showMusicNotification(track) {
+    if (!track) return;
+    let toastEl = document.getElementById('musicNowPlayingToast');
+    if (!toastEl) {
+      toastEl = document.createElement('div');
+      toastEl.id = 'musicNowPlayingToast';
+      toastEl.className = 'music-toast';
+      document.body.appendChild(toastEl);
+    }
+
+    clearTimeout(musicToastHideTimer);
+    clearTimeout(musicToastRemoveTimer);
+
+    toastEl.textContent = formatTrackLabel(track);
+    toastEl.classList.remove('visible');
+
+    requestAnimationFrame(() => {
+      toastEl.classList.add('visible');
+    });
+
+    musicToastHideTimer = setTimeout(() => {
+      toastEl.classList.remove('visible');
+      musicToastRemoveTimer = setTimeout(() => {
+        if (toastEl && !toastEl.classList.contains('visible')) {
+          toastEl.textContent = '';
+        }
+      }, 450);
+    }, 2500);
+  }
+
+  function updateMusicPlayerUI() {
+    const displayEl = document.getElementById('musicTrackDisplay');
+    const playPauseBtn = document.getElementById('musicPlayPauseBtn');
+    const track = getCurrentTrack();
+
+    if (displayEl) displayEl.textContent = formatTrackLabel(track);
+    if (playPauseBtn) {
+      const isPlaying = !musicAudio.paused && !isMusicPausedByUser;
+      playPauseBtn.textContent = isPlaying ? '⏸' : '▶';
+    }
+  }
+
+  function attemptMusicPlay(showToastOnPlay = false, trackForToast = null) {
+    musicAudio.volume = musicVolumeLevel;
+    const promise = musicAudio.play();
+    if (promise && typeof promise.then === 'function') {
+      promise.then(() => {
+        isMusicPausedByUser = false;
+        updateMusicPlayerUI();
+        if (showToastOnPlay && trackForToast) {
+          showMusicNotification(trackForToast);
+        }
+      }).catch(() => {
+        updateMusicPlayerUI();
+        const unlockHandler = () => {
+          document.removeEventListener('pointerdown', unlockHandler);
+          document.removeEventListener('keydown', unlockHandler);
+          if (!isMusicPausedByUser) {
+            musicAudio.volume = musicVolumeLevel;
+            musicAudio.play().then(() => {
+              updateMusicPlayerUI();
+              if (showToastOnPlay && trackForToast) {
+                showMusicNotification(trackForToast);
+              }
+            }).catch(() => {});
+          }
+        };
+        document.addEventListener('pointerdown', unlockHandler, { once: true });
+        document.addEventListener('keydown', unlockHandler, { once: true });
+      });
+    } else {
+      updateMusicPlayerUI();
+    }
+  }
+
+  function loadAndPlayTrackAtQueuePos(newPos, options = {}) {
+    const { showToast = false, forcePlay = false } = options;
+    if (!MUSIC_TRACKS.length || !shuffledIndices.length) return;
+
+    currentQueuePos = ((newPos % shuffledIndices.length) + shuffledIndices.length) % shuffledIndices.length;
+    const track = getCurrentTrack();
+    musicAudio.src = track.src;
+    musicAudio.currentTime = 0;
+    musicAudio.volume = musicVolumeLevel;
+    updateMusicPlayerUI();
+
+    const shouldPlay = forcePlay || !isMusicPausedByUser;
+    if (shouldPlay) {
+      attemptMusicPlay(showToast, track);
+    }
+  }
+
+  musicAudio.addEventListener('ended', () => {
+    const prevTrackIdx = shuffledIndices[currentQueuePos];
+    if (currentQueuePos + 1 >= shuffledIndices.length) {
+      buildShuffledQueue(prevTrackIdx);
+      loadAndPlayTrackAtQueuePos(0, { showToast: true, forcePlay: !isMusicPausedByUser });
+    } else {
+      loadAndPlayTrackAtQueuePos(currentQueuePos + 1, { showToast: true, forcePlay: !isMusicPausedByUser });
+    }
+  });
+
+  musicAudio.addEventListener('play', updateMusicPlayerUI);
+  musicAudio.addEventListener('pause', updateMusicPlayerUI);
+
+  const musicVolumeRange = document.getElementById('musicVolumeRange');
+  const musicVolumeVal = document.getElementById('musicVolumeVal');
+  if (musicVolumeRange && musicVolumeVal) {
+    const initialPct = Math.round(musicVolumeLevel * 100);
+    musicVolumeRange.value = initialPct;
+    musicVolumeVal.textContent = `${initialPct}%`;
+    musicVolumeRange.oninput = () => {
+      const pct = parseInt(musicVolumeRange.value, 10) || 0;
+      musicVolumeLevel = pct / 100;
+      musicVolumeVal.textContent = `${pct}%`;
+      musicAudio.volume = musicVolumeLevel;
+      localStorage.setItem('burger_music_volume', musicVolumeLevel);
+    };
+  }
+
+  const musicPrevBtn = document.getElementById('musicPrevBtn');
+  const musicNextBtn = document.getElementById('musicNextBtn');
+  const musicPlayPauseBtn = document.getElementById('musicPlayPauseBtn');
+
+  if (musicPrevBtn) {
+    musicPrevBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      loadAndPlayTrackAtQueuePos(currentQueuePos - 1, { showToast: false });
+    };
+  }
+
+  if (musicNextBtn) {
+    musicNextBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      loadAndPlayTrackAtQueuePos(currentQueuePos + 1, { showToast: false });
+    };
+  }
+
+  if (musicPlayPauseBtn) {
+    musicPlayPauseBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      if (musicAudio.paused) {
+        isMusicPausedByUser = false;
+        attemptMusicPlay(false);
+      } else {
+        isMusicPausedByUser = true;
+        musicAudio.pause();
+        updateMusicPlayerUI();
+      }
+    };
   }
 
   const leftPanel = document.getElementById('leftPanel');
@@ -2109,12 +2326,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const volumeRange = document.getElementById('volumeRange');
   const volumeVal = document.getElementById('volumeVal');
-  if (volumeRange) {
-    volumeRange.value = volumeLevel * 100;
-    volumeVal.innerText = `${volumeRange.value}%`;
+  if (volumeRange && volumeVal) {
+    const sfxPct = Math.round(volumeLevel * 100);
+    volumeRange.value = sfxPct;
+    volumeVal.innerText = `${sfxPct}%`;
     volumeRange.oninput = () => {
       volumeLevel = volumeRange.value / 100;
       volumeVal.innerText = `${volumeRange.value}%`;
+      localStorage.setItem('burger_sfx_volume', volumeLevel);
       localStorage.setItem('burger_volume', volumeLevel);
     };
   }
@@ -3888,4 +4107,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateActionButtonsVisibility();
   updateStationNotificationDots();
   positionServeButtonOnMobile();
+
+  buildShuffledQueue(null);
+  loadAndPlayTrackAtQueuePos(0, { showToast: true, forcePlay: true });
 });
