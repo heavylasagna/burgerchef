@@ -841,11 +841,13 @@ body.ui-hidden .top-order-widget {
 
 .grill-cooking-area {
   flex: 1;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(110px, 130px));
   gap: 16px;
+  align-content: center;
   align-items: center;
   justify-content: center;
+  justify-items: center;
   position: relative;
   background: radial-gradient(circle at 50% 30%, #2a2a2a, #121212);
   border-radius: 16px;
@@ -857,11 +859,13 @@ body.ui-hidden .top-order-widget {
 
 .board-cooking-area {
   flex: 1;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(110px, 130px));
   gap: 16px;
+  align-content: center;
   align-items: center;
   justify-content: center;
+  justify-items: center;
   position: relative;
   background: var(--board-bg);
   border-radius: 16px;
@@ -873,11 +877,13 @@ body.ui-hidden .top-order-widget {
 
 .sink-cooking-area {
   flex: 1;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(110px, 130px));
   gap: 16px;
+  align-content: center;
   align-items: center;
   justify-content: center;
+  justify-items: center;
   position: relative;
   background: var(--sink-bg);
   border-radius: 16px;
@@ -1734,6 +1740,105 @@ input[type="range"]::-webkit-slider-thumb {
   box-shadow: none;
 }
 
+/* --- UPGRADES STYLES (SHOP & BACKPACK) --- */
+.upgrade-emoji-icon {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  border: 1px solid var(--item-border);
+  flex-shrink: 0;
+}
+
+.upgrade-desc-text {
+  font-size: 0.72rem;
+  color: var(--text-color);
+  opacity: 0.78;
+  font-weight: 400 !important;
+  line-height: 1.25;
+  margin-top: 2px;
+}
+
+.upgrade-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #689f38, #558b2f);
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.76rem;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.12s ease, opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+.upgrade-action-btn:hover:not(:disabled) {
+  transform: scale(1.03);
+  background: linear-gradient(135deg, #7cb342, #689f38);
+}
+
+.upgrade-action-btn:disabled,
+.upgrade-action-btn.maxed {
+  background: var(--stock-badge-bg);
+  color: var(--accent-color);
+  border: 1px solid var(--item-border);
+  cursor: default;
+  box-shadow: none;
+  transform: none;
+}
+
+.upgrade-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.upgrade-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  background: transparent;
+  display: inline-block;
+}
+
+.upgrade-dot.filled {
+  background: currentColor;
+}
+
+.btn-downgrade-sandbox {
+  background: rgba(211, 47, 47, 0.16);
+  border: 1.5px solid #d32f2f;
+  color: #e57373;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.btn-downgrade-sandbox:hover {
+  background: #d32f2f;
+  color: #fff;
+}
+
+.btn-downgrade-sandbox:active {
+  transform: scale(0.94);
+}
+
 .tutorial-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -1819,6 +1924,16 @@ input[type="range"]::-webkit-slider-thumb {
   .center-stage { order: 1; min-height: 350px; padding-bottom: 10px; justify-content: flex-end; }
   .grill-stage {
     flex-direction: column;
+  }
+
+  /* На мобильных: 2 колонки -> 4 слота квадратом 2x2, 5-й слот слева в 3-м ряду, 6-й справа в 3-м ряду (2x3) */
+  .grill-cooking-area,
+  .board-cooking-area,
+  .sink-cooking-area {
+    grid-template-columns: repeat(2, 120px);
+    gap: 12px 16px;
+    justify-content: center;
+    justify-items: center;
   }
 
   .right-panel { order: 2; height: 190px; position: relative; margin-top: 34px; }
