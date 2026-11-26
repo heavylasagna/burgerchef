@@ -650,7 +650,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let playerMoney = 100.00;
   let currentActiveOrder = null;
   let timeUntilNextOrder = 120;
-  let currentTurboTimeLeft = 150;
+  let currentTurboTimeLeft = 180;
   let dailyQuestsData = null;
 
   const UPGRADES_CONFIG = {
@@ -945,7 +945,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/beef-patty-flip2.png',
       cookedId: 'beef-patty',
       cookedImage: 'images/beef-patty.png',
-      needsFlip: true, cookTime: 12, burnTime: 8, category: 'patty'
+      needsFlip: true, cookTime: 15, burnTime: 8, category: 'patty'
     },
     'raw-chicken-patty': {
       name: 'Chicken Patty',
@@ -955,7 +955,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/chicken-patty-flip2.png',
       cookedId: 'chicken-patty',
       cookedImage: 'images/chicken-patty.png',
-      needsFlip: true, cookTime: 12, burnTime: 8, category: 'patty'
+      needsFlip: true, cookTime: 15, burnTime: 8, category: 'patty'
     },
     'raw-fish-patty': {
       name: 'Fish Patty',
@@ -965,7 +965,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/fish-patty-flip2.png',
       cookedId: 'fish-patty',
       cookedImage: 'images/fish-patty.png',
-      needsFlip: true, cookTime: 12, burnTime: 8, category: 'patty'
+      needsFlip: true, cookTime: 15, burnTime: 8, category: 'patty'
     },
     'raw-hashbrown': {
       name: 'Hashbrown',
@@ -975,7 +975,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/hashbrown-flip2.png',
       cookedId: 'hashbrown',
       cookedImage: 'images/hashbrown.png',
-      needsFlip: true, cookTime: 10, burnTime: 7, category: 'patty'
+      needsFlip: true, cookTime: 13, burnTime: 7, category: 'patty'
     },
     'raw-bacon': {
       name: 'Bacon',
@@ -985,7 +985,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/fried-bacon.png',
       cookedId: 'fried-bacon',
       cookedImage: 'images/fried-bacon.png',
-      needsFlip: false, cookTime: 8, burnTime: 6, category: 'protein'
+      needsFlip: false, cookTime: 10, burnTime: 6, category: 'protein'
     },
     'raw-egg': {
       name: 'Egg',
@@ -995,7 +995,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/fried-egg.png',
       cookedId: 'fried-egg',
       cookedImage: 'images/fried-egg.png',
-      needsFlip: false, cookTime: 8, burnTime: 6, category: 'protein'
+      needsFlip: false, cookTime: 10, burnTime: 6, category: 'protein'
     },
     'raw-champignons': {
       name: 'Champignons',
@@ -1005,7 +1005,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/champignons.png',
       cookedId: 'champignons',
       cookedImage: 'images/champignons.png',
-      needsFlip: false, cookTime: 8, burnTime: 6, category: 'vegetables'
+      needsFlip: false, cookTime: 10, burnTime: 6, category: 'vegetables'
     },
     'raw-cheese': {
       name: 'Cheese',
@@ -1015,7 +1015,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/cheese.png',
       cookedId: 'cheese',
       cookedImage: 'images/cheese.png',
-      needsFlip: false, cookTime: 6, burnTime: 5, category: 'protein'
+      needsFlip: false, cookTime: 8, burnTime: 5, category: 'protein'
     }
   };
 
@@ -1028,7 +1028,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rawImage: 'images/uncut-champignons.png',
       slicedId: 'raw-champignons',
       slicedImage: 'images/raw-champignons.png',
-      cutTime: 6,
+      cutTime: 8,
       category: 'vegetables',
       canBeDirty: true
     },
@@ -1040,7 +1040,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rawImage: 'images/uncut-lettuce.png',
       slicedId: 'lettuce',
       slicedImage: 'images/lettuce.png',
-      cutTime: 5,
+      cutTime: 7,
       category: 'vegetables',
       canBeDirty: true
     },
@@ -1052,7 +1052,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rawImage: 'images/uncut-tomato.png',
       slicedId: 'tomato',
       slicedImage: 'images/tomato.png',
-      cutTime: 5,
+      cutTime: 7,
       category: 'fruit',
       canBeDirty: true
     },
@@ -1064,7 +1064,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rawImage: 'images/uncut-pickles.png',
       slicedId: 'pickles',
       slicedImage: 'images/pickles.png',
-      cutTime: 5,
+      cutTime: 7,
       category: 'vegetables',
       canBeDirty: true
     },
@@ -1076,7 +1076,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rawImage: 'images/uncut-red-onion.png',
       slicedId: 'red-onion',
       slicedImage: 'images/red-onion.png',
-      cutTime: 5,
+      cutTime: 7,
       category: 'vegetables',
       canBeDirty: true
     },
@@ -1088,7 +1088,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rawImage: 'images/uncut-white-onion.png',
       slicedId: 'white-onion',
       slicedImage: 'images/white-onion.png',
-      cutTime: 5,
+      cutTime: 7,
       category: 'vegetables',
       canBeDirty: true
     },
@@ -1100,19 +1100,19 @@ document.addEventListener('DOMContentLoaded', () => {
       rawImage: 'images/uncut-cheese.png',
       slicedId: 'raw-cheese',
       slicedImage: 'images/raw-cheese.png',
-      cutTime: 6,
+      cutTime: 8,
       category: 'protein',
       canBeDirty: false
     }
   };
 
   const SINK_WASHABLE_ITEMS = {
-    'unwashed-uncut-lettuce': { name: 'Lettuce', rawImage: 'images/uncut-lettuce.png', washedId: 'uncut-lettuce', washedImage: 'images/uncut-lettuce.png', washTime: 5, category: 'vegetables' },
-    'unwashed-uncut-tomato': { name: 'Tomato', rawImage: 'images/uncut-tomato.png', washedId: 'uncut-tomato', washedImage: 'images/uncut-tomato.png', washTime: 5, category: 'fruit' },
-    'unwashed-uncut-pickles': { name: 'Pickles', rawImage: 'images/uncut-pickles.png', washedId: 'uncut-pickles', washedImage: 'images/uncut-pickles.png', washTime: 5, category: 'vegetables' },
-    'unwashed-uncut-red-onion': { name: 'Red Onion', rawImage: 'images/uncut-red-onion.png', washedId: 'uncut-red-onion', washedImage: 'images/uncut-red-onion.png', washTime: 5, category: 'vegetables' },
-    'unwashed-uncut-white-onion': { name: 'White Onion', rawImage: 'images/uncut-white-onion.png', washedId: 'uncut-white-onion', washedImage: 'images/uncut-white-onion.png', washTime: 5, category: 'vegetables' },
-    'unwashed-uncut-champignons': { name: 'Champignons', rawImage: 'images/uncut-champignons.png', washedId: 'uncut-champignons', washedImage: 'images/uncut-champignons.png', washTime: 5, category: 'vegetables' }
+    'unwashed-uncut-lettuce': { name: 'Lettuce', rawImage: 'images/uncut-lettuce.png', washedId: 'uncut-lettuce', washedImage: 'images/uncut-lettuce.png', washTime: 7, category: 'vegetables' },
+    'unwashed-uncut-tomato': { name: 'Tomato', rawImage: 'images/uncut-tomato.png', washedId: 'uncut-tomato', washedImage: 'images/uncut-tomato.png', washTime: 7, category: 'fruit' },
+    'unwashed-uncut-pickles': { name: 'Pickles', rawImage: 'images/uncut-pickles.png', washedId: 'uncut-pickles', washedImage: 'images/uncut-pickles.png', washTime: 7, category: 'vegetables' },
+    'unwashed-uncut-red-onion': { name: 'Red Onion', rawImage: 'images/uncut-red-onion.png', washedId: 'uncut-red-onion', washedImage: 'images/uncut-red-onion.png', washTime: 7, category: 'vegetables' },
+    'unwashed-uncut-white-onion': { name: 'White Onion', rawImage: 'images/uncut-white-onion.png', washedId: 'uncut-white-onion', washedImage: 'images/uncut-white-onion.png', washTime: 7, category: 'vegetables' },
+    'unwashed-uncut-champignons': { name: 'Champignons', rawImage: 'images/uncut-champignons.png', washedId: 'uncut-champignons', washedImage: 'images/uncut-champignons.png', washTime: 7, category: 'vegetables' }
   };
 
   let currentScreen = localStorage.getItem('burger_current_screen') || 'assembly';
@@ -2096,6 +2096,52 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function applyStationMobileResponsiveLayout() {
+    const isMobile = window.innerWidth <= 768;
+    const slotCount = getTargetSlotCount();
+    const cols = slotCount <= 3 ? 3 : (slotCount === 4 ? 2 : 3);
+    const stationAreas = [
+      document.getElementById('grillCookingArea'),
+      document.getElementById('boardCookingArea'),
+      document.getElementById('sinkCookingArea')
+    ];
+
+    stationAreas.forEach(area => {
+      if (!area) return;
+      if (isMobile) {
+        area.style.width = '100%';
+        area.style.maxWidth = '100%';
+        area.style.minWidth = '240px';
+        area.style.boxSizing = 'border-box';
+        area.style.display = 'grid';
+        area.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+        area.style.gap = '10px';
+        area.style.padding = '12px';
+        area.querySelectorAll('.grill-slot').forEach(slot => {
+          slot.style.minWidth = '0';
+          slot.style.width = '100%';
+          slot.style.boxSizing = 'border-box';
+        });
+      } else {
+        area.style.width = '';
+        area.style.maxWidth = '';
+        area.style.minWidth = '';
+        area.style.boxSizing = '';
+        area.style.display = '';
+        area.style.gridTemplateColumns = '';
+        area.style.gap = '';
+        area.style.padding = '';
+        area.querySelectorAll('.grill-slot').forEach(slot => {
+          slot.style.minWidth = '';
+          slot.style.width = '';
+          slot.style.boxSizing = '';
+        });
+      }
+    });
+  }
+
+  window.addEventListener('resize', applyStationMobileResponsiveLayout);
+
   function initSinkStructure() {
     syncStationSlotArraysToTargetCount();
     const area = document.getElementById('sinkCookingArea');
@@ -2304,6 +2350,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     manageWashingAudio(hasWashing);
+    applyStationMobileResponsiveLayout();
     updateStationNotificationDots();
   }
 
@@ -2534,6 +2581,7 @@ document.addEventListener('DOMContentLoaded', () => {
         slotEl.innerHTML = '';
       }
     });
+    applyStationMobileResponsiveLayout();
     updateStationNotificationDots();
   }
 
@@ -2737,10 +2785,19 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (slotData.state === 'charred') imgsrc = config.cookedImage;
 
         const progressPercent = getSlotProgress(slotData);
-        const isBurningBar = slotData.state === 'ready' || slotData.state === 'needsFlip';
+        const isBurnPhase = slotData.state === 'ready' || slotData.state === 'needsFlip';
+        const hideBurnBarOnMaxSlowBurn = isBurnPhase && isNoBurnActive();
+        const showProgressBar = slotData.state !== 'charred' && !hideBurnBarOnMaxSlowBurn;
+        const isBurningBar = isBurnPhase && !hideBurnBarOnMaxSlowBurn;
         const stateFilterClass = slotData.state === 'charred'
           ? 'charred'
           : (slotData.isDirty ? 'unwashed-filter' : '');
+
+        const progressBarHtml = showProgressBar
+          ? `<div class="grill-progress-container">
+               <div class="grill-progress-bar ${isBurningBar ? 'burning' : ''}" style="width: ${progressPercent}%"></div>
+             </div>`
+          : `<div class="grill-progress-container" style="visibility:hidden;"></div>`;
 
         slotEl.innerHTML = `
           ${extraHtml}
@@ -2748,9 +2805,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <img src="${imgsrc}" class="grill-item ${stateFilterClass}">
             <div class="oil-splash-container" id="splash-container-${index}"></div>
           </div>
-          <div class="grill-progress-container">
-            <div class="grill-progress-bar ${isBurningBar ? 'burning' : ''}" style="width: ${progressPercent}%"></div>
-          </div>
+          ${progressBarHtml}
         `;
       } else {
         slotEl.innerHTML = '';
@@ -2758,6 +2813,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     manageSizzlingAudio(hasActiveCooking);
+    applyStationMobileResponsiveLayout();
     updateStationNotificationDots();
   }
 
@@ -2986,13 +3042,24 @@ document.addEventListener('DOMContentLoaded', () => {
   function ensureInventoryUpgradesTabButton() {
     const tabsContainer = document.getElementById('inventoryTabs');
     if (!tabsContainer) return;
-    if (!tabsContainer.querySelector('[data-tab="upgrades"]')) {
+    const upgradeTabs = Array.from(tabsContainer.querySelectorAll('.recipe-tab')).filter(t => {
+      const key = (t.dataset.tab || t.innerText || '').trim().toLowerCase();
+      return key === 'upgrades' || key === 'upgrade';
+    });
+    if (upgradeTabs.length === 0) {
       const btn = document.createElement('button');
       btn.className = 'recipe-tab';
       btn.dataset.tab = 'upgrades';
       btn.innerText = 'Upgrades';
       btn.onclick = () => window.switchInventoryTab('upgrades');
       tabsContainer.appendChild(btn);
+    } else {
+      upgradeTabs.forEach((btn, idx) => {
+        btn.dataset.tab = 'upgrades';
+        btn.innerText = 'Upgrades';
+        btn.onclick = () => window.switchInventoryTab('upgrades');
+        if (idx > 0) btn.remove();
+      });
     }
     tabsContainer.querySelectorAll('.recipe-tab').forEach(t => {
       if (!t.dataset.tab) {
@@ -3010,6 +3077,39 @@ document.addEventListener('DOMContentLoaded', () => {
     dots += '</span>';
     return dots;
   }
+
+  function formatUpgradeSubline(upg, lv) {
+    const isMax = lv >= upg.maxLevel;
+    const desc = upg.descriptions[lv] || upg.descriptions[upg.maxLevel] || '';
+    const priceText = isMax ? 'MAX' : `$${(upg.prices[lv + 1] ?? 0).toFixed(2)}`;
+    return `<p class="upgrade-desc-text"><span style="color:#ffd54f; font-weight:600;">${priceText}</span> <span style="color:#8e8e8e;">|</span> <span style="color:#a6a6a6;">${desc}</span></p>`;
+  }
+
+  window.downgradeUpgradeFromBackpack = function(upgradeId) {
+    if (currentGameMode !== 'sandbox') return;
+    const cfg = UPGRADES_CONFIG[upgradeId];
+    if (!cfg) return;
+    const currentLv = getUpgradeLevel(upgradeId);
+    if (currentLv <= 0) return;
+
+    const prevLv = currentLv - 1;
+    upgradesLevels[upgradeId] = prevLv;
+    saveUpgradesState();
+
+    if (upgradeId === 'extra_slots') {
+      syncStationSlotArraysToTargetCount();
+      saveGrillState();
+      saveBoardState();
+      saveSinkState();
+      if (currentScreen === 'grill') { initGrillStructure(); renderGrill(); }
+      else if (currentScreen === 'board') { initBoardStructure(); renderBoard(); }
+      else if (currentScreen === 'sink') { initSinkStructure(); renderSink(); }
+    }
+
+    playSound(SOUNDS.buttons);
+    showToast('Upgrade Lowered', `${cfg.name} (${prevLv}/${cfg.maxLevel})`, 'warning');
+    renderInventoryModal();
+  };
 
   function renderInventoryModal() {
     const body = document.getElementById('inventoryModalBody');
@@ -3037,19 +3137,23 @@ document.addEventListener('DOMContentLoaded', () => {
       const list = Object.values(UPGRADES_CONFIG).filter(u => u.name.toLowerCase().includes(searchTerm));
       list.forEach(upg => {
         const lv = getUpgradeLevel(upg.id);
-        const desc = upg.descriptions[lv] || upg.descriptions[upg.maxLevel] || '';
+        const sublineHtml = formatUpgradeSubline(upg, lv);
+        const sandboxMinusHtml = (currentGameMode === 'sandbox' && lv > 0)
+          ? `<button class="btn-downgrade-sandbox" title="Lower level (Sandbox)" onclick="downgradeUpgradeFromBackpack('${upg.id}')">−</button>`
+          : '';
         cardsHtml += `
           <div class="inventory-item-card">
             <div class="inventory-item-info">
               <div class="upgrade-emoji-icon">${upg.icon}</div>
               <div class="inventory-item-details">
                 <h4>${upg.name} ${renderUpgradeDots(lv, upg.maxLevel)}</h4>
-                <p class="upgrade-desc-text">${desc}</p>
+                ${sublineHtml}
               </div>
             </div>
             <div class="inventory-right-group">
+              ${sandboxMinusHtml}
               <button class="btn-buy-more" onclick="openShopForCategory('upgrades')">Shop</button>
-              <div class="inventory-count-badge">Lv.${lv}/${upg.maxLevel}</div>
+              <div class="inventory-count-badge">${lv}/${upg.maxLevel}</div>
             </div>
           </div>
         `;
@@ -3497,13 +3601,24 @@ document.addEventListener('DOMContentLoaded', () => {
   function ensureShopUpgradesTabButton() {
     const tabsContainer = document.getElementById('shopTabs');
     if (!tabsContainer) return;
-    if (!tabsContainer.querySelector('[data-tab="upgrades"]')) {
+    const upgradeTabs = Array.from(tabsContainer.querySelectorAll('.recipe-tab')).filter(t => {
+      const key = (t.dataset.tab || t.innerText || '').trim().toLowerCase();
+      return key === 'upgrades' || key === 'upgrade';
+    });
+    if (upgradeTabs.length === 0) {
       const btn = document.createElement('button');
       btn.className = 'recipe-tab';
       btn.dataset.tab = 'upgrades';
       btn.innerText = 'Upgrades';
       btn.onclick = () => window.switchShopTab('upgrades');
       tabsContainer.appendChild(btn);
+    } else {
+      upgradeTabs.forEach((btn, idx) => {
+        btn.dataset.tab = 'upgrades';
+        btn.innerText = 'Upgrades';
+        btn.onclick = () => window.switchShopTab('upgrades');
+        if (idx > 0) btn.remove();
+      });
     }
     tabsContainer.querySelectorAll('.recipe-tab').forEach(t => {
       if (!t.dataset.tab) {
@@ -3525,7 +3640,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentGameMode !== 'sandbox') {
       if (isNaN(playerMoney)) playerMoney = 100.00;
       if (playerMoney < price) {
-        showToast('Not enough money!', `Need $${price.toFixed(2)} for ${cfg.name} Lv.${nextLv}`, 'error');
+        showToast('Not enough money!', `Need $${price.toFixed(2)} for ${cfg.name} (${currentLv}/${cfg.maxLevel})`, 'error');
         return;
       }
       playerMoney -= price;
@@ -3545,7 +3660,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     playSound(SOUNDS.buy);
-    showToast('Upgrade Purchased!', `${cfg.name} upgraded to Lv.${nextLv}`, 'success');
+    showToast('Upgrade Purchased!', `${cfg.name} (${nextLv}/${cfg.maxLevel})`, 'success');
     renderShopModal();
   };
 
@@ -3571,7 +3686,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     playSound(SOUNDS.buttons);
-    showToast('Upgrade Lowered', `${cfg.name} set to Lv.${prevLv}`, 'warning');
+    showToast('Upgrade Lowered', `${cfg.name} (${prevLv}/${cfg.maxLevel})`, 'warning');
     renderShopModal();
   };
 
@@ -3603,23 +3718,22 @@ document.addEventListener('DOMContentLoaded', () => {
       list.forEach(upg => {
         const lv = getUpgradeLevel(upg.id);
         const isMax = lv >= upg.maxLevel;
-        const nextPrice = !isMax ? (upg.prices[lv + 1] ?? 0) : 0;
-        const desc = upg.descriptions[lv] || upg.descriptions[upg.maxLevel] || '';
+        const sublineHtml = formatUpgradeSubline(upg, lv);
         const sandboxMinusHtml = (currentGameMode === 'sandbox' && lv > 0)
           ? `<button class="btn-downgrade-sandbox" title="Lower level (Sandbox)" onclick="downgradeUpgradeSandbox('${upg.id}')">−</button>`
           : '';
 
         const actionBtnHtml = isMax
-          ? `<button class="upgrade-action-btn maxed" disabled>MAX LVL</button>`
-          : `<button class="upgrade-action-btn" onclick="buyUpgrade('${upg.id}')">Upgrade (${currentGameMode === 'sandbox' ? 'Free' : '$' + nextPrice.toFixed(2)})</button>`;
+          ? `<span class="upgrade-max-box" style="display:inline-flex; align-items:center; justify-content:center; padding:6px 12px; border:1px solid #ffd54f; border-radius:8px; color:#ffd54f; font-weight:700; font-size:12px;">MAX</span>`
+          : `<button class="upgrade-action-btn" onclick="buyUpgrade('${upg.id}')">Buy</button>`;
 
         cardsHtml += `
           <div class="shop-item-card">
             <div class="shop-item-info">
               <div class="upgrade-emoji-icon">${upg.icon}</div>
               <div class="shop-item-details">
-                <h4>${upg.name} ${renderUpgradeDots(lv, upg.maxLevel)}</h4>
-                <p class="upgrade-desc-text">${desc}</p>
+                <h4>${upg.name} ${renderUpgradeDots(lv, upg.maxLevel)} <span class="inventory-count-badge" style="margin-left:6px;">${lv}/${upg.maxLevel}</span></h4>
+                ${sublineHtml}
               </div>
             </div>
             <div class="shop-buy-group">
