@@ -3152,7 +3152,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (!prevItem) mb = -10;
           else if (prevItem.id === 'bottom-bun') mb = -46;
           else if (['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(prevItem.id)) mb = -32;
-          else mb = -30;
+          else mb = -46;
         }
         else if (item.id === 'cheese') mb = -60;
         else if (item.id === 'hashbrown') mb = -38;
