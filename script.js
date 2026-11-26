@@ -113,34 +113,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const isMobile = window.innerWidth <= 900;
     const lp = document.getElementById('leftPanel');
     const bp = document.getElementById('bottomPanel');
-    const topOrder = document.getElementById('topOrderWidget');
-    const wallet = document.getElementById('walletWidget');
 
     if (isMobile) {
-      let topPos = 10;
       let leftPos = 10;
+      let bottomPos = 12;
 
-      const visibleTopCandidates = [topOrder, wallet].filter(el => {
-        if (!el) return false;
-        const style = window.getComputedStyle(el);
-        if (style.display === 'none' || el.classList.contains('hidden')) return false;
-        const r = el.getBoundingClientRect();
-        return r.width > 0 && r.height > 0;
-      });
-
-      if (visibleTopCandidates.length > 0) {
-        const minTop = Math.min(...visibleTopCandidates.map(el => el.getBoundingClientRect().top));
-        const leftmost = visibleTopCandidates.reduce((a, b) =>
-          a.getBoundingClientRect().left < b.getBoundingClientRect().left ? a : b
-        );
-        const lRect = leftmost.getBoundingClientRect();
-        topPos = Math.max(8, minTop);
-        leftPos = Math.max(8, lRect.left);
+      if (bp) {
+        const bpStyle = window.getComputedStyle(bp);
+        const bpRect = bp.getBoundingClientRect();
+        if (bpStyle.display !== 'none' && bpRect.width > 0 && bpRect.height > 0) {
+          leftPos = Math.max(8, bpRect.left);
+          bottomPos = Math.max(8, window.innerHeight - bpRect.top + 8);
+        }
       }
 
       musicToastEl.style.maxWidth = `calc(100vw - ${leftPos + 12}px)`;
-      musicToastEl.style.top = `${topPos}px`;
       musicToastEl.style.left = `${leftPos}px`;
+      musicToastEl.style.bottom = `${bottomPos}px`;
     } else {
       let leftPos = 16;
       let bottomPos = 16;
