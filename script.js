@@ -185,52 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('burger_music_playing', 'false');
     updateMusicPlayerUI();
   }
-  }
-
-  function toggleMusicPlayback(showToastNotify = true) {
-    const track = MUSIC_TRACKS[currentTrackIndex];
-    if (!musicAudio || !musicAudio.src || !musicAudio.src.endsWith(track.src)) {
-      loadMusicTrack(currentTrackIndex, true, showToastNotify);
-      return;
-    }
-
-    if (isMusicPlaying) {
-      try { musicAudio.pause(); } catch(e) {}
-      isMusicPlaying = false;
-      localStorage.setItem('burger_music_playing', 'false');
-      updateMusicPlayerUI();
-      if (showToastNotify && track) showMusicToast(track.title, '⏸ Paused');
-    } else {
-      musicAudio.volume = musicVolumeLevel;
-      musicAudio.play().catch(() => {});
-      isMusicPlaying = true;
-      localStorage.setItem('burger_music_playing', 'true');
-      updateMusicPlayerUI();
-      if (showToastNotify && track) showMusicToast(track.title, '🎵 Now playing');
-    }
-  }
-
-  function prevMusicTrack() {
-    playSound(SOUNDS.buttons);
-    loadMusicTrack(currentTrackIndex - 1, true, true);
-  }
-
-  function nextMusicTrack() {
-    playSound(SOUNDS.buttons);
-    loadMusicTrack(currentTrackIndex + 1, true, true);
-  }
-
-  function stopMusicPlayback() {
-    if (musicAudio) {
-      try {
-        musicAudio.pause();
-        musicAudio.currentTime = 0;
-      } catch(e) {}
-    }
-    isMusicPlaying = false;
-    localStorage.setItem('burger_music_playing', 'false');
-    updateMusicPlayerUI();
-  }
 
   const leftPanel = document.getElementById('leftPanel');
   const rightPanel = document.getElementById('rightPanel');
