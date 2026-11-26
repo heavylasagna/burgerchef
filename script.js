@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch(e) {}
   }
 
- // --- MUSIC PLAYLIST & PLAYER ---
+  // --- MUSIC PLAYLIST & PLAYER ---
   const MUSIC_TRACKS = [
     { title: 'Aqua Frutiger Aero Chillwave', src: 'music/9jackjack8-aqua-frutiger-aero-chillwave-532669.mp3' },
     { title: 'Dreamy Glass Aerowave', src: 'music/9jackjack8-dreamy-glass-aerowave-556871.mp3' },
@@ -198,52 +198,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (showToastNotify && track) showMusicToast(track.title, '⏸ Paused');
     } else {
       startMusicPlay(track, showToastNotify);
-    }
-  }
-
-  function prevMusicTrack() {
-    playSound(SOUNDS.buttons);
-    loadMusicTrack(currentTrackIndex - 1, true, true);
-  }
-
-  function nextMusicTrack() {
-    playSound(SOUNDS.buttons);
-    loadMusicTrack(currentTrackIndex + 1, true, true);
-  }
-
-  function stopMusicPlayback() {
-    if (musicAudio) {
-      try {
-        musicAudio.pause();
-        musicAudio.currentTime = 0;
-      } catch(e) {}
-    }
-    isMusicPlaying = false;
-    localStorage.setItem('burger_music_playing', 'false');
-    updateMusicPlayerUI();
-   }
-  }
-
-  function toggleMusicPlayback(showToastNotify = true) {
-    const track = MUSIC_TRACKS[currentTrackIndex];
-    if (!musicAudio || !musicAudio.src || !musicAudio.src.endsWith(track.src)) {
-      loadMusicTrack(currentTrackIndex, true, showToastNotify);
-      return;
-    }
-
-    if (isMusicPlaying) {
-      try { musicAudio.pause(); } catch(e) {}
-      isMusicPlaying = false;
-      localStorage.setItem('burger_music_playing', 'false');
-      updateMusicPlayerUI();
-      if (showToastNotify && track) showMusicToast(track.title, '⏸ Paused');
-    } else {
-      musicAudio.volume = musicVolumeLevel;
-      musicAudio.play().catch(() => {});
-      isMusicPlaying = true;
-      localStorage.setItem('burger_music_playing', 'true');
-      updateMusicPlayerUI();
-      if (showToastNotify && track) showMusicToast(track.title, '🎵 Now playing');
     }
   }
 
@@ -2363,7 +2317,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const musicPrevBtn = document.getElementById('musicPrevBtn');
-  const musicToggleBtn = document.getElementById('musicToggleBtn');
+  const musicToggleBtn = getPlayPauseBtnEl();
   const musicNextBtn = document.getElementById('musicNextBtn');
   if (musicPrevBtn) musicPrevBtn.onclick = prevMusicTrack;
   if (musicToggleBtn) musicToggleBtn.onclick = () => {
@@ -2372,7 +2326,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   if (musicNextBtn) musicNextBtn.onclick = nextMusicTrack;
 
-  loadMusicTrack(currentTrackIndex, isMusicPlaying, false);
+  loadMusicTrack(currentTrackIndex, false, false);
 
   window.setTheme = function(theme) {
     const darkBtn = document.getElementById('themeDarkBtn');
