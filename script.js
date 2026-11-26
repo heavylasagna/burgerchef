@@ -3135,6 +3135,7 @@ document.addEventListener('DOMContentLoaded', () => {
       burgerStack.innerHTML = '';
       currentBurger.forEach((item, index) => {
         const layerImg = resolveLayerDisplayImage(item.id, item.image, item.isRaw, item.rawId);
+        const prevItem = index > 0 ? currentBurger[index - 1] : null;
         const img = document.createElement('img');
         img.src = layerImg;
         img.className = `burger-layer-img ${item.isDirty ? 'unwashed-filter' : ''} ${item.id === 'raw-cheese' ? 'raw-cheese-layer' : ''}`;
@@ -3147,7 +3148,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (index === 0) mb = -10;
         else if (['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id)) mb = -50;
         else if (item.id === 'top-bun') mb = -38;
-        else if (item.id === 'raw-cheese') mb = -18;
+        else if (item.id === 'raw-cheese') {
+          if (!prevItem) mb = -10;
+          else if (prevItem.id === 'bottom-bun') mb = -34;
+          else if (['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(prevItem.id)) mb = -32;
+          else mb = -30;
+        }
         else if (item.id === 'cheese') mb = -60;
         else if (item.id === 'hashbrown') mb = -38;
         else if (item.id === 'fried-egg' || item.id === 'raw-egg') mb = -52;
