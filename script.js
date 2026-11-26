@@ -3322,10 +3322,125 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const tutorialSteps = [
-    { title: "Assembly Screen", text: "Main workplace for assembling orders.", screen: "assembly", getElement: () => document.getElementById('centerStage') },
-    { title: "Ingredients", text: "Select what to put in your burger.", screen: "assembly", getElement: () => document.getElementById('rightPanel') },
-    { title: "Sink Screen", text: "Wash dirty produce here before cutting or using.", screen: "sink", getElement: () => document.getElementById('switchToSinkBtn') },
-    { title: "Grill Screen", text: "Cook your ingredients without burning them.", screen: "grill", getElement: () => document.getElementById('switchToGrillBtn') }
+    {
+      title: "Assembly Screen",
+      text: "This is your main workplace where you assemble orders or create your own burgers.",
+      screen: "assembly",
+      getElement: () => document.getElementById('centerStage') || document.querySelector('.center-stage')
+    },
+    {
+      title: "Ingredients Menu",
+      text: "Here you can select what ingredients you want to put in your burger.",
+      screen: "assembly",
+      getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
+    },
+    {
+      title: "Layers Panel",
+      text: "In there you can see all current layers of your burger, reorder them, or remove individual items.",
+      screen: "assembly",
+      getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
+    },
+    {
+      title: "Wallet",
+      text: "Shows your current balance. Serve orders and try not to get fines!",
+      screen: "assembly",
+      getElement: () => document.getElementById('walletWidget') || document.querySelector('.wallet-widget')
+    },
+    {
+      title: "Bottom Actions Menu",
+      text: "On the lower menu you have a variety of buttons:\n\n📋 List of recipes\n🏬 Groceries shop\n🎒 Your inventory\n🏆 Your achievements\n---\n🔔 Summon new order\n⏩ Skip current order\n🍔 Eat your burger\n🍽 Serve the order\n✊ Squeeze your burger\n🗑 Bin current ingredients\n---\n💾 Save your burger as PNG\n⚙ Settings",
+      screen: "assembly",
+      getElement: () => document.getElementById('bottomPanel') || document.querySelector('.bottom-panel')
+    },
+    {
+      title: "Switch to Grill",
+      text: "Click this button to switch to the Grill screen and cook raw ingredients.",
+      screen: "assembly",
+      getElement: () => document.getElementById('switchToGrillBtn')
+    },
+    {
+      title: "Grill Screen",
+      text: "Here you can cook your ingredients. Don't burn them!",
+      screen: "grill",
+      getElement: () => document.getElementById('grillStage')
+    },
+    {
+      title: "Raw Ingredients Menu",
+      text: "On the right panel, select raw items from your stock to place them onto the grill.",
+      screen: "grill",
+      getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
+    },
+    {
+      title: "Cooked Inventory",
+      text: "On the left panel, you can view your inventory of cooked goods.",
+      screen: "grill",
+      getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
+    },
+    {
+      title: "Switch to Cutting Board",
+      text: "Click this button to switch to the Cutting Board screen.",
+      screen: "assembly",
+      getElement: () => document.getElementById('switchToBoardBtn')
+    },
+    {
+      title: "Cutting Board Screen",
+      text: "Here you can cut your ingredients before using them.",
+      screen: "board",
+      getElement: () => document.getElementById('boardStage')
+    },
+    {
+      title: "Uncut Ingredients",
+      text: "Select items to put them on the board and cut.",
+      screen: "board",
+      getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
+    },
+    {
+      title: "Sliced Inventory",
+      text: "The left panel displays your stock of cut produce.",
+      screen: "board",
+      getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
+    },
+    {
+      title: "Settings & Game Modes",
+      text: "In the settings you can adjust volume and other features:\n\nSandbox. Infinite money and ingredients, chill and be creative\n\nCasual. A career gamemode where you need to manage your finances\n\nTurbo. Orders come without stopping and with an additional patience timer. Don't mess up or you'll get fined!\n---\nThe order frequency tells how fast you will be getting your next order. In \"Turbo\" you won't need to wait a second for the next customer and in \"No orders\" you won't get any at all.",
+      screen: "assembly",
+      action: () => {
+        if (window.innerWidth > 900) {
+          const modal = document.getElementById('settingsModal');
+          if (modal) {
+            modal.classList.add('open');
+            document.body.classList.add('modal-open');
+          }
+        }
+      },
+      getElement: () => {
+        if (window.innerWidth <= 900) return document.getElementById('openSettingsBtn');
+        const modal = document.getElementById('settingsModal');
+        return modal ? modal.querySelector('.modal-content') : document.body;
+      }
+    },
+    {
+      title: "Reset & Tutorial",
+      text: "That's the end of the tutorial. In danger zone there are two buttons to reset your achievements and game progress. Be careful with these and enjoy!",
+      screen: "assembly",
+      action: () => {
+        if (window.innerWidth > 900) {
+          const modal = document.getElementById('settingsModal');
+          if (modal && !modal.classList.contains('open')) {
+            modal.classList.add('open');
+            document.body.classList.add('modal-open');
+          }
+          const finalSec = document.getElementById('tutorialFinalSection');
+          if (finalSec) {
+            finalSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      },
+      getElement: () => {
+        if (window.innerWidth <= 900) return document.getElementById('openSettingsBtn');
+        return document.getElementById('tutorialFinalSection') || document.body;
+      }
+    }
   ];
 
   let currentTutorialStep = 0;
@@ -3340,6 +3455,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const welcomeNoBtn = document.getElementById('welcomeNoBtn');
   const welcomeYesBtn = document.getElementById('welcomeYesBtn');
   const tutorialOverlay = document.getElementById('tutorialOverlay');
+  const tutorialSpotlight = document.getElementById('tutorialSpotlight');
+  const tutorialTooltip = document.getElementById('tutorialTooltip');
 
   if (welcomeNoBtn) welcomeNoBtn.onclick = () => { localStorage.setItem('has_seen_welcome', 'true'); localStorage.setItem('burgerMakerTutorialCompleted', 'true'); welcomeModal.classList.remove('open'); document.body.classList.remove('modal-open'); };
   if (welcomeYesBtn) welcomeYesBtn.onclick = () => { localStorage.setItem('has_seen_welcome', 'true'); localStorage.setItem('burgerMakerTutorialCompleted', 'true'); welcomeModal.classList.remove('open'); document.body.classList.remove('modal-open'); startTutorial(); };
@@ -3361,6 +3478,63 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
+  function positionTutorialElements(targetEl) {
+    if (!tutorialSpotlight || !tutorialTooltip) return;
+
+    if (window.innerWidth <= 900) {
+      tutorialSpotlight.style.display = 'none';
+      tutorialTooltip.style.top = '';
+      tutorialTooltip.style.left = '';
+      tutorialTooltip.style.right = '';
+      tutorialTooltip.style.bottom = '';
+      tutorialTooltip.style.transform = '';
+      return;
+    }
+
+    tutorialSpotlight.style.display = 'block';
+    tutorialTooltip.style.transform = '';
+
+    const rect = targetEl && typeof targetEl.getBoundingClientRect === 'function'
+      ? targetEl.getBoundingClientRect()
+      : { left: window.innerWidth / 2 - 150, top: window.innerHeight / 2 - 100, width: 300, height: 200, right: window.innerWidth / 2 + 150, bottom: window.innerHeight / 2 + 100 };
+
+    const pad = 6;
+    const spotLeft = Math.max(4, rect.left - pad);
+    const spotTop = Math.max(4, rect.top - pad);
+    const spotWidth = Math.min(window.innerWidth - spotLeft - 4, rect.width + pad * 2);
+    const spotHeight = Math.min(window.innerHeight - spotTop - 4, rect.height + pad * 2);
+
+    tutorialSpotlight.style.left = `${spotLeft}px`;
+    tutorialSpotlight.style.top = `${spotTop}px`;
+    tutorialSpotlight.style.width = `${spotWidth}px`;
+    tutorialSpotlight.style.height = `${spotHeight}px`;
+
+    const tooltipWidth = tutorialTooltip.offsetWidth || 310;
+    const tooltipHeight = tutorialTooltip.offsetHeight || 160;
+    const margin = 14;
+
+    let top = rect.top + rect.height / 2 - tooltipHeight / 2;
+    let left;
+
+    if (rect.right + margin + tooltipWidth <= window.innerWidth - 12) {
+      left = rect.right + margin;
+    } else if (rect.left - margin - tooltipWidth >= 12) {
+      left = rect.left - margin - tooltipWidth;
+    } else if (rect.bottom + margin + tooltipHeight <= window.innerHeight - 12) {
+      left = rect.left + rect.width / 2 - tooltipWidth / 2;
+      top = rect.bottom + margin;
+    } else {
+      left = rect.left + rect.width / 2 - tooltipWidth / 2;
+      top = rect.top - margin - tooltipHeight;
+    }
+
+    left = Math.max(12, Math.min(window.innerWidth - tooltipWidth - 12, left));
+    top = Math.max(12, Math.min(window.innerHeight - tooltipHeight - 12, top));
+
+    tutorialTooltip.style.left = `${left}px`;
+    tutorialTooltip.style.top = `${top}px`;
+  }
+
   function startTutorial() {
     currentTutorialStep = 0;
     document.body.classList.add('tutorial-active');
@@ -3371,19 +3545,49 @@ document.addEventListener('DOMContentLoaded', () => {
   function showTutorialStep(stepIndex) {
     const step = tutorialSteps[stepIndex];
     if (!step) { endTutorial(); return; }
-    document.getElementById('tutorialTitle').innerText = step.title;
-    document.getElementById('tutorialText').innerText = step.text;
-    document.getElementById('tutorialStepIndicator').innerText = `${stepIndex + 1} / ${tutorialSteps.length}`;
+
+    if (step.screen && currentScreen !== step.screen) {
+      switchScreen(step.screen, true);
+    }
+
+    if (typeof step.action === 'function') {
+      step.action();
+    }
+
+    const titleEl = document.getElementById('tutorialTitle');
+    const textEl = document.getElementById('tutorialText');
+    const indicatorEl = document.getElementById('tutorialStepIndicator');
+    const prevBtn = document.getElementById('tutorialPrevBtn');
+    const nextBtn = document.getElementById('tutorialNextBtn');
+
+    if (titleEl) titleEl.innerText = step.title;
+    if (textEl) textEl.innerText = step.text;
+    if (indicatorEl) indicatorEl.innerText = `${stepIndex + 1} / ${tutorialSteps.length}`;
+    if (prevBtn) prevBtn.disabled = stepIndex === 0;
+    if (nextBtn) nextBtn.innerText = stepIndex === tutorialSteps.length - 1 ? 'Finish' : 'Next';
+
+    const targetEl = typeof step.getElement === 'function' ? step.getElement() : null;
+    requestAnimationFrame(() => {
+      positionTutorialElements(targetEl);
+      setTimeout(() => positionTutorialElements(targetEl), 120);
+    });
   }
 
   const tutorialNextBtn = document.getElementById('tutorialNextBtn');
   const tutorialPrevBtn = document.getElementById('tutorialPrevBtn');
-  if (tutorialNextBtn) tutorialNextBtn.onclick = () => { if (++currentTutorialStep < tutorialSteps.length) showTutorialStep(currentTutorialStep); else endTutorial(); };
-  if (tutorialPrevBtn) tutorialPrevBtn.onclick = () => { if (currentTutorialStep > 0) showTutorialStep(--currentTutorialStep); };
+  if (tutorialNextBtn) tutorialNextBtn.onclick = () => { playSound(SOUNDS.buttons); if (++currentTutorialStep < tutorialSteps.length) showTutorialStep(currentTutorialStep); else endTutorial(); };
+  if (tutorialPrevBtn) tutorialPrevBtn.onclick = () => { playSound(SOUNDS.buttons); if (currentTutorialStep > 0) showTutorialStep(--currentTutorialStep); };
 
   function endTutorial() {
     document.body.classList.remove('tutorial-active');
     tutorialOverlay.classList.remove('active');
+    if (settingsModal) {
+      settingsModal.classList.remove('open');
+      document.body.classList.remove('modal-open');
+    }
+    if (currentScreen !== 'assembly') {
+      switchScreen('assembly', true);
+    }
   }
 
   showWelcomeModalIfNeeded();
@@ -3394,6 +3598,11 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('resize', () => {
     updateActionButtonsVisibility();
     positionServeButtonOnMobile();
+    if (tutorialOverlay && tutorialOverlay.classList.contains('active')) {
+      const step = tutorialSteps[currentTutorialStep];
+      const targetEl = step && typeof step.getElement === 'function' ? step.getElement() : null;
+      positionTutorialElements(targetEl);
+    }
   });
   window.addEventListener('scroll', () => {
     positionServeButtonOnMobile();
