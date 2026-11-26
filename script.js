@@ -165,6 +165,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const ITEM_PRICES = {
     'top-bun': 2, 'bottom-bun': 2,
+    'beef-patty': 5, 'chicken-patty': 5, 'fish-patty': 5, 'hashbrown': 4,
+    'fried-bacon': 3, 'fried-egg': 4, 'cheese': 5, 'champignons': 3,
+    'lettuce': 3, 'tomato': 3, 'pickles': 3, 'red-onion': 3, 'white-onion': 3,
     'raw-beef-patty': 5, 'raw-chicken-patty': 5, 'raw-fish-patty': 5, 'raw-hashbrown': 4,
     'raw-bacon': 3, 'raw-egg': 4,
     'uncut-cheese': 5,
@@ -176,6 +179,42 @@ document.addEventListener('DOMContentLoaded', () => {
     'unwashed-uncut-white-onion': 3, 'uncut-white-onion': 3,
     'mayo': 5, 'ketchup': 5, 'mustard': 5, 'spicy': 5, 'bbq': 5
   };
+
+  // Связка готовая котлета <-> сырая котлета (hashbrown в этот список намеренно не входит)
+  const COOKED_TO_RAW_PATTY = {
+    'beef-patty': 'raw-beef-patty',
+    'chicken-patty': 'raw-chicken-patty',
+    'fish-patty': 'raw-fish-patty'
+  };
+
+  const RAW_TO_COOKED_PATTY = {
+    'raw-beef-patty': 'beef-patty',
+    'raw-chicken-patty': 'chicken-patty',
+    'raw-fish-patty': 'fish-patty'
+  };
+
+  const RAW_PATTY_POISON_CHANCE = {
+    'raw-beef-patty': 0.12,
+    'raw-fish-patty': 0.22,
+    'raw-chicken-patty': 0.28
+  };
+
+  const POISON_PENALTY_MULTIPLIER = {
+    casual: 1.5,
+    turbo: 2.0,
+    sandbox: 0.0
+  };
+
+  function normalizeIngredientIdForOrder(id) {
+    return RAW_TO_COOKED_PATTY[id] || id;
+  }
+
+  function getAssemblyAvailableStock(itemId) {
+    const cookedCount = ingredientStock[itemId] ?? 0;
+    const rawId = COOKED_TO_RAW_PATTY[itemId];
+    const rawCount = rawId ? (ingredientStock[rawId] ?? 0) : 0;
+    return cookedCount + rawCount;
+  }
 
   const GRILLABLE_ITEMS = {
     'raw-beef-patty': { 
@@ -598,6 +637,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Сначала берём готовый продукт; если для котлеты готовых нет — берём сырую котлету
+  function consumeAssemblyIngredient(itemId) {
+    if (currentGameMode === 'sandbox') {
+      return { isDirty: false, isRaw: false, rawId: null, stockKey: itemId };
+    }
+
+    const cookedCount = ingredientStock[itemId] ?? 0;
+    if (cookedCount > 0) {
+      const consumed = consumePreparedItemPreferClean(itemId);
+      if (!consumed) return null;
+      return { isDirty: consumed.isDirty, isRaw: false, rawId: null, stockKey: itemId };
+    }
+
+    const rawId = COOKED_TO_RAW_PATTY[itemId];
+    if (rawId) {
+      const rawCount = ingredientStock[rawId] ?? 0;
+      if (rawCount > 0) {
+        const consumedRaw = consumePreparedItemPreferClean(rawId);
+        if (!consumedRaw) return null;
+        return { isDirty: consumedRaw.isDirty, isRaw: true, rawId, stockKey: rawId };
+      }
+    }
+
+    return null;
+  }
+
+  function returnBurgerLayerToStock(removed) {
+    if (!removed || currentGameMode === 'sandbox') return;
+    const stockKey = removed.isRaw && removed.rawId ? removed.rawId : removed.id;
+    ingredientStock[stockKey] = (ingredientStock[stockKey] ?? 0) + 1;
+    saveStock();
+    if (removed.isDirty) {
+      dirtyStock[stockKey] = (dirtyStock[stockKey] ?? 0) + 1;
+      saveDirtyStock();
+    }
+  }
+
   function updateMoneyPopupPosition() {
     const container = document.getElementById('moneyPopupContainer');
     const pinnedWidget = document.getElementById('pinnedRecipeWidget');
@@ -853,9 +929,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let cardsHtml = `<div class="scrollable-items-list" style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
     filtered.forEach(item => {
-      const stock = ingredientStock[item.id] ?? 0;
-      const isOut = currentGameMode !== 'sandbox' && stock <= 0;
-      const countText = currentGameMode === 'sandbox' ? '∞' : `x${stock}`;
+      const availableStock = getAssemblyAvailableStock(item.id);
+      const isOut = currentGameMode !== 'sandbox' && availableStock <= 0;
+      const countText = currentGameMode === 'sandbox' ? '∞' : `x${availableStock}`;
 
       cardsHtml += `
         <div class="ingredient-card ${currentBurger.length >= MAX_INGREDIENTS || isEating || isOut ? 'disabled' : ''}" onclick="handleAssemblyClick('${item.id}')">
@@ -889,8 +965,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isEating || isAddingInProgress) return;
     const item = INGREDIENTS.find(i => i.id === id);
     if (!item) return;
-    const stock = ingredientStock[item.id] ?? 0;
-    if (currentGameMode !== 'sandbox' && stock <= 0) { showToast('Out of stock!', `Buy more ${item.name} in shop.`, 'warning'); return; }
+    const availableStock = getAssemblyAvailableStock(item.id);
+    if (currentGameMode !== 'sandbox' && availableStock <= 0) {
+      showToast('Out of stock!', `Buy more ${item.name} in shop.`, 'warning');
+      return;
+    }
     addIngredient(item);
   }
 
@@ -2988,16 +3067,18 @@ document.addEventListener('DOMContentLoaded', () => {
       if (limitWarning) { limitWarning.classList.add('show'); setTimeout(() => limitWarning.classList.remove('show'), 2000); }
       return;
     }
-    let isDirty = false;
-    if (currentGameMode !== 'sandbox') {
-      const consumed = consumePreparedItemPreferClean(item.id);
-      if (!consumed) return;
-      isDirty = consumed.isDirty;
-    }
+
+    const consumed = consumeAssemblyIngredient(item.id);
+    if (!consumed) return;
 
     isAddingInProgress = true;
     playSound(SOUNDS.ingridients);
-    currentBurger.push({ ...item, isDirty });
+    currentBurger.push({
+      ...item,
+      isDirty: consumed.isDirty,
+      isRaw: consumed.isRaw,
+      rawId: consumed.rawId
+    });
     checkSpecialCombos();
     updateBurgerDisplay(true);
     setTimeout(() => { isAddingInProgress = false; }, 150);
@@ -3014,7 +3095,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     isAddingInProgress = true;
     playSound(SOUNDS.sauce);
-    currentBurger.push({ ...sauce, isDirty: false });
+    currentBurger.push({ ...sauce, isDirty: false, isRaw: false, rawId: null });
     checkSpecialCombos();
     updateBurgerDisplay(true);
     setTimeout(() => { isAddingInProgress = false; }, 150);
@@ -3023,14 +3104,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.removeLayer = function(index) {
     if (isEating) return;
     const removed = currentBurger[index];
-    if (currentGameMode !== 'sandbox' && removed) {
-      ingredientStock[removed.id] = (ingredientStock[removed.id] ?? 0) + 1;
-      saveStock();
-      if (removed.isDirty) {
-        dirtyStock[removed.id] = (dirtyStock[removed.id] ?? 0) + 1;
-        saveDirtyStock();
-      }
-    }
+    returnBurgerLayerToStock(removed);
     playSound(SOUNDS.buttons);
     currentBurger.splice(index, 1);
     checkSpecialCombos();
@@ -3083,6 +3157,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(SOUNDS.bin);
         isEating = false; isSqueezed = false;
         if (burgerStack) burgerStack.classList.remove('eating');
+        currentBurger.forEach(layer => returnBurgerLayerToStock(layer));
         currentBurger = [];
         updateBurgerDisplay(false);
         showToast('The burger is binned', '', 'success');
@@ -3155,29 +3230,75 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
+  // Расчёт шанса отравления (строго <= 50%):
+  // - Грязные слои: 15% + 5% за каждый дополнительный (макс. 30%)
+  // - Сырая говядина: 12%, сырая рыба: 22%, сырая курица: 28%
+  // - Итоговый шанс при комбинации: кап 45% (ниже лимита 50%)
+  function calculatePoisonChance(burgerLayers) {
+    let dirtyCount = 0;
+    let rawRiskSum = 0;
+
+    burgerLayers.forEach(layer => {
+      if (layer.isDirty) {
+        dirtyCount++;
+      }
+      const effectiveRawId = layer.isRaw ? (layer.rawId || COOKED_TO_RAW_PATTY[layer.id]) : RAW_TO_COOKED_PATTY[layer.id];
+      if (effectiveRawId && RAW_PATTY_POISON_CHANCE[effectiveRawId]) {
+        rawRiskSum += RAW_PATTY_POISON_CHANCE[effectiveRawId];
+      }
+    });
+
+    const dirtyRisk = dirtyCount > 0 ? Math.min(0.30, 0.15 + (dirtyCount - 1) * 0.05) : 0;
+    return Math.min(0.45, dirtyRisk + rawRiskSum);
+  }
+
+  function getBurgerCost(burgerLayers) {
+    return burgerLayers.reduce((sum, layer) => {
+      const priceKey = layer.isRaw && layer.rawId ? layer.rawId : layer.id;
+      const fallbackKey = normalizeIngredientIdForOrder(priceKey);
+      return sum + (ITEM_PRICES[priceKey] ?? ITEM_PRICES[fallbackKey] ?? 1);
+    }, 0);
+  }
+
   function checkOrderSubmission() {
-    const ids = currentBurger.map(i => i.id);
+    const normalizedIds = currentBurger.map(i => normalizeIngredientIdForOrder(i.id));
     if (!currentActiveOrder) return;
 
     const targetIds = currentActiveOrder.ids;
-    const isCorrect = ids.length === targetIds.length && ids.every((val, idx) => val === targetIds[idx]);
+    const isCorrect = normalizedIds.length === targetIds.length && normalizedIds.every((val, idx) => val === targetIds[idx]);
 
-    const hasDirtyIngredients = currentBurger.some(i => i.isDirty);
-    const isPoisoned = hasDirtyIngredients && Math.random() < 0.25;
+    const poisonChance = calculatePoisonChance(currentBurger);
+    const isPoisoned = poisonChance > 0 && Math.random() < poisonChance;
 
-    const cost = ids.reduce((sum, id) => sum + (ITEM_PRICES[id] || 1), 0);
+    const cost = getBurgerCost(currentBurger);
 
     if (isCorrect) {
       if (isPoisoned) {
         playSound(SOUNDS.wrongOrder);
-        const penalty = cost * 2;
-        if (currentGameMode !== 'sandbox') {
+        const penaltyMult = POISON_PENALTY_MULTIPLIER[currentGameMode] ?? 1.5;
+        const penalty = Math.round(cost * penaltyMult * 100) / 100;
+
+        if (currentGameMode === 'sandbox') {
+          showToast('Food Poisoning! 🤢', 'Client got sick! (Sandbox: no money deducted)', 'warning');
+        } else {
           playerMoney -= penalty;
           updateMoneyDisplay(penalty, false);
+          showToast('Food Poisoning! 🤢', `Client got sick! Fined -$${penalty.toFixed(2)} (${penaltyMult}x cost)`, 'error');
         }
-        showToast('Food Poisoning! 🤢', `Client got sick! Fined -$${penalty.toFixed(2)} (Double cost compensation)`, 'error');
-        currentActiveOrder = null;
-        localStorage.removeItem(getModeKey('current_active_order'));
+
+        if (currentGameMode === 'turbo') {
+          currentTurboTimeLeft = 180;
+          triggerRandomOrder();
+        } else {
+          currentActiveOrder = null;
+          localStorage.removeItem(getModeKey('current_active_order'));
+          const speed = getCurrentSpeed();
+          if (speed === 'turbo') triggerRandomOrder();
+          else if (speed !== 'no-orders') {
+            timeUntilNextOrder = getRandomTimeForSpeed(speed);
+            localStorage.setItem(getModeKey('time_until_next_order'), timeUntilNextOrder);
+          }
+        }
       } else {
         playSound(SOUNDS.complete);
         trackQuestProgress('make_burgers', 1);
@@ -3238,9 +3359,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function checkSpecialCombos() {
     if (currentBurger.length === 0) return;
-    const ids = currentBurger.map(i => i.id);
+    const normalizedIds = currentBurger.map(i => normalizeIngredientIdForOrder(i.id));
     SECRET_ACHIEVEMENTS.forEach(ach => {
-      if (ach.ids.length > 0 && ids.length === ach.ids.length && ids.every((val, idx) => val === ach.ids[idx])) {
+      if (ach.ids.length > 0 && normalizedIds.length === ach.ids.length && normalizedIds.every((val, idx) => val === ach.ids[idx])) {
         unlockAchievement(ach);
       }
     });
