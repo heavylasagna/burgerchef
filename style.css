@@ -300,6 +300,14 @@ body.tutorial-active {
   transform: translateY(var(--sq-offset, 8px)) scaleY(0.82) scaleX(1.04);
 }
 
+.burger-layer-img.raw-cheese-layer {
+  transform: translateY(-28px) !important;
+}
+
+.burger-layer-img.raw-cheese-layer.squeezed {
+  transform: translateY(calc(-28px + var(--sq-offset, 8px))) scaleY(0.82) scaleX(1.04) !important;
+}
+
 .burger-layer-img.new-layer {
   animation: smoothDropIn 0.35s ease-out forwards;
 }
@@ -611,7 +619,6 @@ body.tutorial-active {
 .ingredient-card.disabled { opacity: 0.4; cursor: not-allowed; }
 .ingredient-card img { width: 36px; height: 36px; object-fit: contain; }
 
-/* Коричневатый фильтр для грязных ингредиентов */
 .ingredient-card img.unwashed-filter,
 .grill-item.unwashed-filter,
 .layer-preview.unwashed-filter,
@@ -747,7 +754,6 @@ body.tutorial-active {
   color: #d32f2f;
 }
 
-/* Красная точка-индикатор уведомления на кнопках станций */
 .screen-btn-wrapper {
   position: relative;
   display: inline-flex;
@@ -834,7 +840,6 @@ body.tutorial-active {
   height: 100%;
 }
 
-/* Зона раковины */
 .sink-cooking-area {
   flex: 1;
   display: flex;
@@ -851,7 +856,6 @@ body.tutorial-active {
   height: 100%;
 }
 
-/* Раковина без рамки и круга вокруг продукта */
 .sink-water-container {
   position: relative;
   width: 105px;
@@ -871,7 +875,6 @@ body.tutorial-active {
   object-fit: contain;
 }
 
-/* Пузырьки в раковине вокруг продукта */
 .sink-bubble-splash-container {
   position: absolute;
   inset: -10px;
@@ -1895,7 +1898,6 @@ input[type="range"]::-webkit-slider-thumb {
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
   }
 
-  /* Мобильная кнопка подачи: справа сверху от меню Ingredients */
   .btn-floating-serve.serve-btn-above-ingredients {
     display: flex !important;
     position: fixed !important;
