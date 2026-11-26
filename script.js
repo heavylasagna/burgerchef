@@ -3330,25 +3330,25 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       title: "Ingredients Menu",
-      text: "Here you can select what ingredients you want to put in your burger.",
+      text: "Here you can select which ingredients you want to put in your burger.",
       screen: "assembly",
       getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
     },
     {
       title: "Layers Panel",
-      text: "In there you can see all current layers of your burger, reorder them, or remove individual items.",
+      text: "Here you can see all current layers of your burger, reorder them, or remove individual items.",
       screen: "assembly",
       getElement: () => document.getElementById('leftPanel') || document.querySelector('.left-panel')
     },
     {
       title: "Wallet",
-      text: "Shows your current balance. Serve orders and try not to get fines!",
+      text: "Shows your current balance. Serve orders and try not to get fined!",
       screen: "assembly",
       getElement: () => document.getElementById('walletWidget') || document.querySelector('.wallet-widget')
     },
     {
       title: "Bottom Actions Menu",
-      text: "On the lower menu you have a variety of buttons:\n\n📋 List of recipes\n🏬 Groceries shop\n🎒 Your inventory\n🏆 Your achievements\n---\n🔔 Summon new order\n⏩ Skip current order\n🍔 Eat your burger\n🍽 Serve the order\n✊ Squeeze your burger\n🗑 Bin current ingredients\n---\n💾 Save your burger as PNG\n⚙ Settings",
+      text: "On the lower menu, you have a variety of buttons:\n\n📋 List of recipes\n🏬 Grocery shop\n🎒 Your inventory\n🏆 Your achievements\n---\n🔔 Summon a new order\n⏩ Skip current order\n🍔 Eat your burger\n🍽 Serve the order\n✊ Squeeze your burger\n🗑 Bin current ingredients\n---\n💾 Save your burger as a PNG\n⚙ Settings",
       screen: "assembly",
       getElement: () => document.getElementById('bottomPanel') || document.querySelector('.bottom-panel')
     },
@@ -3390,7 +3390,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       title: "Uncut Ingredients",
-      text: "Select items to put them on the board and cut.",
+      text: "Select items to put them on the board and cut them.",
       screen: "board",
       getElement: () => document.getElementById('rightPanel') || document.querySelector('.right-panel')
     },
@@ -3402,7 +3402,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       title: "Settings & Game Modes",
-      text: "In the settings you can adjust volume and other features:\n\nSandbox. Infinite money and ingredients, chill and be creative\n\nCasual. A career gamemode where you need to manage your finances\n\nTurbo. Orders come without stopping and with an additional patience timer. Don't mess up or you'll get fined!\n---\nThe order frequency tells how fast you will be getting your next order. In \"Turbo\" you won't need to wait a second for the next customer and in \"No orders\" you won't get any at all.",
+      text: "In the settings, you can adjust volume and other features:\n\nSandbox: Infinite money and ingredients — chill and get creative.\n\nCasual: A career game mode where you manage your finances.\n\nTurbo: Orders come nonstop with an extra patience timer. Don't mess up, or you'll get fined!\n---\nOrder frequency controls how fast you get your next order. In \"Turbo\" you won't wait a second for the next customer, and in \"No orders\" you won't get any at all.",
       screen: "assembly",
       action: () => {
         if (window.innerWidth > 900) {
@@ -3421,7 +3421,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       title: "Reset & Tutorial",
-      text: "That's the end of the tutorial. In danger zone there are two buttons to reset your achievements and game progress. Be careful with these and enjoy!",
+      text: "That's the end of the tutorial. In the danger zone, there are two buttons to reset your achievements and game progress. Be careful with these, and enjoy!",
       screen: "assembly",
       action: () => {
         if (window.innerWidth > 900) {
