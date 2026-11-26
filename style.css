@@ -302,12 +302,12 @@ body.tutorial-active {
 
 .burger-layer-img.raw-cheese-layer {
   margin-top: 0;
-  margin-bottom: -44px;
+  margin-bottom: -54px;
 }
 
 .burger-layer-img.raw-cheese-layer.squeezed {
   margin-top: 0;
-  margin-bottom: calc(-44px - var(--sq-offset, 6px));
+  margin-bottom: calc(-54px - var(--sq-offset, 6px));
 }
 
 .burger-layer-img.new-layer {
