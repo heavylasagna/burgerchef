@@ -3154,7 +3154,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (index === 0) mb = -10;
           else if (['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id)) mb = -50;
           else if (item.id === 'top-bun') mb = -38;
-          else if (item.id === 'raw-cheese') mb = -36;
+          else if (item.id === 'raw-cheese') mb = -5;
           else if (item.id === 'cheese') mb = -60;
           else if (item.id === 'hashbrown') mb = -38;
           else if (item.id === 'fried-egg' || item.id === 'raw-egg') mb = -52;
