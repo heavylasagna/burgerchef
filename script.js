@@ -199,14 +199,16 @@ document.addEventListener('DOMContentLoaded', () => {
     'raw-chicken-patty': 0.28
   };
 
-  const POISON_PENALTY_MULTIPLIER = {
-    casual: 1.5,
-    turbo: 2.0,
-    sandbox: 0.0
-  };
-
   function normalizeIngredientIdForOrder(id) {
     return RAW_TO_COOKED_PATTY[id] || id;
+  }
+
+  function getPoisonPenaltyMultiplier() {
+    if (currentGameMode === 'sandbox') return 0.0;
+    if (currentGameMode === 'turbo') return 2.0;
+    const speedMultiplier = getOrderMultiplier();
+    // Базовый штраф 1.5x с учётом множителя скорости заказов в Casual
+    return Math.round(1.5 * (0.75 + 0.25 * speedMultiplier) * 100) / 100;
   }
 
   function getAssemblyAvailableStock(itemId) {
@@ -3275,7 +3277,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isCorrect) {
       if (isPoisoned) {
         playSound(SOUNDS.wrongOrder);
-        const penaltyMult = POISON_PENALTY_MULTIPLIER[currentGameMode] ?? 1.5;
+        const penaltyMult = getPoisonPenaltyMultiplier();
         const penalty = Math.round(cost * penaltyMult * 100) / 100;
 
         if (currentGameMode === 'sandbox') {
@@ -3357,11 +3359,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Для ачивок засчитываются только готовые котлеты (!layer.isRaw)
   function checkSpecialCombos() {
     if (currentBurger.length === 0) return;
-    const normalizedIds = currentBurger.map(i => normalizeIngredientIdForOrder(i.id));
+    const achIds = currentBurger.map(i => (i.isRaw && i.rawId ? i.rawId : i.id));
     SECRET_ACHIEVEMENTS.forEach(ach => {
-      if (ach.ids.length > 0 && normalizedIds.length === ach.ids.length && normalizedIds.every((val, idx) => val === ach.ids[idx])) {
+      if (ach.ids.length > 0 && achIds.length === ach.ids.length && achIds.every((val, idx) => val === ach.ids[idx])) {
         unlockAchievement(ach);
       }
     });
