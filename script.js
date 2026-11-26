@@ -88,6 +88,26 @@ document.addEventListener('DOMContentLoaded', () => {
     return Boolean(sm && sm.classList.contains('open'));
   }
 
+  function getMobileIngredientsTopAnchor() {
+    const rp = document.getElementById('rightPanel');
+    if (rp) {
+      const rpStyle = window.getComputedStyle(rp);
+      const rpRect = rp.getBoundingClientRect();
+      if (rpStyle.display !== 'none' && rpRect.width > 0 && rpRect.height > 0) {
+        return rpRect;
+      }
+    }
+    const im = document.getElementById('ingredientsMenu');
+    if (im) {
+      const imStyle = window.getComputedStyle(im);
+      const imRect = im.getBoundingClientRect();
+      if (imStyle.display !== 'none' && imRect.width > 0 && imRect.height > 0) {
+        return imRect;
+      }
+    }
+    return null;
+  }
+
   function positionMusicToast() {
     if (!musicToastEl) return;
 
@@ -115,10 +135,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const bp = document.getElementById('bottomPanel');
 
     if (isMobile) {
+      const menuRect = getMobileIngredientsTopAnchor();
+      const serveBtn = document.getElementById('serveFloatingBtn');
       let leftPos = 10;
       let bottomPos = 12;
 
-      if (bp) {
+      if (menuRect) {
+        leftPos = Math.max(8, Math.min(menuRect.left, window.innerWidth - 180));
+        let topObstacle = menuRect.top;
+
+        if (serveBtn && currentScreen === 'assembly') {
+          const sbStyle = window.getComputedStyle(serveBtn);
+          const sbRect = serveBtn.getBoundingClientRect();
+          if (
+            sbStyle.display !== 'none' &&
+            !serveBtn.classList.contains('hidden-serve-btn') &&
+            sbRect.width > 0 &&
+            sbRect.height > 0 &&
+            sbRect.top < topObstacle
+          ) {
+            topObstacle = sbRect.top;
+          }
+        }
+
+        bottomPos = Math.max(8, window.innerHeight - topObstacle + 8);
+      } else if (bp) {
         const bpStyle = window.getComputedStyle(bp);
         const bpRect = bp.getBoundingClientRect();
         if (bpStyle.display !== 'none' && bpRect.width > 0 && bpRect.height > 0) {
@@ -596,6 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'beef-patty': 'raw-beef-patty',
     'chicken-patty': 'raw-chicken-patty',
     'fish-patty': 'raw-fish-patty',
+    'hashbrown': 'raw-hashbrown',
     'fried-bacon': 'raw-bacon',
     'fried-egg': 'raw-egg',
     'champignons': 'raw-champignons',
@@ -606,6 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'raw-beef-patty': 'beef-patty',
     'raw-chicken-patty': 'chicken-patty',
     'raw-fish-patty': 'fish-patty',
+    'raw-hashbrown': 'hashbrown',
     'raw-bacon': 'fried-bacon',
     'raw-egg': 'fried-egg',
     'raw-champignons': 'champignons',
@@ -616,6 +659,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'raw-beef-patty': 'images/raw-beef-patty.png',
     'raw-chicken-patty': 'images/raw-chicken-patty.png',
     'raw-fish-patty': 'images/raw-fish-patty.png',
+    'raw-hashbrown': 'images/raw-hashbrown.png',
     'raw-bacon': 'images/raw-bacon.png',
     'raw-egg': 'images/raw-egg.png',
     'raw-champignons': 'images/raw-champignons.png',
@@ -939,6 +983,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     updateBottomPanelForScreen();
     updateStationNotificationDots();
+    requestAnimationFrame(() => positionMusicToast());
   }
 
   if (switchToAssemblyBtn) switchToAssemblyBtn.onclick = () => switchScreen('assembly');
@@ -1432,14 +1477,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const availableStock = getAssemblyAvailableStock(item.id);
       const isOut = currentGameMode !== 'sandbox' && availableStock <= 0;
       const countText = currentGameMode === 'sandbox' ? '∞' : `x${availableStock}`;
-      const isRawPreview = currentGameMode !== 'sandbox' && (ingredientStock[item.id] ?? 0) <= 0 && ASSEMBLY_RAW_FALLBACK[item.id] && (ingredientStock[ASSEMBLY_RAW_FALLBACK[item.id]] ?? 0) > 0;
-      const previewImg = isRawPreview ? resolveLayerDisplayImage(item.id, item.image, true, ASSEMBLY_RAW_FALLBACK[item.id]) : item.image;
 
       cardsHtml += `
         <div class="ingredient-card ${currentBurger.length >= MAX_INGREDIENTS || isEating || isOut ? 'disabled' : ''}" onclick="handleAssemblyClick('${item.id}')">
-          <img src="${previewImg}" alt="${item.name}">
+          <img src="${item.image}" alt="${item.name}">
           <div class="ingredient-info-row">
-            <span class="ingredient-name">${item.name}${isRawPreview ? ' (Raw)' : ''}</span>
+            <span class="ingredient-name">${item.name}</span>
             <span class="ingredient-stock-count">${countText}</span>
           </div>
         </div>
@@ -1460,6 +1503,7 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(() => { tabsEl.scrollLeft = actualScroll; tabsEl.style.scrollBehavior = ''; });
       }
       positionServeButtonOnMobile();
+      positionMusicToast();
     });
   }
 
@@ -1523,6 +1567,7 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(() => { tabsEl.scrollLeft = actualScroll; tabsEl.style.scrollBehavior = ''; });
       }
       positionServeButtonOnMobile();
+      positionMusicToast();
     });
   }
 
@@ -1640,6 +1685,7 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(() => { tabsEl.scrollLeft = actualScroll; tabsEl.style.scrollBehavior = ''; });
       }
       positionServeButtonOnMobile();
+      positionMusicToast();
     });
   }
 
@@ -1759,6 +1805,7 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(() => { tabsEl.scrollLeft = actualScroll; tabsEl.style.scrollBehavior = ''; });
       }
       positionServeButtonOnMobile();
+      positionMusicToast();
     });
   }
 
@@ -2802,6 +2849,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (forceOrderBtn) forceOrderBtn.style.display = (isSpecialScreen || currentGameMode === 'turbo') ? 'none' : 'flex';
     if (skipOrderBtn) skipOrderBtn.style.display = isSpecialScreen ? 'none' : 'flex';
     if (knifeBtn) knifeBtn.style.display = currentScreen === 'board' ? 'flex' : 'none';
+    positionMusicToast();
   }
 
   const modeSandboxBtn = document.getElementById('modeSandboxBtn');
@@ -2917,6 +2965,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'raw-beef-patty': 'images/raw-beef-patty.png',
     'raw-chicken-patty': 'images/raw-chicken-patty.png',
     'raw-fish-patty': 'images/raw-fish-patty.png',
+    'raw-hashbrown': 'images/raw-hashbrown.png',
     'raw-bacon': 'images/raw-bacon.png',
     'raw-egg': 'images/raw-egg.png',
     'raw-champignons': 'images/raw-champignons.png',
@@ -3633,7 +3682,7 @@ document.addEventListener('DOMContentLoaded', () => {
           else mb = -46;
         }
         else if (item.id === 'cheese') mb = -60;
-        else if (item.id === 'hashbrown') mb = -38;
+        else if (item.id === 'hashbrown' || item.id === 'raw-hashbrown') mb = -38;
         else if (item.id === 'fried-egg' || item.id === 'raw-egg') mb = -52;
         else if (item.id === 'fried-bacon' || item.id === 'raw-bacon') mb = -48;
         else if (item.id === 'lettuce') mb = -65;
