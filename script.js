@@ -55,10 +55,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- MUSIC PLAYLIST & PLAYER ---
   const MUSIC_TRACKS = [
-    { title: 'Lo-Fi Kitchen Groove', src: 'music/your-file-1.mp3' },
-    { title: 'Sunny Grill Breeze', src: 'music/your-file-2.mp3' },
-    { title: 'Midnight Burger Diner', src: 'music/your-file-3.mp3' },
-    { title: 'Crispy Arcade Beats', src: 'music/your-file-4.mp3' }
+    { title: 'Aqua Frutiger Aero Chillwave', src: 'music/9jackjack8-aqua-frutiger-aero-chillwave-532669.mp3' },
+    { title: 'Dreamy Glass Aerowave', src: 'music/9jackjack8-dreamy-glass-aerowave-556871.mp3' },
+    { title: 'Drift Away Ambient Texture', src: 'music/9jackjack8-drift-away-ambient-texture-619612.mp3' },
+    { title: 'Future Office Frutiger Aero Chill', src: 'music/9jackjack8-future-office-frutiger-aero-chill-nostalgic-624710.mp3' },
+    { title: 'Ocean Bubbles Frutiger Aqua Game', src: 'music/9jackjack8-ocean-bubbles-frutiger-aqua-game-550245.mp3' },
+    { title: 'Petal Frutiger Aero Ambient', src: 'music/9jackjack8-petal-frutiger-aero-ambient-587794.mp3' },
+    { title: 'White Space Aerowave Ambient', src: 'music/9jackjack8-white-space-aerowave-ambient-nostalgic-600046.mp3' },
+    { title: 'Angelic Frutiger Aero', src: 'music/mewwwwwww-angelic-frutiger-aero-554728.mp3' },
+    { title: 'Frutiger Aero', src: 'music/mewwwwwww-frutiger-aero-472282.mp3' },
+    { title: 'Technozen', src: 'music/mewwwwwww-technozen-554729.mp3' }
   ];
 
   let currentTrackIndex = parseInt(localStorage.getItem('burger_music_track_index'), 10);
