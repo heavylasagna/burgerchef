@@ -301,7 +301,12 @@ body.tutorial-active {
 }
 
 .burger-layer-img.raw-cheese-layer {
-  transform: translateY(-28px) !important;
+  margin-top: -28px !important;
+  margin-bottom: -18px !important;
+}
+
+.burger-layer-img.raw-cheese-layer.squeezed {
+  transform: translateY(var(--sq-offset, 0px)) !important;
 }
 
 .burger-layer-img.raw-cheese-layer.squeezed {
