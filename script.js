@@ -3150,11 +3150,12 @@ document.addEventListener('DOMContentLoaded', () => {
             img.classList.add('new-layer');
             setTimeout(() => img.classList.remove('new-layer'), 350);
           }
-          let mb = -38;
+         let mb = -38;
           if (index === 0) mb = -10;
           else if (['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id)) mb = -50;
           else if (item.id === 'top-bun') mb = -38;
-          else if (item.id === 'cheese' || item.id === 'raw-cheese') mb = -60;
+          else if (item.id === 'raw-cheese') mb = -36;
+          else if (item.id === 'cheese') mb = -60;
           else if (item.id === 'hashbrown') mb = -38;
           else if (item.id === 'fried-egg' || item.id === 'raw-egg') mb = -52;
           else if (item.id === 'fried-bacon' || item.id === 'raw-bacon') mb = -48;
