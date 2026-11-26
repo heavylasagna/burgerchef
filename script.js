@@ -180,8 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
     'mayo': 5, 'ketchup': 5, 'mustard': 5, 'spicy': 5, 'bbq': 5
   };
 
-  // Для жареных/приготовленных позиций (включая сыр) при нехватке готовых берётся сырой/нежареный аналог
-  // (при условии что овощи/грибы/сыр уже нарезаны).
   const ASSEMBLY_RAW_FALLBACK = {
     'beef-patty': 'raw-beef-patty',
     'chicken-patty': 'raw-chicken-patty',
@@ -192,7 +190,6 @@ document.addEventListener('DOMContentLoaded', () => {
     'cheese': 'raw-cheese'
   };
 
-  // Сырые/нежареные ингредиенты, которые при подаче заменяют готовый аналог в заказе (с потерей части награды)
   const RAW_TO_COOKED_RECIPE_ITEM = {
     'raw-beef-patty': 'beef-patty',
     'raw-chicken-patty': 'chicken-patty',
@@ -658,7 +655,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return null;
   }
 
-  // Сначала берём чистую единицу (мытую/обработанную), затем грязную (необработанную)
   function consumePreparedItemPreferClean(itemId) {
     if (currentGameMode === 'sandbox') {
       return { isDirty: false };
@@ -681,10 +677,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Порядок расхода на сборке:
-  // 1) полностью готовый (чистый -> грязный)
-  // 2) частично готовый (сырой/нежареный, но чистый/мытый)
-  // 3) необработанный (сырой/нежареный и грязный)
   function consumeAssemblyIngredient(itemId) {
     if (currentGameMode === 'sandbox') {
       return { isDirty: false, isRaw: false, rawId: null, stockKey: itemId, displayImage: null };
@@ -869,7 +861,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(removeToast, 3500);
   }
 
-  // Только общие кнопки ингредиентов на экране сборки
   const INGREDIENTS = [
     { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
     { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
@@ -3150,11 +3141,11 @@ document.addEventListener('DOMContentLoaded', () => {
             img.classList.add('new-layer');
             setTimeout(() => img.classList.remove('new-layer'), 350);
           }
-         let mb = -38;
+          let mb = -38;
           if (index === 0) mb = -10;
           else if (['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id)) mb = -50;
           else if (item.id === 'top-bun') mb = -38;
-          else if (item.id === 'raw-cheese') mb = -30;
+          else if (item.id === 'raw-cheese') mb = -18;
           else if (item.id === 'cheese') mb = -60;
           else if (item.id === 'hashbrown') mb = -38;
           else if (item.id === 'fried-egg' || item.id === 'raw-egg') mb = -52;
@@ -3164,8 +3155,11 @@ document.addEventListener('DOMContentLoaded', () => {
           img.style.marginBottom = `${mb}px`;
           img.style.zIndex = index + 1;
 
-          if (isSqueezed && index > 0) {
-            img.style.setProperty('--sq-offset', `${index * 6}px`);
+          const squeezeShift = isSqueezed && index > 0 ? index * 6 : 0;
+          if (item.id === 'raw-cheese') {
+            img.style.setProperty('transform', `translateY(${-18 + squeezeShift}px)`, 'important');
+          } else if (isSqueezed && index > 0) {
+            img.style.setProperty('--sq-offset', `${squeezeShift}px`);
             img.classList.add('squeezed');
           }
           burgerStack.appendChild(img);
@@ -3351,9 +3345,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Расчёт шанса отравления (в Sandbox не используется):
-  // - грязные слои: 20% + 10% за каждый дополнительный (макс. 35%)
-  // - сырое яйцо: 50%, сырой бекон: 35%, сырая курица: 40%, сырая рыба: 35%, сырая говядина: 25%
   function calculatePoisonChance(burgerLayers) {
     if (currentGameMode === 'sandbox') return 0;
     let dirtyCount = 0;
@@ -3496,7 +3487,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Для ачивок засчитываются только готовые котлеты (!layer.isRaw)
   function checkSpecialCombos() {
     if (currentBurger.length === 0) return;
     const achIds = currentBurger.map(i => (i.isRaw && i.rawId ? i.rawId : i.id));
