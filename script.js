@@ -3371,7 +3371,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function showTutorialStep(stepIndex) {
     const step = tutorialSteps[stepIndex];
     if (!step) { endTutorial(); return; }
-    if (step.screen && currentScreen !== step.screen) switchScreen(step.screen);
+    const isMobile = window.innerWidth <= 900;
+    if (isMobile) {
+      if (currentScreen !== 'assembly') switchScreen('assembly', true);
+    } else if (step.screen && currentScreen !== step.screen) {
+      switchScreen(step.screen);
+    }
     document.getElementById('tutorialTitle').innerText = step.title;
     document.getElementById('tutorialText').innerText = step.text;
     document.getElementById('tutorialStepIndicator').innerText = `${stepIndex + 1} / ${tutorialSteps.length}`;
