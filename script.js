@@ -3132,15 +3132,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (burgerStack) {
       burgerStack.innerHTML = '';
       currentBurger.forEach((item, index) => {
-        const layerImg = resolveLayerDisplayImage(item.id, item.image, item.isRaw, item.rawId);
-        if (layerImg) {
-          const img = document.createElement('img');
+        const img = document.createElement('img');
           img.src = layerImg;
-          img.className = `burger-layer-img ${item.isDirty ? 'unwashed-filter' : ''}`;
+          img.className = `burger-layer-img ${item.isDirty ? 'unwashed-filter' : ''} ${item.id === 'raw-cheese' ? 'raw-cheese-layer' : ''}`;
           if (isNewAdded && index === currentBurger.length - 1) {
             img.classList.add('new-layer');
             setTimeout(() => img.classList.remove('new-layer'), 350);
           }
+
           let mb = -38;
           if (index === 0) mb = -10;
           else if (['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id)) mb = -50;
@@ -3155,11 +3154,8 @@ document.addEventListener('DOMContentLoaded', () => {
           img.style.marginBottom = `${mb}px`;
           img.style.zIndex = index + 1;
 
-          const squeezeShift = isSqueezed && index > 0 ? index * 6 : 0;
-          if (item.id === 'raw-cheese') {
-            img.style.setProperty('transform', `translateY(${-18 + squeezeShift}px)`, 'important');
-          } else if (isSqueezed && index > 0) {
-            img.style.setProperty('--sq-offset', `${squeezeShift}px`);
+          if (isSqueezed && index > 0) {
+            img.style.setProperty('--sq-offset', `${index * 6}px`);
             img.classList.add('squeezed');
           }
           burgerStack.appendChild(img);
