@@ -12,7 +12,7 @@
   --panel-title-color: #ffb300;
   --scrollbar-thumb: rgba(255, 179, 0, 0.3);
   --scrollbar-thumb-hover: rgba(255, 179, 0, 0.6);
-  --stock-badge-bg: rgba(0,0,0,0.3);
+  --stock-badge-bg: rgba(0, 0, 0, 0.3);
   --board-bg: radial-gradient(circle at 50% 30%, #5c3a21, #2d1a0d);
   --sink-bg: radial-gradient(circle at 50% 30%, #1a3a4b, #0d1e29);
 }
@@ -113,7 +113,7 @@ body.tutorial-active {
   margin-bottom: 8px;
   text-align: center;
   color: var(--panel-title-color);
-  text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   text-transform: uppercase;
   letter-spacing: 0.6px;
   flex-shrink: 0;
@@ -246,7 +246,7 @@ body.tutorial-active {
   align-items: center;
   position: relative;
   padding-bottom: 20px;
-  overflow-y: auto; 
+  overflow-y: auto;
   overflow-x: hidden;
   height: 100%;
 }
@@ -306,10 +306,6 @@ body.tutorial-active {
 }
 
 .burger-layer-img.raw-cheese-layer.squeezed {
-  transform: translateY(var(--sq-offset, 0px)) !important;
-}
-
-.burger-layer-img.raw-cheese-layer.squeezed {
   transform: translateY(calc(-28px + var(--sq-offset, 8px))) scaleY(0.82) scaleX(1.04) !important;
 }
 
@@ -342,7 +338,7 @@ body.tutorial-active {
 .wallet-widget {
   position: absolute;
   top: 10px;
-  left: 240px; 
+  left: 240px;
   background: var(--panel-bg-1);
   backdrop-filter: blur(8px);
   color: var(--text-color);
@@ -350,7 +346,7 @@ body.tutorial-active {
   border-radius: 12px;
   padding: 6px 12px;
   font-size: 0.8rem;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   z-index: 150;
   display: flex;
   align-items: center;
@@ -384,7 +380,7 @@ body.tutorial-active {
   background: var(--modal-bg);
   backdrop-filter: blur(4px);
   animation: moneyPopupAnim 2.5s forwards ease-in-out;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
   cursor: pointer;
   transition: opacity 0.3s ease, transform 0.3s ease;
   width: max-content;
@@ -422,7 +418,7 @@ body.tutorial-active {
   border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 6px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   z-index: 50;
   display: none;
   transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
@@ -446,7 +442,7 @@ body.tutorial-active {
   pointer-events: auto;
   margin-top: 6px;
   z-index: 10;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   transition: opacity 0.3s ease;
 }
 .pinned-recipe-title.show-title {
@@ -460,17 +456,17 @@ body.tutorial-active {
   margin-bottom: 2px;
 }
 .pinned-recipe-widget .unpin-btn { background: none; border: none; cursor: pointer; font-size: 0.75rem; color: var(--text-color); padding: 0 2px; }
-.pinned-ingredients { 
-  display: flex; 
-  flex-direction: column-reverse; 
-  gap: 0px; 
-  align-items: center; 
+.pinned-ingredients {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0;
+  align-items: center;
 }
-.pinned-ingredients img { 
-  width: 48px; 
-  height: 48px; 
-  object-fit: contain; 
-  margin-bottom: -12px; 
+.pinned-ingredients img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  margin-bottom: -12px;
 }
 .pinned-ingredients img:first-child {
   margin-bottom: 0;
@@ -489,7 +485,7 @@ body.tutorial-active {
   border-radius: 14px;
   padding: 6px 16px;
   font-size: 0.8rem;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   z-index: 3000 !important;
   display: flex;
   align-items: center;
@@ -506,6 +502,10 @@ body.tutorial-active {
 .top-order-widget.dimmed { opacity: 0.25 !important; }
 .top-order-widget span { color: var(--accent-color); font-weight: bold; }
 .order-timer-badge { color: #e57373; font-weight: bold; font-family: monospace; display: block; margin-top: 2px; }
+
+body.ui-hidden .top-order-widget {
+  display: none !important;
+}
 
 .btn-floating-serve {
   position: fixed;
@@ -541,7 +541,7 @@ body.tutorial-active {
 
 .toast-container {
   position: absolute;
-  top: 68px; 
+  top: 68px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 3000;
@@ -557,7 +557,7 @@ body.tutorial-active {
   color: var(--text-color);
   padding: 8px 14px;
   border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -670,7 +670,7 @@ body.tutorial-active {
   background: linear-gradient(145deg, var(--panel-bg-1), var(--panel-bg-2));
   backdrop-filter: blur(10px);
   border-radius: 14px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   border: 1px solid var(--border-color);
   z-index: 100;
   transition: opacity 0.3s ease, background 0.3s ease;
@@ -730,7 +730,7 @@ body.tutorial-active {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
   white-space: nowrap;
 }
@@ -982,10 +982,10 @@ body.tutorial-active {
   position: relative;
   width: 100px;
   height: 8px;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   border-radius: 4px;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   margin-top: 6px;
   flex-shrink: 0;
   z-index: 5;
@@ -1014,7 +1014,7 @@ body.tutorial-active {
   border-radius: 10px;
   animation: pulseFlip 1s infinite alternate;
   z-index: 15;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 @keyframes pulseFlip {
@@ -1096,7 +1096,7 @@ body.tutorial-active {
   max-width: 440px;
   border-radius: 16px;
   padding: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
   border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
@@ -1105,9 +1105,9 @@ body.tutorial-active {
   transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-.modal-content.wide { 
-  max-width: 650px; 
-  height: 560px; 
+.modal-content.wide {
+  max-width: 650px;
+  height: 560px;
 }
 
 .modal-header {
@@ -1302,6 +1302,7 @@ body.tutorial-active {
 }
 .shop-buy-group input.shop-qty-input {
   -moz-appearance: textfield;
+  appearance: textfield;
   background: var(--modal-bg);
   color: var(--text-color);
   border: 1px solid var(--item-border);
@@ -1323,7 +1324,7 @@ body.tutorial-active {
   font-weight: bold;
   font-size: 0.75rem;
   cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   transition: transform 0.1s;
 }
 .btn-buy:hover { transform: scale(1.03); background: linear-gradient(135deg, #7cb342, #689f38); }
@@ -1374,7 +1375,7 @@ body.tutorial-active {
   font-weight: bold;
   font-size: 0.75rem;
   cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   transition: transform 0.1s;
   white-space: nowrap;
 }
@@ -1412,6 +1413,7 @@ body.tutorial-active {
 
 input[type="range"] {
   -webkit-appearance: none;
+  appearance: none;
   width: 100%;
   height: 6px;
   background: var(--border-color);
@@ -1483,7 +1485,7 @@ input[type="range"]::-webkit-slider-thumb {
   font-weight: 700;
   font-size: 0.85rem;
   height: auto;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 #openTutorialFromSettingsBtn:hover {
   background: var(--item-bg);
@@ -1513,7 +1515,7 @@ input[type="range"]::-webkit-slider-thumb {
   width: 26px;
   height: 26px;
   object-fit: contain;
-  background: rgba(255,255,255,0.4);
+  background: rgba(255, 255, 255, 0.4);
   border-radius: 4px;
   padding: 1px;
   border: 1px solid var(--item-border);
@@ -1630,7 +1632,7 @@ input[type="range"]::-webkit-slider-thumb {
   font-size: 0.75rem;
   cursor: pointer;
   align-self: flex-end;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .btn-claim-reward:disabled {
@@ -1672,7 +1674,7 @@ input[type="range"]::-webkit-slider-thumb {
   padding: 16px;
   width: 310px;
   max-width: 90vw;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
   z-index: 4002;
   color: var(--text-color);
   transition: all 0.3s ease;
@@ -1708,8 +1710,8 @@ input[type="range"]::-webkit-slider-thumb {
 .mobile-sauces { display: none !important; }
 
 @media (max-width: 900px) {
-  body { 
-    overflow: auto; 
+  body {
+    overflow: auto;
     min-height: 100vh;
     min-height: 100dvh;
     background-attachment: fixed;
@@ -1728,7 +1730,7 @@ input[type="range"]::-webkit-slider-thumb {
   .grill-stage {
     flex-direction: column;
   }
-  
+
   .right-panel { order: 2; height: 190px; position: relative; margin-top: 34px; }
   .left-panel { order: 4; height: 190px; }
 
@@ -1762,7 +1764,7 @@ input[type="range"]::-webkit-slider-thumb {
     overflow-x: auto;
     border: 1px solid var(--border-color);
   }
-  
+
   .bottom-panel {
     position: fixed;
     bottom: 0; left: 0; right: 0;
@@ -1777,7 +1779,7 @@ input[type="range"]::-webkit-slider-thumb {
     gap: 27px;
     width: 100%;
   }
-  
+
   .sauces-group {
     flex-shrink: 0;
     overflow-x: auto;
@@ -1801,7 +1803,7 @@ input[type="range"]::-webkit-slider-thumb {
     gap: 8px;
     display: inline-flex;
   }
-  
+
   .btn-action {
     flex-shrink: 0;
     padding: 0 10px;
@@ -1832,7 +1834,7 @@ input[type="range"]::-webkit-slider-thumb {
 
   .mobile-top-bar {
     position: absolute !important;
-    top: 10px !important; 
+    top: 10px !important;
     right: 10px !important;
     display: flex !important;
     flex-direction: column !important;
@@ -1842,7 +1844,7 @@ input[type="range"]::-webkit-slider-thumb {
     gap: 6px;
   }
   .mobile-top-bar > * { pointer-events: auto; }
-  
+
   .screen-switcher {
     position: absolute !important;
     top: 56px !important;
@@ -1856,28 +1858,28 @@ input[type="range"]::-webkit-slider-thumb {
     padding: 0;
   }
 
-  .wallet-widget { 
-    position: absolute !important; 
-    top: 10px !important; 
-    left: 10px !important; 
-    transform: none !important; 
+  .wallet-widget {
+    position: absolute !important;
+    top: 10px !important;
+    left: 10px !important;
+    transform: none !important;
     width: max-content !important;
     z-index: 1000 !important;
-    padding: 6px 12px; 
-    font-size: 0.75rem; 
+    padding: 6px 12px;
+    font-size: 0.75rem;
   }
 
-  .pinned-recipe-widget { 
-    position: absolute !important; 
-    top: 52px !important; 
-    left: 10px !important; 
+  .pinned-recipe-widget {
+    position: absolute !important;
+    top: 52px !important;
+    left: 10px !important;
     width: max-content !important;
     z-index: 1000 !important;
     padding: 6px !important;
   }
-  .pinned-ingredients img { 
-    width: 36px !important; 
-    height: 36px !important; 
+  .pinned-ingredients img {
+    width: 36px !important;
+    height: 36px !important;
     margin-bottom: -8px !important;
   }
   .pinned-ingredients img:first-child {
@@ -1886,7 +1888,6 @@ input[type="range"]::-webkit-slider-thumb {
 
   .money-popup-container {
     position: absolute !important;
-    left: 10px !important;
   }
 
   .toggle-ui-btn {
@@ -1900,7 +1901,7 @@ input[type="range"]::-webkit-slider-thumb {
     justify-content: center;
     font-size: 1rem;
     cursor: pointer;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
   }
 
   .btn-floating-serve.serve-btn-above-ingredients {
@@ -1931,7 +1932,7 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .pinned-recipe-widget,
   body.ui-hidden .screen-switcher,
   body.ui-hidden .btn-floating-serve.serve-btn-above-ingredients { display: none !important; }
-  
+
   body.ui-hidden .center-stage { min-height: 75vh; }
 }
 
@@ -1939,7 +1940,7 @@ input[type="range"]::-webkit-slider-thumb {
   .grill-slot .flip-badge {
     top: -8px !important;
     bottom: auto !important;
-    right: 0px !important;
+    right: 0 !important;
     left: auto !important;
     transform: none !important;
   }
@@ -1977,6 +1978,6 @@ input[type="range"]::-webkit-slider-thumb {
     border: 1px solid var(--border-color) !important;
     border-radius: 16px !important;
     padding: 20px !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
   }
 }
