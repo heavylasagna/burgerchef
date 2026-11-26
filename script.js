@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const ITEM_PRICES = {
     'top-bun': 2, 'bottom-bun': 2,
     'beef-patty': 5, 'chicken-patty': 5, 'fish-patty': 5, 'hashbrown': 4,
-    'fried-bacon': 3, 'fried-egg': 4, 'cheese': 5, 'champignons': 3,
+    'fried-bacon': 3, 'fried-egg': 4, 'cheese': 5, 'raw-cheese': 5, 'champignons': 3,
     'lettuce': 3, 'tomato': 3, 'pickles': 3, 'red-onion': 3, 'white-onion': 3,
     'raw-beef-patty': 5, 'raw-chicken-patty': 5, 'raw-fish-patty': 5, 'raw-hashbrown': 4,
     'raw-bacon': 3, 'raw-egg': 4,
@@ -180,27 +180,27 @@ document.addEventListener('DOMContentLoaded', () => {
     'mayo': 5, 'ketchup': 5, 'mustard': 5, 'spicy': 5, 'bbq': 5
   };
 
-  // Связка готовая котлета <-> сырая котлета (hashbrown в этот список намеренно не входит)
-  const COOKED_TO_RAW_PATTY = {
+  // Для жареных/приготовленных позиций (включая сыр) при нехватке готовых берётся сырой/нежареный аналог
+  // (при условии что овощи/грибы/сыр уже нарезаны).
+  const ASSEMBLY_RAW_FALLBACK = {
     'beef-patty': 'raw-beef-patty',
     'chicken-patty': 'raw-chicken-patty',
-    'fish-patty': 'raw-fish-patty'
+    'fish-patty': 'raw-fish-patty',
+    'fried-bacon': 'raw-bacon',
+    'fried-egg': 'raw-egg',
+    'champignons': 'raw-champignons',
+    'cheese': 'raw-cheese'
   };
 
-  const RAW_TO_COOKED_PATTY = {
-    'raw-beef-patty': 'beef-patty',
-    'raw-chicken-patty': 'chicken-patty',
-    'raw-fish-patty': 'fish-patty'
-  };
-
-  // Сырые ингредиенты, которые при подаче заменяют готовый аналог в заказе (с потерей части награды)
+  // Сырые/нежареные ингредиенты, которые при подаче заменяют готовый аналог в заказе (с потерей части награды)
   const RAW_TO_COOKED_RECIPE_ITEM = {
     'raw-beef-patty': 'beef-patty',
     'raw-chicken-patty': 'chicken-patty',
     'raw-fish-patty': 'fish-patty',
     'raw-bacon': 'fried-bacon',
     'raw-egg': 'fried-egg',
-    'raw-champignons': 'champignons'
+    'raw-champignons': 'champignons',
+    'raw-cheese': 'cheese'
   };
 
   const RAW_ITEM_IMAGES = {
@@ -209,13 +209,10 @@ document.addEventListener('DOMContentLoaded', () => {
     'raw-fish-patty': 'images/raw-fish-patty.png',
     'raw-bacon': 'images/raw-bacon.png',
     'raw-egg': 'images/raw-egg.png',
-    'raw-champignons': 'images/raw-champignons.png'
+    'raw-champignons': 'images/raw-champignons.png',
+    'raw-cheese': 'images/raw-cheese.png'
   };
 
-  // Шансы отравления:
-  // - сырое яйцо: 50%
-  // - сырой бекон: 35%
-  // - сырые котлеты: 25%–40%
   const RAW_ITEM_POISON_CHANCE = {
     'raw-egg': 0.50,
     'raw-bacon': 0.35,
@@ -227,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function resolveLayerDisplayImage(layerId, fallbackImage, isRaw = false, rawId = null) {
     if (RAW_ITEM_IMAGES[layerId]) return RAW_ITEM_IMAGES[layerId];
     if (isRaw && rawId && RAW_ITEM_IMAGES[rawId]) return RAW_ITEM_IMAGES[rawId];
-    const mappedRaw = COOKED_TO_RAW_PATTY[layerId];
+    const mappedRaw = ASSEMBLY_RAW_FALLBACK[layerId];
     if (isRaw && mappedRaw && RAW_ITEM_IMAGES[mappedRaw]) return RAW_ITEM_IMAGES[mappedRaw];
     return fallbackImage;
   }
@@ -237,7 +234,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function getPoisonPenaltyMultiplier() {
-    if (currentGameMode === 'sandbox') return 0.0;
     if (currentGameMode === 'turbo') return 2.0;
     const speedMultiplier = getOrderMultiplier();
     return Math.round(1.5 * (0.75 + 0.25 * speedMultiplier) * 100) / 100;
@@ -253,13 +249,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentGameMode === 'sandbox') return 0.85;
     const speedMult = getOrderMultiplier();
     if (currentGameMode === 'turbo') return 0.78;
-    // Чем медленнее заказы (выше множитель награды), тем мягче снижение за неполное соответствие
     return Math.min(0.92, Math.max(0.70, 0.72 + (speedMult - 1.0) * 0.15));
   }
 
   function getAssemblyAvailableStock(itemId) {
     const cookedCount = ingredientStock[itemId] ?? 0;
-    const rawId = COOKED_TO_RAW_PATTY[itemId];
+    const rawId = ASSEMBLY_RAW_FALLBACK[itemId];
     const rawCount = rawId ? (ingredientStock[rawId] ?? 0) : 0;
     return cookedCount + rawCount;
   }
@@ -381,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
       slicedId: 'tomato',
       slicedImage: 'images/tomato.png',
       cutTime: 5,
-      category: 'vegetables',
+      category: 'fruit',
       canBeDirty: true
     },
     'pickles': {
@@ -436,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const SINK_WASHABLE_ITEMS = {
     'unwashed-uncut-lettuce': { name: 'Lettuce', rawImage: 'images/uncut-lettuce.png', washedId: 'uncut-lettuce', washedImage: 'images/uncut-lettuce.png', washTime: 5, category: 'vegetables' },
-    'unwashed-uncut-tomato': { name: 'Tomato', rawImage: 'images/uncut-tomato.png', washedId: 'uncut-tomato', washedImage: 'images/uncut-tomato.png', washTime: 5, category: 'vegetables' },
+    'unwashed-uncut-tomato': { name: 'Tomato', rawImage: 'images/uncut-tomato.png', washedId: 'uncut-tomato', washedImage: 'images/uncut-tomato.png', washTime: 5, category: 'fruit' },
     'unwashed-uncut-pickles': { name: 'Pickles', rawImage: 'images/uncut-pickles.png', washedId: 'uncut-pickles', washedImage: 'images/uncut-pickles.png', washTime: 5, category: 'vegetables' },
     'unwashed-uncut-red-onion': { name: 'Red Onion', rawImage: 'images/uncut-red-onion.png', washedId: 'uncut-red-onion', washedImage: 'images/uncut-red-onion.png', washTime: 5, category: 'vegetables' },
     'unwashed-uncut-white-onion': { name: 'White Onion', rawImage: 'images/uncut-white-onion.png', washedId: 'uncut-white-onion', washedImage: 'images/uncut-white-onion.png', washTime: 5, category: 'vegetables' },
@@ -663,6 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return null;
   }
 
+  // Сначала берём чистую единицу (мытую/обработанную), затем грязную (необработанную)
   function consumePreparedItemPreferClean(itemId) {
     if (currentGameMode === 'sandbox') {
       return { isDirty: false };
@@ -685,14 +681,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Сначала берём готовый продукт; если для котлеты готовых нет — берём сырую котлету
+  // Порядок расхода на сборке:
+  // 1) полностью готовый (чистый -> грязный)
+  // 2) частично готовый (сырой/нежареный, но чистый/мытый)
+  // 3) необработанный (сырой/нежареный и грязный)
   function consumeAssemblyIngredient(itemId) {
     if (currentGameMode === 'sandbox') {
       return { isDirty: false, isRaw: false, rawId: null, stockKey: itemId, displayImage: null };
     }
 
-    const cookedCount = ingredientStock[itemId] ?? 0;
-    if (cookedCount > 0) {
+    const cookedTotal = ingredientStock[itemId] ?? 0;
+    if (cookedTotal > 0) {
       const consumed = consumePreparedItemPreferClean(itemId);
       if (!consumed) return null;
       return {
@@ -704,23 +703,37 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     }
 
-    const rawId = COOKED_TO_RAW_PATTY[itemId];
-    if (rawId) {
-      const rawCount = ingredientStock[rawId] ?? 0;
-      if (rawCount > 0) {
-        const consumedRaw = consumePreparedItemPreferClean(rawId);
-        if (!consumedRaw) return null;
-        return {
-          isDirty: consumedRaw.isDirty,
-          isRaw: true,
-          rawId,
-          stockKey: rawId,
-          displayImage: RAW_ITEM_IMAGES[rawId] || null
-        };
-      }
+    const rawId = ASSEMBLY_RAW_FALLBACK[itemId];
+    if (!rawId) return null;
+
+    const rawTotal = ingredientStock[rawId] ?? 0;
+    if (rawTotal <= 0) return null;
+
+    const rawDirtyCount = dirtyStock[rawId] ?? 0;
+    const rawCleanCount = Math.max(0, rawTotal - rawDirtyCount);
+
+    ingredientStock[rawId] = rawTotal - 1;
+    saveStock();
+
+    if (rawCleanCount > 0) {
+      return {
+        isDirty: false,
+        isRaw: true,
+        rawId,
+        stockKey: rawId,
+        displayImage: RAW_ITEM_IMAGES[rawId] || null
+      };
     }
 
-    return null;
+    dirtyStock[rawId] = Math.max(0, rawDirtyCount - 1);
+    saveDirtyStock();
+    return {
+      isDirty: true,
+      isRaw: true,
+      rawId,
+      stockKey: rawId,
+      displayImage: RAW_ITEM_IMAGES[rawId] || null
+    };
   }
 
   function returnBurgerLayerToStock(removed) {
@@ -856,24 +869,18 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(removeToast, 3500);
   }
 
-  // На экране сборки доступны все ингредиенты, включая сырые котлеты, яйцо и бекон (продукты резки остаются готовыми к нарезке)
+  // Только общие кнопки ингредиентов на экране сборки
   const INGREDIENTS = [
     { id: 'top-bun', name: 'Top Bun', category: 'bread', image: 'images/top-bun.png' },
     { id: 'bottom-bun', name: 'Bottom Bun', category: 'bread', image: 'images/bottom-bun.png' },
     { id: 'beef-patty', name: 'Beef Patty', category: 'patty', image: 'images/beef-patty.png' },
     { id: 'chicken-patty', name: 'Chicken Patty', category: 'patty', image: 'images/chicken-patty.png' },
     { id: 'fish-patty', name: 'Fish Patty', category: 'patty', image: 'images/fish-patty.png' },
-    { id: 'raw-beef-patty', name: 'Raw Beef Patty', category: 'patty', image: 'images/raw-beef-patty.png', isRaw: true, rawId: 'raw-beef-patty' },
-    { id: 'raw-chicken-patty', name: 'Raw Chicken Patty', category: 'patty', image: 'images/raw-chicken-patty.png', isRaw: true, rawId: 'raw-chicken-patty' },
-    { id: 'raw-fish-patty', name: 'Raw Fish Patty', category: 'patty', image: 'images/raw-fish-patty.png', isRaw: true, rawId: 'raw-fish-patty' },
     { id: 'hashbrown', name: 'Hashbrown', category: 'patty', image: 'images/hashbrown.png' },
-    { id: 'fried-bacon', name: 'Fried Bacon', category: 'protein', image: 'images/fried-bacon.png' },
-    { id: 'raw-bacon', name: 'Raw Bacon', category: 'protein', image: 'images/raw-bacon.png', isRaw: true, rawId: 'raw-bacon' },
-    { id: 'fried-egg', name: 'Fried Egg', category: 'protein', image: 'images/fried-egg.png' },
-    { id: 'raw-egg', name: 'Raw Egg', category: 'protein', image: 'images/raw-egg.png', isRaw: true, rawId: 'raw-egg' },
+    { id: 'fried-bacon', name: 'Bacon', category: 'protein', image: 'images/fried-bacon.png' },
+    { id: 'fried-egg', name: 'Egg', category: 'protein', image: 'images/fried-egg.png' },
     { id: 'cheese', name: 'Cheese', category: 'protein', image: 'images/cheese.png' },
     { id: 'champignons', name: 'Champignons', category: 'vegetables', image: 'images/champignons.png' },
-    { id: 'raw-champignons', name: 'Raw Champignons', category: 'vegetables', image: 'images/raw-champignons.png', isRaw: true, rawId: 'raw-champignons' },
     { id: 'lettuce', name: 'Lettuce', category: 'vegetables', image: 'images/lettuce.png' },
     { id: 'tomato', name: 'Tomato', category: 'vegetables', image: 'images/tomato.png' },
     { id: 'pickles', name: 'Pickles', category: 'vegetables', image: 'images/pickles.png' },
@@ -911,6 +918,29 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderSinkCategoryTabs(activeCat, onSelectCb) {
     const cats = [
       { id: 'all', label: 'All' },
+      { id: 'vegetables', label: 'Veg' },
+      { id: 'fruit', label: 'Fruit' }
+    ];
+
+    const tabsId = `cat-tabs-${onSelectCb}`;
+    let tabsHtml = `<div class="panel-category-tabs" id="${tabsId}">`;
+    cats.forEach(c => {
+      tabsHtml += `<button class="panel-tab-btn ${activeCat === c.id ? 'active' : ''}" onclick="window.handleTabClick('${onSelectCb}', '${c.id}')">${c.label}</button>`;
+    });
+    tabsHtml += `</div>`;
+
+    setTimeout(() => {
+      const tabsEl = document.getElementById(tabsId);
+      if (tabsEl) setupWheelScrollForContainer(tabsEl);
+    }, 0);
+
+    return tabsHtml;
+  }
+
+  function renderBoardCategoryTabs(activeCat, onSelectCb) {
+    const cats = [
+      { id: 'all', label: 'All' },
+      { id: 'protein', label: 'Protein' },
       { id: 'vegetables', label: 'Veg' },
       { id: 'fruit', label: 'Fruit' }
     ];
@@ -1171,7 +1201,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const filtered = boardUncutActiveCategory === 'all'
       ? Object.values(BOARD_PRODUCE_ITEMS)
       : Object.values(BOARD_PRODUCE_ITEMS).filter(i => i.category === boardUncutActiveCategory);
-    const tabsHtml = renderCategoryTabs(boardUncutActiveCategory, 'setBoardUncutCategory', true, true);
+    const tabsHtml = renderBoardCategoryTabs(boardUncutActiveCategory, 'setBoardUncutCategory');
 
     let cardsHtml = `<div class="scrollable-items-list" style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
     filtered.forEach(item => {
@@ -1245,7 +1275,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .map(id => slicedItemsArray.find(a => a.id === id));
 
     const filtered = boardSlicedActiveCategory === 'all' ? uniqueSliced : uniqueSliced.filter(i => i.category === boardSlicedActiveCategory);
-    const tabsHtml = renderCategoryTabs(boardSlicedActiveCategory, 'setBoardSlicedCategory', true, true);
+    const tabsHtml = renderBoardCategoryTabs(boardSlicedActiveCategory, 'setBoardSlicedCategory');
     let itemsContainerHtml = `<div class="scrollable-items-list" style="display:flex; flex-direction:column; gap:6px; overflow-y:auto; flex:1; min-height:0;">`;
 
     filtered.forEach(item => {
@@ -2441,7 +2471,8 @@ document.addEventListener('DOMContentLoaded', () => {
     'raw-fish-patty': 'images/raw-fish-patty.png',
     'raw-bacon': 'images/raw-bacon.png',
     'raw-egg': 'images/raw-egg.png',
-    'raw-champignons': 'images/raw-champignons.png'
+    'raw-champignons': 'images/raw-champignons.png',
+    'raw-cheese': 'images/raw-cheese.png'
   };
 
   const REGULAR_RECIPES = [
@@ -3123,7 +3154,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (index === 0) mb = -10;
           else if (['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id)) mb = -50;
           else if (item.id === 'top-bun') mb = -38;
-          else if (item.id === 'cheese') mb = -60;
+          else if (item.id === 'cheese' || item.id === 'raw-cheese') mb = -60;
           else if (item.id === 'hashbrown') mb = -38;
           else if (item.id === 'fried-egg' || item.id === 'raw-egg') mb = -52;
           else if (item.id === 'fried-bacon' || item.id === 'raw-bacon') mb = -48;
@@ -3319,10 +3350,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Расчёт шанса отравления (строго <= 50%):
+  // Расчёт шанса отравления (в Sandbox не используется):
   // - грязные слои: 20% + 10% за каждый дополнительный (макс. 35%)
   // - сырое яйцо: 50%, сырой бекон: 35%, сырая курица: 40%, сырая рыба: 35%, сырая говядина: 25%
   function calculatePoisonChance(burgerLayers) {
+    if (currentGameMode === 'sandbox') return 0;
     let dirtyCount = 0;
     let rawRiskSum = 0;
 
@@ -3333,7 +3365,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const candidateRawId =
         RAW_ITEM_POISON_CHANCE[layer.id] ? layer.id :
         (layer.rawId && RAW_ITEM_POISON_CHANCE[layer.rawId] ? layer.rawId :
-        (layer.isRaw && COOKED_TO_RAW_PATTY[layer.id] && RAW_ITEM_POISON_CHANCE[COOKED_TO_RAW_PATTY[layer.id]] ? COOKED_TO_RAW_PATTY[layer.id] : null));
+        (layer.isRaw && ASSEMBLY_RAW_FALLBACK[layer.id] && RAW_ITEM_POISON_CHANCE[ASSEMBLY_RAW_FALLBACK[layer.id]] ? ASSEMBLY_RAW_FALLBACK[layer.id] : null));
 
       if (candidateRawId) {
         rawRiskSum += RAW_ITEM_POISON_CHANCE[candidateRawId];
@@ -3347,7 +3379,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function hasRawCookedMismatch(burgerLayers) {
     return burgerLayers.some(layer => {
       const hasRawKey = Boolean(RAW_TO_COOKED_RECIPE_ITEM[layer.id]);
-      const isMarkedRaw = Boolean(layer.isRaw && (layer.rawId || COOKED_TO_RAW_PATTY[layer.id]));
+      const isMarkedRaw = Boolean(layer.isRaw && (layer.rawId || ASSEMBLY_RAW_FALLBACK[layer.id]));
       return hasRawKey || isMarkedRaw;
     });
   }
@@ -3368,7 +3400,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const isCorrect = normalizedIds.length === targetIds.length && normalizedIds.every((val, idx) => val === targetIds[idx]);
 
     const poisonChance = calculatePoisonChance(currentBurger);
-    const isPoisoned = poisonChance > 0 && Math.random() < poisonChance;
+    const isPoisoned = currentGameMode !== 'sandbox' && poisonChance > 0 && Math.random() < poisonChance;
 
     const cost = getBurgerCost(currentBurger);
 
@@ -3378,13 +3410,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const penaltyMult = getPoisonPenaltyMultiplier();
         const penalty = Math.round(cost * penaltyMult * 100) / 100;
 
-        if (currentGameMode === 'sandbox') {
-          showToast('Food Poisoning! 🤢', 'Client got sick! No money deducted.', 'warning');
-        } else {
-          playerMoney -= penalty;
-          updateMoneyDisplay(penalty, false);
-          showToast('Food Poisoning! 🤢', `Client got sick! Penalty: -$${penalty.toFixed(2)}`, 'error');
-        }
+        playerMoney -= penalty;
+        updateMoneyDisplay(penalty, false);
+        showToast('Food Poisoning! 🤢', `Client got sick! Penalty: -$${penalty.toFixed(2)}`, 'error');
 
         if (currentGameMode === 'turbo') {
           currentTurboTimeLeft = 180;
@@ -3418,7 +3446,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (partialMatch) {
-          showToast('Order Complete!', 'Reward reduced due to partial recipe match (raw instead of cooked).', 'warning');
+          showToast('Order Complete!', 'Reward was reduced due to partial match with the recipe.', 'warning');
         } else {
           showToast('Order Complete!', `${currentActiveOrder.name} served successfully!`, 'success');
         }
