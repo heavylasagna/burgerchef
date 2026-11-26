@@ -129,34 +129,28 @@
         <button class="close-modal" id="closeSettingsModal">✕</button>
       </div>
       <div class="modal-body" id="settingsModalBody">
-        
-        <div class="settings-group sound-combined-group" id="soundSettingsGroup">
+
+        <div class="settings-group sound-container" id="soundSettingsGroup">
           <label class="sound-group-title">Sound</label>
-          <div class="sound-slider-row">
+
+          <div class="sound-subitem">
             <label>SFX volume: <span id="volumeVal">50%</span></label>
             <input type="range" id="volumeRange" min="0" max="100" value="50">
           </div>
-          <div class="sound-slider-row">
+
+          <div class="sound-subitem">
             <label>Music volume: <span id="musicVolumeVal">30%</span></label>
             <input type="range" id="musicVolumeRange" min="0" max="100" value="30">
           </div>
-        </div>
 
-        <div class="settings-group music-player-box" id="musicPlayerBox">
-          <label>Music player</label>
-          <div class="music-track-row">
+          <div class="music-player-box" id="musicPlayerBox">
+            <label class="music-player-label">Music player</label>
             <div class="music-track-title" id="musicTrackDisplay">–</div>
-            <div class="music-eq-bars" id="musicEqBars" aria-hidden="true">
-              <span class="music-eq-bar"></span>
-              <span class="music-eq-bar"></span>
-              <span class="music-eq-bar"></span>
-              <span class="music-eq-bar"></span>
+            <div class="music-player-controls">
+              <button type="button" class="btn-action" id="musicPrevBtn" title="Previous track">⏮</button>
+              <button type="button" class="btn-action" id="musicPlayPauseBtn" title="Play / Pause">⏸</button>
+              <button type="button" class="btn-action" id="musicNextBtn" title="Next track">⏭</button>
             </div>
-          </div>
-          <div class="music-player-controls">
-            <button type="button" class="btn-action" id="musicPrevBtn" title="Previous track">⏮</button>
-            <button type="button" class="btn-action" id="musicPlayPauseBtn" title="Play / Pause">⏸</button>
-            <button type="button" class="btn-action" id="musicNextBtn" title="Next track">⏭</button>
           </div>
         </div>
 
