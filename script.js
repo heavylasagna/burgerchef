@@ -180,6 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const GRILLABLE_ITEMS = {
     'raw-beef-patty': { 
       name: 'Beef Patty', 
+      menuImage: 'images/raw-beef-patty.png',
       rawImage: 'images/raw-beef-patty.png', 
       flip1Image: 'images/beef-patty-flip1.png', 
       flip2Image: 'images/beef-patty-flip2.png', 
@@ -189,6 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     'raw-chicken-patty': { 
       name: 'Chicken Patty', 
+      menuImage: 'images/raw-chicken-patty.png',
       rawImage: 'images/raw-chicken-patty.png', 
       flip1Image: 'images/chicken-patty-flip1.png', 
       flip2Image: 'images/chicken-patty-flip2.png', 
@@ -198,6 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     'raw-fish-patty': { 
       name: 'Fish Patty', 
+      menuImage: 'images/raw-fish-patty.png',
       rawImage: 'images/raw-fish-patty.png', 
       flip1Image: 'images/fish-patty-flip1.png', 
       flip2Image: 'images/fish-patty-flip2.png', 
@@ -207,6 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     'raw-hashbrown': { 
       name: 'Hashbrown', 
+      menuImage: 'images/raw-hashbrown.png',
       rawImage: 'images/raw-hashbrown.png', 
       flip1Image: 'images/hashbrown-flip1.png', 
       flip2Image: 'images/hashbrown-flip2.png', 
@@ -216,6 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     'raw-bacon': { 
       name: 'Bacon', 
+      menuImage: 'images/raw-bacon.png',
       rawImage: 'images/raw-bacon.png', 
       flip1Image: 'images/raw-bacon.png', 
       flip2Image: 'images/fried-bacon.png', 
@@ -225,8 +230,9 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     'raw-egg': { 
       name: 'Egg', 
-      rawImage: 'images/egg.png', 
-      flip1Image: 'images/egg.png', 
+      menuImage: 'images/egg.png',
+      rawImage: 'images/raw-egg.png', 
+      flip1Image: 'images/raw-egg.png', 
       flip2Image: 'images/fried-egg.png', 
       cookedId: 'fried-egg', 
       cookedImage: 'images/fried-egg.png', 
@@ -234,6 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     'raw-champignons': { 
       name: 'Champignons', 
+      menuImage: 'images/raw-champignons.png',
       rawImage: 'images/raw-champignons.png', 
       flip1Image: 'images/raw-champignons.png', 
       flip2Image: 'images/champignons.png', 
@@ -243,6 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     'raw-cheese': { 
       name: 'Cheese', 
+      menuImage: 'images/raw-cheese.png',
       rawImage: 'images/raw-cheese.png', 
       flip1Image: 'images/raw-cheese.png', 
       flip2Image: 'images/cheese.png', 
@@ -386,6 +394,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const switchToBoardBtn = document.getElementById('switchToBoardBtn');
   const switchToSinkBtn = document.getElementById('switchToSinkBtn');
 
+  function stopAllStationAudio() {
+    manageSizzlingAudio(false);
+    manageCuttingAudio(false);
+    manageWashingAudio(false);
+  }
+
   function switchScreen(screen, silent = false) {
     if (!silent) playSound(SOUNDS.buttons);
     currentScreen = screen;
@@ -393,6 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (screen !== 'board') manageCuttingAudio(false);
     if (screen !== 'sink') manageWashingAudio(false);
+    if (screen !== 'grill') manageSizzlingAudio(false);
     if (isBinSelectMode) exitBinSelectMode();
 
     if (switchToAssemblyBtn) switchToAssemblyBtn.classList.toggle('active', screen === 'assembly');
@@ -458,15 +473,18 @@ document.addEventListener('DOMContentLoaded', () => {
     updateActionButtonsVisibility();
   }
 
-  // Индикаторы уведомлений (красные точки) на кнопках гриля, доски и раковины
+  // Индикаторы уведомлений (красные точки):
+  // - Гриль: когда готово (ready) или нужно перевернуть (needsFlip)
+  // - Доска: только когда нарезка завершена (ready)
+  // - Раковина: только когда мытьё завершено (ready)
   function updateStationNotificationDots() {
     const grillNeedsAttention = grillSlots.some(slot => slot && (slot.state === 'ready' || slot.state === 'needsFlip'));
     updateDotOnButton(switchToGrillBtn, grillNeedsAttention);
 
-    const boardNeedsAttention = boardSlots.some(slot => slot && (slot.state === 'ready' || slot.state === 'uncut'));
+    const boardNeedsAttention = boardSlots.some(slot => slot && slot.state === 'ready');
     updateDotOnButton(switchToBoardBtn, boardNeedsAttention);
 
-    const sinkNeedsAttention = sinkSlots.some(slot => slot && (slot.state === 'ready' || slot.state === 'idle'));
+    const sinkNeedsAttention = sinkSlots.some(slot => slot && slot.state === 'ready');
     updateDotOnButton(switchToSinkBtn, sinkNeedsAttention);
   }
 
@@ -843,15 +861,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let cardsHtml = `<div class="scrollable-items-list" style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
     filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
-      const dirtyCount = dirtyStock[item.id] ?? 0;
-      const cleanCount = Math.max(0, stock - dirtyCount);
       const isOut = currentGameMode !== 'sandbox' && stock <= 0;
       const countText = currentGameMode === 'sandbox' ? '∞' : `x${stock}`;
-      const showDirtyPreview = currentGameMode !== 'sandbox' && stock > 0 && cleanCount === 0 && dirtyCount > 0;
 
+      // Иконки в списке продуктов всегда отображаются чистыми
       cardsHtml += `
         <div class="ingredient-card ${currentBurger.length >= MAX_INGREDIENTS || isEating || isOut ? 'disabled' : ''}" onclick="handleAssemblyClick('${item.id}')">
-          <img src="${item.image}" alt="${item.name}" class="${showDirtyPreview ? 'unwashed-filter' : ''}">
+          <img src="${item.image}" alt="${item.name}">
           <div class="ingredient-info-row">
             <span class="ingredient-name">${item.name}</span>
             <span class="ingredient-stock-count">${countText}</span>
@@ -906,15 +922,14 @@ document.addEventListener('DOMContentLoaded', () => {
     filtered.forEach(item => {
       const rawId = Object.keys(GRILLABLE_ITEMS).find(k => GRILLABLE_ITEMS[k] === item);
       const stock = ingredientStock[rawId] ?? 0;
-      const dirtyCount = dirtyStock[rawId] ?? 0;
-      const cleanCount = Math.max(0, stock - dirtyCount);
       const isOut = currentGameMode !== 'sandbox' && stock <= 0;
-      const showDirtyPreview = currentGameMode !== 'sandbox' && stock > 0 && cleanCount === 0 && dirtyCount > 0;
+      const displayImg = item.menuImage || item.rawImage;
 
+      // Иконки в списке продуктов всегда чистые; Egg показывается с egg.png
       cardsHtml += `
         <div class="ingredient-card ${isOut ? 'disabled' : ''}" onclick="handleGrillAddClick('${rawId}')">
           <div class="ingredient-info-row">
-            <img src="${item.rawImage}" alt="${item.name}" class="${showDirtyPreview ? 'unwashed-filter' : ''}">
+            <img src="${displayImg}" alt="${item.name}">
             <span class="ingredient-name">${item.name}</span>
           </div>
           <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
@@ -974,14 +989,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
-      const dirtyCount = dirtyStock[item.id] ?? 0;
-      const cleanCount = Math.max(0, stock - dirtyCount);
-      const showDirtyPreview = currentGameMode !== 'sandbox' && stock > 0 && cleanCount === 0 && dirtyCount > 0;
 
+      // Иконки в списке всегда отображаются чистыми
       itemsContainerHtml += `
         <div class="layer-item" style="justify-content: space-between; padding: 6px 10px;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <img src="${item.image}" class="layer-preview ${showDirtyPreview ? 'unwashed-filter' : ''}">
+            <img src="${item.image}" class="layer-preview">
             <span style="font-size: 0.75rem; color: var(--text-color);">${item.name}</span>
           </div>
           <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
@@ -1005,7 +1018,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- ДОСКА ДЛЯ НАРЕЗКИ МЕНЮ И ИНВЕНТАРЬ (одна кнопка на продукт, приоритет чистых над грязными) ---
+  // --- ДОСКА ДЛЯ НАРЕЗКИ МЕНЮ И ИНВЕНТАРЬ ---
   function renderBoardUncutMenu(savedScroll = null) {
     if (currentScreen !== 'board') return;
     if (!rightPanel) return;
@@ -1030,12 +1043,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const dirtyCount = item.dirtyUncutId ? (ingredientStock[item.dirtyUncutId] ?? 0) : 0;
       const totalStock = cleanCount + dirtyCount;
       const isOut = currentGameMode !== 'sandbox' && totalStock <= 0;
-      const showDirtyPreview = currentGameMode !== 'sandbox' && cleanCount <= 0 && dirtyCount > 0;
 
+      // Иконки в списке продуктов всегда чистые
       cardsHtml += `
         <div class="ingredient-card ${isOut ? 'disabled' : ''}" onclick="handleBoardAddClick('${item.key}')">
           <div class="ingredient-info-row">
-            <img src="${item.rawImage}" alt="${item.name}" class="${showDirtyPreview ? 'unwashed-filter' : ''}">
+            <img src="${item.rawImage}" alt="${item.name}">
             <span class="ingredient-name">${item.name}</span>
           </div>
           <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + totalStock}</span>
@@ -1101,14 +1114,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     filtered.forEach(item => {
       const stock = ingredientStock[item.id] ?? 0;
-      const dirtyCount = dirtyStock[item.id] ?? 0;
-      const cleanCount = Math.max(0, stock - dirtyCount);
-      const showDirtyPreview = currentGameMode !== 'sandbox' && stock > 0 && cleanCount === 0 && dirtyCount > 0;
 
+      // Иконки в списке всегда отображаются чистыми
       itemsContainerHtml += `
         <div class="layer-item" style="justify-content: space-between; padding: 6px 10px;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <img src="${item.image}" class="layer-preview ${showDirtyPreview ? 'unwashed-filter' : ''}">
+            <img src="${item.image}" class="layer-preview">
             <span style="font-size: 0.75rem; color: var(--text-color);">${item.name}</span>
           </div>
           <span class="ingredient-stock-count">${currentGameMode === 'sandbox' ? '∞' : 'x' + stock}</span>
@@ -1410,7 +1421,7 @@ document.addEventListener('DOMContentLoaded', () => {
             bubblesHtml += `<div class="sink-bubble" style="left: ${leftPos}px; width: ${bubbleSize}px; height: ${bubbleSize}px; animation-delay: ${animDelay}s; --dy: ${dy}px;"></div>`;
           }
 
-          // Коричневый фильтр сохраняется до конца помывки, лишняя рамка убрана
+          // Коричневый фильтр сохраняется до конца помывки, рамки вокруг продукта нет
           slotEl.innerHTML = `
             <div class="grill-item-wrapper">
               <div class="sink-water-container">
@@ -1423,15 +1434,10 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
           `;
         } else if (slotData.state === 'ready') {
+          // Просто чистый продукт без эффектов и звёздочек
           slotEl.innerHTML = `
             <div class="grill-item-wrapper">
               <img src="${config.washedImage}" class="grill-item">
-              <div class="sparkle-effect">
-                <span class="sparkle-star">✨</span>
-                <span class="sparkle-star">⭐</span>
-                <span class="sparkle-star">✨</span>
-                <span class="sparkle-star">⭐</span>
-              </div>
               <div class="flip-badge" style="background:#689f38; color:#fff; top:auto; bottom:4px; right:4px; left:auto;">Collect!</div>
             </div>
             <div class="grill-progress-container" style="visibility:hidden;"></div>
@@ -1533,7 +1539,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (slot.produceKey && BOARD_PRODUCE_ITEMS[slot.produceKey]) {
       return BOARD_PRODUCE_ITEMS[slot.produceKey];
     }
-    // Совместимость со старыми сохранениями
     if (slot.uncutId) {
       const cleanName = slot.uncutId.replace('unwashed-uncut-', '').replace('uncut-', '');
       return BOARD_PRODUCE_ITEMS[cleanName] || null;
@@ -2762,10 +2767,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (openSettingsBtn) openSettingsBtn.onclick = () => { settingsModal.classList.add('open'); document.body.classList.add('modal-open'); };
   if (closeSettingsModal) closeSettingsModal.onclick = () => { settingsModal.classList.remove('open'); document.body.classList.remove('modal-open'); };
 
-  // Полный сброс игры: режим, скорость по умолчанию, экран сборки и приветственное окно
+  // Полный сброс игры: останавливает звуки станций, сбрасывает режим, скорость, экран и открывает приветственное окно без уведомления
   const hardResetBtn = document.getElementById('hardResetBtn');
   if (hardResetBtn) hardResetBtn.onclick = () => {
     if (confirm("⚠️ WARNING: Reset all data, settings, screen and show welcome screen?")) {
+      stopAllStationAudio();
+
       const modes = ['sandbox', 'casual', 'turbo'];
       const modeKeys = [
         'saved_burger_stack',
@@ -2806,9 +2813,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       applyGameMode('casual');
       switchScreen('assembly', true);
+      stopAllStationAudio();
       updatePinnedWidget();
       showWelcomeModalIfNeeded();
-      showToast('Game Reset!', 'Default mode, speed and assembly view restored.', 'success');
     }
   };
 
