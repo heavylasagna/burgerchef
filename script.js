@@ -76,7 +76,12 @@ document.addEventListener('DOMContentLoaded', () => {
   let musicAudio = null;
   let musicToastTimer = null;
   let musicToastEl = null;
-  let pendingAutoplayOnInteraction = false;
+  let unlockListenerAttached = false;
+  let unlockHandlerRef = null;
+  let pendingPlayOnReady = false;
+  let pendingToastOnPlay = false;
+  let pendingToastPrefix = '🎵 Now playing';
+  let readyPlayTimeout = null;
 
   function isSettingsOpen() {
     const sm = document.getElementById('settingsModal');
@@ -86,11 +91,17 @@ document.addEventListener('DOMContentLoaded', () => {
   function positionMusicToast() {
     if (!musicToastEl) return;
 
-    musicToastEl.style.top = '';
-    musicToastEl.style.bottom = '';
-    musicToastEl.style.left = '';
-    musicToastEl.style.right = '';
-    musicToastEl.style.transform = '';
+    musicToastEl.style.top = 'auto';
+    musicToastEl.style.bottom = 'auto';
+    musicToastEl.style.left = 'auto';
+    musicToastEl.style.right = 'auto';
+    musicToastEl.style.transform = 'none';
+    musicToastEl.style.width = 'max-content';
+    musicToastEl.style.maxWidth = 'calc(100vw - 24px)';
+    musicToastEl.style.boxSizing = 'border-box';
+    musicToastEl.style.whiteSpace = 'nowrap';
+    musicToastEl.style.overflow = 'hidden';
+    musicToastEl.style.textOverflow = 'ellipsis';
 
     if (document.body.classList.contains('ui-hidden')) {
       musicToastEl.style.display = 'none';
@@ -100,6 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const isMobile = window.innerWidth <= 900;
+    const lp = document.getElementById('leftPanel');
     const bp = document.getElementById('bottomPanel');
     const topOrder = document.getElementById('topOrderWidget');
     const wallet = document.getElementById('walletWidget');
@@ -126,13 +138,27 @@ document.addEventListener('DOMContentLoaded', () => {
         leftPos = Math.max(8, lRect.left);
       }
 
+      musicToastEl.style.maxWidth = `calc(100vw - ${leftPos + 12}px)`;
       musicToastEl.style.top = `${topPos}px`;
       musicToastEl.style.left = `${leftPos}px`;
     } else {
       let leftPos = 16;
-      let bottomPos = 96;
+      let bottomPos = 16;
 
-      if (bp) {
+      if (lp) {
+        const lpRect = lp.getBoundingClientRect();
+        if (lpRect.width > 0 && lpRect.height > 0) {
+          leftPos = Math.max(12, lpRect.right + 8);
+          if (bp) {
+            const bpRect = bp.getBoundingClientRect();
+            if (bpRect.width > 0 && bpRect.height > 0) {
+              bottomPos = Math.max(12, window.innerHeight - bpRect.top + 8);
+            }
+          } else {
+            bottomPos = Math.max(12, window.innerHeight - lpRect.bottom);
+          }
+        }
+      } else if (bp) {
         const bpRect = bp.getBoundingClientRect();
         if (bpRect.width > 0 && bpRect.height > 0) {
           leftPos = Math.max(12, bpRect.left);
@@ -140,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
+      musicToastEl.style.maxWidth = `calc(100vw - ${leftPos + 16}px)`;
       musicToastEl.style.left = `${leftPos}px`;
       musicToastEl.style.bottom = `${bottomPos}px`;
     }
@@ -175,26 +202,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 3000);
   }
 
-  function bindUnlockMusicOnFirstInteraction() {
-    if (pendingAutoplayOnInteraction) return;
-    pendingAutoplayOnInteraction = true;
+  function unbindUnlockMusicListeners() {
+    unlockListenerAttached = false;
+    if (unlockHandlerRef) {
+      window.removeEventListener('pointerdown', unlockHandlerRef, true);
+      window.removeEventListener('touchstart', unlockHandlerRef, true);
+      window.removeEventListener('keydown', unlockHandlerRef, true);
+      unlockHandlerRef = null;
+    }
+  }
 
-    const unlockHandler = () => {
-      pendingAutoplayOnInteraction = false;
-      window.removeEventListener('pointerdown', unlockHandler, true);
-      window.removeEventListener('keydown', unlockHandler, true);
+  function bindUnlockMusicOnFirstInteraction() {
+    if (unlockListenerAttached) return;
+    unlockListenerAttached = true;
+
+    unlockHandlerRef = () => {
+      unbindUnlockMusicListeners();
       const track = MUSIC_TRACKS[currentTrackIndex];
-      if (track && (!musicAudio || musicAudio.paused)) {
-        if (!musicAudio || !musicAudio.src) {
-          loadMusicTrack(currentTrackIndex, true, !isSettingsOpen());
-        } else {
-          startMusicPlay(track, !isSettingsOpen());
-        }
+      if (!track) return;
+      if (!musicAudio || !musicAudio.src) {
+        loadMusicTrack(currentTrackIndex, true, !isSettingsOpen());
+      } else {
+        executePlayNow(track, !isSettingsOpen(), '🎵 Now playing');
       }
     };
 
-    window.addEventListener('pointerdown', unlockHandler, { capture: true, once: true });
-    window.addEventListener('keydown', unlockHandler, { capture: true, once: true });
+    window.addEventListener('pointerdown', unlockHandlerRef, { capture: true, once: true });
+    window.addEventListener('touchstart', unlockHandlerRef, { capture: true, once: true });
+    window.addEventListener('keydown', unlockHandlerRef, { capture: true, once: true });
   }
 
   function getTrackTitleEl() {
@@ -219,36 +254,123 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function startMusicPlay(track, showToastNotify) {
+  function executePlayNow(track, showToastNotify, toastPrefix = '🎵 Now playing') {
     if (!musicAudio || !track) return;
+    if (readyPlayTimeout) {
+      clearTimeout(readyPlayTimeout);
+      readyPlayTimeout = null;
+    }
+    pendingPlayOnReady = false;
     musicAudio.volume = musicVolumeLevel;
-    const playPromise = musicAudio.play();
+
+    let playPromise;
+    try {
+      playPromise = musicAudio.play();
+    } catch (e) {
+      isMusicPlaying = false;
+      localStorage.setItem('burger_music_playing', 'false');
+      updateMusicPlayerUI();
+      bindUnlockMusicOnFirstInteraction();
+      return;
+    }
+
     if (playPromise && typeof playPromise.then === 'function') {
       playPromise.then(() => {
+        unbindUnlockMusicListeners();
         isMusicPlaying = true;
         localStorage.setItem('burger_music_playing', 'true');
         updateMusicPlayerUI();
         if (showToastNotify && !isSettingsOpen()) {
-          showMusicToast(track.title, '🎵 Now playing');
+          showMusicToast(track.title, toastPrefix);
         }
       }).catch((err) => {
         isMusicPlaying = false;
         localStorage.setItem('burger_music_playing', 'false');
         updateMusicPlayerUI();
-        if (err && err.name === 'NotAllowedError') {
+        if (!err || err.name === 'NotAllowedError' || err.name === 'AbortError') {
           bindUnlockMusicOnFirstInteraction();
         } else if (showToastNotify && !isSettingsOpen()) {
           showToast('Playback unavailable', 'Check audio file or browser permissions', 'warning');
         }
       });
     } else {
+      unbindUnlockMusicListeners();
       isMusicPlaying = true;
       localStorage.setItem('burger_music_playing', 'true');
       updateMusicPlayerUI();
       if (showToastNotify && !isSettingsOpen()) {
-        showMusicToast(track.title, '🎵 Now playing');
+        showMusicToast(track.title, toastPrefix);
       }
     }
+  }
+
+  function startMusicPlay(track, showToastNotify, toastPrefix = '🎵 Now playing') {
+    if (!musicAudio || !track) return;
+    musicAudio.volume = musicVolumeLevel;
+
+    if (musicAudio.readyState >= 2) {
+      executePlayNow(track, showToastNotify, toastPrefix);
+      return;
+    }
+
+    pendingPlayOnReady = true;
+    pendingToastOnPlay = Boolean(showToastNotify);
+    pendingToastPrefix = toastPrefix;
+
+    if (readyPlayTimeout) clearTimeout(readyPlayTimeout);
+    readyPlayTimeout = setTimeout(() => {
+      if (pendingPlayOnReady) {
+        const shouldNotify = pendingToastOnPlay;
+        const prefix = pendingToastPrefix;
+        pendingPlayOnReady = false;
+        executePlayNow(track, shouldNotify, prefix);
+      }
+    }, 350);
+
+    try {
+      musicAudio.load();
+    } catch (e) {}
+  }
+
+  function ensureMusicAudioInstance() {
+    if (!musicAudio) {
+      musicAudio = new Audio();
+      musicAudio.preload = 'auto';
+      musicAudio.loop = false;
+
+      const onTrackReady = () => {
+        if (pendingPlayOnReady) {
+          const track = MUSIC_TRACKS[currentTrackIndex];
+          const shouldNotify = pendingToastOnPlay;
+          const prefix = pendingToastPrefix;
+          pendingPlayOnReady = false;
+          if (track) {
+            executePlayNow(track, shouldNotify, prefix);
+          }
+        }
+      };
+
+      musicAudio.addEventListener('canplay', onTrackReady);
+      musicAudio.addEventListener('loadeddata', onTrackReady);
+
+      musicAudio.addEventListener('ended', () => {
+        loadMusicTrack(currentTrackIndex + 1, true, !isSettingsOpen());
+      });
+
+      musicAudio.addEventListener('error', () => {
+        if (readyPlayTimeout) {
+          clearTimeout(readyPlayTimeout);
+          readyPlayTimeout = null;
+        }
+        pendingPlayOnReady = false;
+        isMusicPlaying = false;
+        localStorage.setItem('burger_music_playing', 'false');
+        updateMusicPlayerUI();
+        const track = MUSIC_TRACKS[currentTrackIndex];
+        if (track) showToast('Audio load error', track.src, 'error');
+      });
+    }
+    return musicAudio;
   }
 
   function loadMusicTrack(index, autoPlay = false, showToastNotify = false) {
@@ -257,27 +379,25 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('burger_music_track_index', String(currentTrackIndex));
 
     const track = MUSIC_TRACKS[currentTrackIndex];
-    if (!musicAudio) {
-      musicAudio = new Audio();
-      musicAudio.preload = 'auto';
-      musicAudio.loop = false;
-      musicAudio.addEventListener('ended', () => {
-        loadMusicTrack(currentTrackIndex + 1, true, !isSettingsOpen());
-      });
-      musicAudio.addEventListener('error', () => {
-        isMusicPlaying = false;
-        localStorage.setItem('burger_music_playing', 'false');
-        updateMusicPlayerUI();
-        showToast('Audio load error', track.src, 'error');
-      });
-    }
+    const audio = ensureMusicAudioInstance();
 
-    musicAudio.src = track.src;
-    musicAudio.volume = musicVolumeLevel;
+    if (readyPlayTimeout) {
+      clearTimeout(readyPlayTimeout);
+      readyPlayTimeout = null;
+    }
+    pendingPlayOnReady = false;
+
+    try {
+      audio.pause();
+    } catch (e) {}
+
+    audio.src = track.src;
+    audio.volume = musicVolumeLevel;
+    audio.load();
     updateMusicPlayerUI();
 
     if (autoPlay) {
-      startMusicPlay(track, showToastNotify && !isSettingsOpen());
+      startMusicPlay(track, showToastNotify && !isSettingsOpen(), '🎵 Now playing');
     } else {
       isMusicPlaying = false;
       localStorage.setItem('burger_music_playing', 'false');
@@ -293,6 +413,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (!musicAudio.paused) {
+      if (readyPlayTimeout) {
+        clearTimeout(readyPlayTimeout);
+        readyPlayTimeout = null;
+      }
+      pendingPlayOnReady = false;
       try { musicAudio.pause(); } catch(e) {}
       isMusicPlaying = false;
       localStorage.setItem('burger_music_playing', 'false');
@@ -301,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showMusicToast(track.title, '⏸ Paused');
       }
     } else {
-      startMusicPlay(track, showToastNotify && !isSettingsOpen());
+      startMusicPlay(track, showToastNotify && !isSettingsOpen(), '🎵 Now playing');
     }
   }
 
@@ -316,16 +441,34 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function stopMusicPlayback() {
+    unbindUnlockMusicListeners();
+    if (readyPlayTimeout) {
+      clearTimeout(readyPlayTimeout);
+      readyPlayTimeout = null;
+    }
+    pendingPlayOnReady = false;
     if (musicAudio) {
       try {
         musicAudio.pause();
         musicAudio.currentTime = 0;
+        musicAudio.removeAttribute('src');
+        musicAudio.load();
       } catch(e) {}
     }
     isMusicPlaying = false;
     localStorage.setItem('burger_music_playing', 'false');
     updateMusicPlayerUI();
   }
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && musicAudio && musicAudio.src && musicAudio.paused && !unlockListenerAttached) {
+      const shouldResume = localStorage.getItem('burger_music_playing') === 'true' || pendingPlayOnReady;
+      if (shouldResume) {
+        const track = MUSIC_TRACKS[currentTrackIndex];
+        if (track) startMusicPlay(track, false);
+      }
+    }
+  });
 
   const leftPanel = document.getElementById('leftPanel');
   const rightPanel = document.getElementById('rightPanel');
@@ -3350,7 +3493,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (sfxVolumeVal) sfxVolumeVal.innerText = '100%';
       if (musicVolumeRange) musicVolumeRange.value = 50;
       if (musicVolumeVal) musicVolumeVal.innerText = '50%';
-      loadMusicTrack(0, false, false);
 
       if (settingsModal) {
         settingsModal.classList.remove('open');
@@ -3361,6 +3503,7 @@ document.addEventListener('DOMContentLoaded', () => {
       switchScreen('assembly', true);
       stopAllStationAudio();
       updatePinnedWidget();
+      loadMusicTrack(0, true, true);
       showWelcomeModalIfNeeded();
     }
   };
