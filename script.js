@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch(e) {}
   }
 
-  // --- MUSIC PLAYLIST & PLAYER ---
+ // --- MUSIC PLAYLIST & PLAYER ---
   const MUSIC_TRACKS = [
     { title: 'Aqua Frutiger Aero Chillwave', src: 'music/9jackjack8-aqua-frutiger-aero-chillwave-532669.mp3' },
     { title: 'Dreamy Glass Aerowave', src: 'music/9jackjack8-dreamy-glass-aerowave-556871.mp3' },
@@ -101,9 +101,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 3000);
   }
 
+  function getTrackTitleEl() {
+    return document.getElementById('musicTrackDisplay') || document.getElementById('musicTrackTitle');
+  }
+
+  function getPlayPauseBtnEl() {
+    return document.getElementById('musicPlayPauseBtn') || document.getElementById('musicToggleBtn');
+  }
+
   function updateMusicPlayerUI() {
-    const titleEl = document.getElementById('musicTrackTitle');
-    const toggleBtn = document.getElementById('musicToggleBtn');
+    const titleEl = getTrackTitleEl();
+    const toggleBtn = getPlayPauseBtnEl();
     const track = MUSIC_TRACKS[currentTrackIndex];
     if (titleEl && track) {
       titleEl.innerText = track.title;
@@ -115,6 +123,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function startMusicPlay(track, showToastNotify) {
+    if (!musicAudio || !track) return;
+    musicAudio.volume = musicVolumeLevel;
+    const playPromise = musicAudio.play();
+    if (playPromise && typeof playPromise.then === 'function') {
+      playPromise.then(() => {
+        isMusicPlaying = true;
+        localStorage.setItem('burger_music_playing', 'true');
+        updateMusicPlayerUI();
+        if (showToastNotify) showMusicToast(track.title, '🎵 Now playing');
+      }).catch(() => {
+        isMusicPlaying = false;
+        localStorage.setItem('burger_music_playing', 'false');
+        updateMusicPlayerUI();
+        if (showToastNotify) {
+          showToast('Playback blocked or unavailable', 'Click play again or check audio file', 'warning');
+        }
+      });
+    } else {
+      isMusicPlaying = true;
+      localStorage.setItem('burger_music_playing', 'true');
+      updateMusicPlayerUI();
+      if (showToastNotify) showMusicToast(track.title, '🎵 Now playing');
+    }
+  }
+
   function loadMusicTrack(index, autoPlay = false, showToastNotify = false) {
     if (MUSIC_TRACKS.length === 0) return;
     currentTrackIndex = ((index % MUSIC_TRACKS.length) + MUSIC_TRACKS.length) % MUSIC_TRACKS.length;
@@ -123,11 +157,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const track = MUSIC_TRACKS[currentTrackIndex];
     if (!musicAudio) {
       musicAudio = new Audio();
+      musicAudio.preload = 'metadata';
       musicAudio.loop = false;
       musicAudio.addEventListener('ended', () => {
         loadMusicTrack(currentTrackIndex + 1, true, true);
       });
-      musicAudio.addEventListener('error', () => {});
+      musicAudio.addEventListener('error', () => {
+        isMusicPlaying = false;
+        localStorage.setItem('burger_music_playing', 'false');
+        updateMusicPlayerUI();
+        showToast('Audio load error', track.src, 'error');
+      });
     }
 
     musicAudio.src = track.src;
@@ -135,16 +175,53 @@ document.addEventListener('DOMContentLoaded', () => {
     updateMusicPlayerUI();
 
     if (autoPlay) {
-      isMusicPlaying = true;
-      localStorage.setItem('burger_music_playing', 'true');
-      updateMusicPlayerUI();
-      musicAudio.play().catch(() => {});
-      if (showToastNotify) showMusicToast(track.title, '🎵 Now playing');
+      startMusicPlay(track, showToastNotify);
     } else {
       isMusicPlaying = false;
       localStorage.setItem('burger_music_playing', 'false');
       updateMusicPlayerUI();
     }
+  }
+
+  function toggleMusicPlayback(showToastNotify = true) {
+    const track = MUSIC_TRACKS[currentTrackIndex];
+    if (!musicAudio || !musicAudio.src) {
+      loadMusicTrack(currentTrackIndex, true, showToastNotify);
+      return;
+    }
+
+    if (!musicAudio.paused) {
+      try { musicAudio.pause(); } catch(e) {}
+      isMusicPlaying = false;
+      localStorage.setItem('burger_music_playing', 'false');
+      updateMusicPlayerUI();
+      if (showToastNotify && track) showMusicToast(track.title, '⏸ Paused');
+    } else {
+      startMusicPlay(track, showToastNotify);
+    }
+  }
+
+  function prevMusicTrack() {
+    playSound(SOUNDS.buttons);
+    loadMusicTrack(currentTrackIndex - 1, true, true);
+  }
+
+  function nextMusicTrack() {
+    playSound(SOUNDS.buttons);
+    loadMusicTrack(currentTrackIndex + 1, true, true);
+  }
+
+  function stopMusicPlayback() {
+    if (musicAudio) {
+      try {
+        musicAudio.pause();
+        musicAudio.currentTime = 0;
+      } catch(e) {}
+    }
+    isMusicPlaying = false;
+    localStorage.setItem('burger_music_playing', 'false');
+    updateMusicPlayerUI();
+   }
   }
 
   function toggleMusicPlayback(showToastNotify = true) {
