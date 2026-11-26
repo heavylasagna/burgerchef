@@ -1715,7 +1715,7 @@ input[type="range"]::-webkit-slider-thumb {
     flex-direction: column;
   }
   
-  .right-panel { order: 2; height: 190px; position: relative; margin-top: 0px; }
+  .right-panel { order: 2; height: 190px; position: relative; margin-top: 34px; }
   .left-panel { order: 4; height: 190px; }
 
   .ingredients-menu {
@@ -1889,7 +1889,24 @@ input[type="range"]::-webkit-slider-thumb {
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
   }
 
-  .btn-floating-serve {
+  /* Мобильная кнопка подачи: справа сверху от меню Ingredients */
+  .btn-floating-serve.serve-btn-above-ingredients {
+    display: flex !important;
+    position: fixed !important;
+    right: 8px !important;
+    bottom: auto !important;
+    left: auto !important;
+    z-index: 1050;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    background: var(--modal-bg);
+  }
+
+  .btn-floating-serve.serve-btn-above-ingredients.hidden-serve-btn {
+    display: none !important;
+  }
+
+  #submitOrderBtn {
     display: none !important;
   }
 
@@ -1899,7 +1916,8 @@ input[type="range"]::-webkit-slider-thumb {
   body.ui-hidden .top-order-widget,
   body.ui-hidden .wallet-widget,
   body.ui-hidden .pinned-recipe-widget,
-  body.ui-hidden .screen-switcher { display: none !important; }
+  body.ui-hidden .screen-switcher,
+  body.ui-hidden .btn-floating-serve.serve-btn-above-ingredients { display: none !important; }
   
   body.ui-hidden .center-stage { min-height: 75vh; }
 }
