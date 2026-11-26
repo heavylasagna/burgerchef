@@ -3444,6 +3444,8 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   let currentTutorialStep = 0;
+  let mobileTutorialInitialScreen = null;
+
   function showWelcomeModalIfNeeded() {
     if (!localStorage.getItem('has_seen_welcome') && !localStorage.getItem('burgerMakerTutorialCompleted')) {
       const modal = document.getElementById('welcomeModal');
@@ -3537,6 +3539,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function startTutorial() {
     currentTutorialStep = 0;
+    mobileTutorialInitialScreen = window.innerWidth <= 900 ? currentScreen : null;
     document.body.classList.add('tutorial-active');
     tutorialOverlay.classList.add('active');
     showTutorialStep(currentTutorialStep);
@@ -3546,7 +3549,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const step = tutorialSteps[stepIndex];
     if (!step) { endTutorial(); return; }
 
-    if (step.screen && currentScreen !== step.screen) {
+    if (window.innerWidth <= 900) {
+      if (mobileTutorialInitialScreen && currentScreen !== mobileTutorialInitialScreen) {
+        switchScreen(mobileTutorialInitialScreen, true);
+      }
+    } else if (step.screen && currentScreen !== step.screen) {
       switchScreen(step.screen, true);
     }
 
@@ -3579,13 +3586,19 @@ document.addEventListener('DOMContentLoaded', () => {
   if (tutorialPrevBtn) tutorialPrevBtn.onclick = () => { playSound(SOUNDS.buttons); if (currentTutorialStep > 0) showTutorialStep(--currentTutorialStep); };
 
   function endTutorial() {
+    const restoreMobileScreen = window.innerWidth <= 900 ? mobileTutorialInitialScreen : null;
+    mobileTutorialInitialScreen = null;
     document.body.classList.remove('tutorial-active');
     tutorialOverlay.classList.remove('active');
     if (settingsModal) {
       settingsModal.classList.remove('open');
       document.body.classList.remove('modal-open');
     }
-    if (currentScreen !== 'assembly') {
+    if (restoreMobileScreen) {
+      if (currentScreen !== restoreMobileScreen) {
+        switchScreen(restoreMobileScreen, true);
+      }
+    } else if (currentScreen !== 'assembly') {
       switchScreen('assembly', true);
     }
   }
