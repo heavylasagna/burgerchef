@@ -1437,6 +1437,45 @@ body.ui-hidden .top-order-widget {
   justify-content: space-between;
 }
 
+/* Объединённый контейнер Sound (SFX volume, Music volume, Music player) */
+.sound-container {
+  gap: 10px;
+}
+
+.sound-group-title {
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  color: var(--accent-color) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.sound-subitem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.music-player-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--panel-bg-2);
+  border: 1px solid var(--item-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-top: 2px;
+}
+
+.music-player-label {
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  color: var(--text-color);
+  opacity: 0.75;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
 .music-track-title {
   font-size: 0.8rem;
   font-weight: 600;
