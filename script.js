@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function loadModeData() {
     currentBurger = JSON.parse(localStorage.getItem(getModeKey('saved_burger_stack'))) || [];
-    
+
     let defaultMoney = (currentGameMode === 'sandbox') ? 999999 : 100.00;
     playerMoney = parseFloat(localStorage.getItem(getModeKey('burger_money')));
     if (isNaN(playerMoney)) playerMoney = defaultMoney;
@@ -150,10 +150,10 @@ document.addEventListener('DOMContentLoaded', () => {
     boardSlots = JSON.parse(localStorage.getItem(getModeKey('burger_board_slots'))) || Array(3).fill(null);
     sinkSlots = JSON.parse(localStorage.getItem(getModeKey('burger_sink_slots'))) || Array(3).fill(null);
     currentActiveOrder = JSON.parse(localStorage.getItem(getModeKey('current_active_order'))) || null;
-    
+
     timeUntilNextOrder = parseInt(localStorage.getItem(getModeKey('time_until_next_order')), 10);
     if (isNaN(timeUntilNextOrder)) timeUntilNextOrder = 120;
-    
+
     dailyQuestsData = JSON.parse(localStorage.getItem(getModeKey('burger_daily_quests'))) || null;
   }
 
@@ -257,84 +257,84 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const GRILLABLE_ITEMS = {
-    'raw-beef-patty': { 
-      name: 'Beef Patty', 
+    'raw-beef-patty': {
+      name: 'Beef Patty',
       menuImage: 'images/raw-beef-patty.png',
-      rawImage: 'images/raw-beef-patty.png', 
-      flip1Image: 'images/beef-patty-flip1.png', 
-      flip2Image: 'images/beef-patty-flip2.png', 
-      cookedId: 'beef-patty', 
-      cookedImage: 'images/beef-patty.png', 
+      rawImage: 'images/raw-beef-patty.png',
+      flip1Image: 'images/beef-patty-flip1.png',
+      flip2Image: 'images/beef-patty-flip2.png',
+      cookedId: 'beef-patty',
+      cookedImage: 'images/beef-patty.png',
       needsFlip: true, cookTime: 12, burnTime: 8, category: 'patty'
     },
-    'raw-chicken-patty': { 
-      name: 'Chicken Patty', 
+    'raw-chicken-patty': {
+      name: 'Chicken Patty',
       menuImage: 'images/raw-chicken-patty.png',
-      rawImage: 'images/raw-chicken-patty.png', 
-      flip1Image: 'images/chicken-patty-flip1.png', 
-      flip2Image: 'images/chicken-patty-flip2.png', 
-      cookedId: 'chicken-patty', 
-      cookedImage: 'images/chicken-patty.png', 
+      rawImage: 'images/raw-chicken-patty.png',
+      flip1Image: 'images/chicken-patty-flip1.png',
+      flip2Image: 'images/chicken-patty-flip2.png',
+      cookedId: 'chicken-patty',
+      cookedImage: 'images/chicken-patty.png',
       needsFlip: true, cookTime: 12, burnTime: 8, category: 'patty'
     },
-    'raw-fish-patty': { 
-      name: 'Fish Patty', 
+    'raw-fish-patty': {
+      name: 'Fish Patty',
       menuImage: 'images/raw-fish-patty.png',
-      rawImage: 'images/raw-fish-patty.png', 
-      flip1Image: 'images/fish-patty-flip1.png', 
-      flip2Image: 'images/fish-patty-flip2.png', 
-      cookedId: 'fish-patty', 
-      cookedImage: 'images/fish-patty.png', 
+      rawImage: 'images/raw-fish-patty.png',
+      flip1Image: 'images/fish-patty-flip1.png',
+      flip2Image: 'images/fish-patty-flip2.png',
+      cookedId: 'fish-patty',
+      cookedImage: 'images/fish-patty.png',
       needsFlip: true, cookTime: 12, burnTime: 8, category: 'patty'
     },
-    'raw-hashbrown': { 
-      name: 'Hashbrown', 
+    'raw-hashbrown': {
+      name: 'Hashbrown',
       menuImage: 'images/raw-hashbrown.png',
-      rawImage: 'images/raw-hashbrown.png', 
-      flip1Image: 'images/hashbrown-flip1.png', 
-      flip2Image: 'images/hashbrown-flip2.png', 
-      cookedId: 'hashbrown', 
-      cookedImage: 'images/hashbrown.png', 
+      rawImage: 'images/raw-hashbrown.png',
+      flip1Image: 'images/hashbrown-flip1.png',
+      flip2Image: 'images/hashbrown-flip2.png',
+      cookedId: 'hashbrown',
+      cookedImage: 'images/hashbrown.png',
       needsFlip: true, cookTime: 10, burnTime: 7, category: 'patty'
     },
-    'raw-bacon': { 
-      name: 'Bacon', 
+    'raw-bacon': {
+      name: 'Bacon',
       menuImage: 'images/raw-bacon.png',
-      rawImage: 'images/raw-bacon.png', 
-      flip1Image: 'images/raw-bacon.png', 
-      flip2Image: 'images/fried-bacon.png', 
-      cookedId: 'fried-bacon', 
-      cookedImage: 'images/fried-bacon.png', 
+      rawImage: 'images/raw-bacon.png',
+      flip1Image: 'images/raw-bacon.png',
+      flip2Image: 'images/fried-bacon.png',
+      cookedId: 'fried-bacon',
+      cookedImage: 'images/fried-bacon.png',
       needsFlip: false, cookTime: 8, burnTime: 6, category: 'protein'
     },
-    'raw-egg': { 
-      name: 'Egg', 
+    'raw-egg': {
+      name: 'Egg',
       menuImage: 'images/egg.png',
-      rawImage: 'images/raw-egg.png', 
-      flip1Image: 'images/raw-egg.png', 
-      flip2Image: 'images/fried-egg.png', 
-      cookedId: 'fried-egg', 
-      cookedImage: 'images/fried-egg.png', 
+      rawImage: 'images/raw-egg.png',
+      flip1Image: 'images/raw-egg.png',
+      flip2Image: 'images/fried-egg.png',
+      cookedId: 'fried-egg',
+      cookedImage: 'images/fried-egg.png',
       needsFlip: false, cookTime: 8, burnTime: 6, category: 'protein'
     },
-    'raw-champignons': { 
-      name: 'Champignons', 
+    'raw-champignons': {
+      name: 'Champignons',
       menuImage: 'images/raw-champignons.png',
-      rawImage: 'images/raw-champignons.png', 
-      flip1Image: 'images/raw-champignons.png', 
-      flip2Image: 'images/champignons.png', 
-      cookedId: 'champignons', 
-      cookedImage: 'images/champignons.png', 
+      rawImage: 'images/raw-champignons.png',
+      flip1Image: 'images/raw-champignons.png',
+      flip2Image: 'images/champignons.png',
+      cookedId: 'champignons',
+      cookedImage: 'images/champignons.png',
       needsFlip: false, cookTime: 8, burnTime: 6, category: 'vegetables'
     },
-    'raw-cheese': { 
-      name: 'Cheese', 
+    'raw-cheese': {
+      name: 'Cheese',
       menuImage: 'images/raw-cheese.png',
-      rawImage: 'images/raw-cheese.png', 
-      flip1Image: 'images/raw-cheese.png', 
-      flip2Image: 'images/cheese.png', 
-      cookedId: 'cheese', 
-      cookedImage: 'images/cheese.png', 
+      rawImage: 'images/raw-cheese.png',
+      flip1Image: 'images/raw-cheese.png',
+      flip2Image: 'images/cheese.png',
+      cookedId: 'cheese',
+      cookedImage: 'images/cheese.png',
       needsFlip: false, cookTime: 6, burnTime: 5, category: 'protein'
     }
   };
@@ -451,7 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements')) || {};
   let pinnedBurger = JSON.parse(localStorage.getItem('pinned_burger')) || null;
-  
+
   let lastOrderReducedReward = false;
   let skipOrderClickCount = 0;
   let skipOrderTimeout = null;
@@ -793,7 +793,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const popup = document.createElement('div');
     popup.className = `money-popup ${isPlus ? 'plus' : 'minus'}`;
     popup.innerText = `${isPlus ? '+' : '-'}$${Math.abs(amount).toFixed(2)}`;
-    
+
     let isRemoved = false;
     const removePopup = () => {
       if (isRemoved) return;
@@ -819,7 +819,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       if (isNaN(playerMoney)) playerMoney = 100.00;
       badge.innerText = `$${playerMoney.toFixed(2)}`;
-      
+
       badge.className = '';
       if (playerMoney > 0) {
         badge.classList.add('positive');
@@ -1011,21 +1011,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentListScrollTop = innerContainer ? innerContainer.scrollTop : ingredientsMenu.scrollTop;
     const currentTabsEl = document.getElementById('cat-tabs-setAssemblyCategory');
     const actualScroll = savedScroll !== null ? savedScroll : (currentTabsEl ? currentTabsEl.scrollLeft : 0);
-    
+
     const filtered = assemblyActiveCategory === 'all' ? INGREDIENTS : INGREDIENTS.filter(i => i.category === assemblyActiveCategory);
     const tabsHtml = renderCategoryTabs(assemblyActiveCategory, 'setAssemblyCategory', false, false);
-    
+
     let cardsHtml = `<div class="scrollable-items-list" style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; min-height:0;">`;
     filtered.forEach(item => {
       const availableStock = getAssemblyAvailableStock(item.id);
       const isOut = currentGameMode !== 'sandbox' && availableStock <= 0;
       const countText = currentGameMode === 'sandbox' ? '∞' : `x${availableStock}`;
+      const isRawPreview = currentGameMode !== 'sandbox' && (ingredientStock[item.id] ?? 0) <= 0 && ASSEMBLY_RAW_FALLBACK[item.id] && (ingredientStock[ASSEMBLY_RAW_FALLBACK[item.id]] ?? 0) > 0;
+      const previewImg = isRawPreview ? resolveLayerDisplayImage(item.id, item.image, true, ASSEMBLY_RAW_FALLBACK[item.id]) : item.image;
 
       cardsHtml += `
         <div class="ingredient-card ${currentBurger.length >= MAX_INGREDIENTS || isEating || isOut ? 'disabled' : ''}" onclick="handleAssemblyClick('${item.id}')">
-          <img src="${item.image}" alt="${item.name}">
+          <img src="${previewImg}" alt="${item.name}">
           <div class="ingredient-info-row">
-            <span class="ingredient-name">${item.name}</span>
+            <span class="ingredient-name">${item.name}${isRawPreview ? ' (Raw)' : ''}</span>
             <span class="ingredient-stock-count">${countText}</span>
           </div>
         </div>
@@ -1661,7 +1663,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     slot.state = 'cutting';
     slot.startTime = Date.now();
-    
+
     if (cuttingAudioInstance) {
       try { cuttingAudioInstance.pause(); cuttingAudioInstance.currentTime = 0; } catch(e) {}
       cuttingAudioInstance = null;
@@ -1749,7 +1751,7 @@ document.addEventListener('DOMContentLoaded', () => {
       saveStock();
       playSound(SOUNDS.buttons);
       trackQuestProgress('slice_items', 1);
-      
+
       boardSlots[index] = null;
       saveBoardState();
       renderBoardSlicedInventory();
@@ -2070,7 +2072,7 @@ document.addEventListener('DOMContentLoaded', () => {
       saveStock();
       playSound(SOUNDS.buttons);
       trackQuestProgress('cook_patties', 1);
-      
+
       grillSlots[index] = null;
       saveGrillState();
       renderGrillCookedInventory();
@@ -2316,7 +2318,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateActionButtonsVisibility() {
     const isMobile = window.innerWidth <= 900;
     const isSpecialScreen = currentScreen === 'grill' || currentScreen === 'board' || currentScreen === 'sink';
-    
+
     if (squeezeBtn) squeezeBtn.style.display = isSpecialScreen ? 'none' : 'flex';
 
     const currentSpeed = getCurrentSpeed();
@@ -3102,7 +3104,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateBurgerDisplay(isNewAdded = false) {
     if (currentScreen !== 'assembly') return;
     saveBurgerState();
-    
+
     if (leftPanel) {
       const titleEl = leftPanel.querySelector('.panel-title');
       if (titleEl) titleEl.innerText = `Layers (${currentBurger.length}/${MAX_INGREDIENTS})`;
@@ -3132,34 +3134,34 @@ document.addEventListener('DOMContentLoaded', () => {
     if (burgerStack) {
       burgerStack.innerHTML = '';
       currentBurger.forEach((item, index) => {
+        const layerImg = resolveLayerDisplayImage(item.id, item.image, item.isRaw, item.rawId);
         const img = document.createElement('img');
-          img.src = layerImg;
-          img.className = `burger-layer-img ${item.isDirty ? 'unwashed-filter' : ''} ${item.id === 'raw-cheese' ? 'raw-cheese-layer' : ''}`;
-          if (isNewAdded && index === currentBurger.length - 1) {
-            img.classList.add('new-layer');
-            setTimeout(() => img.classList.remove('new-layer'), 350);
-          }
-
-          let mb = -38;
-          if (index === 0) mb = -10;
-          else if (['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id)) mb = -50;
-          else if (item.id === 'top-bun') mb = -38;
-          else if (item.id === 'raw-cheese') mb = -18;
-          else if (item.id === 'cheese') mb = -60;
-          else if (item.id === 'hashbrown') mb = -38;
-          else if (item.id === 'fried-egg' || item.id === 'raw-egg') mb = -52;
-          else if (item.id === 'fried-bacon' || item.id === 'raw-bacon') mb = -48;
-          else if (item.id === 'lettuce') mb = -65;
-
-          img.style.marginBottom = `${mb}px`;
-          img.style.zIndex = index + 1;
-
-          if (isSqueezed && index > 0) {
-            img.style.setProperty('--sq-offset', `${index * 6}px`);
-            img.classList.add('squeezed');
-          }
-          burgerStack.appendChild(img);
+        img.src = layerImg;
+        img.className = `burger-layer-img ${item.isDirty ? 'unwashed-filter' : ''} ${item.id === 'raw-cheese' ? 'raw-cheese-layer' : ''}`;
+        if (isNewAdded && index === currentBurger.length - 1) {
+          img.classList.add('new-layer');
+          setTimeout(() => img.classList.remove('new-layer'), 350);
         }
+
+        let mb = -38;
+        if (index === 0) mb = -10;
+        else if (['mayo', 'ketchup', 'mustard', 'spicy', 'bbq'].includes(item.id)) mb = -50;
+        else if (item.id === 'top-bun') mb = -38;
+        else if (item.id === 'raw-cheese') mb = -18;
+        else if (item.id === 'cheese') mb = -60;
+        else if (item.id === 'hashbrown') mb = -38;
+        else if (item.id === 'fried-egg' || item.id === 'raw-egg') mb = -52;
+        else if (item.id === 'fried-bacon' || item.id === 'raw-bacon') mb = -48;
+        else if (item.id === 'lettuce') mb = -65;
+
+        img.style.marginBottom = `${mb}px`;
+        img.style.zIndex = index + 1;
+
+        if (isSqueezed && index > 0) {
+          img.style.setProperty('--sq-offset', `${index * 6}px`);
+          img.classList.add('squeezed');
+        }
+        burgerStack.appendChild(img);
       });
     }
     renderIngredientsMenu();
@@ -3176,19 +3178,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const consumed = consumeAssemblyIngredient(item.id);
     if (!consumed) return;
 
+    const isRawCheeseFallback = consumed.isRaw && consumed.rawId === 'raw-cheese';
+    const effectiveId = isRawCheeseFallback ? 'raw-cheese' : item.id;
     const effectiveIsRaw = Boolean(item.isRaw || consumed.isRaw);
-    const effectiveRawId = item.rawId || consumed.rawId || (RAW_ITEM_POISON_CHANCE[item.id] ? item.id : null);
-    const resolvedImg = resolveLayerDisplayImage(item.id, item.image, effectiveIsRaw, effectiveRawId);
+    const effectiveRawId = item.rawId || consumed.rawId || (RAW_ITEM_POISON_CHANCE[effectiveId] ? effectiveId : null);
+    const resolvedImg = resolveLayerDisplayImage(effectiveId, item.image, effectiveIsRaw, effectiveRawId);
 
     isAddingInProgress = true;
     playSound(SOUNDS.ingridients);
     currentBurger.push({
       ...item,
+      id: effectiveId,
       image: resolvedImg || item.image,
       isDirty: consumed.isDirty,
       isRaw: effectiveIsRaw,
       rawId: effectiveRawId,
-      stockKey: consumed.stockKey || item.id
+      stockKey: consumed.stockKey || effectiveId
     });
     checkSpecialCombos();
     updateBurgerDisplay(true);
@@ -3462,7 +3467,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const penalty = Math.round((cost / 2) * 100) / 100;
       if (currentGameMode !== 'sandbox') { playerMoney -= penalty; updateMoneyDisplay(penalty, false); }
       showToast('Wrong order!', `-$${penalty.toFixed(2)} penalty`, 'error');
-      
+
       currentActiveOrder = null;
       localStorage.removeItem(getModeKey('current_active_order'));
       if (currentGameMode === 'turbo') {
@@ -3508,16 +3513,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const allAvailable = [...REGULAR_RECIPES, ...unlockedSecretNames];
     const chosen = allAvailable[Math.floor(Math.random() * allAvailable.length)];
     currentActiveOrder = { name: chosen.name || chosen.title, ids: chosen.ids };
-    
+
     if (currentGameMode === 'turbo') currentTurboTimeLeft = 180;
     localStorage.setItem(getModeKey('current_active_order'), JSON.stringify(currentActiveOrder));
-    
+
     const speed = getCurrentSpeed();
     if (speed !== 'no-orders' && speed !== 'turbo' && currentGameMode !== 'turbo') {
       timeUntilNextOrder = getRandomTimeForSpeed(speed);
       localStorage.setItem(getModeKey('time_until_next_order'), timeUntilNextOrder);
     }
-    
+
     playSound(SOUNDS.order);
     updateActionButtonsVisibility();
   }
