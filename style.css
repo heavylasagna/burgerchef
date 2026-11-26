@@ -893,36 +893,6 @@ body.tutorial-active {
   100% { transform: translateY(var(--dy, -25px)) scale(1.2); opacity: 0; }
 }
 
-/* Блеск звёздочками/эмодзи поверх продукта */
-.sparkle-effect {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 12;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sparkle-star {
-  position: absolute;
-  font-size: 1.05rem;
-  line-height: 1;
-  pointer-events: none;
-  animation: starSparklePop 1.2s infinite ease-in-out;
-  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.85));
-}
-
-.sparkle-star:nth-child(1) { top: 6px; left: 10px; animation-delay: 0s; }
-.sparkle-star:nth-child(2) { top: 10px; right: 8px; font-size: 0.85rem; animation-delay: 0.35s; }
-.sparkle-star:nth-child(3) { bottom: 16px; left: 14px; font-size: 0.9rem; animation-delay: 0.7s; }
-.sparkle-star:nth-child(4) { bottom: 12px; right: 12px; animation-delay: 1s; }
-
-@keyframes starSparklePop {
-  0%, 100% { transform: scale(0.5) rotate(0deg); opacity: 0.2; }
-  50% { transform: scale(1.25) rotate(18deg); opacity: 1; }
-}
-
 .grill-slot {
   width: 120px;
   height: 145px;
