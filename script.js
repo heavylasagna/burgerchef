@@ -76,6 +76,74 @@ document.addEventListener('DOMContentLoaded', () => {
   let musicAudio = null;
   let musicToastTimer = null;
   let musicToastEl = null;
+  let pendingAutoplayOnInteraction = false;
+
+  function isSettingsOpen() {
+    const sm = document.getElementById('settingsModal');
+    return Boolean(sm && sm.classList.contains('open'));
+  }
+
+  function positionMusicToast() {
+    if (!musicToastEl) return;
+
+    musicToastEl.style.top = '';
+    musicToastEl.style.bottom = '';
+    musicToastEl.style.left = '';
+    musicToastEl.style.right = '';
+    musicToastEl.style.transform = '';
+
+    if (document.body.classList.contains('ui-hidden')) {
+      musicToastEl.style.display = 'none';
+      return;
+    } else {
+      musicToastEl.style.display = '';
+    }
+
+    const isMobile = window.innerWidth <= 900;
+    const bp = document.getElementById('bottomPanel');
+    const topOrder = document.getElementById('topOrderWidget');
+    const wallet = document.getElementById('walletWidget');
+
+    if (isMobile) {
+      let topPos = 10;
+      let leftPos = 10;
+
+      const visibleTopCandidates = [topOrder, wallet].filter(el => {
+        if (!el) return false;
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || el.classList.contains('hidden')) return false;
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0;
+      });
+
+      if (visibleTopCandidates.length > 0) {
+        const minTop = Math.min(...visibleTopCandidates.map(el => el.getBoundingClientRect().top));
+        const leftmost = visibleTopCandidates.reduce((a, b) =>
+          a.getBoundingClientRect().left < b.getBoundingClientRect().left ? a : b
+        );
+        const lRect = leftmost.getBoundingClientRect();
+        topPos = Math.max(8, minTop);
+        leftPos = Math.max(8, lRect.left);
+      }
+
+      musicToastEl.style.top = `${topPos}px`;
+      musicToastEl.style.left = `${leftPos}px`;
+    } else {
+      let leftPos = 16;
+      let bottomPos = 96;
+
+      if (bp) {
+        const bpRect = bp.getBoundingClientRect();
+        if (bpRect.width > 0 && bpRect.height > 0) {
+          leftPos = Math.max(12, bpRect.left);
+          bottomPos = Math.max(12, window.innerHeight - bpRect.top + 8);
+        }
+      }
+
+      musicToastEl.style.left = `${leftPos}px`;
+      musicToastEl.style.bottom = `${bottomPos}px`;
+    }
+  }
 
   function ensureMusicToastEl() {
     if (!musicToastEl) {
@@ -86,19 +154,47 @@ document.addEventListener('DOMContentLoaded', () => {
         musicToastEl.className = 'music-toast';
         document.body.appendChild(musicToastEl);
       }
+      musicToastEl.style.position = 'fixed';
+      musicToastEl.style.zIndex = '9500';
+      musicToastEl.style.pointerEvents = 'none';
     }
+    positionMusicToast();
     return musicToastEl;
   }
 
   function showMusicToast(trackTitle, statusPrefix = '🎵 Now playing') {
+    if (isSettingsOpen()) return;
     const toast = ensureMusicToastEl();
     if (!toast) return;
     toast.innerText = `${statusPrefix}: ${trackTitle}`;
+    positionMusicToast();
     toast.classList.add('visible');
     if (musicToastTimer) clearTimeout(musicToastTimer);
     musicToastTimer = setTimeout(() => {
       toast.classList.remove('visible');
     }, 3000);
+  }
+
+  function bindUnlockMusicOnFirstInteraction() {
+    if (pendingAutoplayOnInteraction) return;
+    pendingAutoplayOnInteraction = true;
+
+    const unlockHandler = () => {
+      pendingAutoplayOnInteraction = false;
+      window.removeEventListener('pointerdown', unlockHandler, true);
+      window.removeEventListener('keydown', unlockHandler, true);
+      const track = MUSIC_TRACKS[currentTrackIndex];
+      if (track && (!musicAudio || musicAudio.paused)) {
+        if (!musicAudio || !musicAudio.src) {
+          loadMusicTrack(currentTrackIndex, true, !isSettingsOpen());
+        } else {
+          startMusicPlay(track, !isSettingsOpen());
+        }
+      }
+    };
+
+    window.addEventListener('pointerdown', unlockHandler, { capture: true, once: true });
+    window.addEventListener('keydown', unlockHandler, { capture: true, once: true });
   }
 
   function getTrackTitleEl() {
@@ -132,20 +228,26 @@ document.addEventListener('DOMContentLoaded', () => {
         isMusicPlaying = true;
         localStorage.setItem('burger_music_playing', 'true');
         updateMusicPlayerUI();
-        if (showToastNotify) showMusicToast(track.title, '🎵 Now playing');
-      }).catch(() => {
+        if (showToastNotify && !isSettingsOpen()) {
+          showMusicToast(track.title, '🎵 Now playing');
+        }
+      }).catch((err) => {
         isMusicPlaying = false;
         localStorage.setItem('burger_music_playing', 'false');
         updateMusicPlayerUI();
-        if (showToastNotify) {
-          showToast('Playback blocked or unavailable', 'Click play again or check audio file', 'warning');
+        if (err && err.name === 'NotAllowedError') {
+          bindUnlockMusicOnFirstInteraction();
+        } else if (showToastNotify && !isSettingsOpen()) {
+          showToast('Playback unavailable', 'Check audio file or browser permissions', 'warning');
         }
       });
     } else {
       isMusicPlaying = true;
       localStorage.setItem('burger_music_playing', 'true');
       updateMusicPlayerUI();
-      if (showToastNotify) showMusicToast(track.title, '🎵 Now playing');
+      if (showToastNotify && !isSettingsOpen()) {
+        showMusicToast(track.title, '🎵 Now playing');
+      }
     }
   }
 
@@ -157,10 +259,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const track = MUSIC_TRACKS[currentTrackIndex];
     if (!musicAudio) {
       musicAudio = new Audio();
-      musicAudio.preload = 'metadata';
+      musicAudio.preload = 'auto';
       musicAudio.loop = false;
       musicAudio.addEventListener('ended', () => {
-        loadMusicTrack(currentTrackIndex + 1, true, true);
+        loadMusicTrack(currentTrackIndex + 1, true, !isSettingsOpen());
       });
       musicAudio.addEventListener('error', () => {
         isMusicPlaying = false;
@@ -175,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateMusicPlayerUI();
 
     if (autoPlay) {
-      startMusicPlay(track, showToastNotify);
+      startMusicPlay(track, showToastNotify && !isSettingsOpen());
     } else {
       isMusicPlaying = false;
       localStorage.setItem('burger_music_playing', 'false');
@@ -186,7 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function toggleMusicPlayback(showToastNotify = true) {
     const track = MUSIC_TRACKS[currentTrackIndex];
     if (!musicAudio || !musicAudio.src) {
-      loadMusicTrack(currentTrackIndex, true, showToastNotify);
+      loadMusicTrack(currentTrackIndex, true, showToastNotify && !isSettingsOpen());
       return;
     }
 
@@ -195,20 +297,22 @@ document.addEventListener('DOMContentLoaded', () => {
       isMusicPlaying = false;
       localStorage.setItem('burger_music_playing', 'false');
       updateMusicPlayerUI();
-      if (showToastNotify && track) showMusicToast(track.title, '⏸ Paused');
+      if (showToastNotify && track && !isSettingsOpen()) {
+        showMusicToast(track.title, '⏸ Paused');
+      }
     } else {
-      startMusicPlay(track, showToastNotify);
+      startMusicPlay(track, showToastNotify && !isSettingsOpen());
     }
   }
 
   function prevMusicTrack() {
     playSound(SOUNDS.buttons);
-    loadMusicTrack(currentTrackIndex - 1, true, true);
+    loadMusicTrack(currentTrackIndex - 1, true, !isSettingsOpen());
   }
 
   function nextMusicTrack() {
     playSound(SOUNDS.buttons);
-    loadMusicTrack(currentTrackIndex + 1, true, true);
+    loadMusicTrack(currentTrackIndex + 1, true, !isSettingsOpen());
   }
 
   function stopMusicPlayback() {
@@ -2326,7 +2430,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   if (musicNextBtn) musicNextBtn.onclick = nextMusicTrack;
 
-  loadMusicTrack(currentTrackIndex, false, false);
+  loadMusicTrack(currentTrackIndex, true, !isSettingsOpen());
 
   window.setTheme = function(theme) {
     const darkBtn = document.getElementById('themeDarkBtn');
@@ -2512,14 +2616,24 @@ document.addEventListener('DOMContentLoaded', () => {
   allModals.forEach(item => {
     if (!item.modal) return;
     item.modal.addEventListener('click', (e) => {
-      if (e.target === item.modal) { playSound(SOUNDS.buttons); item.modal.classList.remove('open'); document.body.classList.remove('modal-open'); }
+      if (e.target === item.modal) {
+        playSound(SOUNDS.buttons);
+        item.modal.classList.remove('open');
+        document.body.classList.remove('modal-open');
+        positionMusicToast();
+      }
     });
   });
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       allModals.forEach(item => {
-        if (item.modal && item.modal.classList.contains('open')) { playSound(SOUNDS.buttons); item.modal.classList.remove('open'); document.body.classList.remove('modal-open'); }
+        if (item.modal && item.modal.classList.contains('open')) {
+          playSound(SOUNDS.buttons);
+          item.modal.classList.remove('open');
+          document.body.classList.remove('modal-open');
+          positionMusicToast();
+        }
       });
     }
   });
@@ -3175,8 +3289,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (openQuestsBtn) openQuestsBtn.onclick = () => { playSound(SOUNDS.buttons); renderQuestsModal(); questsModal.classList.add('open'); document.body.classList.add('modal-open'); };
   if (closeQuestsModal) closeQuestsModal.onclick = () => { questsModal.classList.remove('open'); document.body.classList.remove('modal-open'); };
-  if (openSettingsBtn) openSettingsBtn.onclick = () => { settingsModal.classList.add('open'); document.body.classList.add('modal-open'); };
-  if (closeSettingsModal) closeSettingsModal.onclick = () => { settingsModal.classList.remove('open'); document.body.classList.remove('modal-open'); };
+  if (openSettingsBtn) openSettingsBtn.onclick = () => {
+    settingsModal.classList.add('open');
+    document.body.classList.add('modal-open');
+    if (musicToastEl) musicToastEl.classList.remove('visible');
+  };
+  if (closeSettingsModal) closeSettingsModal.onclick = () => {
+    settingsModal.classList.remove('open');
+    document.body.classList.remove('modal-open');
+    positionMusicToast();
+  };
 
   const hardResetBtn = document.getElementById('hardResetBtn');
   if (hardResetBtn) hardResetBtn.onclick = () => {
@@ -3253,6 +3375,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.classList.toggle('ui-hidden');
     toggleUiBtn.innerText = document.body.classList.contains('ui-hidden') ? '👁️‍🗨️' : '👁️';
     positionServeButtonOnMobile();
+    positionMusicToast();
   };
 
   const downloadPngBtn = document.getElementById('downloadPngBtn');
@@ -4082,6 +4205,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (currentScreen !== 'assembly') {
       switchScreen('assembly', true);
     }
+    positionMusicToast();
   }
 
   showWelcomeModalIfNeeded();
@@ -4092,6 +4216,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('resize', () => {
     updateActionButtonsVisibility();
     positionServeButtonOnMobile();
+    positionMusicToast();
     if (tutorialOverlay && tutorialOverlay.classList.contains('active')) {
       const step = tutorialSteps[currentTutorialStep];
       const targetEl = step && typeof step.getElement === 'function' ? step.getElement() : null;
@@ -4100,6 +4225,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   window.addEventListener('scroll', () => {
     positionServeButtonOnMobile();
+    positionMusicToast();
   }, { passive: true });
 
   switchScreen(currentScreen, true);
@@ -4111,4 +4237,5 @@ document.addEventListener('DOMContentLoaded', () => {
   updateActionButtonsVisibility();
   updateStationNotificationDots();
   positionServeButtonOnMobile();
+  ensureMusicToastEl();
 });
