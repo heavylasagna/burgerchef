@@ -2251,8 +2251,6 @@ input[type="range"]::-webkit-slider-thumb {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
-  justify-content: center;
 }
 
 .customer-traits-btn {
@@ -2295,8 +2293,8 @@ input[type="range"]::-webkit-slider-thumb {
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
-.critic-modifier-badge.faded {
-  opacity: 0.35;
+.critic-modifier-badge.dimmed {
+  opacity: 0.25 !important;
 }
 
 .critic-modifier-badge.penalty {
@@ -2368,13 +2366,18 @@ body.ui-hidden .critic-modifier-badge {
 
 @media (max-width: 900px) {
   .top-order-widget {
-    left: auto !important;
-    right: 54px !important;
-    transform: none !important;
-    max-width: calc(100vw - 178px) !important;
-    padding: 5px 10px !important;
-    font-size: 0.72rem !important;
+    left: calc(50% + 22px);
+    max-width: calc(100vw - 146px);
+    padding: 5px 10px;
+    font-size: 0.74rem;
+    white-space: normal;
     line-height: 1.25;
+  }
+
+  .top-order-widget .order-status-row {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 2px;
   }
 
   .critic-modifier-badge {
