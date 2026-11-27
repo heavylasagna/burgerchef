@@ -1518,9 +1518,42 @@ document.addEventListener('DOMContentLoaded', () => {
     updateShopBalanceHeader();
   }
 
+  // --- TOAST LIMIT MANAGER (PC: max 3, Mobile: max 1, force-close oldest) ---
+  const DESKTOP_MAX_TOASTS = 3;
+  const MOBILE_MAX_TOASTS = 1;
+  const MOBILE_TOAST_BREAKPOINT = 900;
+  const activeToasts = [];
+
+  function getMaxActiveToasts() {
+    return window.innerWidth <= MOBILE_TOAST_BREAKPOINT ? MOBILE_MAX_TOASTS : DESKTOP_MAX_TOASTS;
+  }
+
+  function enforceActiveToastLimit() {
+    const maxAllowed = getMaxActiveToasts();
+    while (activeToasts.length >= maxAllowed) {
+      const oldest = activeToasts.shift();
+      if (oldest && typeof oldest.forceClose === 'function') {
+        oldest.forceClose();
+      }
+    }
+  }
+
+  window.addEventListener('resize', () => {
+    const maxAllowed = getMaxActiveToasts();
+    while (activeToasts.length > maxAllowed) {
+      const oldest = activeToasts.shift();
+      if (oldest && typeof oldest.forceClose === 'function') {
+        oldest.forceClose();
+      }
+    }
+  });
+
   function showToast(title, desc = '', type = 'success') {
     const container = document.getElementById('toastContainer');
     if (!container) return;
+
+    enforceActiveToastLimit();
+
     const toast = document.createElement('div');
     toast.className = `toast-message ${type}`;
     toast.innerHTML = `
@@ -1529,17 +1562,49 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
 
     let isRemoved = false;
-    const removeToast = () => {
-      if (isRemoved) return;
-      isRemoved = true;
-      toast.classList.add('hiding');
-      setTimeout(() => toast.remove(), 300);
+    let hideTimeoutId = null;
+    let fadeTimeoutId = null;
+
+    const controller = {
+      el: toast,
+      forceClose: () => {
+        if (isRemoved) return;
+        isRemoved = true;
+        if (hideTimeoutId) {
+          clearTimeout(hideTimeoutId);
+          hideTimeoutId = null;
+        }
+        if (fadeTimeoutId) {
+          clearTimeout(fadeTimeoutId);
+          fadeTimeoutId = null;
+        }
+        const idx = activeToasts.indexOf(controller);
+        if (idx !== -1) activeToasts.splice(idx, 1);
+        if (toast.parentNode) {
+          toast.remove();
+        }
+      },
+      dismissAnimated: () => {
+        if (isRemoved) return;
+        isRemoved = true;
+        if (hideTimeoutId) {
+          clearTimeout(hideTimeoutId);
+          hideTimeoutId = null;
+        }
+        const idx = activeToasts.indexOf(controller);
+        if (idx !== -1) activeToasts.splice(idx, 1);
+        toast.classList.add('hiding');
+        fadeTimeoutId = setTimeout(() => {
+          if (toast.parentNode) toast.remove();
+        }, 300);
+      }
     };
 
-    toast.onclick = removeToast;
+    toast.onclick = () => controller.dismissAnimated();
 
+    activeToasts.push(controller);
     container.appendChild(toast);
-    setTimeout(removeToast, 3500);
+    hideTimeoutId = setTimeout(() => controller.dismissAnimated(), 3500);
   }
 
   const INGREDIENTS = [
@@ -3033,44 +3098,55 @@ document.addEventListener('DOMContentLoaded', () => {
   const openSettingsBtn = document.getElementById('openSettingsBtn');
   const closeSettingsModal = document.getElementById('closeSettingsModal');
 
+  function normalizeSingleUpgradesTabInContainer(containerSelector, switchFnName, activeTabRef) {
+    const tabsContainer = document.querySelector(containerSelector);
+    if (!tabsContainer) return;
+
+    const allTabs = Array.from(tabsContainer.querySelectorAll('.recipe-tab'));
+    const upgradeTabs = allTabs.filter(t => {
+      const key = (t.dataset.tab || t.textContent || '').trim().toLowerCase();
+      return key === 'upgrades' || key === 'upgrade';
+    });
+
+    if (upgradeTabs.length === 0) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'recipe-tab';
+      btn.dataset.tab = 'upgrades';
+      btn.textContent = 'Upgrades';
+      btn.onclick = () => window[switchFnName]('upgrades');
+      tabsContainer.appendChild(btn);
+    } else {
+      upgradeTabs.forEach((btn, idx) => {
+        if (idx > 0) {
+          btn.remove();
+          return;
+        }
+        btn.setAttribute('type', 'button');
+        btn.dataset.tab = 'upgrades';
+        btn.textContent = 'Upgrades';
+        btn.onclick = () => window[switchFnName]('upgrades');
+      });
+    }
+
+    const currentActive = typeof activeTabRef === 'function' ? activeTabRef() : activeTabRef;
+    tabsContainer.querySelectorAll('.recipe-tab').forEach(t => {
+      if (!t.dataset.tab) {
+        t.dataset.tab = (t.textContent || '').trim().toLowerCase();
+      }
+      t.classList.toggle('active', t.dataset.tab === currentActive);
+    });
+  }
+
   let activeInventoryTab = 'all';
   window.switchInventoryTab = function(tab) {
     activeInventoryTab = tab;
-    document.querySelectorAll('#inventoryTabs .recipe-tab').forEach(t => {
-      const label = (t.dataset.tab || t.innerText || '').trim().toLowerCase();
-      t.classList.toggle('active', label === tab);
-    });
+    normalizeSingleUpgradesTabInContainer('#inventoryTabs', 'switchInventoryTab', () => activeInventoryTab);
     renderInventoryModal();
   }
 
   function ensureInventoryUpgradesTabButton() {
-    const tabsContainer = document.getElementById('inventoryTabs');
-    if (!tabsContainer) return;
-    const upgradeTabs = Array.from(tabsContainer.querySelectorAll('.recipe-tab')).filter(t => {
-      const key = (t.dataset.tab || t.innerText || '').trim().toLowerCase();
-      return key === 'upgrades' || key === 'upgrade';
-    });
-    if (upgradeTabs.length === 0) {
-      const btn = document.createElement('button');
-      btn.className = 'recipe-tab';
-      btn.dataset.tab = 'upgrades';
-      btn.innerText = 'Upgrades';
-      btn.onclick = () => window.switchInventoryTab('upgrades');
-      tabsContainer.appendChild(btn);
-    } else {
-      upgradeTabs.forEach((btn, idx) => {
-        btn.dataset.tab = 'upgrades';
-        btn.innerText = 'Upgrades';
-        btn.onclick = () => window.switchInventoryTab('upgrades');
-        if (idx > 0) btn.remove();
-      });
-    }
-    tabsContainer.querySelectorAll('.recipe-tab').forEach(t => {
-      if (!t.dataset.tab) {
-        t.dataset.tab = (t.innerText || '').trim().toLowerCase();
-      }
-      t.classList.toggle('active', t.dataset.tab === activeInventoryTab);
-    });
+    normalizeSingleUpgradesTabInContainer('#inventoryTabs', 'switchInventoryTab', () => activeInventoryTab);
   }
 
   function renderUpgradeDots(level, maxLevel = 3) {
@@ -3201,13 +3277,20 @@ document.addEventListener('DOMContentLoaded', () => {
     inventoryModal.classList.remove('open');
     document.body.classList.remove('modal-open');
     updateShopBalanceHeader();
-    renderShopModal();
     switchShopTab(category);
     shopModal.classList.add('open');
     document.body.classList.add('modal-open');
   }
 
-  if (openInventoryBtn) openInventoryBtn.onclick = () => { playSound(SOUNDS.buttons); renderInventoryModal(); inventoryModal.classList.add('open'); document.body.classList.add('modal-open'); };
+  if (openInventoryBtn) {
+    openInventoryBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      ensureInventoryUpgradesTabButton();
+      renderInventoryModal();
+      inventoryModal.classList.add('open');
+      document.body.classList.add('modal-open');
+    };
+  }
   if (closeInventoryModal) closeInventoryModal.onclick = () => { playSound(SOUNDS.buttons); inventoryModal.classList.remove('open'); document.body.classList.remove('modal-open'); };
 
   const questsModal = document.getElementById('questsModal');
@@ -3595,41 +3678,12 @@ document.addEventListener('DOMContentLoaded', () => {
   let activeShopTab = 'all';
   window.switchShopTab = function(tab) {
     activeShopTab = tab;
-    document.querySelectorAll('#shopTabs .recipe-tab').forEach(t => {
-      const label = (t.dataset.tab || t.innerText || '').trim().toLowerCase();
-      t.classList.toggle('active', label === tab);
-    });
+    normalizeSingleUpgradesTabInContainer('#shopTabs', 'switchShopTab', () => activeShopTab);
     renderShopModal();
   }
 
   function ensureShopUpgradesTabButton() {
-    const tabsContainer = document.getElementById('shopTabs');
-    if (!tabsContainer) return;
-    const upgradeTabs = Array.from(tabsContainer.querySelectorAll('.recipe-tab')).filter(t => {
-      const key = (t.dataset.tab || t.innerText || '').trim().toLowerCase();
-      return key === 'upgrades' || key === 'upgrade';
-    });
-    if (upgradeTabs.length === 0) {
-      const btn = document.createElement('button');
-      btn.className = 'recipe-tab';
-      btn.dataset.tab = 'upgrades';
-      btn.innerText = 'Upgrades';
-      btn.onclick = () => window.switchShopTab('upgrades');
-      tabsContainer.appendChild(btn);
-    } else {
-      upgradeTabs.forEach((btn, idx) => {
-        btn.dataset.tab = 'upgrades';
-        btn.innerText = 'Upgrades';
-        btn.onclick = () => window.switchShopTab('upgrades');
-        if (idx > 0) btn.remove();
-      });
-    }
-    tabsContainer.querySelectorAll('.recipe-tab').forEach(t => {
-      if (!t.dataset.tab) {
-        t.dataset.tab = (t.innerText || '').trim().toLowerCase();
-      }
-      t.classList.toggle('active', t.dataset.tab === activeShopTab);
-    });
+    normalizeSingleUpgradesTabInContainer('#shopTabs', 'switchShopTab', () => activeShopTab);
   }
 
   window.buyUpgrade = function(upgradeId) {
@@ -3901,7 +3955,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  if (openShopBtn) openShopBtn.onclick = () => { playSound(SOUNDS.buttons); updateShopBalanceHeader(); renderShopModal(); shopModal.classList.add('open'); document.body.classList.add('modal-open'); };
+  ensureInventoryUpgradesTabButton();
+  ensureShopUpgradesTabButton();
+
+  if (openShopBtn) {
+    openShopBtn.onclick = () => {
+      playSound(SOUNDS.buttons);
+      updateShopBalanceHeader();
+      ensureShopUpgradesTabButton();
+      renderShopModal();
+      shopModal.classList.add('open');
+      document.body.classList.add('modal-open');
+    };
+  }
   if (closeShopModal) closeShopModal.onclick = () => { playSound(SOUNDS.buttons); shopModal.classList.remove('open'); document.body.classList.remove('modal-open'); };
   if (openRecipesBtn) openRecipesBtn.onclick = () => { playSound(SOUNDS.buttons); renderRecipesModal(); recipesModal.classList.add('open'); document.body.classList.add('modal-open'); };
   if (closeRecipesModal) closeRecipesModal.onclick = () => { playSound(SOUNDS.buttons); recipesModal.classList.remove('open'); document.body.classList.remove('modal-open'); };
@@ -5023,3 +5089,4 @@ document.addEventListener('DOMContentLoaded', () => {
   positionServeButtonOnMobile();
   ensureMusicToastEl();
 });
+```[cite: 23]
