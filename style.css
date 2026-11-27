@@ -1437,7 +1437,6 @@ body.ui-hidden .top-order-widget {
   justify-content: space-between;
 }
 
-/* Объединённый контейнер Sound (SFX volume, Music volume, Music player) */
 .sound-container {
   gap: 10px;
 }
@@ -1959,23 +1958,6 @@ input[type="range"]::-webkit-slider-thumb {
     font-size: 0.75rem;
   }
 
-  .top-order-widget {
-    left: 88px !important;
-    right: 54px !important;
-    transform: none !important;
-    width: auto !important;
-    max-width: calc(100vw - 142px) !important;
-    padding: 5px 10px;
-    font-size: 0.74rem;
-    white-space: normal;
-    word-break: break-word;
-  }
-
-  .order-status-row {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
   .pinned-recipe-widget {
     position: absolute !important;
     top: 52px !important;
@@ -2268,6 +2250,8 @@ input[type="range"]::-webkit-slider-thumb {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .customer-traits-btn {
@@ -2310,8 +2294,8 @@ input[type="range"]::-webkit-slider-thumb {
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
-.critic-modifier-badge.dimmed {
-  opacity: 0.25 !important;
+.critic-modifier-badge.semi-transparent {
+  opacity: 0.35;
 }
 
 .critic-modifier-badge.penalty {
@@ -2382,6 +2366,13 @@ body.ui-hidden .critic-modifier-badge {
 }
 
 @media (max-width: 900px) {
+  .top-order-widget {
+    max-width: calc(100vw - 135px);
+    padding: 5px 10px;
+    font-size: 0.72rem;
+    line-height: 1.25;
+  }
+
   .critic-modifier-badge {
     top: 52px;
     left: 10px !important;
