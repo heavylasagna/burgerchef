@@ -4665,7 +4665,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isMixedOrderMatch) {
           showToast('Charm Saved You! ✨', 'Mixed layer order accepted with Charm!', 'success');
         } else if (partialMatch) {
-          showToast('Order Complete!', 'Reward was reduced due to partial match with the recipe.', 'warning');
+          showToast('Order Complete!', 'Reduced reward due to mismatched recipe.', 'warning');
         } else {
           showToast('Order Complete!', `${currentActiveOrder.name} served successfully!`, 'success');
         }
@@ -5203,25 +5203,32 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem(getModeKey('burger_critic_cooldown'), String(Math.max(0, criticCooldownOrdersLeft)));
   }
 
-  function getCriticCooldownOrdersForCurrentMode() {
-    if (currentGameMode === 'turbo') return 12;
+  function getCriticCooldownRangeForCurrentMode() {
+    if (currentGameMode === 'turbo') return [25, 45];
     const speed = getCurrentSpeed();
-    const map = {
-      'turbo': 12,
-      'super-fast': 30,
-      'fast': 20,
-      'medium': 12,
-      'slow': 6,
-      'super-slow': 3,
-      'no-orders': 3
+    const ranges = {
+      'turbo': [25, 45],
+      'super-fast': [35, 50],
+      'fast': [25, 40],
+      'medium': [18, 32],
+      'slow': [12, 22],
+      'super-slow': [10, 16],
+      'no-orders': [10, 16]
     };
-    return map[speed] ?? 12;
+    return ranges[speed] ?? [15, 30];
+  }
+
+  function rollCriticCooldownOrders() {
+    const [minVal, maxVal] = getCriticCooldownRangeForCurrentMode();
+    const clampedMin = Math.max(10, Math.min(50, minVal));
+    const clampedMax = Math.max(clampedMin, Math.min(50, maxVal));
+    return Math.floor(Math.random() * (clampedMax - clampedMin + 1)) + clampedMin;
   }
 
   function armCriticCooldownAfterBuffEnds() {
     if (currentGameMode === 'sandbox') return;
     if (currentGameMode !== 'turbo' && getCurrentSpeed() === 'no-orders') return;
-    criticCooldownOrdersLeft = Math.max(criticCooldownOrdersLeft, getCriticCooldownOrdersForCurrentMode());
+    criticCooldownOrdersLeft = Math.max(criticCooldownOrdersLeft, rollCriticCooldownOrders());
     saveCriticCooldownState();
   }
 
@@ -5843,7 +5850,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (isMixedOrderMatch) {
         showToast('Charm Saved You! ✨', 'Mixed layer order accepted with Charm!', 'success');
       } else if (partialMatch) {
-        showToast('Order Complete!', `Reward reduced (${discrepancies}/3 discrepancies).`, 'warning');
+        showToast('Order Complete!', 'Reduced reward due to mismatched recipe.', 'warning');
       } else {
         showToast('Order Complete!', `${currentActiveOrder.name} served successfully!`, 'success');
       }
@@ -5935,6 +5942,16 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   loadCriticModifierState();
+  if (
+    currentGameMode !== 'sandbox' &&
+    !(currentGameMode !== 'turbo' && getCurrentSpeed() === 'no-orders') &&
+    criticModifierState.remainingOrders <= 0 &&
+    criticCooldownOrdersLeft <= 0 &&
+    localStorage.getItem(getModeKey('burger_critic_cooldown')) === null
+  ) {
+    criticCooldownOrdersLeft = rollCriticCooldownOrders();
+    saveCriticCooldownState();
+  }
   if (currentActiveOrder && getCurrentSpeed() !== 'no-orders') {
     if (currentGameMode === 'turbo') {
       updateOrderWidgetsText(currentActiveOrder.name, formatTime(currentTurboTimeLeft));
