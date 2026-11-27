@@ -4167,6 +4167,31 @@ document.addEventListener('DOMContentLoaded', () => {
       savedMusicPosition = 0;
       pendingSeekTime = null;
 
+      // Сброс выбранных категорий и строк поиска в рюкзаке, магазине, книге рецептов и на станциях
+      activeInventoryTab = 'all';
+      activeShopTab = 'all';
+      activeRecipeCategory = 'all';
+      assemblyActiveCategory = 'all';
+      grillRawActiveCategory = 'all';
+      grillCookedActiveCategory = 'all';
+      boardUncutActiveCategory = 'all';
+      boardSlicedActiveCategory = 'all';
+      sinkUnwashedActiveCategory = 'all';
+      sinkWashedActiveCategory = 'all';
+
+      const invSearch = document.getElementById('inventorySearchInput');
+      if (invSearch) invSearch.value = '';
+      const shopSearch = document.getElementById('shopSearchInput');
+      if (shopSearch) shopSearch.value = '';
+      const recSearch = document.getElementById('recipesSearchInput');
+      if (recSearch) recSearch.value = '';
+
+      normalizeSingleUpgradesTabInContainer('#inventoryTabs', 'switchInventoryTab', () => activeInventoryTab);
+      normalizeSingleUpgradesTabInContainer('#shopTabs', 'switchShopTab', () => activeShopTab);
+      renderInventoryModal();
+      renderShopModal();
+      renderRecipesModal(0);
+
       if (sfxVolumeRange) sfxVolumeRange.value = 50;
       if (sfxVolumeVal) sfxVolumeVal.innerText = '50%';
       if (musicVolumeRange) musicVolumeRange.value = 30;
