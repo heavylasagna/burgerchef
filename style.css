@@ -2245,3 +2245,127 @@ input[type="range"]::-webkit-slider-thumb {
     margin-top: 4px;
   }
 }
+
+/* --- CUSTOMER TYPES, HINT MODAL & CRITIC PRICE MODIFIER --- */
+.order-status-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.customer-traits-btn {
+  background: rgba(255, 179, 0, 0.16);
+  border: 1px solid var(--accent-color);
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 0.78rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  color: var(--text-color);
+  transition: transform 0.15s ease, background 0.15s ease;
+  flex-shrink: 0;
+}
+
+.customer-traits-btn:hover {
+  transform: scale(1.12);
+  background: rgba(255, 179, 0, 0.3);
+}
+
+.critic-modifier-badge {
+  position: fixed !important;
+  top: 10px;
+  z-index: 3005 !important;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.critic-modifier-badge.penalty {
+  background: rgba(211, 47, 47, 0.22);
+  border: 1.5px solid #ef5350;
+  color: #ff8a80;
+}
+
+.critic-modifier-badge.bonus {
+  background: rgba(104, 159, 56, 0.22);
+  border: 1.5px solid #81c784;
+  color: #a5d6a7;
+}
+
+body.light-theme .critic-modifier-badge.penalty {
+  background: rgba(211, 47, 47, 0.14);
+  border-color: #c62828;
+  color: #b71c1c;
+}
+
+body.light-theme .critic-modifier-badge.bonus {
+  background: rgba(85, 139, 47, 0.16);
+  border-color: #33691e;
+  color: #2e7d32;
+}
+
+.critic-modifier-badge.hidden,
+body.ui-hidden .critic-modifier-badge {
+  display: none !important;
+}
+
+.customer-trait-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--item-bg);
+  border: 1px solid var(--item-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.customer-trait-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--item-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.customer-trait-info h4 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  margin-bottom: 3px;
+}
+
+.customer-trait-info p {
+  font-size: 0.76rem;
+  line-height: 1.35;
+  color: var(--text-color);
+  opacity: 0.88;
+}
+
+@media (max-width: 900px) {
+  .critic-modifier-badge {
+    top: 52px;
+    left: 10px !important;
+    right: auto !important;
+    transform: none !important;
+    font-size: 0.68rem;
+    padding: 4px 8px;
+  }
+}
