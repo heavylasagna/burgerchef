@@ -2251,6 +2251,8 @@ input[type="range"]::-webkit-slider-thumb {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .customer-traits-btn {
@@ -2287,9 +2289,14 @@ input[type="range"]::-webkit-slider-thumb {
   letter-spacing: 0.4px;
   text-transform: uppercase;
   white-space: nowrap;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.critic-modifier-badge.faded {
+  opacity: 0.35;
 }
 
 .critic-modifier-badge.penalty {
@@ -2360,6 +2367,16 @@ body.ui-hidden .critic-modifier-badge {
 }
 
 @media (max-width: 900px) {
+  .top-order-widget {
+    left: auto !important;
+    right: 54px !important;
+    transform: none !important;
+    max-width: calc(100vw - 178px) !important;
+    padding: 5px 10px !important;
+    font-size: 0.72rem !important;
+    line-height: 1.25;
+  }
+
   .critic-modifier-badge {
     top: 52px;
     left: 10px !important;
