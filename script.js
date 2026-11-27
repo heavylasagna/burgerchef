@@ -4934,16 +4934,9 @@ document.addEventListener('DOMContentLoaded', () => {
       targetId: 'topOrderWidget',
       action: () => { switchScreen('assembly', true); }
     },
-   {
-  title: 'Station Switcher 🔀',
-  text: `Use these buttons to switch between workstations:
-...`,
-  targetId: '...',
-},
-🍔 Assembly
-🔥 Grill
-🔪 Cutting Board
-🚿 Sink',
+    {
+      title: 'Station Switcher 🔀',
+      text: 'Use these buttons to switch between workstations:\n🍔 Assembly\n🔥 Grill\n🔪 Cutting Board\n🚿 Sink',
       targetId: 'screenSwitcher',
       action: () => { switchScreen('assembly', true); }
     },
@@ -5800,9 +5793,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const isDirty = Boolean(layer.isDirty);
 
       const alreadyCountedAsWrongItem = idx < maxLen && (normalizedIds[idx] !== targetIds[idx]) && !(allowMixedOrder && areIngredientsSetEqual(normalizedIds, targetIds));
-      if (!alreadyCountedAsWrongItem) {
-        if (isDirty) mismatches += 1;
-        if (hasRawKey || isMarkedRaw) mismatches += 1;
+
+      if (!alreadyCountedAsWrongItem && (hasRawKey || isMarkedRaw)) {
+        mismatches += 1;
+      }
+      if (isDirty) {
+        mismatches += 1;
       }
     });
 
@@ -5812,63 +5808,143 @@ document.addEventListener('DOMContentLoaded', () => {
   checkOrderSubmission = function() {
     if (!currentActiveOrder) return;
 
-    if (indecisiveDiceInterval) {
-      clearInterval(indecisiveDiceInterval);
-      indecisiveDiceInterval = null;
-    }
-
     const traits = Array.isArray(currentActiveOrder.traits) ? currentActiveOrder.traits : [];
-    const isCritic = traits.includes('critic');
-    const isModest = traits.includes('modest');
-    const isCapricious = traits.includes('capricious');
-    const isVip = traits.includes('vip');
+    const hasModest = traits.includes('modest');
+    const hasCapricious = traits.includes('capricious');
+    const hasVip = traits.includes('vip');
+    const hasCritic = traits.includes('critic');
 
-    const targetIds = currentActiveOrder.ids;
+    const currentIds = currentBurger.map(i => i.id);
     const normalizedIds = currentBurger.map(i => normalizeIngredientIdForOrder(i.id));
-    const hasAnyDirty = currentBurger.some(layer => Boolean(layer.isDirty));
-    const hasAnyRawMismatch = hasRawCookedMismatch(currentBurger);
-    const isExactSequenceMatch = normalizedIds.length === targetIds.length && normalizedIds.every((val, idx) => val === targetIds[idx]);
-    const isMixedOrderMatch = !isExactSequenceMatch && getCharmLevel() >= 1 && areIngredientsSetEqual(normalizedIds, targetIds);
+    const targetIds = currentActiveOrder.ids;
+
+    const hasAnyRawOrDirty = currentBurger.some(layer => {
+      const hasRawKey = Boolean(RAW_TO_COOKED_RECIPE_ITEM[layer.id]);
+      const isMarkedRaw = Boolean(layer.isRaw && (layer.rawId || ASSEMBLY_RAW_FALLBACK[layer.id]));
+      return hasRawKey || isMarkedRaw || Boolean(layer.isDirty);
+    });
+
+    const isExactSequenceMatch = currentIds.length === targetIds.length && currentIds.every((val, idx) => val === targetIds[idx]);
+    const isNormalizedSequenceMatch = !isExactSequenceMatch && normalizedIds.length === targetIds.length && normalizedIds.every((val, idx) => val === targetIds[idx]);
+    const isCharmMixedOrderMatch = !isExactSequenceMatch && !isNormalizedSequenceMatch && getCharmLevel() >= 1 && areIngredientsSetEqual(normalizedIds, targetIds);
 
     const charmLv = getCharmLevel();
-    const rawPoisonChance = calculatePoisonChance(currentBurger);
-    const charmPoisonReduction = charmLv >= 3 ? 0.5 : (charmLv >= 2 ? 0.25 : 0);
-    let effectivePoisonChance = Math.max(0, rawPoisonChance * (1 - charmPoisonReduction));
-
-    if (isModest) effectivePoisonChance *= 0.45;
-    if (isCapricious) effectivePoisonChance = Math.min(0.85, effectivePoisonChance * 1.65 + (hasAnyDirty || hasAnyRawMismatch ? 0.15 : 0));
-
-    const isPoisoned = currentGameMode !== 'sandbox' && effectivePoisonChance > 0 && Math.random() < effectivePoisonChance;
-
     const discrepancies = evaluateBurgerRecipeDiscrepancies(currentBurger, targetIds, charmLv >= 1);
 
-    const isAccepted = isCritic
-      ? (isExactSequenceMatch && !hasAnyDirty && !hasAnyRawMismatch && discrepancies === 0)
-      : (discrepancies <= 3);
+    let isAcceptedDespiteFlaws = false;
+    if (hasCritic) {
+      isAcceptedDespiteFlaws = isExactSequenceMatch && !hasAnyRawOrDirty;
+    } else if (isExactSequenceMatch || isNormalizedSequenceMatch || isCharmMixedOrderMatch) {
+      if (discrepancies === 0) {
+        isAcceptedDespiteFlaws = true;
+      } else if (hasCapricious) {
+        isAcceptedDespiteFlaws = false;
+      } else if (hasModest) {
+        const forgiveChance = Math.min(0.85, 0.50 + charmLv * 0.12);
+        isAcceptedDespiteFlaws = Math.random() < forgiveChance;
+      } else {
+        isAcceptedDespiteFlaws = true;
+      }
+    }
 
-    const modestForgivesFlaw = isModest && isAccepted && !isPoisoned && discrepancies > 0 && Math.random() < 0.65;
-    const capriciousComplains = isCapricious && isAccepted && !isPoisoned && discrepancies > 0 && Math.random() < 0.60;
+    const basePoisonChance = calculatePoisonChance(currentBurger);
+    let poisonModifier = 1.0;
+    if (hasModest) poisonModifier *= 0.45;
+    if (hasCapricious) poisonModifier *= 1.65;
+    if (hasCritic) poisonModifier *= 1.85;
+
+    const charmPoisonReduction = charmLv >= 3 ? 0.5 : (charmLv >= 2 ? 0.25 : 0);
+    const effectivePoisonChance = Math.min(0.95, Math.max(0, basePoisonChance * poisonModifier * (1 - charmPoisonReduction)));
+
+    let isPoisoned = currentGameMode !== 'sandbox' && effectivePoisonChance > 0 && Math.random() < effectivePoisonChance;
+    if (isPoisoned && hasModest && Math.random() < 0.40) {
+      isPoisoned = false;
+    }
 
     const cost = getBurgerCost(currentBurger);
     const penaltyFactor = Math.max(0.25, 1 - getCharmPenaltyDiscount());
 
-    const advanceToNextOrderAfterResolution = () => {
+    if (isAcceptedDespiteFlaws && !isPoisoned) {
+      playSound(SOUNDS.complete);
+      trackQuestProgress('make_burgers', 1);
+
+      if (indecisiveDiceInterval) {
+        clearInterval(indecisiveDiceInterval);
+        indecisiveDiceInterval = null;
+      }
+
+      if (currentGameMode !== 'sandbox') {
+        const speedMult = getOrderMultiplier();
+        const criticMult = getCriticRewardMultiplier();
+        let reward = Math.round(cost * speedMult * criticMult * 100) / 100;
+
+        if (lastOrderReducedReward) {
+          reward = Math.round(reward * (2 / 3) * 100) / 100;
+          lastOrderReducedReward = false;
+        }
+        if (isNormalizedSequenceMatch) {
+          reward = Math.round(reward * getPartialMatchRewardFactor() * 100) / 100;
+        } else if (isCharmMixedOrderMatch) {
+          const charmOrderFactor = charmLv >= 3 ? 1.0 : (charmLv === 2 ? 0.92 : 0.85);
+          reward = Math.round(reward * charmOrderFactor * 100) / 100;
+        }
+
+        let tipAmount = 0;
+        if (hasVip) {
+          if (currentGameMode === 'turbo') {
+            tipAmount = Math.round((4.0 + cost * 0.25 * speedMult) * 100) / 100;
+          } else {
+            tipAmount = Math.round((2.5 + cost * 0.20 * speedMult) * 100) / 100;
+          }
+          reward = Math.round((reward + tipAmount) * 100) / 100;
+        }
+
+        let criticExtraBonus = 0;
+        let affectedCount = 0;
+        if (hasCritic) {
+          criticExtraBonus = getCriticBonusOrFineAmount(cost);
+          reward = Math.round((reward + criticExtraBonus) * 100) / 100;
+          affectedCount = getCriticAffectedOrdersCount();
+          if (affectedCount > 0) {
+            criticModifierState = { remainingOrders: affectedCount, effect: 'bonus' };
+            saveCriticModifierState();
+          }
+        }
+
+        playerMoney += reward;
+        updateMoneyDisplay(reward, true);
+        trackQuestProgress('earn_money', reward);
+
+        if (hasCritic) {
+          resetCriticCooldownAfterResolution();
+          updateCriticModifierBadge();
+          showToast('Critic Impressed! 🧐', `Bonus +$${criticExtraBonus.toFixed(2)} & +50% boost for next ${affectedCount} orders!`, 'success');
+        } else if (hasVip && tipAmount > 0) {
+          showToast('VIP Order Complete! 👑', `${currentActiveOrder.name} served! Tip: +$${tipAmount.toFixed(2)}`, 'success');
+        } else if (isNormalizedSequenceMatch) {
+          showToast('Order Accepted (Unprepared Items)', `${currentActiveOrder.name} served with reduced payout.`, 'warning');
+        } else if (isCharmMixedOrderMatch) {
+          showToast('Charm Saved You! ✨', `${currentActiveOrder.name} accepted despite mixed layer order!`, 'success');
+        } else {
+          showToast('Order Complete!', `${currentActiveOrder.name} served successfully!`, 'success');
+        }
+      } else {
+        showToast('Order Complete!', `${currentActiveOrder.name} served successfully!`, 'success');
+      }
+
+      if (!hasCritic) {
+        consumeCriticModifierAfterOrder();
+      }
+
       if (currentGameMode === 'turbo') {
         triggerRandomOrder();
       } else {
         currentActiveOrder = null;
         localStorage.removeItem(getModeKey('current_active_order'));
-        const speed = getCurrentSpeed();
-        if (speed !== 'no-orders' && speed !== 'turbo') {
-          timeUntilNextOrder = getRandomTimeForSpeed(speed);
-          localStorage.setItem(getModeKey('time_until_next_order'), timeUntilNextOrder);
-        }
+        updateCriticModifierBadge();
       }
-    };
 
-    const finishBurgerAnimation = () => {
       updateActionButtonsVisibility();
-      updateCriticModifierBadge();
       isEating = true;
       isSqueezed = false;
       if (burgerStack) burgerStack.classList.add('eating');
@@ -5878,173 +5954,96 @@ document.addEventListener('DOMContentLoaded', () => {
         isEating = false;
         updateBurgerDisplay(false);
       }, 2000);
-    };
-
-    if (isAccepted && !capriciousComplains && !isPoisoned) {
-      playSound(SOUNDS.complete);
-      trackQuestProgress('make_burgers', 1);
-
-      let totalPayout = 0;
-
-      if (currentGameMode !== 'sandbox') {
-        const multiplier = getOrderMultiplier();
-        let reward = Math.round(cost * multiplier * 100) / 100;
-        if (lastOrderReducedReward) {
-          reward = Math.round(reward * (2 / 3) * 100) / 100;
-          lastOrderReducedReward = false;
-        }
-
-        if (discrepancies > 0 && !modestForgivesFlaw) {
-          const discrepancyFactors = {
-            1: 0.80,
-            2: 0.60,
-            3: 0.40
-          };
-          let factor = discrepancyFactors[discrepancies] ?? 0.40;
-          if (isMixedOrderMatch && discrepancies === 1) {
-            factor = charmLv >= 3 ? 0.95 : (charmLv === 2 ? 0.85 : 0.75);
-          }
-          reward = Math.round(reward * factor * 100) / 100;
-        }
-
-        const criticMult = getCriticRewardMultiplier();
-        reward = Math.round(reward * criticMult * 100) / 100;
-        consumeCriticModifierAfterOrder();
-
-        if (isCritic) {
-          reward += getCriticBonusOrFineAmount(cost);
-        }
-
-        if (isVip) {
-          if (currentGameMode === 'turbo') {
-            const totalAllowed = Math.max(1, computeCustomerTurboTimer(traits, targetIds.length));
-            const speedRatio = Math.max(0, Math.min(1, currentTurboTimeLeft / totalAllowed));
-            const baseTip = 3.0;
-            const speedBonus = Math.round(speedRatio * 7.0 * 100) / 100;
-            reward += baseTip + speedBonus;
-          } else {
-            const casualTip = Math.round((2.5 * getOrderMultiplier()) * 100) / 100;
-            reward += casualTip;
-          }
-        }
-
-        totalPayout = Math.round(reward * 100) / 100;
-        playerMoney += totalPayout;
-        updateMoneyDisplay(totalPayout, true);
-        trackQuestProgress('earn_money', totalPayout);
-      } else {
-        consumeCriticModifierAfterOrder();
-      }
-
-      if (isCritic) {
-        if (currentGameMode !== 'sandbox') {
-          const affectedCount = getCriticAffectedOrdersCount();
-          if (affectedCount > 0) {
-            criticModifierState = { remainingOrders: affectedCount, effect: 'bonus' };
-            saveCriticModifierState();
-          }
-          showToast('Critic Impressed! 🧐✨', `Perfection! Bonus awarded & +50% boost on next ${affectedCount} orders.`, 'success');
-        } else {
-          resetCriticCooldownAfterResolution();
-          showToast('Critic Impressed! 🧐✨', 'Perfection! Every single ingredient passed inspection.', 'success');
-        }
-      } else if (isVip) {
-        showToast('VIP Served! 👑', `${currentActiveOrder.name} complete with tip!`, 'success');
-      } else if (modestForgivesFlaw) {
-        showToast('Modest Customer 😇', `${currentActiveOrder.name} accepted without penalty!`, 'success');
-      } else if (isMixedOrderMatch && discrepancies === 1) {
-        showToast('Charm Saved You! ✨', 'Mixed layer order accepted with Charm!', 'success');
-      } else if (discrepancies > 0) {
-        showToast('Order Accepted with Flaws', `${discrepancies}/3 recipe discrepancies — reward reduced.`, 'warning');
-      } else {
-        showToast('Order Complete!', `${currentActiveOrder.name} served successfully!`, 'success');
-      }
-
-      if (currentGameMode === 'turbo') {
-        triggerRandomOrder();
-      } else {
-        currentActiveOrder = null;
-        localStorage.removeItem(getModeKey('current_active_order'));
-      }
-
-      finishBurgerAnimation();
     } else {
       playSound(SOUNDS.wrongOrder);
-      let penalty = 0;
+      if (indecisiveDiceInterval) {
+        clearInterval(indecisiveDiceInterval);
+        indecisiveDiceInterval = null;
+      }
 
       if (currentGameMode !== 'sandbox') {
-        const poisonPenalty = Math.round(cost * getPoisonPenaltyMultiplier() * penaltyFactor * 100) / 100;
-        const criticFailPenalty = Math.round((getCriticBonusOrFineAmount(cost) + cost * 0.5) * penaltyFactor * 100) / 100;
-
-        if (isCritic && isPoisoned) {
-          penalty = Math.round((criticFailPenalty + poisonPenalty) * 100) / 100;
+        if (hasCritic) {
+          const penalty = Math.round((getCriticBonusOrFineAmount(cost) + cost * 0.5) * penaltyFactor * 100) / 100;
           const affectedCount = getCriticAffectedOrdersCount();
+          playerMoney -= penalty;
+          updateMoneyDisplay(penalty, false);
           if (affectedCount > 0) {
             criticModifierState = { remainingOrders: affectedCount, effect: 'penalty' };
             saveCriticModifierState();
           }
-        } else if (isCritic) {
-          penalty = criticFailPenalty;
-          const affectedCount = getCriticAffectedOrdersCount();
-          if (affectedCount > 0) {
-            criticModifierState = { remainingOrders: affectedCount, effect: 'penalty' };
-            saveCriticModifierState();
+          resetCriticCooldownAfterResolution();
+          updateCriticModifierBadge();
+          showToast('Critic Disappointed! 🧐', `Fine -$${penalty.toFixed(2)} & 50% off next ${affectedCount} orders.`, 'error');
+          if (currentGameMode === 'turbo') {
+            currentActiveOrder = null;
+            localStorage.removeItem(getModeKey('current_active_order'));
+            updateActionButtonsVisibility();
+            isEating = true;
+            isSqueezed = false;
+            if (burgerStack) burgerStack.classList.add('eating');
+            setTimeout(() => {
+              currentBurger = [];
+              if (burgerStack) burgerStack.classList.remove('eating');
+              isEating = false;
+              updateBurgerDisplay(false);
+              triggerRandomOrder();
+            }, 1200);
+          } else {
+            currentActiveOrder = null;
+            localStorage.removeItem(getModeKey('current_active_order'));
+            updateActionButtonsVisibility();
           }
-        } else if (isPoisoned) {
-          penalty = poisonPenalty;
-        } else {
-          penalty = Math.round((cost / 2) * penaltyFactor * 100) / 100;
+          return;
         }
 
-        playerMoney -= penalty;
-        updateMoneyDisplay(penalty, false);
-      }
-
-      if (isCritic && isPoisoned) {
-        const affectedCount = getCriticAffectedOrdersCount();
-        resetCriticCooldownAfterResolution();
-        showToast('Critic Poisoned! 🧐🤢', currentGameMode === 'sandbox' ? 'The Critic got food poisoning!' : `Critic fine + poisoning penalty (-$${penalty.toFixed(2)}) & 50% off next ${affectedCount} orders!`, 'error');
-      } else if (isCritic) {
-        const affectedCount = getCriticAffectedOrdersCount();
-        resetCriticCooldownAfterResolution();
-        showToast('Critic Disappointed! 🧐', currentGameMode === 'sandbox' ? 'The Critic rejected the burger!' : `Fine -$${penalty.toFixed(2)} & 50% off next ${affectedCount} orders.`, 'error');
-      } else if (isPoisoned) {
-        showToast('Food Poisoning! 🤢', `Client got sick! Penalty: -$${penalty.toFixed(2)}`, 'error');
-      } else if (capriciousComplains) {
-        showToast('Capricious Complaint! 😤', `Customer complained! -$${penalty.toFixed(2)} penalty`, 'error');
+        if (isPoisoned) {
+          const poisonPenalty = Math.round(cost * getPoisonPenaltyMultiplier() * penaltyFactor * 100) / 100;
+          playerMoney -= poisonPenalty;
+          updateMoneyDisplay(poisonPenalty, false);
+          showToast('Food Poisoning! 🤢', `Client got sick from dirty or raw food! Penalty: -$${poisonPenalty.toFixed(2)}`, 'error');
+        } else {
+          const penalty = Math.round((cost / 2) * penaltyFactor * 100) / 100;
+          playerMoney -= penalty;
+          updateMoneyDisplay(penalty, false);
+          const reasonText = hasCapricious && discrepancies > 0
+            ? 'Capricious customer rejected imperfect burger!'
+            : 'Client refused!';
+          showToast('Wrong Order!', `${reasonText} -$${penalty.toFixed(2)} penalty`, 'error');
+        }
       } else {
-        showToast('Order Rejected!', currentGameMode === 'sandbox' ? `Too many recipe mismatches (${discrepancies} > 3)!` : `Too many mismatches (${discrepancies} > 3)! -$${penalty.toFixed(2)} penalty`, 'error');
+        showToast('Wrong Order!', 'Client refused the burger!', 'error');
       }
-
-      if (!isCritic) {
-        consumeCriticModifierAfterOrder();
-      }
-      advanceToNextOrderAfterResolution();
-      finishBurgerAnimation();
     }
   };
 
-  const _origApplyGameMode = applyGameMode;
+  const origApplyGameModeForTraits = applyGameMode;
   applyGameMode = function(mode) {
-    _origApplyGameMode(mode);
+    if (indecisiveDiceInterval) {
+      clearInterval(indecisiveDiceInterval);
+      indecisiveDiceInterval = null;
+    }
+    origApplyGameModeForTraits(mode);
     loadCriticModifierState();
-    updateCriticModifierBadge();
     if (currentActiveOrder) {
       if (currentGameMode === 'turbo') {
+        const traits = Array.isArray(currentActiveOrder.traits) ? currentActiveOrder.traits : [];
+        const len = Array.isArray(currentActiveOrder.ids) ? currentActiveOrder.ids.length : 5;
+        currentTurboTimeLeft = computeCustomerTurboTimer(traits, len);
         updateOrderWidgetsText(currentActiveOrder.name, formatTime(currentTurboTimeLeft));
       } else {
         updateOrderWidgetsText(currentActiveOrder.name);
       }
       startIndecisiveDiceLoop();
-    } else if (indecisiveDiceInterval) {
-      clearInterval(indecisiveDiceInterval);
-      indecisiveDiceInterval = null;
     }
+    updateCriticModifierBadge();
   };
 
   loadCriticModifierState();
-  if (currentActiveOrder && getCurrentSpeed() !== 'no-orders') {
+  if (currentActiveOrder) {
     if (currentGameMode === 'turbo') {
+      const traits = Array.isArray(currentActiveOrder.traits) ? currentActiveOrder.traits : [];
+      const len = Array.isArray(currentActiveOrder.ids) ? currentActiveOrder.ids.length : 5;
+      currentTurboTimeLeft = computeCustomerTurboTimer(traits, len);
       updateOrderWidgetsText(currentActiveOrder.name, formatTime(currentTurboTimeLeft));
     } else {
       updateOrderWidgetsText(currentActiveOrder.name);
@@ -6052,5 +6051,4 @@ document.addEventListener('DOMContentLoaded', () => {
     startIndecisiveDiceLoop();
   }
   updateCriticModifierBadge();
-
 });
