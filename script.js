@@ -945,7 +945,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/beef-patty-flip2.png',
       cookedId: 'beef-patty',
       cookedImage: 'images/beef-patty.png',
-      needsFlip: true, cookTime: 15, burnTime: 8, category: 'patty'
+      needsFlip: true, cookTime: 22, burnTime: 11, category: 'patty'
     },
     'raw-chicken-patty': {
       name: 'Chicken Patty',
@@ -955,7 +955,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/chicken-patty-flip2.png',
       cookedId: 'chicken-patty',
       cookedImage: 'images/chicken-patty.png',
-      needsFlip: true, cookTime: 15, burnTime: 8, category: 'patty'
+      needsFlip: true, cookTime: 22, burnTime: 11, category: 'patty'
     },
     'raw-fish-patty': {
       name: 'Fish Patty',
@@ -965,7 +965,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/fish-patty-flip2.png',
       cookedId: 'fish-patty',
       cookedImage: 'images/fish-patty.png',
-      needsFlip: true, cookTime: 15, burnTime: 8, category: 'patty'
+      needsFlip: true, cookTime: 22, burnTime: 11, category: 'patty'
     },
     'raw-hashbrown': {
       name: 'Hashbrown',
@@ -975,7 +975,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/hashbrown-flip2.png',
       cookedId: 'hashbrown',
       cookedImage: 'images/hashbrown.png',
-      needsFlip: true, cookTime: 13, burnTime: 7, category: 'patty'
+      needsFlip: true, cookTime: 18, burnTime: 10, category: 'patty'
     },
     'raw-bacon': {
       name: 'Bacon',
@@ -985,7 +985,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/fried-bacon.png',
       cookedId: 'fried-bacon',
       cookedImage: 'images/fried-bacon.png',
-      needsFlip: false, cookTime: 10, burnTime: 6, category: 'protein'
+      needsFlip: false, cookTime: 15, burnTime: 9, category: 'protein'
     },
     'raw-egg': {
       name: 'Egg',
@@ -995,7 +995,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/fried-egg.png',
       cookedId: 'fried-egg',
       cookedImage: 'images/fried-egg.png',
-      needsFlip: false, cookTime: 10, burnTime: 6, category: 'protein'
+      needsFlip: false, cookTime: 15, burnTime: 9, category: 'protein'
     },
     'raw-champignons': {
       name: 'Champignons',
@@ -1005,7 +1005,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/champignons.png',
       cookedId: 'champignons',
       cookedImage: 'images/champignons.png',
-      needsFlip: false, cookTime: 10, burnTime: 6, category: 'vegetables'
+      needsFlip: false, cookTime: 15, burnTime: 9, category: 'vegetables'
     },
     'raw-cheese': {
       name: 'Cheese',
@@ -1015,7 +1015,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flip2Image: 'images/cheese.png',
       cookedId: 'cheese',
       cookedImage: 'images/cheese.png',
-      needsFlip: false, cookTime: 8, burnTime: 5, category: 'protein'
+      needsFlip: false, cookTime: 12, burnTime: 8, category: 'protein'
     }
   };
 
@@ -1028,7 +1028,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rawImage: 'images/uncut-champignons.png',
       slicedId: 'raw-champignons',
       slicedImage: 'images/raw-champignons.png',
-      cutTime: 8,
+      cutTime: 12,
       category: 'vegetables',
       canBeDirty: true
     },
@@ -1040,7 +1040,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rawImage: 'images/uncut-lettuce.png',
       slicedId: 'lettuce',
       slicedImage: 'images/lettuce.png',
-      cutTime: 7,
+      cutTime: 11,
       category: 'vegetables',
       canBeDirty: true
     },
@@ -1052,7 +1052,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rawImage: 'images/uncut-tomato.png',
       slicedId: 'tomato',
       slicedImage: 'images/tomato.png',
-      cutTime: 7,
+      cutTime: 11,
       category: 'fruit',
       canBeDirty: true
     },
@@ -1064,7 +1064,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rawImage: 'images/uncut-pickles.png',
       slicedId: 'pickles',
       slicedImage: 'images/pickles.png',
-      cutTime: 7,
+      cutTime: 11,
       category: 'vegetables',
       canBeDirty: true
     },
@@ -1076,7 +1076,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rawImage: 'images/uncut-red-onion.png',
       slicedId: 'red-onion',
       slicedImage: 'images/red-onion.png',
-      cutTime: 7,
+      cutTime: 11,
       category: 'vegetables',
       canBeDirty: true
     },
@@ -1088,7 +1088,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rawImage: 'images/uncut-white-onion.png',
       slicedId: 'white-onion',
       slicedImage: 'images/white-onion.png',
-      cutTime: 7,
+      cutTime: 11,
       category: 'vegetables',
       canBeDirty: true
     },
@@ -1100,19 +1100,19 @@ document.addEventListener('DOMContentLoaded', () => {
       rawImage: 'images/uncut-cheese.png',
       slicedId: 'raw-cheese',
       slicedImage: 'images/raw-cheese.png',
-      cutTime: 8,
+      cutTime: 12,
       category: 'protein',
       canBeDirty: false
     }
   };
 
   const SINK_WASHABLE_ITEMS = {
-    'unwashed-uncut-lettuce': { name: 'Lettuce', rawImage: 'images/uncut-lettuce.png', washedId: 'uncut-lettuce', washedImage: 'images/uncut-lettuce.png', washTime: 7, category: 'vegetables' },
-    'unwashed-uncut-tomato': { name: 'Tomato', rawImage: 'images/uncut-tomato.png', washedId: 'uncut-tomato', washedImage: 'images/uncut-tomato.png', washTime: 7, category: 'fruit' },
-    'unwashed-uncut-pickles': { name: 'Pickles', rawImage: 'images/uncut-pickles.png', washedId: 'uncut-pickles', washedImage: 'images/uncut-pickles.png', washTime: 7, category: 'vegetables' },
-    'unwashed-uncut-red-onion': { name: 'Red Onion', rawImage: 'images/uncut-red-onion.png', washedId: 'uncut-red-onion', washedImage: 'images/uncut-red-onion.png', washTime: 7, category: 'vegetables' },
-    'unwashed-uncut-white-onion': { name: 'White Onion', rawImage: 'images/uncut-white-onion.png', washedId: 'uncut-white-onion', washedImage: 'images/uncut-white-onion.png', washTime: 7, category: 'vegetables' },
-    'unwashed-uncut-champignons': { name: 'Champignons', rawImage: 'images/uncut-champignons.png', washedId: 'uncut-champignons', washedImage: 'images/uncut-champignons.png', washTime: 7, category: 'vegetables' }
+    'unwashed-uncut-lettuce': { name: 'Lettuce', rawImage: 'images/uncut-lettuce.png', washedId: 'uncut-lettuce', washedImage: 'images/uncut-lettuce.png', washTime: 11, category: 'vegetables' },
+    'unwashed-uncut-tomato': { name: 'Tomato', rawImage: 'images/uncut-tomato.png', washedId: 'uncut-tomato', washedImage: 'images/uncut-tomato.png', washTime: 11, category: 'fruit' },
+    'unwashed-uncut-pickles': { name: 'Pickles', rawImage: 'images/uncut-pickles.png', washedId: 'uncut-pickles', washedImage: 'images/uncut-pickles.png', washTime: 11, category: 'vegetables' },
+    'unwashed-uncut-red-onion': { name: 'Red Onion', rawImage: 'images/uncut-red-onion.png', washedId: 'uncut-red-onion', washedImage: 'images/uncut-red-onion.png', washTime: 11, category: 'vegetables' },
+    'unwashed-uncut-white-onion': { name: 'White Onion', rawImage: 'images/uncut-white-onion.png', washedId: 'uncut-white-onion', washedImage: 'images/uncut-white-onion.png', washTime: 11, category: 'vegetables' },
+    'unwashed-uncut-champignons': { name: 'Champignons', rawImage: 'images/uncut-champignons.png', washedId: 'uncut-champignons', washedImage: 'images/uncut-champignons.png', washTime: 11, category: 'vegetables' }
   };
 
   let currentScreen = localStorage.getItem('burger_current_screen') || 'assembly';
@@ -2097,9 +2097,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function applyStationMobileResponsiveLayout() {
-    const isMobile = window.innerWidth <= 768;
-    const slotCount = getTargetSlotCount();
-    const cols = slotCount <= 3 ? 3 : (slotCount === 4 ? 2 : 3);
+    const isMobile = window.innerWidth <= 900;
     const stationAreas = [
       document.getElementById('grillCookingArea'),
       document.getElementById('boardCookingArea'),
@@ -2114,9 +2112,12 @@ document.addEventListener('DOMContentLoaded', () => {
         area.style.minWidth = '240px';
         area.style.boxSizing = 'border-box';
         area.style.display = 'grid';
-        area.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
-        area.style.gap = '10px';
-        area.style.padding = '12px';
+        area.style.gridAutoFlow = 'column';
+        area.style.gridTemplateRows = 'repeat(3, minmax(0, 1fr))';
+        area.style.gridTemplateColumns = '';
+        area.style.gridAutoColumns = 'minmax(0, 1fr)';
+        area.style.gap = '8px 14px';
+        area.style.padding = '64px 52px 14px 52px';
         area.querySelectorAll('.grill-slot').forEach(slot => {
           slot.style.minWidth = '0';
           slot.style.width = '100%';
@@ -2128,7 +2129,10 @@ document.addEventListener('DOMContentLoaded', () => {
         area.style.minWidth = '';
         area.style.boxSizing = '';
         area.style.display = '';
+        area.style.gridAutoFlow = '';
+        area.style.gridTemplateRows = '';
         area.style.gridTemplateColumns = '';
+        area.style.gridAutoColumns = '';
         area.style.gap = '';
         area.style.padding = '';
         area.querySelectorAll('.grill-slot').forEach(slot => {
@@ -3146,14 +3150,14 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="inventory-item-info">
               <div class="upgrade-emoji-icon">${upg.icon}</div>
               <div class="inventory-item-details">
-                <h4>${upg.name} ${renderUpgradeDots(lv, upg.maxLevel)}</h4>
+                <h4>${upg.name}</h4>
                 ${sublineHtml}
               </div>
             </div>
             <div class="inventory-right-group">
               ${sandboxMinusHtml}
               <button class="btn-buy-more" onclick="openShopForCategory('upgrades')">Shop</button>
-              <div class="inventory-count-badge">${lv}/${upg.maxLevel}</div>
+              <div class="upgrade-level-badge">${lv}/${upg.maxLevel}</div>
             </div>
           </div>
         `;
@@ -3724,7 +3728,7 @@ document.addEventListener('DOMContentLoaded', () => {
           : '';
 
         const actionBtnHtml = isMax
-          ? `<span class="upgrade-max-box" style="display:inline-flex; align-items:center; justify-content:center; padding:6px 12px; border:1px solid #ffd54f; border-radius:8px; color:#ffd54f; font-weight:700; font-size:12px;">MAX</span>`
+          ? `<span class="upgrade-max-box">MAX</span>`
           : `<button class="upgrade-action-btn" onclick="buyUpgrade('${upg.id}')">Buy</button>`;
 
         cardsHtml += `
@@ -3732,13 +3736,14 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="shop-item-info">
               <div class="upgrade-emoji-icon">${upg.icon}</div>
               <div class="shop-item-details">
-                <h4>${upg.name} ${renderUpgradeDots(lv, upg.maxLevel)} <span class="inventory-count-badge" style="margin-left:6px;">${lv}/${upg.maxLevel}</span></h4>
+                <h4>${upg.name}</h4>
                 ${sublineHtml}
               </div>
             </div>
-            <div class="shop-buy-group">
+            <div class="shop-buy-group" style="gap: 6px;">
               ${sandboxMinusHtml}
               ${actionBtnHtml}
+              <div class="upgrade-level-badge">${lv}/${upg.maxLevel}</div>
             </div>
           </div>
         `;
