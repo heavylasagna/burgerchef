@@ -5123,37 +5123,37 @@ document.addEventListener('DOMContentLoaded', () => {
       id: 'patient',
       name: 'Patient',
       icon: '🐢',
-      desc: 'Longer patience timer in Turbo based on burger size (up to 5:00 max).'
+      desc: 'They have all the time in the world. Longer patience timer.'
     },
     impatient: {
       id: 'impatient',
       name: 'Impatient',
       icon: '⚡',
-      desc: 'Shorter patience timer in Turbo; smaller burgers give even less time (min 0:30).'
+      desc: 'Does not want to wait in line! Shorter patience timer.'
     },
     indecisive: {
       id: 'indecisive',
       name: 'Indecisive',
       icon: '❓',
-      desc: 'This customer type has a chance to change their order.'
+      desc: 'This customer type has a chance to change their order once.'
     },
     vip: {
       id: 'vip',
       name: 'VIP',
       icon: '👑',
-      desc: 'Gives tips on completed orders: base + speed bonus in Turbo, or speed-scaled tip in Casual.'
+      desc: 'Satisfy them and they will reward you with generous tips.'
     },
     modest: {
       id: 'modest',
       name: 'Modest',
       icon: '😇',
-      desc: 'Higher chance to forgive unwashed/raw/mismatched items or food poisoning.'
+      desc: 'Higher chance to forgive unwashed, raw, mismatched items or food poisoning.'
     },
     capricious: {
       id: 'capricious',
       name: 'Capricious',
       icon: '😤',
-      desc: 'Higher chance to complain about unwashed/raw/mismatched items or poisoning, even with Charm.'
+      desc: 'Higher chance to complain about unwashed, raw, mismatched items or poisoning, even with upgrade Charm.'
     },
     critic: {
       id: 'critic',
