@@ -3698,7 +3698,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentGameMode !== 'sandbox') {
       if (isNaN(playerMoney)) playerMoney = 100.00;
       if (playerMoney < price) {
-        showToast('Not enough money!', `Need $${price.toFixed(2)} for ${cfg.name} (${currentLv}/${cfg.maxLevel})`, 'error');
+        showToast('Not enough money!', `Need $${price.toFixed(2)} for ${cfg.name}`, 'error');
         return;
       }
       playerMoney -= price;
