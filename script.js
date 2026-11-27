@@ -5113,4 +5113,618 @@ document.addEventListener('DOMContentLoaded', () => {
   updateStationNotificationDots();
   positionServeButtonOnMobile();
   ensureMusicToastEl();
+
+
+  // =========================================================================
+  // CUSTOMER TYPES FEATURE (Patient, Impatient, Indecisive, VIP, Modest, Capricious, Critic)
+  // =========================================================================
+  const CUSTOMER_TRAITS = {
+    patient: {
+      id: 'patient',
+      name: 'Patient',
+      icon: '🐢',
+      desc: 'Longer patience timer in Turbo based on burger size (up to 5:00 max).'
+    },
+    impatient: {
+      id: 'impatient',
+      name: 'Impatient',
+      icon: '⚡',
+      desc: 'Shorter patience timer in Turbo; smaller burgers give even less time (min 0:30).'
+    },
+    indecisive: {
+      id: 'indecisive',
+      name: 'Indecisive',
+      icon: '🎲',
+      desc: 'Rolls a dice every 5s and may change the order once (50% chance for +30s in Turbo).'
+    },
+    vip: {
+      id: 'vip',
+      name: 'VIP',
+      icon: '👑',
+      desc: 'Gives tips on completed orders: base + speed bonus in Turbo, or speed-scaled tip in Casual.'
+    },
+    modest: {
+      id: 'modest',
+      name: 'Modest',
+      icon: '😇',
+      desc: 'Higher chance to forgive unwashed/raw/mismatched items or food poisoning.'
+    },
+    capricious: {
+      id: 'capricious',
+      name: 'Capricious',
+      icon: '😤',
+      desc: 'Higher chance to complain about unwashed/raw/mismatched items or poisoning, even with Charm.'
+    },
+    critic: {
+      id: 'critic',
+      name: 'Critic',
+      icon: '🧐',
+      desc: 'Demands a complex, washed, exact recipe. -60s timer (1:30) in Turbo. Big bonus on success; fine + 50% off on next orders if failed.'
+    }
+  };
+
+  let criticModifierState = {
+    remainingOrders: 0,
+    effect: null
+  };
+
+  let indecisiveDiceInterval = null;
+
+  function saveCriticModifierState() {
+    localStorage.setItem(getModeKey('burger_critic_modifier'), JSON.stringify(criticModifierState));
+  }
+
+  function loadCriticModifierState() {
+    const raw = localStorage.getItem(getModeKey('burger_critic_modifier'));
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        criticModifierState = {
+          remainingOrders: Math.max(0, parseInt(parsed.remainingOrders, 10) || 0),
+          effect: (parsed.effect === 'penalty' || parsed.effect === 'bonus') ? parsed.effect : null
+        };
+      } catch (e) {
+        criticModifierState = { remainingOrders: 0, effect: null };
+      }
+    } else {
+      criticModifierState = { remainingOrders: 0, effect: null };
+    }
+    if (criticModifierState.remainingOrders <= 0) {
+      criticModifierState.remainingOrders = 0;
+      criticModifierState.effect = null;
+    }
+  }
+
+  function getCriticAffectedOrdersCount() {
+    if (currentGameMode === 'turbo') return 4;
+    const speed = getCurrentSpeed();
+    if (speed === 'no-orders') return 0;
+    const map = {
+      'super-slow': 2,
+      'slow': 2,
+      'medium': 3,
+      'fast': 4,
+      'super-fast': 5,
+      'turbo': 4
+    };
+    return map[speed] ?? 3;
+  }
+
+  function getCriticBonusOrFineAmount(burgerCost) {
+    const base = Math.max(8, burgerCost * 0.75);
+    if (currentGameMode === 'turbo') {
+      return Math.round(base * 1.35 * 100) / 100;
+    }
+    const mult = getOrderMultiplier();
+    return Math.round(base * mult * 100) / 100;
+  }
+
+  function getCriticRewardMultiplier() {
+    if (currentGameMode === 'sandbox') return 1.0;
+    if (currentGameMode !== 'turbo' && getCurrentSpeed() === 'no-orders') return 1.0;
+    if (criticModifierState.remainingOrders > 0) {
+      if (criticModifierState.effect === 'penalty') return 0.5;
+      if (criticModifierState.effect === 'bonus') return 1.5;
+    }
+    return 1.0;
+  }
+
+  function consumeCriticModifierAfterOrder() {
+    if (currentGameMode === 'sandbox') return;
+    if (currentGameMode !== 'turbo' && getCurrentSpeed() === 'no-orders') return;
+    if (criticModifierState.remainingOrders > 0) {
+      criticModifierState.remainingOrders -= 1;
+      if (criticModifierState.remainingOrders <= 0) {
+        criticModifierState.remainingOrders = 0;
+        criticModifierState.effect = null;
+      }
+      saveCriticModifierState();
+      updateCriticModifierBadge();
+    }
+  }
+
+  function updateCriticModifierBadge() {
+    const badge = document.getElementById('criticModifierBadge');
+    const topWidget = document.getElementById('topOrderWidget');
+    if (!badge) return;
+
+    const noOrdersActive = currentGameMode !== 'turbo' && getCurrentSpeed() === 'no-orders';
+    if (
+      currentGameMode === 'sandbox' ||
+      noOrdersActive ||
+      criticModifierState.remainingOrders <= 0 ||
+      !criticModifierState.effect
+    ) {
+      badge.className = 'critic-modifier-badge hidden';
+      badge.innerText = '';
+      return;
+    }
+
+    const isPenalty = criticModifierState.effect === 'penalty';
+    badge.className = `critic-modifier-badge ${isPenalty ? 'penalty' : 'bonus'}`;
+    badge.innerText = isPenalty
+      ? `50% OFF (${criticModifierState.remainingOrders})`
+      : `+50% BOOST (${criticModifierState.remainingOrders})`;
+
+    requestAnimationFrame(() => {
+      if (window.innerWidth <= 900) {
+        badge.style.top = '52px';
+        badge.style.left = '10px';
+        badge.style.right = 'auto';
+        badge.style.transform = 'none';
+      } else if (topWidget) {
+        const wRect = topWidget.getBoundingClientRect();
+        const bRect = badge.getBoundingClientRect();
+        badge.style.top = `${Math.max(10, wRect.top + (wRect.height - bRect.height) / 2)}px`;
+        badge.style.left = `${Math.max(8, wRect.left - bRect.width - 10)}px`;
+        badge.style.right = 'auto';
+        badge.style.transform = 'none';
+      }
+    });
+  }
+
+  function pickRandomRecipeForCustomer(requireComplex = false) {
+    const unlockedSecret = SECRET_ACHIEVEMENTS.filter(a => unlockedAchievements[a.id] && a.ids && a.ids.length > 0);
+    const pool = [...REGULAR_RECIPES, ...unlockedSecret];
+    if (requireComplex && pool.length > 0) {
+      const sorted = [...pool].sort((a, b) => b.ids.length - a.ids.length);
+      const topCount = Math.max(1, Math.min(3, Math.ceil(sorted.length * 0.35)));
+      const topPool = sorted.slice(0, topCount);
+      return topPool[Math.floor(Math.random() * topPool.length)];
+    }
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function generateCustomerTraitsForOrder() {
+    if (currentGameMode === 'sandbox') return [];
+
+    if (currentGameMode === 'casual') {
+      if (Math.random() > 0.55) return [];
+      const casualPool = ['indecisive', 'vip', 'modest', 'capricious', 'critic'];
+      const picked = casualPool[Math.floor(Math.random() * casualPool.length)];
+      return [picked];
+    }
+
+    const r = Math.random();
+    let count = 0;
+    if (r < 0.25) count = 0;
+    else if (r < 0.65) count = 1;
+    else if (r < 0.90) count = 2;
+    else count = 3;
+
+    if (count === 0) return [];
+
+    if (Math.random() < 0.14) {
+      return ['critic'];
+    }
+
+    const turboPool = ['patient', 'impatient', 'indecisive', 'vip', 'modest', 'capricious'];
+    const conflicts = {
+      patient: 'impatient',
+      impatient: 'patient',
+      modest: 'capricious',
+      capricious: 'modest'
+    };
+
+    const chosen = [];
+    const shuffled = [...turboPool].sort(() => Math.random() - 0.5);
+
+    for (const trait of shuffled) {
+      if (chosen.length >= count) break;
+      const hasConflict = chosen.some(existing => conflicts[existing] === trait || conflicts[trait] === existing);
+      if (!hasConflict) {
+        chosen.push(trait);
+      }
+    }
+
+    return chosen;
+  }
+
+  function computeCustomerTurboTimer(traits, ingredientCount) {
+    let seconds = getTurboBaseDurationSeconds();
+    const hasPatient = traits.includes('patient');
+    const hasImpatient = traits.includes('impatient');
+    const hasCritic = traits.includes('critic');
+
+    if (hasPatient) {
+      const bonus = Math.min(120, Math.max(25, ingredientCount * 16));
+      seconds = Math.min(300, seconds + bonus);
+    }
+
+    if (hasImpatient) {
+      const reduction = Math.max(25, 85 - ingredientCount * 7);
+      seconds = Math.max(30, seconds - reduction);
+    }
+
+    if (hasCritic) {
+      seconds = Math.max(30, seconds - 60);
+    }
+
+    return Math.round(seconds);
+  }
+
+  function startIndecisiveDiceLoop() {
+    if (indecisiveDiceInterval) {
+      clearInterval(indecisiveDiceInterval);
+      indecisiveDiceInterval = null;
+    }
+    if (!currentActiveOrder) return;
+    const traits = currentActiveOrder.traits || [];
+    if (!traits.includes('indecisive') || currentActiveOrder.hasChangedOrder) return;
+
+    indecisiveDiceInterval = setInterval(() => {
+      if (!currentActiveOrder || !(currentActiveOrder.traits || []).includes('indecisive') || currentActiveOrder.hasChangedOrder) {
+        clearInterval(indecisiveDiceInterval);
+        indecisiveDiceInterval = null;
+        return;
+      }
+
+      const roll = Math.floor(Math.random() * 21);
+      if (roll >= 15) {
+        currentActiveOrder.hasChangedOrder = true;
+        clearInterval(indecisiveDiceInterval);
+        indecisiveDiceInterval = null;
+
+        const candidates = [...REGULAR_RECIPES, ...SECRET_ACHIEVEMENTS.filter(a => unlockedAchievements[a.id] && a.ids && a.ids.length > 0)]
+          .filter(item => (item.name || item.title) !== currentActiveOrder.name);
+        const nextRecipe = candidates.length > 0
+          ? candidates[Math.floor(Math.random() * candidates.length)]
+          : pickRandomRecipeForCustomer(false);
+
+        currentActiveOrder.name = nextRecipe.name || nextRecipe.title;
+        currentActiveOrder.ids = nextRecipe.ids;
+
+        let extraTimeMsg = '';
+        if (currentGameMode === 'turbo' && Math.random() < 0.50) {
+          currentTurboTimeLeft = Math.min(300, currentTurboTimeLeft + 30);
+          extraTimeMsg = ' (+30s patience!)';
+        }
+
+        localStorage.setItem(getModeKey('current_active_order'), JSON.stringify(currentActiveOrder));
+        playSound(SOUNDS.notification);
+        showToast('Order Changed! 🎲', `Customer now wants ${currentActiveOrder.name}${extraTimeMsg}`, 'warning');
+
+        if (currentGameMode === 'turbo') {
+          updateOrderWidgetsText(currentActiveOrder.name, formatTime(currentTurboTimeLeft));
+        } else {
+          updateOrderWidgetsText(currentActiveOrder.name);
+        }
+      }
+    }, 5000);
+  }
+
+  const customerTraitsModal = document.getElementById('customerTraitsModal');
+  const closeCustomerTraitsModal = document.getElementById('closeCustomerTraitsModal');
+
+  window.openCustomerTraitsModal = function(e) {
+    if (e) e.stopPropagation();
+    if (!currentActiveOrder || !currentActiveOrder.traits || currentActiveOrder.traits.length === 0) return;
+    playSound(SOUNDS.buttons);
+
+    const body = document.getElementById('customerTraitsModalBody');
+    if (!body) return;
+
+    body.innerHTML = currentActiveOrder.traits.map(traitId => {
+      const t = CUSTOMER_TRAITS[traitId];
+      if (!t) return '';
+      return `
+        <div class="customer-trait-card">
+          <div class="customer-trait-icon">${t.icon}</div>
+          <div class="customer-trait-info">
+            <h4>${t.icon} ${t.name}</h4>
+            <p>${t.desc}</p>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    if (customerTraitsModal) {
+      customerTraitsModal.classList.add('open');
+      document.body.classList.add('modal-open');
+    }
+  };
+
+  if (closeCustomerTraitsModal) {
+    closeCustomerTraitsModal.onclick = () => {
+      playSound(SOUNDS.buttons);
+      if (customerTraitsModal) {
+        customerTraitsModal.classList.remove('open');
+        document.body.classList.remove('modal-open');
+      }
+      positionMusicToast();
+    };
+  }
+
+  if (customerTraitsModal) {
+    customerTraitsModal.addEventListener('click', (e) => {
+      if (e.target === customerTraitsModal) {
+        playSound(SOUNDS.buttons);
+        customerTraitsModal.classList.remove('open');
+        document.body.classList.remove('modal-open');
+        positionMusicToast();
+      }
+    });
+  }
+
+  updateOrderWidgetsText = function(orderName, timerText = '') {
+    const w1 = document.getElementById('orderStatusText');
+    if (!w1) return;
+    const hasTraits = Boolean(currentActiveOrder && Array.isArray(currentActiveOrder.traits) && currentActiveOrder.traits.length > 0);
+    const emojiBtnHtml = hasTraits
+      ? `<button type="button" class="customer-traits-btn" id="customerTraitsBtn" title="Customer traits" onclick="openCustomerTraitsModal(event)">🤔</button>`
+      : '';
+    const changedTag = (currentActiveOrder && currentActiveOrder.hasChangedOrder)
+      ? ` <span style="font-size:0.7rem; opacity:0.8;">(🎲)</span>`
+      : '';
+
+    const titleLine = `<div class="order-status-row">🔔 Order: <span>${orderName}</span>${changedTag}${emojiBtnHtml}</div>`;
+    const timerLine = timerText ? `<div class="order-timer-badge">⏱️ ${timerText}</div>` : '';
+    w1.innerHTML = `${titleLine}${timerLine}`;
+    updateCriticModifierBadge();
+  };
+
+  triggerRandomOrder = function() {
+    const traits = generateCustomerTraitsForOrder();
+    const isCritic = traits.includes('critic');
+    const chosen = pickRandomRecipeForCustomer(isCritic);
+
+    currentActiveOrder = {
+      name: chosen.name || chosen.title,
+      ids: chosen.ids,
+      traits,
+      hasChangedOrder: false,
+      startedAt: Date.now()
+    };
+
+    if (currentGameMode === 'turbo') {
+      currentTurboTimeLeft = computeCustomerTurboTimer(traits, chosen.ids.length);
+    }
+
+    localStorage.setItem(getModeKey('current_active_order'), JSON.stringify(currentActiveOrder));
+
+    const speed = getCurrentSpeed();
+    if (speed !== 'no-orders' && speed !== 'turbo' && currentGameMode !== 'turbo') {
+      timeUntilNextOrder = getRandomTimeForSpeed(speed);
+      localStorage.setItem(getModeKey('time_until_next_order'), timeUntilNextOrder);
+    }
+
+    startIndecisiveDiceLoop();
+    playSound(SOUNDS.order);
+    updateActionButtonsVisibility();
+    updateCriticModifierBadge();
+  };
+
+  checkOrderSubmission = function() {
+    const normalizedIds = currentBurger.map(i => normalizeIngredientIdForOrder(i.id));
+    if (!currentActiveOrder) return;
+
+    if (indecisiveDiceInterval) {
+      clearInterval(indecisiveDiceInterval);
+      indecisiveDiceInterval = null;
+    }
+
+    const traits = Array.isArray(currentActiveOrder.traits) ? currentActiveOrder.traits : [];
+    const isCritic = traits.includes('critic');
+    const isModest = traits.includes('modest');
+    const isCapricious = traits.includes('capricious');
+    const isVip = traits.includes('vip');
+
+    const targetIds = currentActiveOrder.ids;
+    const hasAnyDirty = currentBurger.some(layer => Boolean(layer.isDirty));
+    const hasAnyRawMismatch = hasRawCookedMismatch(currentBurger);
+    const isExactSequenceMatch = normalizedIds.length === targetIds.length && normalizedIds.every((val, idx) => val === targetIds[idx]);
+    const isMixedOrderMatch = !isExactSequenceMatch && getCharmLevel() >= 1 && areIngredientsSetEqual(normalizedIds, targetIds);
+
+    const isCorrect = isCritic
+      ? (isExactSequenceMatch && !hasAnyDirty && !hasAnyRawMismatch)
+      : (isExactSequenceMatch || isMixedOrderMatch);
+
+    const charmLv = getCharmLevel();
+    const rawPoisonChance = calculatePoisonChance(currentBurger);
+    const charmPoisonReduction = charmLv >= 3 ? 0.5 : (charmLv >= 2 ? 0.25 : 0);
+    let effectivePoisonChance = Math.max(0, rawPoisonChance * (1 - charmPoisonReduction));
+
+    if (isModest) effectivePoisonChance *= 0.45;
+    if (isCapricious) effectivePoisonChance = Math.min(0.85, effectivePoisonChance * 1.65 + (hasAnyDirty || hasAnyRawMismatch ? 0.15 : 0));
+
+    const isPoisoned = currentGameMode !== 'sandbox' && effectivePoisonChance > 0 && Math.random() < effectivePoisonChance;
+
+    const modestForgivesFlaw = isModest && isCorrect && !isPoisoned && (hasAnyDirty || hasAnyRawMismatch || isMixedOrderMatch) && Math.random() < 0.65;
+    const capriciousComplains = isCapricious && isCorrect && !isPoisoned && (hasAnyDirty || hasAnyRawMismatch || isMixedOrderMatch) && Math.random() < 0.60;
+
+    const cost = getBurgerCost(currentBurger);
+    const penaltyFactor = Math.max(0.25, 1 - getCharmPenaltyDiscount());
+
+    const advanceToNextOrderAfterResolution = () => {
+      if (currentGameMode === 'turbo') {
+        triggerRandomOrder();
+      } else {
+        currentActiveOrder = null;
+        localStorage.removeItem(getModeKey('current_active_order'));
+        const speed = getCurrentSpeed();
+        if (speed !== 'no-orders' && speed !== 'turbo') {
+          timeUntilNextOrder = getRandomTimeForSpeed(speed);
+          localStorage.setItem(getModeKey('time_until_next_order'), timeUntilNextOrder);
+        }
+      }
+    };
+
+    const finishBurgerAnimation = () => {
+      updateActionButtonsVisibility();
+      updateCriticModifierBadge();
+      isEating = true;
+      isSqueezed = false;
+      if (burgerStack) burgerStack.classList.add('eating');
+      setTimeout(() => {
+        currentBurger = [];
+        if (burgerStack) burgerStack.classList.remove('eating');
+        isEating = false;
+        updateBurgerDisplay(false);
+      }, 2000);
+    };
+
+    if (isCorrect && !capriciousComplains && !isPoisoned) {
+      playSound(SOUNDS.complete);
+      trackQuestProgress('make_burgers', 1);
+
+      const partialMatch = !modestForgivesFlaw && hasRawCookedMismatch(currentBurger);
+      let totalPayout = 0;
+
+      if (currentGameMode !== 'sandbox') {
+        const multiplier = getOrderMultiplier();
+        let reward = Math.round(cost * multiplier * 100) / 100;
+        if (lastOrderReducedReward) {
+          reward = Math.round(reward * (2 / 3) * 100) / 100;
+          lastOrderReducedReward = false;
+        }
+        if (partialMatch) {
+          reward = Math.round(reward * getPartialMatchRewardFactor() * 100) / 100;
+        }
+        if (isMixedOrderMatch && !modestForgivesFlaw) {
+          const mixedFactor = charmLv >= 3 ? 0.95 : (charmLv === 2 ? 0.85 : 0.75);
+          reward = Math.round(reward * mixedFactor * 100) / 100;
+        }
+
+        const criticMult = getCriticRewardMultiplier();
+        reward = Math.round(reward * criticMult * 100) / 100;
+        consumeCriticModifierAfterOrder();
+
+        if (isCritic) {
+          reward += getCriticBonusOrFineAmount(cost);
+        }
+
+        if (isVip) {
+          if (currentGameMode === 'turbo') {
+            const totalAllowed = Math.max(1, computeCustomerTurboTimer(traits, targetIds.length));
+            const speedRatio = Math.max(0, Math.min(1, currentTurboTimeLeft / totalAllowed));
+            const baseTip = 3.0;
+            const speedBonus = Math.round(speedRatio * 7.0 * 100) / 100;
+            reward += baseTip + speedBonus;
+          } else {
+            const casualTip = Math.round((2.5 * getOrderMultiplier()) * 100) / 100;
+            reward += casualTip;
+          }
+        }
+
+        totalPayout = Math.round(reward * 100) / 100;
+        playerMoney += totalPayout;
+        updateMoneyDisplay(totalPayout, true);
+        trackQuestProgress('earn_money', totalPayout);
+      }
+
+      if (isCritic && currentGameMode !== 'sandbox') {
+        const affectedCount = getCriticAffectedOrdersCount();
+        if (affectedCount > 0) {
+          criticModifierState = { remainingOrders: affectedCount, effect: 'bonus' };
+          saveCriticModifierState();
+        }
+        showToast('Critic Impressed! 🧐✨', `Perfection! Bonus awarded & +50% boost on next ${affectedCount} orders.`, 'success');
+      } else if (isVip) {
+        showToast('VIP Served! 👑', `${currentActiveOrder.name} complete with tip!`, 'success');
+      } else if (modestForgivesFlaw) {
+        showToast('Modest Customer 😇', `${currentActiveOrder.name} accepted!`, 'success');
+      } else if (isMixedOrderMatch) {
+        showToast('Charm Saved You! ✨', 'Mixed layer order accepted with Charm!', 'success');
+      } else if (partialMatch) {
+        showToast('Order Complete!', 'Reward was reduced due to partial match with the recipe.', 'warning');
+      } else {
+        showToast('Order Complete!', `${currentActiveOrder.name} served successfully!`, 'success');
+      }
+
+      if (currentGameMode === 'turbo') {
+        triggerRandomOrder();
+      } else {
+        currentActiveOrder = null;
+        localStorage.removeItem(getModeKey('current_active_order'));
+      }
+
+      finishBurgerAnimation();
+    } else {
+      playSound(SOUNDS.wrongOrder);
+      let penalty = 0;
+
+      if (currentGameMode !== 'sandbox') {
+        if (isPoisoned) {
+          const penaltyMult = getPoisonPenaltyMultiplier();
+          penalty = Math.round(cost * penaltyMult * penaltyFactor * 100) / 100;
+        } else if (isCritic) {
+          penalty = Math.round((getCriticBonusOrFineAmount(cost) + cost * 0.5) * penaltyFactor * 100) / 100;
+          const affectedCount = getCriticAffectedOrdersCount();
+          if (affectedCount > 0) {
+            criticModifierState = { remainingOrders: affectedCount, effect: 'penalty' };
+            saveCriticModifierState();
+          }
+        } else {
+          penalty = Math.round((cost / 2) * penaltyFactor * 100) / 100;
+        }
+        playerMoney -= penalty;
+        updateMoneyDisplay(penalty, false);
+      }
+
+      if (isPoisoned) {
+        showToast('Food Poisoning! 🤢', `Client got sick! Penalty: -$${penalty.toFixed(2)}`, 'error');
+      } else if (isCritic) {
+        const affectedCount = getCriticAffectedOrdersCount();
+        showToast('Critic Disappointed! 🧐', `Fine -$${penalty.toFixed(2)} & 50% off next ${affectedCount} orders.`, 'error');
+      } else if (capriciousComplains) {
+        showToast('Capricious Complaint! 😤', `Customer complained! -$${penalty.toFixed(2)} penalty`, 'error');
+      } else {
+        showToast('Wrong order!', `-$${penalty.toFixed(2)} penalty`, 'error');
+      }
+
+      consumeCriticModifierAfterOrder();
+      advanceToNextOrderAfterResolution();
+      finishBurgerAnimation();
+    }
+  };
+
+  const _origApplyGameMode = applyGameMode;
+  applyGameMode = function(mode) {
+    _origApplyGameMode(mode);
+    loadCriticModifierState();
+    updateCriticModifierBadge();
+    if (currentActiveOrder) {
+      if (currentGameMode === 'turbo') {
+        updateOrderWidgetsText(currentActiveOrder.name, formatTime(currentTurboTimeLeft));
+      } else {
+        updateOrderWidgetsText(currentActiveOrder.name);
+      }
+      startIndecisiveDiceLoop();
+    } else if (indecisiveDiceInterval) {
+      clearInterval(indecisiveDiceInterval);
+      indecisiveDiceInterval = null;
+    }
+  };
+
+  loadCriticModifierState();
+  if (currentActiveOrder && getCurrentSpeed() !== 'no-orders') {
+    if (currentGameMode === 'turbo') {
+      updateOrderWidgetsText(currentActiveOrder.name, formatTime(currentTurboTimeLeft));
+    } else {
+      updateOrderWidgetsText(currentActiveOrder.name);
+    }
+    startIndecisiveDiceLoop();
+  }
+  updateCriticModifierBadge();
+
 });
