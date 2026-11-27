@@ -2123,20 +2123,28 @@ input[type="range"]::-webkit-slider-thumb {
   box-shadow: 0 0 4px rgba(255, 255, 255, 0.7);
 }
 
-.upgrade-action-btn {
-  background: linear-gradient(135deg, #689f38, #558b2f);
-  color: #fff;
-  border: none;
-  padding: 6px 10px;
+.upgrade-action-btn,
+.upgrade-max-box {
+  width: 58px;
+  height: 30px;
+  padding: 0;
   border-radius: 6px;
   font-weight: bold;
   font-size: 0.75rem;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
   white-space: nowrap;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.upgrade-action-btn {
+  background: linear-gradient(135deg, #689f38, #558b2f);
+  color: #fff;
+  border: 1px solid transparent;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   transition: transform 0.1s, opacity 0.2s;
 }
 
@@ -2145,13 +2153,30 @@ input[type="range"]::-webkit-slider-thumb {
   background: linear-gradient(135deg, #7cb342, #689f38);
 }
 
+.upgrade-max-box,
 .upgrade-action-btn.maxed {
   background: var(--item-bg);
-  border: 1px solid var(--item-border);
+  border: 1px solid var(--accent-color);
   color: var(--accent-color);
-  opacity: 0.85;
   cursor: default;
   box-shadow: none;
+}
+
+.upgrade-level-badge {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--accent-color);
+  background: var(--stock-badge-bg);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--item-border);
+  min-width: 38px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .btn-downgrade-sandbox {
@@ -2181,36 +2206,42 @@ input[type="range"]::-webkit-slider-thumb {
   .board-cooking-area,
   .sink-cooking-area {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 8px 14px;
     align-content: center;
+    justify-content: center;
     justify-items: center;
-    padding: 12px;
+    padding: 64px 52px 14px 52px;
   }
 
   .grill-slot {
     width: 100%;
-    max-width: 112px;
-    height: 132px;
+    max-width: 96px;
+    height: 104px;
+    padding-top: 2px;
   }
 
   .grill-item-wrapper,
   .sink-water-container {
-    width: 84px;
-    height: 84px;
+    width: 70px;
+    height: 70px;
   }
 
   .grill-item {
-    width: 84px;
-    height: 84px;
+    width: 70px;
+    height: 70px;
   }
 
   .sink-water-submerged {
-    width: 76px;
-    height: 76px;
+    width: 64px;
+    height: 64px;
   }
 
   .grill-progress-container {
-    width: 80px;
+    width: 70px;
+    height: 6px;
+    margin-top: 4px;
   }
 }
