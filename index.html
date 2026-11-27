@@ -42,6 +42,7 @@
     <div class="pinned-ingredients" id="pinnedIngredientsContainer"></div>
   </div>
 
+  <div class="critic-modifier-badge hidden" id="criticModifierBadge"></div>
   <div class="top-order-widget" id="topOrderWidget">
     <span id="orderStatusText">Next order in: 05:00</span>
   </div>
@@ -199,6 +200,16 @@
         </div>
 
       </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="customerTraitsModal">
+    <div class="modal-content" style="height: auto; max-height: 80vh; max-width: 420px;">
+      <div class="modal-header">
+        <h3 id="customerTraitsModalTitle">🤔 Customer Traits</h3>
+        <button class="close-modal" id="closeCustomerTraitsModal">✕</button>
+      </div>
+      <div class="modal-body" id="customerTraitsModalBody" style="max-height: 60vh;"></div>
     </div>
   </div>
 
