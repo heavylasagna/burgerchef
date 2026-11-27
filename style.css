@@ -2287,14 +2287,9 @@ input[type="range"]::-webkit-slider-thumb {
   letter-spacing: 0.4px;
   text-transform: uppercase;
   white-space: nowrap;
-  pointer-events: auto;
-  cursor: pointer;
+  pointer-events: none;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   transition: opacity 0.25s ease, transform 0.25s ease;
-}
-
-.critic-modifier-badge.dimmed {
-  opacity: 0.25 !important;
 }
 
 .critic-modifier-badge.penalty {
@@ -2365,21 +2360,6 @@ body.ui-hidden .critic-modifier-badge {
 }
 
 @media (max-width: 900px) {
-  .top-order-widget {
-    left: calc(50% + 22px);
-    max-width: calc(100vw - 146px);
-    padding: 5px 10px;
-    font-size: 0.74rem;
-    white-space: normal;
-    line-height: 1.25;
-  }
-
-  .top-order-widget .order-status-row {
-    flex-wrap: wrap;
-    justify-content: center;
-    row-gap: 2px;
-  }
-
   .critic-modifier-badge {
     top: 52px;
     left: 10px !important;
