@@ -4934,9 +4934,12 @@ document.addEventListener('DOMContentLoaded', () => {
       targetId: 'topOrderWidget',
       action: () => { switchScreen('assembly', true); }
     },
-    {
-      title: 'Station Switcher 🔀',
-      text: 'Use these buttons to switch between workstations:
+   {
+  title: 'Station Switcher 🔀',
+  text: `Use these buttons to switch between workstations:
+...`,
+  targetId: '...',
+},
 🍔 Assembly
 🔥 Grill
 🔪 Cutting Board
