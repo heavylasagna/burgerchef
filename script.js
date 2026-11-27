@@ -5089,4 +5089,3 @@ document.addEventListener('DOMContentLoaded', () => {
   positionServeButtonOnMobile();
   ensureMusicToastEl();
 });
-```[cite: 23]
